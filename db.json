@@ -1,0 +1,13 @@
+{
+  "usuarios": [
+    {
+      "nome": "",
+      "cpf": "",
+      "email": "",
+      "dataNascimento": "",
+      "rendaMensal": "",
+      "senha": "",
+      "id": 0
+    }
+  ]
+}
