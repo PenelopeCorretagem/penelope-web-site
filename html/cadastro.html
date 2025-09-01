@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Formulário Usuários</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
@@ -18,12 +18,12 @@
 
     <div class="form-group">
       <label for="cpf">CPF:*</label>
-      <input type="text" id="input_cpf" />
+      <input type="text" id="input_cpf" maxlength="14" placeholder="000.000.000-00" />
     </div>
 
     <div class="form-group">
       <label for="email">Email:*</label>
-      <input type="text" id="input_email" />
+      <input type="email" id="input_email" placeholder="exemplo@email.com" />
     </div>
 
     <div class="form-group">
@@ -33,22 +33,24 @@
 
     <div class="form-group">
       <label for="rendaMensal">Renda Mensal:</label>
-      <input type="text" id="input_renda_mensal" />
+      <input type="number" id="input_renda_mensal" placeholder="Ex: 2500.00" />
     </div>
 
     <div class="form-group">
-      <label for="senha">Senha:</label>
-      <input type="text" id="input_senha" />
+      <label for="senha">Senha:*</label>
+      <div style="display:flex; gap:5px; align-items:center;">
+        <input type="password" id="input_senha" />
+        <button type="button" id="btn_toggle_senha">👁️</button>
+      </div>
     </div>
 
     <div class="buttons">
       <button id="btn_cadastrar">Cadastrar</button>
     </div>
-    <span>Fazer login?</span>
-    <a href="login.html"><button>Login</button></a>
+    <span>Já tem conta?</span>
+    <a href="login.html">Fazer login</a>
   </div>
 </body>
 
 </html>
-<script src="/js/cadastro.js"></script>
-<script src="/js/Utils/"></script>
+<script type="module" src="../js/cadastro.js"></script>

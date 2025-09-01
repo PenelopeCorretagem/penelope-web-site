@@ -52,7 +52,7 @@ h3 {
     margin-bottom: 15px;
 }
 
-button {
+a, button {
     flex: 1;
     /* ocupa espaço igualmente */
     background: #3498db;
@@ -64,7 +64,7 @@ button {
     transition: background 0.3s;
 }
 
-button:hover {
+a:hover, button:hover {
     background: #2980b9;
 }
 
