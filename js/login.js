@@ -8,10 +8,10 @@ async function entrar() {
     const email = document.getElementById("input_email").value;
     const senha = document.getElementById("input_senha").value;
 
-    if (!email || !senha) {
-        alert("Preencha todos os campos!");
-        return;
-    }
+    if (!email || !senha) return alert("Preencha todos os campos!");
+
+    const { status, mensagem } = validarCampos(email, senha);
+    if (!status) return alert(mensagem);
 
     try {
         const request = await fetch(`${baseURL}?email=${email}&senha=${senha}`);
@@ -28,4 +28,10 @@ async function entrar() {
     catch {
         alert("Ocorreu algum erro no processo");
     }
+}
+
+function validarCampos(email, senha) {
+    if (!StringUtils.validarEmail(email)) return { status: false, mensagem: "Email inválido" };
+    if (senha.length < 6) return { status: false, mensagem: "A senha deve ter pelo menos 6 caracteres" };
+    return { status: true, mensagem: "" };
 }
