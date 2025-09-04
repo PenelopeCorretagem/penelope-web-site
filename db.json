@@ -8,6 +8,15 @@
       "rendaMensal": "",
       "senha": "",
       "id": 0
+    },
+    {
+      "nome": "Nicolas",
+      "cpf": "46592918802",
+      "email": "nicolas@gmail.com",
+      "dataNascimento": "2005-01-20",
+      "rendaMensal": "21112",
+      "senha": "senha2",
+      "id": 1
     }
   ]
 }

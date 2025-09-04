@@ -4,8 +4,13 @@ const baseURL = "http://localhost:3000/usuarios";
 
 document.getElementById("btn_cadastrar").addEventListener("click", cadastrar);
 
-document.getElementById("btn_toggle_senha").addEventListener("click", () => {
+document.getElementById("toggle_senha").addEventListener("click", () => {
     PasswordUtils.toggleSenha("input_senha");
+});
+
+let rendaMensal = document.getElementById("input_renda_mensal");
+rendaMensal.addEventListener("change", () => {
+    rendaMensal.value = NumberUtils.formatarMoeda(rendaMensal.value);
 });
 
 async function cadastrar() {
@@ -13,15 +18,11 @@ async function cadastrar() {
     const cpf = document.getElementById("input_cpf").value;
     const email = document.getElementById("input_email").value;
     const dataNascimento = document.getElementById("input_data_nascimento").value;
-    let rendaMensal = document.getElementById("input_renda_mensal").value;
+    const numeroRendaMensal = Number(rendaMensal.value.replace(/\D/g, "")) / 100;
     const senha = document.getElementById("input_senha").value;
 
     const { status, mensagem } = validarCampos(cpf, email, senha);
     if (!status) return alert(mensagem);
-
-    if (rendaMensal) {
-        rendaMensal = NumberUtils.formatarMoeda(rendaMensal);
-    }
 
     try {
         await fetch(baseURL, {
@@ -34,7 +35,7 @@ async function cadastrar() {
                 cpf,
                 email,
                 dataNascimento,
-                rendaMensal,
+                rendaMensal: numeroRendaMensal,
                 senha
             })
         });

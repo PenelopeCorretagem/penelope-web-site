@@ -7,5 +7,6 @@
  * formatarMoeda(12345.67); // "R$ 12.345,67"
  */
 export function formatarMoeda(valor) {
-    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const numero = Number(valor.replace(/\D/g, "")) / 100;
+    return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
