@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agendamentos</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <h2>Novo Agendamento</h2>
+
+  <div class="form-container">
+    <div class="form-group">
+      <label for="imovel">Imóvel de Interesse:*</label>
+      <input type="text" id="input_imovel" placeholder="Ex: Apto 2 quartos - Zona Sul" />
+    </div>
+
+    <div class="form-group">
+      <label for="data">Data:*</label>
+      <input type="date" id="input_data" />
+    </div>
+
+    <div class="form-group">
+      <label for="hora">Hora:*</label>
+      <input type="time" id="input_hora" />
+    </div>
+
+    <div class="buttons">
+      <button id="btn_agendar">Agendar</button>
+    </div>
+  </div>
+
+  <h2>Lista de Agendamentos</h2>
+  <div id="lista_agendamentos"></div>
+</body>
+</html>
+<script type="module" src="../js/agendamentos.js"></script>
