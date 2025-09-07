@@ -19,7 +19,7 @@ async function entrar() {
 
         if (data.length > 0) {
             alert("Login realizado com sucesso!");
-            window.location.href = "https://www.figma.com/design/Yu6nsEwnLqOgig6hKa1ql0/Penelope-Corretora?node-id=0-1&p=f&t=37U9WZNxZxdgdyIu-0";
+            window.location.href = "https://www.figma.com/proto/Yu6nsEwnLqOgig6hKa1ql0/Penelope-Corretora?node-id=0-1&p=f&t=kjmS4ofnXXewimHm-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1";
             return;
         }
 

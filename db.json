@@ -1,11 +1,5 @@
 {
-  "usuarios": [
-    {}
-  ],
-  "imoveis": [
-    {}
-  ],
-  "agendamentos": [
-    {}
-  ]
+  "usuarios": [],
+  "imoveis": [],
+  "agendamentos": []
 }
