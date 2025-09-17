@@ -86,14 +86,14 @@ export const useMenuViewModel = () => {
         setIsLoading(false)
       }
     },
-    [businessLogic],
+    [businessLogic]
   )
 
   const isItemActive = useCallback(
     itemId => {
       return businessLogic.isItemActive(itemId, activeItem)
     },
-    [businessLogic, activeItem],
+    [businessLogic, activeItem]
   )
 
   const clearError = useCallback(() => {
@@ -104,7 +104,7 @@ export const useMenuViewModel = () => {
   const menuItems = useMemo(() => businessLogic.getMenuItems(), [businessLogic])
   const userActions = useMemo(
     () => businessLogic.getUserActions(),
-    [businessLogic],
+    [businessLogic]
   )
   const hasActiveItem = useMemo(() => activeItem !== null, [activeItem])
   const allItems = useMemo(() => businessLogic.getAllItems(), [businessLogic])
