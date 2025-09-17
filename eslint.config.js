@@ -80,7 +80,7 @@ export default [
         'error',
         {
           allowAllCaps: true, // Permite componentes como "HTML", "SVG"
-          ignore: [], 
+          ignore: [],
         },
       ],
 
@@ -113,8 +113,6 @@ export default [
 
       // Proíbe ponto e vírgula no final das linhas
       semi: ['error', 'never'],
-      // Força vírgula no final de objetos/arrays multi-linha
-      'comma-dangle': ['error', 'always-multiline'],
       // Força espaço dentro de chaves de objetos: { prop: value }
       'object-curly-spacing': ['error', 'always'],
       // Proíbe espaços dentro de colchetes de arrays: [1, 2, 3]
