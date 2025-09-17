@@ -1,0 +1,75 @@
+{
+  "name": "corretora-penelope",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Sistema de gerenciamento de anúncios de imóveis e agendamento de visistas Penelope - Frontend React com Tailwind CSS",
+  "keywords": [
+    "react",
+    "tailwind",
+    "corretora",
+    "frontend",
+    "vite"
+  ],
+  "author": "Leonardo Sardinha Santana",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "scripts": {
+    "// === DESENVOLVIMENTO ===": "",
+    "dev": "vite --mode development",
+    "// === HOMOLOGAÇÃO ===": "",
+    "homol": "vite --mode homologation",
+    "homol:build": "vite build --mode homologation",
+    "homol:preview": "npm run homol:build && vite preview",
+    "// === PRODUÇÃO ===": "",
+    "build": "vite build --mode production",
+    "preview": "vite preview --mode production",
+    "// === QUALIDADE DE CÓDIGO ===": "",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "// === VERIFICAÇÃO ===": "",
+    "check:dev": "npm run lint && npm run format:check",
+    "check:homol": "npm run lint && npm run format:check && npm run homol:build",
+    "check:prod": "npm run lint && npm run format:check && npm run build"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.544.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.13"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.33.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "vite": "^7.1.2"
+  }
+}
