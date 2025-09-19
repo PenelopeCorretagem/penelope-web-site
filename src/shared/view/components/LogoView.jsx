@@ -1,4 +1,4 @@
-function LogoView({
+export function LogoView({
   className = '',
   color = 'currentColor',
   size = 100,
@@ -37,5 +37,3 @@ function LogoView({
     </svg>
   )
 }
-
-export default LogoView

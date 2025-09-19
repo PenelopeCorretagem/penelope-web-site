@@ -5,9 +5,12 @@
 --font-default-family: "Poppins", sans-serif;
 --font-title-family:  "Darker Grotesque", sans-serif;
 
---padding-default-y: 48px;
---padding-default-x: 80px;
---padding-default: 48px 80px;
+--padding-section-y: 48px;
+--padding-section-x: 80px;
+--padding-section: 48px 80px;
+--padding-button: 12px 24px;
+--padding-button-x: 24px;
+--padding-button-y: 12px;
 
 /* Cores de superfície/fundo */
 --color-surface-primary: #EBE9E9;      /* Fundo principal */

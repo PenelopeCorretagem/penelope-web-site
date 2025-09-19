@@ -1,11 +1,9 @@
-import MenuView from './shared/view/components/MenuView'
+import { HomeView } from './institutional/view/pages/HomeView.jsx'
 
-function App() {
+export function App() {
   return (
     <>
-      <MenuView></MenuView>
+      <HomeView />
     </>
   )
 }
-
-export default App

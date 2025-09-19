@@ -1,5 +1,5 @@
-import MenuItemView from './MenuItemView'
-import LogoView from './LogoView'
+import { MenuItemView } from './MenuItemView'
+import { LogoView } from './LogoView'
 import { House, User, Search, Settings } from 'lucide-react'
 import { useMenuViewModel } from '../../viewmodel/components/MenuViewModel'
 
@@ -11,7 +11,7 @@ const iconMap = {
   Settings,
 }
 
-function MenuView() {
+export function MenuView() {
   // Usar o hook do ViewModel
   const { menuItems, userActions, isLoading, handleItemClick, isItemActive } =
     useMenuViewModel()
@@ -38,7 +38,7 @@ function MenuView() {
   return (
     <>
       {/* Menu */}
-      <div className='px-default-x bg-surface-primary flex h-fit items-center justify-between py-6'>
+      <div className='px-section-x bg-surface-primary flex h-fit items-center justify-between py-6'>
         {/* Logo */}
         <LogoView size='40' className='fill-brand-primary' />
 
@@ -55,5 +55,3 @@ function MenuView() {
     </>
   )
 }
-
-export default MenuView
