@@ -1,4 +1,4 @@
-import { CardView } from '../../../shared/view/components/CardView'
+// import { CardView } from '../../../shared/view/components/CardView'
 import { MenuView } from '../../../shared/view/components/MenuView'
 
 export function HomeView() {

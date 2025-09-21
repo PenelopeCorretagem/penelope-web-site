@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Agh1';
+  src: url('/fonts/Agh1.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Agh2';
+  src: url('/fonts/Agh2.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Agh3';
+  src: url('/fonts/Agh3.woff2') format('woff2');
+}
+
 @theme  {
 
 --font-default-family: "Poppins", sans-serif;
@@ -64,4 +79,11 @@
   --color-danger-800: #991b1b;
   --color-danger-900: #7f1d1d;
   --color-danger-950: #450a0a;
+
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
