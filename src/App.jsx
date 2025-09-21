@@ -1,9 +1,9 @@
-import { HomeView } from './institutional/view/pages/HomeView.jsx'
+import { ContactView } from './institutional/view/pages/ContactView.jsx'
 
 export function App() {
   return (
     <>
-      <HomeView />
+      <ContactView />
     </>
   )
 }
