@@ -3,22 +3,12 @@ import { MenuView } from '../../../shared/view/components/MenuView'
 import { ContactIconView } from '../components/ContactIconView'
 import { FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook } from 'react-icons/fa'
 import ContactImage from '../../assets/ContactImage.svg'
-import { useState, useRef, useEffect } from 'react'
 
 export function ContactView() {
-  const imgRef = useRef(null)
-  const [size, setSize] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    if (imgRef.current) {
-      setSize({
-        width: imgRef.current.naturalWidth,
-        height: imgRef.current.naturalHeight,
-      })
-    }
-  }, [])
-
   const { contactItems, openLink } = useContactViewModel()
+
+  const overlayOffsetX = 34
+  const overlayOffsetY = -32
 
   // Mapa de ícones (componentes, não instâncias)
   const iconMap = {
@@ -58,14 +48,19 @@ export function ContactView() {
           </div>
         </section>
         <section className='flex items-center justify-center'>
-          <div>
-            <img
-              ref={imgRef}
-              src={ContactImage}
-              alt='Imagem de um casal feliz após se mudar'
-              className='border-brand-primary rounded-sm border-4'
+          <div className='relative inline-block overflow-visible'>
+            <div
+              className='absolute inset-0 left-0 z-0 rounded-md bg-gradient-to-b from-[#B33C8E] to-[#36221D] shadow-lg'
+              style={{
+                transform: `translate(${overlayOffsetX}px, ${overlayOffsetY}px)`,
+              }}
             />
-            <div style={{ width: size.width, height: size.height }} className='bg-brand-primary border-brand-primary border-4 rounded-sm'></div>
+
+            <img
+              src={ContactImage}
+              alt='Casal feliz'
+              className='border-brand-primary relative z-10 block rounded-sm border-4 shadow-lg'
+            />
           </div>
         </section>
       </main>
