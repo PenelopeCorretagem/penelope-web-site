@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonView as Botao } from "../../../../src/shared/view/components/ButtonView";
+import { ButtonView as Botao } from "../../../shared/view/components/ButtonView";
 
 // Adicionamos a prop 'onClose' para que possamos ter um botão de fechar
 export default function ForgotPasswordForm({ onClose }) {

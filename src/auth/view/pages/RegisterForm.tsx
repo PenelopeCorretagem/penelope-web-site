@@ -2,12 +2,31 @@ import React, { useState } from 'react';
 import { ButtonView as Botao } from '../../../shared/view/components/ButtonView';
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function RegisterForm() {
+type RegisterFormProps = {
+  onEmailExists: () => void;
+  onRegisterSuccess: () => void;
+};
+
+export default function RegisterForm({ onEmailExists, onRegisterSuccess }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Formulário de cadastro enviado!');
+
+    // --- SIMULAÇÃO DE API ---
+    // Na vida real, você faria uma chamada para sua API aqui.
+    // Se a API retornar "e-mail já existe", você chama onEmailExists().
+    if (email === 'teste@email.com') {
+      onEmailExists(); // Aciona o pop-up na página principal
+      return; // Para a execução
+    }
+    
+    // 2. Simulação de sucesso para qualquer outro e-mail
+    console.log('Formulário de cadastro enviado com sucesso!');
+    onRegisterSuccess(); // Chama a função para abrir o pop-up de sucesso
+
+    console.log('Formulário de cadastro enviado com sucesso!');
   };
 
   return (
@@ -23,17 +42,18 @@ export default function RegisterForm() {
         />
       </div>
       <div>
-        <input
-          id="email-register"
-          name="email"
-          type="email"
-          required
-          placeholder="Email"
-          className="w-full px-4 py-3 rounded-md bg-[#E9BEDC] placeholder:text-black text-black focus:outline-none focus:ring-2 focus:ring-[#B33C8E]"
-        />
+    <input
+      id="email-register"
+      name="email"
+      type="email"
+      required
+      placeholder="Email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full px-4 py-3 rounded-md bg-[#E9BEDC] placeholder:text-black text-black focus:outline-none focus:ring-2 focus:ring-[#B33C8E]"
+    />
       </div>
 
-      {/* Container do input de senha com posicionamento relativo */}
       <div className="relative">
         <input
           id="password-register"
@@ -41,7 +61,6 @@ export default function RegisterForm() {
           type={showPassword ? 'text' : 'password'}
           required
           placeholder="Senha"
-          // Padding à direita (pr-12) para o ícone
           className="w-full px-4 py-3 pr-12 rounded-md bg-[#E9BEDC] placeholder:text-black text-black focus:outline-none focus:ring-2 focus:ring-[#B33C8E]"
         />
         <button

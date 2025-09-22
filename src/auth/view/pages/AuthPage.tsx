@@ -6,10 +6,34 @@ import LoginForm from "../pages/LoginForm";
 import RegisterForm from "../pages/RegisterForm";
 import { Modal } from "../../../../src/shared/view/components/Modal";
 import ForgotPasswordForm from "../pages/ForgotPassword";
+import EmailExistsPopup from "./EmailExistsPopup";
+import ConfirmEmailPopup from "./ConfirmEmailPopup";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEmailExistsModalOpen, setEmailExistsModalOpen] = useState(false);
+  const [isConfirmEmailModalOpen, setConfirmEmailModalOpen] = useState(false);
+
+
+  // Função para o link "ACESSAR" do pop-up
+  const handleNavigateToLogin = () => {
+    setEmailExistsModalOpen(false); // Fecha o pop-up atual
+    setConfirmEmailModalOpen(false);
+    setIsLogin(true); // Mostra a tela de login
+  };
+
+  // Função para o link "REDEFINIR SENHA" do pop-up
+  const handleNavigateToForgotPassword = () => {
+    setEmailExistsModalOpen(false); // Fecha o pop-up atual
+  };
+
+    // Função para simular o reenvio de e-mail
+  const handleResendEmail = () => {
+    // Na vida real, aqui você faria uma chamada de API
+    console.log('Simulando reenvio de e-mail...');
+    alert('E-mail de confirmação reenviado!'); // Feedback simples para o usuário
+  };
 
   return (
     <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-gray-100">
@@ -29,7 +53,7 @@ export default function AuthPage() {
           <p className="mt-3 text-gray-600">
             Utilize seu email e senha para entrar.
           </p>
-          <LoginForm onOpenModal={() => setIsModalOpen(true)} />
+          <LoginForm />
         </div>
       </div>
 
@@ -95,29 +119,44 @@ export default function AuthPage() {
       </div>
     </div>
 
-      {/* PAINEL DE FORMULÁRIO DE CADASTRO (Aparece no Lado Direito) */}
+    {/* PAINEL DE FORMULÁRIO DE CADASTRO (Aparece no Lado Direito) */}
       <div
         className={`
-          relative // 1. Adicionado 'relative' para posicionar a Logo
+          relative
           absolute top-0 right-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10
           transition-transform duration-700 ease-in-out
           ${isLogin ? "translate-x-full" : "translate-x-0"}
         `}
       >
-
-        <Logo className="absolute top-8 right-8 h-12 w-auto text-pink-600" />
-
+        <Logo className="absolute top-8 right-8 h-12 w-auto text-[#B33C8E]" />
         <div className="w-full max-w-md text-center">
-          <h2 className="text-4xl font-bold text-[B33C8E]-800">Criar Conta</h2>
+          <h2 className="text-4xl font-bold text-[#B33C8E]">Criar Conta</h2>
           <p className="mt-3 text-gray-600">
             Preencha os campos para iniciar sua jornada.
           </p>
-          <RegisterForm />
+          <RegisterForm
+            onEmailExists={() => setEmailExistsModalOpen(true)}
+            onRegisterSuccess={() => setConfirmEmailModalOpen(true)}
+          />
         </div>
       </div>
 
-       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <ForgotPasswordForm onClose={() => setIsModalOpen(false)} />
+       {/* ===== MODAIS RENDERIZADOS AQUI (POR CIMA DE TUDO) ===== */}
+
+       {/* Modal de E-mail Existente */}
+      <Modal isOpen={isEmailExistsModalOpen} onClose={() => setEmailExistsModalOpen(false)}>
+        <EmailExistsPopup
+          onNavigateToLogin={handleNavigateToLogin}
+          onNavigateToForgotPassword={handleNavigateToForgotPassword}
+        />
+      </Modal>
+
+      {/* Modal de Confirmação de E-mail */}
+      <Modal isOpen={isConfirmEmailModalOpen} onClose={() => setConfirmEmailModalOpen(false)}>
+        <ConfirmEmailPopup
+          onNavigateToLogin={handleNavigateToLogin}
+          onResendEmail={handleResendEmail}
+        />
       </Modal>
     </div>
   );

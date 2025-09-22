@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { ButtonView as Botao } from '../../../shared/view/components/ButtonView';
 import { Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-type LoginFormProps = {
-  onOpenModal: () => void;
-};
-
-export default function LoginForm({ onOpenModal }: LoginFormProps) {
+export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,14 +57,12 @@ export default function LoginForm({ onOpenModal }: LoginFormProps) {
         </Botao>
       </div>
 
-      <p className="text-center text-sm text-gray-600 pt-2">
+ <p className="text-center text-sm text-gray-600 pt-2">
         Esqueceu a senha?{' '}
-        <span
-          className="font-semibold text-[#B33C8E] hover:underline cursor-pointer"
-          onClick={onOpenModal}
-        >
+        {/* 4. Troque o 'span' por um componente 'Link' */}
+        <Link to="/esqueci-a-senha" className="font-semibold text-[#B33C8E] hover:underline">
           Redefinir senha
-        </span>
+        </Link>
       </p>
     </form>
   );
