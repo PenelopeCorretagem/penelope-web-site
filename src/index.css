@@ -15,7 +15,6 @@
 }
 
 
-/* SUAS VARIÁVEIS CSS (AGORA NO LUGAR CORRETO) */
 :root {
   --font-default-family: "Poppins", sans-serif;
   --font-title-family: "Darker Grotesque", sans-serif;
@@ -80,6 +79,7 @@
   --color-danger-900: #7f1d1d;
   --color-danger-950: #450a0a;
 }
+
 
 body {
   margin: 0;

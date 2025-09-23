@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { ButtonView as Botao } from '../../../shared/view/components/ButtonView';
 import { Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
-export default function LoginForm() {
+export default function LoginForm({ onForgotPasswordClick  }) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     console.log('Formulário de login enviado!');
   };
@@ -25,7 +24,6 @@ export default function LoginForm() {
         />
       </div>
 
-      {/* 1. Adicione a classe 'relative' a esta div que envolve o input e o botão */}
       <div className="relative">
         <input
           id="password-login"
@@ -34,12 +32,10 @@ export default function LoginForm() {
           autoComplete="current-password"
           required
           placeholder="Senha"
-          // 2. Adicione padding à direita (pr-12) para dar espaço ao ícone
           className="w-full px-4 py-3 pr-12 rounded-md bg-[#E9BEDC] placeholder:text-black text-black focus:outline-none focus:ring-2 focus:ring-[#B33C8E]"
         />
         <button
           type="button"
-          // 3. Este botão agora se posicionará corretamente dentro da div 'relative'
           className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600"
           onClick={() => setShowPassword(!showPassword)}
         >
@@ -48,21 +44,19 @@ export default function LoginForm() {
       </div>
 
       <div>
-        <Botao
-          type="submit"
-          className="w-full"
-          onClick={() => {}}
-        >
+        <Botao type="submit" className="w-full" onClick={() => {}}>
           ACESSAR
         </Botao>
       </div>
 
- <p className="text-center text-sm text-gray-600 pt-2">
+      <p className="text-center text-sm text-gray-600 pt-2">
         Esqueceu a senha?{' '}
-        {/* 4. Troque o 'span' por um componente 'Link' */}
-        <Link to="/esqueci-a-senha" className="font-semibold text-[#B33C8E] hover:underline">
+        <span
+          className="font-semibold text-[#B33C8E] hover:underline cursor-pointer"
+          onClick={onForgotPasswordClick}
+        >
           Redefinir senha
-        </Link>
+        </span>
       </p>
     </form>
   );

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './auth/view/pages/AuthPage';
-import ForgotPasswordPage from './auth/view/pages/ForgotPasswordPage';
+import VerificationCodePage from './auth/view/pages/VerificationCodePage';
+import CreateNewPasswordPage from './auth/view/pages/CreateNewPasswordPage';
 
 function App() {
   return (
@@ -11,9 +12,11 @@ function App() {
       {/* Rota 2: Sua página de Login e Cadastro */}
       <Route path="/auth" element={<AuthPage />} />
 
-      {/* Rota 3:página de Recuperação de Senha */}
-      <Route path="/esqueci-a-senha" element={<ForgotPasswordPage />} />
+      {/* Rota 3: Página de Verificação de Código */}
+      <Route path="/verificar-codigo" element={<VerificationCodePage />} />
 
+      {/* Rota 4: Página de Criação de Nova Senha */}
+      <Route path="/nova-senha" element={<CreateNewPasswordPage />} />
     </Routes>
   );
 }
