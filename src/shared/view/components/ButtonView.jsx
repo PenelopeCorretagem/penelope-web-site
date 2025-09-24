@@ -1,3 +1,4 @@
+// ButtonView.jsx CORRIGIDO
 export function ButtonView({
   children,
   width = 'fit',
@@ -37,6 +38,7 @@ export function ButtonView({
     full: 'w-full',
     fit: 'w-fit',
   }
+
   return (
     <button
       type={type}
