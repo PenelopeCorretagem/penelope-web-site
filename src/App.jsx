@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './auth/view/pages/AuthPage';
 import VerificationCodePage from './auth/view/pages/VerificationCodePage';
 import CreateNewPasswordPage from './auth/view/pages/CreateNewPasswordPage';
+import HomePage from './auth/view/pages/HomePage'
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
 
       {/* Rota 4: Página de Criação de Nova Senha */}
       <Route path="/nova-senha" element={<CreateNewPasswordPage />} />
+
+      {/* Rota 5: Página Inicial (Home) */}
+       <Route path="/home" element={<HomePage />} />
     </Routes>
   );
 }

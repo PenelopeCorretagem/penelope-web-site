@@ -27,7 +27,6 @@ export default {
         agh2: ['Agh2', 'sans-serif'],
         agh3: ['Agh3', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-        // Corrigido para corresponder à classe 'font-title-family' do seu botão
         'title-family': ['Darker Grotesque', 'sans-serif'],
       },
       fontSize: {
