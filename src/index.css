@@ -1,67 +1,66 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@theme  {
+@import 'tailwindcss';
 
---font-default-family: "Poppins", sans-serif;
---font-title-family:  "Darker Grotesque", sans-serif;
+@utility transition-padding {
+  transition: padding 500ms ease-in-out;
+}
 
---padding-section-y: 48px;
---padding-section-x: 80px;
---padding-section: 48px 80px;
---padding-button: 12px 24px;
---padding-button-x: 24px;
---padding-button-y: 12px;
+@utility transition-padding-slow {
+  transition: padding 1000ms ease-in-out;
+}
 
-/* Cores de superfície/fundo */
---color-surface-primary: #EBE9E9;      /* Fundo principal */
---color-surface-secondary: #DEDEDE;    /* Fundo secundário */
---color-surface-tertiary: #CBCBCB;     /* Fundo terciário/cards */
+@utility transition-padding-fast {
+  transition: padding 200ms ease-in-out;
+}
 
-/* Cores de texto */
---color-text-primary: #1F1D1F;         /* Texto principal */
+@utility transition-px {
+  transition:
+    padding-left 500ms ease-in-out,
+    padding-right 500ms ease-in-out;
+}
 
-/* Cores de marca/destaque */
---color-brand-primary: #B33C8E;        /* Cor principal da marca (rosa) */
---color-brand-primary-soft: #E9BEDC;   /* Variação suave da marca */
---color-brand-secondary: #36221D;      /* Cor secundária (marrom escuro) */
---color-brand-secondary-soft: #816862; /* Variação suave secundária */
+@utility transition-py {
+  transition:
+    padding-top 500ms ease-in-out,
+    padding-bottom 500ms ease-in-out;
+}
 
-  /* Estados de feedback - Sucesso */
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-300: #86efac;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;   /* Verde principal */
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-800: #166534;
-  --color-success-900: #14532d;
-  --color-success-950: #052e16;
+@theme {
+  --font-default-family: 'Poppins', sans-serif;
+  --font-title-family: 'Darker Grotesque', sans-serif;
 
-  /* Estados de feedback - Avisos */
-  --color-warning-50: #fffbeb;
-  --color-warning-100: #fef3c7;
-  --color-warning-200: #fde68a;
-  --color-warning-300: #fcd34d;
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #f59e0b;   /* Amarelo principal */
-  --color-warning-600: #d97706;
-  --color-warning-700: #b45309;
-  --color-warning-800: #92400e;
-  --color-warning-900: #78350f;
-  --color-warning-950: #451a03;
+  --padding-section-y: 36px;
+  --padding-section-x: 60px;
+  --padding-section-md: 36px 60px;
+  --padding-section-y-md: 48px;
+  --padding-section-x-md: 80px;
+  --padding-section-md: 48px 80px;
 
-  /* Estados de feedback - Perigos/Erros */
-  --color-danger-50: #fef2f2;
-  --color-danger-100: #fee2e2;
-  --color-danger-200: #fecaca;
-  --color-danger-300: #fca5a5;
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;   /* Vermelho principal */
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-danger-800: #991b1b;
-  --color-danger-900: #7f1d1d;
-  --color-danger-950: #450a0a;
+  --padding-button: 8px 16px;
+  --padding-button-x: 16px;
+  --padding-button-y: 8px;
+  --padding-button-md: 12px 24px;
+  --padding-button-x-md: 24px;
+  --padding-button-y-md: 12px;
+
+  --padding-card: 16px;
+  --padding-card-md: 24px;
+
+  --gap-card: 12px;
+  --gap-card-md: 20px;
+
+  /* Cores de superfície/fundo */
+  --color-brand-white: #dedede; /* Fundo principal */
+  --color-brand-white-secondary: #ebe9e9; /* Fundo secundário */
+  --color-brand-white-tertiary: #cbcbcb; /* Fundo terciário/cards */
+
+  /* Cores de texto */
+  --color-brand-black: #1f1d1f; /* Texto principal */
+
+  /* Cores de marca/destaque */
+  --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */
+  --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
+  --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
+  --color-brand-soft-brown: #816862; /* Variação suave secundária */
 }
