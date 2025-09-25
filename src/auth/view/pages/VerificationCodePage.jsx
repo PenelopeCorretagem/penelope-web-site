@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ButtonView as Botao } from '../../../shared/view/components/ButtonView';
 import { LogoView as Logo } from '../../../shared/view/components/LogoView';
 
@@ -7,6 +7,14 @@ import { LogoView as Logo } from '../../../shared/view/components/LogoView';
 export default function VerificationCodePage() {
   const [code, setCode] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get('token');
+    if (tokenFromUrl) {
+      setCode(tokenFromUrl);
+    }
+  }, [searchParams]);
 
   const handleSubmit = (event) => {
   event.preventDefault();
