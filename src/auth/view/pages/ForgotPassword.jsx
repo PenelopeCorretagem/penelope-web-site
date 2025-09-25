@@ -1,0 +1,37 @@
+import React, { useState } from 'react';
+import { ButtonView as Botao } from '../../../shared/view/components/ButtonView';
+
+export default function ForgotPasswordForm({ onRecoverySent }) {
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Solicitação de recuperação de senha para o e-mail:', email);
+
+    onRecoverySent();
+  };
+
+  return (
+    <div className="p-8 flex flex-col h-full text-center">
+      <p className="text-gray-600 mb-8">
+        Digite seu e-mail abaixo e enviaremos um link para você redefinir sua senha.
+      </p>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-15">
+        <input
+          type="email"
+          placeholder="Seu e-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full px-4 py-3 rounded-md bg-[#E9BEDC] placeholder:text-black text-black focus:outline-none focus:ring-2 focus:ring-[#B33C8E]"
+        />
+        <div className="mt-auto flex justify-center gap-6">
+          <Botao type="submit" variant="destac" onClick={() => {}}>
+            RECUPERAR SENHA
+          </Botao>
+        </div>
+      </form>
+    </div>
+  );
+}

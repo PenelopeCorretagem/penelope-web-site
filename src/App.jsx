@@ -1,9 +1,28 @@
-import { HomeView } from './institutional/view/pages/HomeView.jsx'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthPage from './auth/view/pages/AuthPage';
+import VerificationCodePage from './auth/view/pages/VerificationCodePage';
+import CreateNewPasswordPage from './auth/view/pages/CreateNewPasswordPage';
+import HomePage from './auth/view/pages/HomePage'
 
-export function App() {
+function App() {
   return (
-    <>
-      <HomeView />
-    </>
-  )
+    <Routes>
+      {/* Rota 1: Redirecionamento da página inicial para a de autenticação */}
+      <Route path="/" element={<Navigate to="/auth" />} />
+
+      {/* Rota 2: Sua página de Login e Cadastro */}
+      <Route path="/auth" element={<AuthPage />} />
+
+      {/* Rota 3: Página de Verificação de Código */}
+      <Route path="/verificar-codigo" element={<VerificationCodePage />} />
+
+      {/* Rota 4: Página de Criação de Nova Senha */}
+      <Route path="/nova-senha" element={<CreateNewPasswordPage />} />
+
+      {/* Rota 5: Página Inicial (Home) */}
+       <Route path="/home" element={<HomePage />} />
+    </Routes>
+  );
 }
+
+export default App;
