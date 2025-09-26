@@ -1,6 +1,15 @@
 import { BaseElementView } from './BaseElementView'
 import { useButtonViewModel } from '../../hooks/components/useButtonViewModel'
 
+/**
+ * ButtonView - Componente de botão
+ * Integra com ButtonViewModel para gerenciar estado e comportamento
+ * @param {ButtonModel} model - Modelo do botão
+ * @param {string} width - Largura do botão ('full' | 'fit')
+ * @param {string} shape - Forma do botão ('square' | 'circle')
+ * @param {string} className - Classes CSS adicionais
+ * @param {Function} onClick - Handler de clique
+ */
 export function ButtonView({
   model,
   width = 'full',
