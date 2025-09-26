@@ -1,14 +1,43 @@
+import { useLogoViewModel } from '../../hooks/components/useLogoViewModel'
+
+const getLogoColors = (colorScheme, customColor) => {
+  const colorMap = {
+    primary: 'text-brand-pink',
+    surface: 'text-brand-white',
+    text: 'text-brand-black',
+    custom: '', // Usa cor customizada via style
+  }
+
+  return {
+    className: colorMap[colorScheme] || colorMap.primary,
+    useCustom: colorScheme === 'custom',
+    customColor: customColor || 'currentColor',
+  }
+}
+
 export function LogoView({
+  model,
   className = '',
-  color = 'currentColor',
-  size = 100,
+  customColor, // Para casos onde quer uma cor específica
 }) {
+  const { colorScheme, size } = useLogoViewModel(model)
+
+  const colors = getLogoColors(colorScheme, customColor)
+
+  const logoClasses = ['fill-current', colors.className, className]
+    .filter(Boolean)
+    .join(' ')
+
+  const logoStyle = colors.useCustom ? { color: colors.customColor } : undefined
+
   return (
     <svg
       height={size}
       viewBox='0 0 1249 577'
-      className={`${className.includes('fill-') ? '' : 'fill-current'} ${className}`}
-      style={{ color }}
+      className={logoClasses}
+      style={logoStyle}
+      role='img'
+      aria-label='Penélope Logo'
     >
       <path d='M580.68 230.31C580.68 209.46 594.66 194.51 614.31 194.51C630.34 194.51 640.71 201.98 645.77 216.45L637.45 218.5C633.35 208.13 625.76 202.95 614.55 202.95C600.21 202.95 590.08 214.16 590.08 230.31C590.08 246.46 600.21 257.67 614.55 257.67C625.28 257.67 633.48 252.13 637.33 242.12L645.65 244.17C641.07 258.03 629.86 266.11 614.31 266.11C594.66 266.11 580.68 251.16 580.68 230.31Z' />
       <path d='M655.648 230.31C655.648 205.48 672.528 194.51 689.758 194.51C706.988 194.51 724.108 205.48 724.108 230.31C724.108 255.14 707.228 266.35 689.998 266.35C672.768 266.35 655.648 255.38 655.648 230.31ZM714.718 230.31C714.718 213.43 704.708 202.95 689.768 202.95C674.828 202.95 665.058 213.32 665.058 230.31C665.058 247.3 674.938 257.91 690.008 257.91C705.078 257.91 714.718 247.3 714.718 230.31Z' />
