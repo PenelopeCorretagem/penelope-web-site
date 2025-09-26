@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { ButtonView as Botao } from "../../../shared/view/components/ButtonView";
-import { LogoView as Logo } from "../../../shared/view/components/LogoView";
-import LoginForm from "./LoginForm";
-import RegisterForm from "./RegisterForm";
-import ForgotPasswordForm from "./ForgotPassword";
-import { Modal } from "../../../shared/view/components/Modal";
-import EmailExistsPopup from "./EmailExistsPopup";
-import ConfirmEmailPopup from "./ConfirmEmailPopup";
-import RecoveryLinkSentPopup from "./RecoveryLinkSentPopup";
+import { useState } from 'react'
+import { ButtonView as Botao } from '@shared/view/components/ButtonView'
+import { LogoView as Logo } from '@shared/view/components/LogoView'
+import LoginForm from './LoginForm'
+import RegisterForm from './RegisterForm'
+import ForgotPasswordForm from './ForgotPassword'
+import { Modal } from '@shared/view/components/Modal'
+import EmailExistsPopup from './EmailExistsPopup'
+import ConfirmEmailPopup from './ConfirmEmailPopup'
+import RecoveryLinkSentPopup from './RecoveryLinkSentPopup'
 
 /**
  * AuthPage - Componente Principal de Autenticação
@@ -65,23 +65,23 @@ import RecoveryLinkSentPopup from "./RecoveryLinkSentPopup";
 export default function AuthPage() {
   /**
    * Estado principal que controla qual view está ativa
-  */
-  const [view, setView] = useState('login');
+   */
+  const [view, setView] = useState('login')
 
   /**
    * Controla a visibilidade do modal de email já existente
    */
-  const [isEmailExistsModalOpen, setEmailExistsModalOpen] = useState(false);
+  const [isEmailExistsModalOpen, setEmailExistsModalOpen] = useState(false)
 
   /**
    * Controla a visibilidade do modal de confirmação de email
    */
-  const [isConfirmEmailModalOpen, setConfirmEmailModalOpen] = useState(false);
+  const [isConfirmEmailModalOpen, setConfirmEmailModalOpen] = useState(false)
 
   /**
    * Controla a visibilidade do modal de link de recuperação enviado
    */
-  const [isRecoverySentModalOpen, setRecoverySentModalOpen] = useState(false);
+  const [isRecoverySentModalOpen, setRecoverySentModalOpen] = useState(false)
 
   // ================================
   // HANDLERS DE NAVEGAÇÃO
@@ -92,44 +92,43 @@ export default function AuthPage() {
    * Utilizado como callback pelos popups para retornar ao login.
    */
   const handleNavigateToLogin = () => {
-    setEmailExistsModalOpen(false);
-    setConfirmEmailModalOpen(false);
+    setEmailExistsModalOpen(false)
+    setConfirmEmailModalOpen(false)
     setRecoverySentModalOpen(false)
-    setView('login');
-  };
+    setView('login')
+  }
 
   /**
    * Navega para a tela de recuperação de senha e fecha o modal de email existente.
    * Utilizado quando o usuário confirma que já tem uma conta e esqueceu a senha.
-  */
+   */
   const handleNavigateToForgotPassword = () => {
-    setEmailExistsModalOpen(false);
-    setView('forgotPassword');
-  };
+    setEmailExistsModalOpen(false)
+    setView('forgotPassword')
+  }
 
   /**
    * Simula o reenvio de email de confirmação.
    * TODO: Implementar integração com API de email.
    */
   const handleResendEmail = () => {
-    alert("E-mail de confirmação reenviado!");
-  };
+    alert('E-mail de confirmação reenviado!')
+  }
 
   /**
    * Handler executado quando o link de recuperação é enviado com sucesso.
    * Abre o modal de confirmação de envio.
-  */
+   */
   const handleRecoverySent = () => {
-    setRecoverySentModalOpen(true);
-  };
+    setRecoverySentModalOpen(true)
+  }
 
   // ================================
   // RENDERIZAÇÃO DO COMPONENTE
   // ================================
 
   return (
-    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-gray-100">
-
+    <div className='relative flex h-screen w-full items-center justify-center overflow-hidden bg-gray-100'>
       {/* ================================
           PAINEL: FORMULÁRIO DE LOGIN
           ================================
@@ -142,15 +141,18 @@ export default function AuthPage() {
           - Inativo: translate-x-full, desliza para direita e fica semi-transparente
       */}
       <div
-        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out
-          ${view === 'login'
-            ? "translate-x-0 z-20  pointer-events-auto"
-            : "translate-x-full z-10  pointer-events-none"}`}
+        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out ${
+          view === 'login'
+            ? 'pointer-events-auto z-20 translate-x-0'
+            : 'pointer-events-none z-10 translate-x-full'
+        }`}
         style={{ left: '0%' }}
       >
-        <div className="w-full max-w-md text-center">
-          <h2 className="text-4xl font-bold text-gray-800">Acessar Conta</h2>
-          <p className="mt-3 text-gray-600">Utilize seu email e senha para entrar.</p>
+        <div className='w-full max-w-md text-center'>
+          <h2 className='text-4xl font-bold text-gray-800'>Acessar Conta</h2>
+          <p className='mt-3 text-gray-600'>
+            Utilize seu email e senha para entrar.
+          </p>
           <LoginForm onForgotPasswordClick={() => setView('forgotPassword')} />
         </div>
       </div>
@@ -168,20 +170,25 @@ export default function AuthPage() {
           - Inativo: -translate-x-full, desliza para esquerda e fica semi-transparente
       */}
       <div
-        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#B33C8E] to-[#36221D] p-10 text-white transition-all duration-700 ease-in-out
-          ${view === 'login'
-            ? "translate-x-0 z-20  pointer-events-auto"
-            : "-translate-x-full z-10  pointer-events-none"}`}
+        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#B33C8E] to-[#36221D] p-10 text-white transition-all duration-700 ease-in-out ${
+          view === 'login'
+            ? 'pointer-events-auto z-20 translate-x-0'
+            : 'pointer-events-none z-10 -translate-x-full'
+        }`}
         style={{ right: '0%' }}
       >
-        <Logo className="absolute top-8 right-8 h-12 w-auto text-white" />
-        <div className="w-full max-w-md text-center">
-          <h2 className="text-4xl font-bold font-agh1">
+        <Logo className='absolute top-8 right-8 h-12 w-auto text-white' />
+        <div className='w-full max-w-md text-center'>
+          <h2 className='font-agh1 text-4xl font-bold'>
             <span>É NOVO</span>
-            <span className="block mt-2">POR AQUI?</span>
+            <span className='mt-2 block'>POR AQUI?</span>
           </h2>
-          <p className="mt-8 font-agh3">Clique abaixo e conquiste a chave do seu sonho.</p>
-          <Botao onClick={() => setView("register")} className="mt-6">CADASTRAR</Botao>
+          <p className='font-agh3 mt-8'>
+            Clique abaixo e conquiste a chave do seu sonho.
+          </p>
+          <Botao onClick={() => setView('register')} className='mt-6'>
+            CADASTRAR
+          </Botao>
         </div>
       </div>
 
@@ -198,32 +205,39 @@ export default function AuthPage() {
           - Inativo: -translate-x-full, desliza para esquerda e fica semi-transparente
       */}
       <div
-        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#B33C8E] to-[#36221D] p-10 text-white transition-all duration-700 ease-in-out
-          ${view === 'register' || view === 'forgotPassword'
-            ? "translate-x-0 z-20  pointer-events-auto"
-            : "-translate-x-full z-10  pointer-events-none"}`}
+        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-gradient-to-br from-[#B33C8E] to-[#36221D] p-10 text-white transition-all duration-700 ease-in-out ${
+          view === 'register' || view === 'forgotPassword'
+            ? 'pointer-events-auto z-20 translate-x-0'
+            : 'pointer-events-none z-10 -translate-x-full'
+        }`}
         style={{ left: '0%' }}
       >
-        <div className="w-full max-w-md text-center">
+        <div className='w-full max-w-md text-center'>
           {/* Conteúdo condicional baseado na view ativa */}
           {view === 'register' ? (
             <>
-              <h2 className="text-4xl font-bold font-agh1">
+              <h2 className='font-agh1 text-4xl font-bold'>
                 <span>SEJA</span>
-                <span className="block mt-2">BEM-VINDO!</span>
+                <span className='mt-2 block'>BEM-VINDO!</span>
               </h2>
-              <p className="mt-8 font-agh3">Já tem uma conta? Faça login para continuar.</p>
+              <p className='font-agh3 mt-8'>
+                Já tem uma conta? Faça login para continuar.
+              </p>
             </>
           ) : (
             <>
-              <h2 className="text-4xl font-bold font-agh1">
+              <h2 className='font-agh1 text-4xl font-bold'>
                 <span>TRANQUILO,</span>
-                <span className="block mt-2">VAMOS TE AJUDAR</span>
+                <span className='mt-2 block'>VAMOS TE AJUDAR</span>
               </h2>
-              <p className="mt-8 font-agh3">Lembrou a senha? Volte para a tela de acesso.</p>
+              <p className='font-agh3 mt-8'>
+                Lembrou a senha? Volte para a tela de acesso.
+              </p>
             </>
           )}
-          <Botao onClick={() => setView("login")} className="mt-6">ACESSAR</Botao>
+          <Botao onClick={() => setView('login')} className='mt-6'>
+            ACESSAR
+          </Botao>
         </div>
       </div>
 
@@ -239,16 +253,19 @@ export default function AuthPage() {
           - onRegisterSuccess: Abre modal de confirmação após cadastro bem-sucedido
       */}
       <div
-        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out
-          ${view === 'register'
-            ? "translate-x-0 z-20  pointer-events-auto"
-            : "translate-x-full z-10  pointer-events-none"}`}
+        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out ${
+          view === 'register'
+            ? 'pointer-events-auto z-20 translate-x-0'
+            : 'pointer-events-none z-10 translate-x-full'
+        }`}
         style={{ right: '0%' }}
       >
-        <Logo className="absolute top-8 right-8 h-12 w-auto text-[#B33C8E]" />
-        <div className="w-full max-w-md text-center">
-          <h2 className="text-4xl font-bold text-[#B33C8E]">Criar Conta</h2>
-          <p className="mt-3 text-gray-600">Preencha os campos para iniciar sua jornada.</p>
+        <Logo className='absolute top-8 right-8 h-12 w-auto text-[#B33C8E]' />
+        <div className='w-full max-w-md text-center'>
+          <h2 className='text-4xl font-bold text-[#B33C8E]'>Criar Conta</h2>
+          <p className='mt-3 text-gray-600'>
+            Preencha os campos para iniciar sua jornada.
+          </p>
           <RegisterForm
             onEmailExists={() => setEmailExistsModalOpen(true)}
             onRegisterSuccess={() => setConfirmEmailModalOpen(true)}
@@ -267,16 +284,21 @@ export default function AuthPage() {
           - onRecoverySent: Executado quando link de recuperação é enviado
       */}
       <div
-        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out
-          ${view === 'forgotPassword'
-            ? "translate-x-0 z-20  pointer-events-auto"
-            : "translate-x-full z-10  pointer-events-none"}`}
+        className={`absolute top-0 flex h-full w-1/2 flex-col items-center justify-center bg-white p-10 transition-all duration-700 ease-in-out ${
+          view === 'forgotPassword'
+            ? 'pointer-events-auto z-20 translate-x-0'
+            : 'pointer-events-none z-10 translate-x-full'
+        }`}
         style={{ right: '0%' }}
       >
-        <Logo className="absolute top-8 right-8 h-12 w-auto text-[#B33C8E]" />
-        <div className="w-full max-w-md text-center">
-          <h2 className="text-4xl font-bold text-[#B33C8E]">Esqueceu a senha?</h2>
-          <p className="mt-3 text-gray-600">Para recuperar, informe seu e-mail de cadastro.</p>
+        <Logo className='absolute top-8 right-8 h-12 w-auto text-[#B33C8E]' />
+        <div className='w-full max-w-md text-center'>
+          <h2 className='text-4xl font-bold text-[#B33C8E]'>
+            Esqueceu a senha?
+          </h2>
+          <p className='mt-3 text-gray-600'>
+            Para recuperar, informe seu e-mail de cadastro.
+          </p>
           <ForgotPasswordForm onRecoverySent={handleRecoverySent} />
         </div>
       </div>
@@ -291,7 +313,10 @@ export default function AuthPage() {
       */}
 
       {/* Modal: Email já existe no sistema */}
-      <Modal isOpen={isEmailExistsModalOpen} onClose={() => setEmailExistsModalOpen(false)}>
+      <Modal
+        isOpen={isEmailExistsModalOpen}
+        onClose={() => setEmailExistsModalOpen(false)}
+      >
         <EmailExistsPopup
           onNavigateToLogin={handleNavigateToLogin}
           onNavigateToForgotPassword={handleNavigateToForgotPassword}
@@ -299,7 +324,10 @@ export default function AuthPage() {
       </Modal>
 
       {/* Modal: Confirmação de cadastro - verificar email */}
-      <Modal isOpen={isConfirmEmailModalOpen} onClose={() => setConfirmEmailModalOpen(false)}>
+      <Modal
+        isOpen={isConfirmEmailModalOpen}
+        onClose={() => setConfirmEmailModalOpen(false)}
+      >
         <ConfirmEmailPopup
           onNavigateToLogin={handleNavigateToLogin}
           onResendEmail={handleResendEmail}
@@ -307,13 +335,15 @@ export default function AuthPage() {
       </Modal>
 
       {/* Modal: Link de recuperação enviado */}
-      <Modal isOpen={isRecoverySentModalOpen} onClose={() => setRecoverySentModalOpen(false)}>
+      <Modal
+        isOpen={isRecoverySentModalOpen}
+        onClose={() => setRecoverySentModalOpen(false)}
+      >
         <RecoveryLinkSentPopup
           onNavigateToLogin={handleNavigateToLogin}
           onResendEmail={handleResendEmail}
         />
       </Modal>
-
     </div>
-  );
+  )
 }
