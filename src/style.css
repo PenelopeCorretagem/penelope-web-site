@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  button, input, textarea {
+    all: unset;
+  }
+}
+
+@utility transition-padding {
+  transition: padding 500ms ease-in-out;
+}
+
+@utility transition-padding-slow {
+  transition: padding 1000ms ease-in-out;
+}
+
+@utility transition-padding-fast {
+  transition: padding 200ms ease-in-out;
+}
+
+@utility transition-px {
+  transition:
+    padding-left 500ms ease-in-out,
+    padding-right 500ms ease-in-out;
+}
+
+@utility transition-py {
+  transition:
+    padding-top 500ms ease-in-out,
+    padding-bottom 500ms ease-in-out;
+}
+
+@theme {
+  --font-default-family: 'Poppins', sans-serif;
+  --font-title-family: 'Darker Grotesque', sans-serif;
+
+  --padding-section-y: 36px;
+  --padding-section-x: 60px;
+  --padding-section-md: 36px 60px;
+  --padding-section-y-md: 48px;
+  --padding-section-x-md: 80px;
+  --padding-section-md: 48px 80px;
+
+  --padding-button: 8px 16px;
+  --padding-button-x: 16px;
+  --padding-button-y: 8px;
+  --padding-button-md: 12px 24px;
+  --padding-button-x-md: 24px;
+  --padding-button-y-md: 12px;
+
+  --padding-card: 16px;
+  --padding-card-md: 24px;
+
+  --gap-card: 12px;
+  --gap-card-md: 20px;
+
+  /* Cores de superfície/fundo */
+  --color-brand-white: #dedede; /* Fundo principal */
+  --color-brand-white-secondary: #ebe9e9; /* Fundo secundário */
+  --color-brand-white-tertiary: #cbcbcb; /* Fundo terciário/cards */
+
+  /* Cores de texto */
+  --color-brand-black: #1f1d1f; /* Texto principal */
+
+  /* Cores de marca/destaque */
+  --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */
+  --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
+  --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
+  --color-brand-soft-brown: #816862; /* Variação suave secundária */
+}

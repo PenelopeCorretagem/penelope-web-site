@@ -1,9 +1,10 @@
+// modules/institutional/components/MenuView.jsx
 import { MenuItemView } from './MenuItemView'
 import { LogoView } from './LogoView'
+import { LogoModel } from '../../model/components/LogoModel'
 import { House, User, Search, Settings } from 'lucide-react'
-import { useMenuViewModel } from '../../viewmodel/components/MenuViewModel'
+import { useMenuViewModel } from '../../hooks/components/useMenuViewModel'
 
-// Mapeamento de ícones
 const iconMap = {
   House,
   User,
@@ -11,10 +12,26 @@ const iconMap = {
   Settings,
 }
 
-export function MenuView() {
-  // Usar o hook do ViewModel
-  const { menuItems, userActions, isLoading, handleItemClick, isItemActive } =
-    useMenuViewModel()
+/**
+ * MenuView - Componente de menu principal
+ * Renderiza navegação principal e ações do usuário
+ * Integra com MenuViewModel para gerenciar estado
+ * @param {boolean} isAuthenticated - Estado de autenticação do usuário
+ */
+export function MenuView({ isAuthenticated = false }) {
+  const {
+    menuItems,
+    userActions,
+    isLoading,
+    handleItemClick,
+    isItemActive,
+    setAuthentication,
+    isAuthenticated: currentAuth,
+  } = useMenuViewModel(isAuthenticated)
+
+  if (isAuthenticated !== currentAuth) {
+    setAuthentication(isAuthenticated)
+  }
 
   const renderMenuItem = item => {
     const Icon = iconMap[item.icon]
@@ -26,32 +43,27 @@ export function MenuView() {
         shape={item.shape}
         active={isItemActive(item.id)}
         disabled={isLoading}
-        onClick={() => handleItemClick(item.id, item.route)}
+        onClick={() => handleItemClick(item.id)}
         className={item.shape === 'circle' ? '' : 'h-full'}
+        title={item.route} // Mostra a rota no hover para debug
       >
         {item.label}
-        {Icon && <Icon className='h-4 w-4' />}
+        {Icon && <Icon className='h-3 w-3 md:h-4 md:w-4' />}
       </MenuItemView>
     )
   }
 
   return (
-    <>
-      {/* Menu */}
-      <div className='px-section-x bg-surface-primary flex h-fit items-center justify-between py-6'>
-        {/* Logo */}
-        <LogoView size='40' className='fill-brand-primary' />
+    <header className='px-section-x bg-brand-white-secondary sticky top-0 z-50 flex h-fit w-full items-center justify-between py-6 drop-shadow-md'>
+      <LogoView model={new LogoModel('primary', 40)} />
 
-        {/* Menu Principal */}
-        <div className='flex h-full items-center gap-5'>
-          {menuItems.map(renderMenuItem)}
-        </div>
-
-        {/* Ações do Usuário */}
-        <div className='flex h-full items-center gap-2'>
-          {userActions.map(renderMenuItem)}
-        </div>
+      <div className='flex h-full w-fit items-center gap-5'>
+        {menuItems.map(renderMenuItem)}
       </div>
-    </>
+
+      <div className='flex h-full w-fit items-center gap-2'>
+        {userActions.map(renderMenuItem)}
+      </div>
+    </header>
   )
 }

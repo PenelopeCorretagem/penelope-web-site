@@ -1,58 +1,41 @@
+import { BaseElementView } from './BaseElementView'
+import { useButtonViewModel } from '../../hooks/components/useButtonViewModel'
+
+/**
+ * ButtonView - Componente de botão
+ * Integra com ButtonViewModel para gerenciar estado e comportamento
+ * @param {ButtonModel} model - Modelo do botão
+ * @param {string} width - Largura do botão ('full' | 'fit')
+ * @param {string} shape - Forma do botão ('square' | 'circle')
+ * @param {string} className - Classes CSS adicionais
+ * @param {Function} onClick - Handler de clique
+ */
 export function ButtonView({
-  children,
-  width = 'fit',
-  className = '',
-  variant = 'default',
-  active = false,
-  type = 'button',
+  model,
+  width = 'full',
   shape = 'square',
+  className = '',
   onClick,
-  disabled = false,
 }) {
-  const baseClasses = [
-    'inline-flex items-center justify-center gap-2',
-    'font-title-family font-bold',
-    'text-sm md:text-base lg:text-lg',
-    'leading-none',
-    'uppercase',
-    'cursor-pointer',
-    'transition-colors duration-200',
-  ]
+  // Usa o hook para gerenciar o ViewModel
+  const { viewModel } = useButtonViewModel(model, {
+    width,
+    shape,
+    className,
+    onClick,
+  })
 
-  const variants = {
-    default: active
-      ? 'bg-brand-primary text-surface-primary'
-      : 'bg-surface-tertiary hover:bg-brand-primary text-text-primary hover:text-surface-primary',
-    destac: active
-      ? 'bg-brand-primary text-surface-primary'
-      : 'bg-brand-secondary hover:bg-brand-primary text-surface-primary',
-  }
+  // Obtém as props específicas do Button
+  const specificProps = viewModel.getSpecificProps()
 
-  const shapes = {
-    circle: 'rounded-full p-button-y',
-    square: 'rounded-sm p-button',
-  }
-
-  const widths = {
-    full: 'w-full',
-    fit: 'w-fit',
-  }
   return (
-    <button
-      type={type}
-      className={[
-        baseClasses.join(' '),
-        variants[variant],
-        shapes[shape],
-        widths[width],
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
+    <BaseElementView
+      viewModel={viewModel}
+      type={specificProps.type}
+      onClick={specificProps.onClick}
+      aria-pressed={specificProps['aria-pressed']}
+      aria-disabled={specificProps['aria-disabled']}
+      role={specificProps.role}
+    />
   )
 }

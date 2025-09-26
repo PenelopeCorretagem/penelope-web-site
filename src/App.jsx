@@ -1,9 +1,9 @@
-import { HomeView } from './institutional/view/pages/HomeView.jsx'
+import { PageView } from '@shared/view/components/PageView'
 
-export function App() {
+export default function App() {
   return (
     <>
-      <HomeView />
+      <PageView />
     </>
   )
 }

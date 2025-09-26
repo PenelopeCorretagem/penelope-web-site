@@ -2,6 +2,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
 export default defineConfig(({ command, mode }) => {
   // Carrega variáveis de ambiente baseado no mode
@@ -12,27 +13,36 @@ export default defineConfig(({ command, mode }) => {
   console.log(`Modo: ${mode} | Porta: ${port}`)
 
   return {
-    plugins: [
-      react(),
-      tailwindcss()
-    ],
+    plugins: [react(), tailwindcss()],
+
+    resolve: {
+      alias: {
+        '@shared': path.resolve(__dirname, './src/shared'),
+        '@institutional': path.resolve(__dirname, './src/modules/institutional'),
+        '@auth': path.resolve(__dirname, './src/modules/auth'),
+        '@management': path.resolve(__dirname, './src/modules/management'),
+      },
+    },
 
     // Configurações do servidor de desenvolvimento
     server: {
       port,
-      host: true,           // Permite acesso via IP (0.0.0.0)
-      open: true,          // Abre browser automaticamente
-      strictPort: true,    // Falha se porta estiver ocupada
-      cors: true,          // Permite CORS
+      host: true, // Permite acesso via IP (0.0.0.0)
+      open: true, // Abre browser automaticamente
+      strictPort: true, // Falha se porta estiver ocupada
+      cors: true, // Permite CORS
 
       // Proxy para API
-      proxy: mode === 'development' ? {
-        '/api': {
-          target: env.API_URL,
-          changeOrigin: true,
-          secure: false,
-        }
-      } : undefined
+      proxy:
+        mode === 'development'
+          ? {
+              '/api': {
+                target: env.API_URL,
+                changeOrigin: true,
+                secure: false,
+              },
+            }
+          : undefined,
     },
 
     // Configurações do preview (build de produção)
@@ -53,9 +63,9 @@ export default defineConfig(({ command, mode }) => {
           manualChunks: {
             vendor: ['react', 'react-dom'],
             ui: ['clsx'],
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   }
 })

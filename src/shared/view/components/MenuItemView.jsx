@@ -1,24 +1,45 @@
-import { ButtonView } from './ButtonView'
+import { BaseElementView } from './BaseElementView'
+import { MenuItemViewModel } from '../../viewmodel/components/MenuItemViewModel'
 
 export function MenuItemView({
   children,
-  variant = 'default',
-  shape = 'square',
-  active = false,
+  width = 'fit',
   className = '',
+  variant = 'default',
+  active = false,
+  shape = 'square',
+  href,
+  to,
   onClick,
+  disabled = false,
+  external = false,
 }) {
+
+  const viewModel = new MenuItemViewModel({
+    children,
+    width,
+    className,
+    variant,
+    active,
+    shape,
+    href,
+    to,
+    onClick,
+    disabled,
+    external,
+  })
+
+
+  const specificProps = viewModel.getSpecificProps()
+
   return (
-    <ButtonView
-      className={className}
-      width={'fit'}
-      variant={variant}
-      active={active}
-      shape={shape}
-      onClick={onClick}
-      aria-pressed={active}
-    >
-      {children}
-    </ButtonView>
+    <BaseElementView
+      viewModel={viewModel}
+      to={specificProps.to}
+      href={specificProps.href}
+      target={specificProps.target}
+      rel={specificProps.rel}
+      onClick={specificProps.onClick}
+    />
   )
 }
