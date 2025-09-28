@@ -50,7 +50,8 @@ export class MenuViewModel {
    * @returns {Object} Resultado da navegação
    */
   navigateToItem = itemId => {
-    console.log(`📍 MenuViewModel: navegando para item ${itemId}`)
+    // Reseta o item ativo atual antes de navegar
+    this.model.setActiveItem(null)
 
     // Valida se o item pode ser acessado
     const validation = this.model.validateMenuItem(itemId)
@@ -69,11 +70,21 @@ export class MenuViewModel {
 
     // Navega via router service se disponível
     if (this.routerService && validation.item.route) {
-      const routeResult = this.routerService.navigateTo(validation.item.route)
+      try {
+        const routeResult = this.routerService.navigateTo(validation.item.route)
 
-      console.log(`🔀 Resultado da navegação:`, routeResult)
+        console.log(`🔀 Resultado da navegação:`, routeResult)
 
-      if (!routeResult.success) {
+        // Handle the case where routeResult is undefined or doesn't have success property
+        if (routeResult && routeResult.success === false) {
+          this.addError('Erro na navegação')
+          return { success: false, error: 'Erro na navegação' }
+        }
+
+        // If routeResult is undefined or doesn't have success property, assume success
+        // This maintains backward compatibility with your current router implementation
+      } catch (error) {
+        console.error(`❌ Erro durante navegação:`, error)
         this.addError('Erro na navegação')
         return { success: false, error: 'Erro na navegação' }
       }
@@ -85,7 +96,6 @@ export class MenuViewModel {
       route: validation.item.route,
     }
   }
-
   /**
    * Navega diretamente para uma rota específica
    * @param {string} route - Rota de destino
@@ -134,24 +144,66 @@ export class MenuViewModel {
 
     // Encontra o item correspondente à rota atual
     const allItems = [...this.menuItems, ...this.userActions]
-    const matchingItem = allItems.find(item => item.route === route)
+    console.log(
+      `🔍 Procurando item para rota ${route} entre ${allItems.length} itens:`
+    )
+    allItems.forEach(item => {
+      console.log(
+        `  - ${item.id}: ${item.route} (${item.label || 'sem label'})`
+      )
+    })
+
+    let matchingItem = allItems.find(item => item.route === route)
+
+    // Se não encontrou correspondência exata, tenta correspondência por padrão
+    if (!matchingItem) {
+      console.log(
+        `🔍 Correspondência exata não encontrada, tentando padrões...`
+      )
+
+      matchingItem = allItems.find(item => {
+        if (!item.route) return false
+
+        // Verifica se a rota do item tem parâmetros (contém :)
+        if (item.route.includes(':')) {
+          const pattern = item.route.replace(/:[^/]+/g, '[^/]+')
+          const regex = new RegExp(`^${pattern}$`)
+          const matches = regex.test(route)
+          console.log(
+            `  - Testando padrão ${item.route} -> ${pattern} contra ${route}: ${matches}`
+          )
+          return matches
+        }
+
+        // Verifica se é uma rota base (ex: /imoveis pode corresponder a /imoveis/123)
+        if (route.startsWith(`${item.route}/`) && item.route !== '/') {
+          console.log(`  - Rota base ${item.route} corresponde a ${route}`)
+          return true
+        }
+
+        return false
+      })
+    }
 
     if (matchingItem) {
-      console.log(`📌 Item encontrado: ${matchingItem.id}`)
+      console.log(
+        `📌 Item encontrado: ${matchingItem.id} (${matchingItem.label || 'sem label'})`
+      )
 
       // Verifica se o item pode ser acessado
       const validation = this.model.validateMenuItem(matchingItem.id)
 
       if (validation.valid) {
+        console.log(`✅ Item ${matchingItem.id} validado, definindo como ativo`)
         this.model.setActiveItem(matchingItem.id)
         this.clearErrors()
-        console.log(`✅ Item ${matchingItem.id} ativado`)
       } else {
         console.log(
           `❌ Item ${matchingItem.id} não pode ser acessado: ${validation.error}`
         )
 
         // Se não pode acessar, redireciona para home
+        console.log(`🏠 Redirecionando para home devido a falta de permissão`)
         this.model.setActiveItem('home')
         if (this.routerService) {
           this.routerService.navigateTo('/')
@@ -159,10 +211,14 @@ export class MenuViewModel {
       }
     } else {
       console.log(`⚠️ Nenhum item do menu corresponde à rota ${route}`)
+
+      // Para rotas que não correspondem a itens do menu, define um estado neutro
+      // mas não redireciona (pode ser uma página válida que não está no menu)
+      console.log(`🔄 Definindo estado neutro - nenhum item ativo`)
+      this.model.setActiveItem(null) // ou manter o atual sem mudança
       this.clearErrors()
     }
   }
-
   /**
    * Verifica se um item específico está ativo
    * @param {string} itemId - ID do item a verificar
@@ -209,20 +265,20 @@ export class MenuViewModel {
   }
 
   /**
-   * Realiza o logout do usuário e redireciona se necessário
+   * Realiza o logout do usuário e redireciona para home
    * @returns {Object} Resultado da operação
    */
   logout = () => {
     const wasAuthenticated = this.model.isAuthenticated
+
+    // Limpar o token JWT do localStorage
+    localStorage.removeItem('jwtToken')
+
+    // Atualizar estado de autenticação
     this.model.setAuthenticationStatus(false)
 
-    console.log(`👋 Logout realizado`)
-
-    // Se estava em página que requer auth, volta para home
-    const currentItem = this.model.getItemById(this.activeItem)
-    if (currentItem && currentItem.requiresAuth) {
-      this.navigateToItem('home')
-    }
+    // Forçar redirecionamento para home e recarregar a página
+    window.location.href = '/'
 
     return { success: true, changed: wasAuthenticated }
   }

@@ -1,55 +1,94 @@
-// modules/institutional/hooks/components/useMenuViewModel.js
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { MenuViewModel } from '../../viewmodel/components/MenuViewModel'
 import { MenuModel } from '../../model/components/MenuModel'
 import { routerService } from '@shared/services/RouterService'
 
-/**
- * Hook para gerenciar estado e interações do MenuViewModel
- * Integra com RouterService para navegação
- * @param {boolean} initialAuth - Estado inicial de autenticação
- * @returns {Object} Estado, comandos e helpers do menu
- */
-export function useMenuViewModel(initialAuth = false) {
-  // Criar o viewModel uma única vez
+export function useMenuViewModel(isAuthenticated = false) {
   const [viewModel] = useState(() => {
-    console.log('🏗️ Criando MenuViewModel...')
-    const model = new MenuModel(initialAuth)
+    const model = new MenuModel(isAuthenticated)
     return new MenuViewModel(model, routerService)
   })
+
+  // eslint-disable-next-line no-unused-vars
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setCurrentPath(window.location.pathname)
+    }
+
+    window.addEventListener('popstate', handleRouteChange)
+    return () => window.removeEventListener('popstate', handleRouteChange)
+  }, [])
 
   const [snapshot, setSnapshot] = useState(() => viewModel.getSnapshot())
   const [isLoading, setIsLoading] = useState(false)
 
   const updateSnapshot = useCallback(() => {
     const newSnapshot = viewModel.getSnapshot()
-    console.log('📸 Atualizando snapshot:', newSnapshot)
+    console.log('📸 Atualizando snapshot:', {
+      activeItem: newSnapshot.activeItem,
+      currentRoute: newSnapshot.currentRoute,
+      menuItemsCount: newSnapshot.menuItems.length,
+      userActionsCount: newSnapshot.userActions.length,
+    })
     setSnapshot(newSnapshot)
   }, [viewModel])
 
-  // Escuta mudanças de rota para atualizar o item ativo
+  // Sincroniza estado de autenticação quando muda
+  useEffect(() => {
+    console.log(
+      `🔐 useMenuViewModel: atualizando autenticação para ${isAuthenticated}`
+    )
+
+    const result = viewModel.setAuthentication(isAuthenticated)
+
+    if (result && result.changed) {
+      console.log('✅ Estado de autenticação mudou, atualizando snapshot')
+      updateSnapshot()
+    }
+  }, [isAuthenticated, viewModel, updateSnapshot])
+
   useEffect(() => {
     console.log('🔌 Configurando listeners de rota...')
 
     const handleRouteChange = ({ route, previous }) => {
       console.log(`🔄 Hook: rota mudou de ${previous} para ${route}`)
+      console.log(`📍 Estado antes da mudança:`)
+      console.log(`  - Item ativo: ${viewModel.model.activeItem}`)
+      console.log(`  - Rota atual: ${viewModel.routerService?.route}`)
+
       viewModel.handleRouteChange(route)
+
+      console.log(`📍 Estado após a mudança:`)
+      console.log(`  - Item ativo: ${viewModel.model.activeItem}`)
+      console.log(`  - Rota atual: ${viewModel.routerService?.route}`)
+
       updateSnapshot()
     }
 
-    // Adiciona o listener
     const removeListener =
       routerService.addRouteChangeListener(handleRouteChange)
 
-    // Inicializa com a rota atual após um pequeno delay para garantir sincronização
+    // Inicializa com a rota atual e força uma verificação
     setTimeout(() => {
       const currentRoute = routerService.route
       console.log(`🎯 Inicializando com rota atual: ${currentRoute}`)
+      console.log(`📊 Estado inicial do modelo:`)
+      console.log(`  - Item ativo: ${viewModel.model.activeItem}`)
+      console.log(`  - Items disponíveis:`)
+
+      const allItems = [...viewModel.menuItems, ...viewModel.userActions]
+      allItems.forEach(item => {
+        console.log(
+          `    - ${item.id}: ${item.route} (${item.label || 'sem label'})`
+        )
+      })
+
       viewModel.handleRouteChange(currentRoute)
       updateSnapshot()
     }, 0)
 
-    // Cleanup
     return () => {
       console.log('🧹 Removendo listeners...')
       if (typeof removeListener === 'function') {
@@ -64,27 +103,37 @@ export function useMenuViewModel(initialAuth = false) {
     () => ({
       handleItemClick: itemId => {
         console.log(`🖱️ Hook: clique no item ${itemId}`)
+        console.log(`📍 Estado antes do clique:`)
+        console.log(`  - Item ativo: ${viewModel.model.activeItem}`)
+        console.log(`  - Rota atual: ${routerService.route}`)
+
         setIsLoading(true)
 
-        // Simula delay de navegação (remova se não quiser delay)
         setTimeout(() => {
           const result = viewModel.navigateToItem(itemId)
 
-          if (result.success) {
+          console.log(`📍 Estado após navegação:`)
+          console.log(`  - Item ativo: ${viewModel.model.activeItem}`)
+          console.log(`  - Rota atual: ${routerService.route}`)
+          console.log(`  - Resultado:`, result)
+
+          if (result && result.success) {
             console.log(`✅ Hook: navegação bem-sucedida para ${result.route}`)
-          } else {
+          } else if (result) {
             console.error(`❌ Hook: erro na navegação - ${result.error}`)
+          } else {
+            console.log('⚠️ Hook: resultado indefinido da navegação')
           }
 
           updateSnapshot()
           setIsLoading(false)
-        }, 100) // Delay reduzido para melhor responsividade
+        }, 100)
       },
 
       setAuthentication: isAuth => {
         console.log(`🔐 Hook: mudando autenticação para ${isAuth}`)
         const result = viewModel.setAuthentication(isAuth)
-        if (result.changed) {
+        if (result && result.changed) {
           updateSnapshot()
         }
         return result
@@ -93,7 +142,7 @@ export function useMenuViewModel(initialAuth = false) {
       logout: () => {
         console.log('👋 Hook: fazendo logout...')
         const result = viewModel.logout()
-        if (result.changed) {
+        if (result && result.changed) {
           updateSnapshot()
         }
         return result
@@ -107,7 +156,7 @@ export function useMenuViewModel(initialAuth = false) {
       navigateToRoute: route => {
         console.log(`🔀 Hook: navegação direta para ${route}`)
         const result = viewModel.navigateToRoute(route)
-        if (result.success) {
+        if (result && result.success) {
           updateSnapshot()
         }
         return result
@@ -120,6 +169,25 @@ export function useMenuViewModel(initialAuth = false) {
     }),
     [viewModel, updateSnapshot]
   )
+
+  // Debug: log das mudanças do snapshot
+  useEffect(() => {
+    console.log('📊 Snapshot atual:', {
+      isAuthenticated: snapshot.isAuthenticated,
+      activeItem: snapshot.activeItem,
+      currentRoute: snapshot.currentRoute,
+      menuItems: snapshot.menuItems.map(item => ({
+        id: item.id,
+        label: item.label,
+        route: item.route,
+      })),
+      userActions: snapshot.userActions.map(action => ({
+        id: action.id,
+        label: action.label,
+        route: action.route,
+      })),
+    })
+  }, [snapshot])
 
   return {
     // Estado observável
@@ -139,12 +207,12 @@ export function useMenuViewModel(initialAuth = false) {
     isItemActive: itemId => {
       const isActive = viewModel.isItemActive(itemId)
       console.log(`🎯 Hook: verificando se ${itemId} está ativo: ${isActive}`)
+      console.log(`  - Item ativo no modelo: ${viewModel.model.activeItem}`)
+      console.log(`  - Rota atual: ${routerService.route}`)
+
       return isActive
     },
 
     isRouteActive: route => viewModel.isRouteActive(route),
-
-    // ViewModel para casos especiais
-    viewModel,
   }
 }

@@ -1,16 +1,8 @@
 // modules/institutional/components/MenuView.jsx
-import { MenuItemView } from './MenuItemView'
-import { LogoView } from './LogoView'
-import { LogoModel } from '../../model/components/LogoModel'
-import { House, User, Search, Settings } from 'lucide-react'
-import { useMenuViewModel } from '../../hooks/components/useMenuViewModel'
-
-const iconMap = {
-  House,
-  User,
-  Search,
-  Settings,
-}
+import { MenuItemView } from '@shared/view/components/MenuItemView'
+import { MenuItemModel } from '@shared/model/components/MenuItemModel'
+import { ErrorDisplayView } from '@shared/view/components/ErrorDisplayView'
+import { useMenuViewModel } from '@shared/hooks/components/useMenuViewModel'
 
 /**
  * MenuView - Componente de menu principal
@@ -18,52 +10,116 @@ const iconMap = {
  * Integra com MenuViewModel para gerenciar estado
  * @param {boolean} isAuthenticated - Estado de autenticação do usuário
  */
-export function MenuView({ isAuthenticated = false }) {
+
+export function MenuView({ isAuthenticated = false, className = '' }) {
   const {
     menuItems,
     userActions,
-    isLoading,
+    hasErrors,
+    errorMessages,
     handleItemClick,
+    logout,
     isItemActive,
-    setAuthentication,
-    isAuthenticated: currentAuth,
   } = useMenuViewModel(isAuthenticated)
 
-  if (isAuthenticated !== currentAuth) {
-    setAuthentication(isAuthenticated)
+  const getMenuContainerClasses = () =>
+    ['flex items-center justify-between', 'w-full h-fit'].join(' ')
+
+  const getMenuItemsContainerClasses = () =>
+    ['flex items-center gap-2', 'flex-1 justify-center'].join(' ')
+
+  const getUserActionsContainerClasses = () =>
+    ['flex items-center gap-2', 'w-fit'].join(' ')
+
+  const handleMenuItemClick = item => {
+    handleItemClick(item.id)
   }
 
-  const renderMenuItem = item => {
-    const Icon = iconMap[item.icon]
-
-    return (
-      <MenuItemView
-        key={item.id}
-        variant={item.variant}
-        shape={item.shape}
-        active={isItemActive(item.id)}
-        disabled={isLoading}
-        onClick={() => handleItemClick(item.id)}
-        className={item.shape === 'circle' ? '' : 'h-full'}
-        title={item.route} // Mostra a rota no hover para debug
-      >
-        {item.label}
-        {Icon && <Icon className='h-3 w-3 md:h-4 md:w-4' />}
-      </MenuItemView>
-    )
+  const handleUserActionClick = action => {
+    // Handle special actions
+    if (action.id === 'logout') {
+      logout() // MenuViewModel vai cuidar do redirecionamento e recarregamento
+    } else if (action.id === 'login') {
+      // For login, you might want to trigger a login modal or navigate to login page
+      // For now, let's just handle it like a regular navigation
+      handleItemClick(action.id)
+    } else {
+      handleItemClick(action.id)
+    }
   }
+
+  const menuContainerClasses = [
+    getMenuContainerClasses(),
+    hasErrors ? 'border-b-2 border-red-500' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
-    <header className='px-section-x bg-brand-white-secondary sticky top-0 z-50 flex h-fit w-full items-center justify-between py-6 drop-shadow-md'>
-      <LogoView model={new LogoModel('primary', 40)} />
+    <nav className={menuContainerClasses}>
+      <div className={getMenuItemsContainerClasses()}>
+        {menuItems.map(item => {
+          const isActive =
+            window.location.pathname === item.route ||
+            (item.route !== '/' &&
+              window.location.pathname.startsWith(item.route))
 
-      <div className='flex h-full w-fit items-center gap-5'>
-        {menuItems.map(renderMenuItem)}
+          return (
+            <MenuItemView
+              key={item.id}
+              model={
+                new MenuItemModel({
+                  text: item.label,
+                  variant: item.variant,
+                  active: isActive,
+                  to: item.route,
+                  disabled: item.requiresAuth && !isAuthenticated,
+                  icon: item.icon,
+                  iconOnly: item.iconOnly,
+                })
+              }
+              onClick={() => handleMenuItemClick(item)}
+              className={`transition-all duration-200 ${
+                item.requiresAuth && !isAuthenticated ? 'opacity-50' : ''
+              }`}
+            />
+          )
+        })}
       </div>
 
-      <div className='flex h-full w-fit items-center gap-2'>
-        {userActions.map(renderMenuItem)}
+      <div className={getUserActionsContainerClasses()}>
+        {userActions.map(action => {
+          return (
+            <MenuItemView
+              key={action.id}
+              model={
+                new MenuItemModel({
+                  text: action.label || '',
+                  variant: action.variant,
+                  active: isItemActive(action.id),
+                  to: action.route,
+                  icon: action.icon,
+                  iconOnly: action.iconOnly,
+                  disabled: action.requiresAuth && !isAuthenticated,
+                })
+              }
+              onClick={() => handleUserActionClick(action)}
+              width='fit'
+              shape={action.shape || 'square'}
+              className={`transition-all duration-200 ${action.shape === 'circle' ? 'p-2' : ''} `}
+              title={action.label}
+            />
+          )
+        })}
       </div>
-    </header>
+
+      <ErrorDisplayView
+        messages={errorMessages ? [errorMessages] : []}
+        position='top'
+        variant='subtle'
+        className='z-50'
+      />
+    </nav>
   )
 }

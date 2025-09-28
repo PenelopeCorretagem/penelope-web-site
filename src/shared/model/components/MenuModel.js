@@ -1,4 +1,3 @@
-// modules/institutional/model/components/MenuModel.js
 import { RouterModel } from '@shared/model/components/RouterModel'
 
 /**
@@ -17,6 +16,7 @@ export class MenuModel {
   // Menu base (sempre visível) - usando rotas centralizadas
   getBaseMenuItems() {
     const routes = this.routerModel.getMenuRoutes()
+    const currentPath = window.location.pathname
 
     return [
       {
@@ -26,6 +26,7 @@ export class MenuModel {
         variant: 'default',
         route: routes.HOME,
         requiresAuth: false,
+        active: currentPath === routes.HOME,
       },
       {
         id: 'properties',
@@ -67,33 +68,60 @@ export class MenuModel {
     ]
   }
 
-  // Ações do usuário (perfil sempre, configurações apenas autenticado)
+  // Ações do usuário - diferentes para autenticado/não autenticado
   getUserActions() {
     const userRoutes = this.routerModel.getUserActionRoutes()
+    const authRoutes = this.routerModel.getAuthRoutes()
 
-    const baseActions = [
-      {
-        id: 'profile',
-        icon: 'User',
-        variant: 'destac',
-        shape: 'circle',
-        route: userRoutes.PROFILE,
-        requiresAuth: false,
-      },
-    ]
-
-    const authActions = [
-      {
-        id: 'settings',
-        icon: 'Settings',
-        variant: 'destac',
-        shape: 'circle',
-        route: userRoutes.SETTINGS,
-        requiresAuth: true,
-      },
-    ]
-
-    return this.isAuthenticated ? [...baseActions, ...authActions] : baseActions
+    if (!this.isAuthenticated) {
+      // Usuário não autenticado - mostrar apenas login
+      return [
+        {
+          id: 'login',
+          label: 'Login',
+          icon: 'User',
+          variant: 'destac',
+          shape: 'circle',
+          route: authRoutes.LOGIN, // Ou uma rota específica de login se você tiver
+          requiresAuth: false,
+          iconOnly: true,
+        },
+      ]
+    } else {
+      // Usuário autenticado - mostrar perfil e configurações
+      return [
+        {
+          id: 'profile',
+          label: 'Perfil',
+          icon: 'User',
+          variant: 'destac',
+          shape: 'circle',
+          route: userRoutes.PROFILE,
+          requiresAuth: true,
+          iconOnly: true,
+        },
+        {
+          id: 'settings',
+          label: 'Configurações',
+          icon: 'Settings',
+          variant: 'destac',
+          shape: 'circle',
+          route: userRoutes.SETTINGS,
+          requiresAuth: true,
+          iconOnly: true,
+        },
+        {
+          id: 'logout',
+          label: 'Logout',
+          icon: 'LogOut',
+          variant: 'default',
+          shape: 'circle',
+          route: this.routes.HOME,
+          requiresAuth: true,
+          iconOnly: true,
+        },
+      ]
+    }
   }
 
   // Menu completo baseado no estado de auth
@@ -121,6 +149,16 @@ export class MenuModel {
 
     if (!item) {
       return { valid: false, error: `Item ${itemId} não encontrado` }
+    }
+
+    // Para o item de login quando não autenticado, sempre válido
+    if (itemId === 'login' && !this.isAuthenticated) {
+      return { valid: true, item }
+    }
+
+    // Para o item de logout, sempre válido se autenticado
+    if (itemId === 'logout' && this.isAuthenticated) {
+      return { valid: true, item }
     }
 
     if (item.requiresAuth && !this.isAuthenticated) {
@@ -156,7 +194,25 @@ export class MenuModel {
 
   // Atualiza estado de autenticação
   setAuthenticationStatus(isAuthenticated) {
+    const wasAuthenticated = this.isAuthenticated
     this.isAuthenticated = isAuthenticated
+
+    // Se mudou o estado de autenticação, pode precisar atualizar o item ativo
+    if (wasAuthenticated !== isAuthenticated) {
+      // Se ficou desautenticado e estava em página que requer auth, volta para home
+      if (!isAuthenticated) {
+        const currentItem = this.getItemById(this.currentActiveItem)
+        if (currentItem && currentItem.requiresAuth) {
+          this.setActiveItem('home')
+        }
+      }
+    }
+
+    return {
+      changed: wasAuthenticated !== isAuthenticated,
+      wasAuthenticated,
+      isAuthenticated,
+    }
   }
 
   // Define item ativo
@@ -166,11 +222,45 @@ export class MenuModel {
 
   // Define item ativo por rota
   setActiveItemByRoute(route) {
-    const item = this.getItemByRoute(route)
+    console.log(`🎯 MenuModel: procurando item para rota ${route}`)
+
+    const allItems = [...this.getMenuItems(), ...this.getUserActions()]
+
+    // Primeira tentativa: correspondência exata
+    let item = allItems.find(item => item.route === route)
+
+    if (!item) {
+      console.log(
+        `🔍 Correspondência exata não encontrada, tentando padrões...`
+      )
+
+      // Segunda tentativa: correspondência por padrão
+      item = allItems.find(item => {
+        if (!item.route) return false
+
+        // Padrões com parâmetros (ex: /user/:id)
+        if (item.route.includes(':')) {
+          const pattern = item.route.replace(/:[^/]+/g, '[^/]+')
+          const regex = new RegExp(`^${pattern}$`)
+          return regex.test(route)
+        }
+
+        // Rotas base (ex: /imoveis corresponde a /imoveis/detalhes)
+        if (route.startsWith(`${item.route}/`) && item.route !== '/') {
+          return true
+        }
+
+        return false
+      })
+    }
+
     if (item) {
+      console.log(`✅ Item encontrado: ${item.id} para rota ${route}`)
       this.currentActiveItem = item.id
       return { success: true, item }
     }
+
+    console.log(`❌ Nenhum item encontrado para rota ${route}`)
     return { success: false, error: 'Rota não encontrada no menu' }
   }
 
