@@ -6,7 +6,7 @@
  * @param {string} color - Cor do título ('black'|'pink'|'white'|'softBrown')
  * @param {string} className - Classes CSS adicionais
  */
-export function Heading({ children, level, color = 'black', className }) {
+export function HeadingView({ children, level, color = 'black', className }) {
   const Component = `h${level}`
 
   const levels = {
