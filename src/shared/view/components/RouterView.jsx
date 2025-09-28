@@ -1,114 +1,113 @@
-// RouterView.jsx - Versão Corrigida
-import { useRouter } from '@shared/hooks/components/useRouterViewModel'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { HomeView } from '@institutional/view/pages/HomeView'
+import { ErrorDisplayView } from './ErrorDisplayView'
 import { PropertiesView } from '@institutional/view/pages/PropertiesView'
 import { AboutView } from '@institutional/view/pages/AboutView'
 import { ContactsView } from '@institutional/view/pages/ContactsView'
 import { ScheduleView } from '@management/view/pages/ScheduleView'
 import { ProfileView } from '@management/view/pages/ProfileView'
 import { SettingsView } from '@management/view/pages/SettingsView'
-
-// Componentes de página
-const HomePage = () => <HomeView />
-const PropertiesPage = () => <PropertiesView />
-const AboutPage = () => <AboutView />
-const ContactsPage = () => <ContactsView />
-const SchedulePage = () => <ScheduleView />
-const ProfilePage = () => <ProfileView />
-const SettingsPage = () => <SettingsView />
+import { LoginView } from '@auth/view/pages/LoginView'
 
 // Views de erro
-const NotFoundPage = () => (
-  <div className='error-view'>
-    <h1>404 - Página Não Encontrada</h1>
-    <p>A página que você está procurando não existe.</p>
-  </div>
-)
-
-const UnauthorizedPage = () => (
-  <div className='error-view'>
-    <h1>401 - Acesso Não Autorizado</h1>
-    <p>Você não tem permissão para acessar esta página.</p>
-  </div>
-)
-
-// Mapeamento de rotas para componentes
-const routes = {
-  '/': HomePage,
-  '/imoveis': PropertiesPage,
-  '/sobre': AboutPage,
-  '/contatos': ContactsPage,
-  '/agenda': SchedulePage,
-  '/perfil': ProfilePage,
-  '/configuracoes': SettingsPage,
-  '/404': NotFoundPage,
-  '/401': UnauthorizedPage,
+const NotFoundPage = () => {
+  const navigate = useNavigate()
+  return (
+    <div className='error-view flex min-h-[60vh] flex-col items-center justify-center p-8 text-center'>
+      <h1 className='mb-4 text-4xl font-bold text-gray-800'>
+        404 - Página Não Encontrada
+      </h1>
+      <ErrorDisplayView
+        messages={['A página que você está procurando não existe.']}
+        position='inline'
+        variant='prominent'
+        className='mb-6'
+      />
+      <button
+        onClick={() => navigate(-1)}
+        className='bg-brand-pink hover:bg-brand-brown rounded px-6 py-2 text-white transition-colors'
+      >
+        Voltar
+      </button>
+    </div>
+  )
 }
 
-export function RouterView({ isAuthenticated = false, isAdmin = false }) {
-  const { currentRoute, navigateTo, requiresAuth, requiresAdmin } = useRouter()
-
-  console.log(`🖼️ RouterView: renderizando rota ${currentRoute}`)
-
-  const getCurrentComponent = () => {
-    let matchedRoute = currentRoute
-    let Component = routes[currentRoute]
-
-    console.log(`🔍 Buscando componente para rota: ${currentRoute}`)
-
-    // Verifica rotas com parâmetros
-    if (!Component) {
-      console.log('🔍 Rota não encontrada diretamente, verificando padrões...')
-
-      const routeKeys = Object.keys(routes)
-      for (const route of routeKeys) {
-        if (route.includes(':')) {
-          const pattern = route.replace(/:[^/]+/g, '[^/]+')
-          const regex = new RegExp(`^${pattern}$`)
-          if (regex.test(currentRoute)) {
-            Component = routes[route]
-            matchedRoute = route
-            console.log(`✅ Padrão encontrado: ${route} -> ${currentRoute}`)
-            break
-          }
-        }
-      }
-    }
-
-    if (!Component) {
-      console.log('❌ Componente não encontrado, usando NotFoundPage')
-      return NotFoundPage
-    }
-
-    console.log(`📋 Componente encontrado, verificando permissões...`)
-
-    // Verifica autenticação
-    if (requiresAuth(matchedRoute) && !isAuthenticated) {
-      console.log(
-        `🔒 Rota ${matchedRoute} requer autenticação, redirecionando para 401`
-      )
-      navigateTo('/401')
-      return UnauthorizedPage
-    }
-
-    // Verifica permissão de admin
-    if (requiresAdmin(matchedRoute) && !isAdmin) {
-      console.log(
-        `👑 Rota ${matchedRoute} requer permissões de admin, redirecionando para 401`
-      )
-      navigateTo('/401')
-      return UnauthorizedPage
-    }
-
-    console.log(`✅ Permissões OK, renderizando componente`)
-    return Component
-  }
-
-  const CurrentComponent = getCurrentComponent()
-
+const UnauthorizedPage = () => {
+  const navigate = useNavigate()
   return (
-    <main className='router-view bg-brand-white min-h-screen w-full flex-1 overflow-x-hidden'>
-      <CurrentComponent />
+    <div className='error-view flex min-h-[60vh] flex-col items-center justify-center p-8 text-center'>
+      <h1 className='mb-4 text-4xl font-bold text-gray-800'>
+        401 - Acesso Não Autorizado
+      </h1>
+      <ErrorDisplayView
+        messages={['Você não tem permissão para acessar esta página.']}
+        position='inline'
+        variant='prominent'
+        className='mb-6'
+      />
+      <button
+        onClick={() => navigate('/')}
+        className='bg-brand-pink hover:bg-brand-brown rounded px-6 py-2 text-white transition-colors'
+      >
+        Ir para Home
+      </button>
+    </div>
+  )
+}
+
+// Protected Route component
+const ProtectedRoute = ({ isAuthenticated, children }) => {
+  if (!isAuthenticated) {
+    return <Navigate to='/login' replace />
+  }
+  return children
+}
+
+export function RouterView({ isAuthenticated = false }) {
+  return (
+    <main className='router-view bg-brand-white w-full flex-1 overflow-x-hidden'>
+      <Routes>
+        {/* Public Routes */}
+        <Route path='/' element={<HomeView />} />
+        <Route path='/imoveis' element={<PropertiesView />} />
+        <Route path='/sobre' element={<AboutView />} />
+        <Route path='/contatos' element={<ContactsView />} />
+        <Route path='/login' element={<LoginView />} />
+
+        {/* Protected Routes */}
+        <Route
+          path='/agenda'
+          element={
+            // eslint-disable-next-line react/jsx-wrap-multilines
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ScheduleView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/perfil'
+          element={
+            // eslint-disable-next-line react/jsx-wrap-multilines
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProfileView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/configuracoes'
+          element={
+            // eslint-disable-next-line react/jsx-wrap-multilines
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <SettingsView />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Error Routes */}
+        <Route path='/401' element={<UnauthorizedPage />} />
+        <Route path='*' element={<NotFoundPage />} />
+      </Routes>
     </main>
   )
 }

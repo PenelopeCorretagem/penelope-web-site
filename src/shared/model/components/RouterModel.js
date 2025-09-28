@@ -136,7 +136,6 @@ export class RouterModel {
     return {
       PROFILE: this.routes.PROFILE,
       SETTINGS: this.routes.SETTINGS,
-      FAVORITES: this.routes.FAVORITES,
     }
   }
 

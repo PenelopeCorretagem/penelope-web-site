@@ -65,9 +65,8 @@ export class RouterViewModel {
       return
     }
 
-    window.history.pushState({}, '', route)
+    // Usa o React Router para navegação
     this.routerModel.setCurrentRoute(route)
-
     console.log(`✅ Navegação concluída para ${route}`)
   }
 

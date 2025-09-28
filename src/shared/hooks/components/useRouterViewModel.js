@@ -34,15 +34,22 @@ export function useRouter() {
   const [currentRoute, setCurrentRoute] = useState(routerViewModel.route)
 
   useEffect(() => {
-    const handleRouteChange = ({ route }) => {
-      console.log(`🔄 useRouter: rota mudou para ${route}`)
-      setCurrentRoute(route)
+    // Sincroniza com o React Router
+    const handleRouteChange = () => {
+      const currentPath = window.location.pathname
+      if (currentPath !== routerViewModel.route) {
+        routerViewModel.routerModel.setCurrentRoute(currentPath)
+        setCurrentRoute(currentPath)
+      }
     }
 
-    routerViewModel.addRouteChangeListener(handleRouteChange)
-    setCurrentRoute(routerViewModel.route)
+    // Escuta mudanças de rota do React Router
+    window.addEventListener('popstate', handleRouteChange)
 
-    return () => routerViewModel.removeRouteChangeListener(handleRouteChange)
+    // Configura estado inicial
+    handleRouteChange()
+
+    return () => window.removeEventListener('popstate', handleRouteChange)
   }, [])
 
   // Retorna os métodos já com bind
