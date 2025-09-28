@@ -16,8 +16,8 @@ export function useButtonViewModel(initialModel, config = {}) {
   }, [])
 
   const commands = {
-    toggleActive: () => {
-      const success = viewModel.toggleActive()
+    toggle: () => {
+      const success = viewModel.toggle()
       if (success) refresh()
       return success
     },
@@ -28,25 +28,38 @@ export function useButtonViewModel(initialModel, config = {}) {
       return success
     },
 
+    updateText: text => {
+      const success = viewModel.updateText(text)
+      if (success) refresh()
+      return success
+    },
+
     setDisabled: disabled => {
-      viewModel.model.setDisabled(disabled)
+      viewModel.setDisabled(disabled)
       refresh()
     },
+
+    setType: type => {
+      const success = viewModel.setType(type)
+      if (success) refresh()
+      return success
+    },
+
+    handleClick: viewModel.handleClick,
   }
 
+  // ✅ Retorna apenas dados necessários
   return {
-    // Estado observável
-    text: viewModel.model.text,
+    text: viewModel.text,
     variant: viewModel.variant,
-    type: viewModel.model.type,
-    isActive: viewModel.isActive,
-    disabled: viewModel.model.disabled,
+    type: viewModel.type,
+    active: viewModel.active,
+    disabled: viewModel.disabled,
+    transition: viewModel.transition,
     hasErrors: viewModel.hasErrors,
-
-    // Comandos
+    errorMessages: viewModel.errorMessages,
+    isValid: viewModel.isValid,
+    canClick: viewModel.canClick,
     ...commands,
-
-    // ViewModel para a View
-    viewModel,
   }
 }
