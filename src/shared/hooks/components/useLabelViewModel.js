@@ -7,8 +7,8 @@ import { LabelViewModel } from '../../viewmodel/components/LabelViewModel'
  * @param {Object} config - Configurações adicionais
  * @returns {Object} Estado e comandos do label
  */
-export function useLabelViewModel(initialModel, config = {}) {
-  const [viewModel] = useState(() => new LabelViewModel(initialModel, config))
+export function useLabelViewModel(initialModel) {
+  const [viewModel] = useState(() => new LabelViewModel(initialModel))
   const [, forceUpdate] = useState(0)
 
   const refresh = useCallback(() => {
@@ -27,6 +27,12 @@ export function useLabelViewModel(initialModel, config = {}) {
       if (success) refresh()
       return success
     },
+
+    updateSize: size => {
+      const success = viewModel.updateSize(size)
+      if (success) refresh()
+      return success
+    },
   }
 
   return {
@@ -35,7 +41,8 @@ export function useLabelViewModel(initialModel, config = {}) {
     size: viewModel.size,
     hasErrors: viewModel.hasErrors,
     errorMessages: viewModel.errorMessages,
+    isValid: viewModel.isValid,
+    isEmpty: viewModel.isEmpty,
     ...commands,
-    viewModel,
   }
 }

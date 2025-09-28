@@ -44,4 +44,13 @@ export class LabelModel {
     }
     this.variant = newVariant
   }
+
+  updateSize(newSize) {
+    if (!LabelModel.SIZES.includes(newSize)) {
+      throw new Error(
+        `Invalid size. Must be one of: ${LabelModel.SIZES.join(', ')}`
+      )
+    }
+    this.size = newSize
+  }
 }
