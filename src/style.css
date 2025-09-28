@@ -46,7 +46,7 @@
 
   --padding-section-y: 36px;
   --padding-section-x: 60px;
-  --padding-section-md: 36px 60px;
+  --padding-section: 36px 60px;
   --padding-section-y-md: 48px;
   --padding-section-x-md: 80px;
   --padding-section-md: 48px 80px;
@@ -63,6 +63,9 @@
 
   --gap-card: 12px;
   --gap-card-md: 20px;
+
+  --gap-section: 64px;
+  --gap-section-md: 80px;
 
   /* Cores de superfície/fundo */
   --color-brand-white: #dedede; /* Fundo principal */
