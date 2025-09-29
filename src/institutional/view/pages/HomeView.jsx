@@ -1,11 +1,9 @@
 import { MenuView } from '../../../shared/view/components/MenuView'
-import { SelectFilterView } from '../../../shared/view/components/SelectFilterView'
 
 export function HomeView() {
   return (
     <>
-      <MenuView></MenuView>
-      <SelectFilterView options={['sp', 'rj']}></SelectFilterView>
+      <MenuView />
     </>
   )
 }

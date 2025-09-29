@@ -26,6 +26,8 @@ export function ButtonView({
     destac: active
       ? 'bg-brand-primary text-surface-primary'
       : 'bg-brand-secondary hover:bg-brand-primary text-surface-primary',
+    filtro: `bg-[#826963] text-white hover:bg-[#6f5a54] px-6 py-5`,
+    busca: `bg-brand-secondary text-white hover:bg-[#6f5a54] px-6 py-5`,
   }
 
   const shapes = {
