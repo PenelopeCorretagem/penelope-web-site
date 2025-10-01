@@ -1,4 +1,5 @@
 import { SectionModel } from '@shared/model/components/SectionModel'
+import { SECTION_BACKGROUND_COLOR_CLASSES } from '@shared/Enum/components/ESectionBackgroundColor'
 
 export class SectionViewModel {
   constructor(model = new SectionModel()) {
@@ -6,8 +7,24 @@ export class SectionViewModel {
     this.errors = []
   }
 
+  get children() {
+    return this.model.children
+  }
+
   get backgroundColor() {
     return this.model.backgroundColor
+  }
+
+  get paddingClasses() {
+    return this.model.paddingClasses
+  }
+
+  get gapClasses() {
+    return this.model.gapClasses
+  }
+
+  get className() {
+    return this.model.className
   }
 
   get hasErrors() {
@@ -18,13 +35,27 @@ export class SectionViewModel {
     return this.errors.join(', ')
   }
 
-  validateBackgroundColor() {
+  getBackgroundColorClass() {
     try {
-      return this.model.validateBackgroundColor(this.backgroundColor)
+      const validColor = this.model.validateBackgroundColor()
+      return SECTION_BACKGROUND_COLOR_CLASSES[validColor] || SECTION_BACKGROUND_COLOR_CLASSES.white
     } catch (error) {
       this.addError(error.message)
-      return 'white' // Fallback para cor padrão
+      return SECTION_BACKGROUND_COLOR_CLASSES.white
     }
+  }
+
+  getSectionClasses() {
+    return [
+      'section',
+      'w-full',
+      'h-fit',
+      this.model.gapClasses,
+      this.model.paddingClasses,
+      this.getBackgroundColorClass(),
+      this.model.className,
+      this.hasErrors ? 'border-2 border-red-500' : '',
+    ].filter(Boolean).join(' ')
   }
 
   addError(message) {

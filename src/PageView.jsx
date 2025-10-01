@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { HeaderView } from '@shared/view/components/HeaderView'
 import { RouterView } from '@shared/view/components/RouterView'
 import { useRouter } from '@shared/hooks/components/useRouterViewModel'
+import { FooterView } from '@shared/view/components/FooterView'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -39,7 +40,7 @@ export function PageView() {
     <div className='flex min-h-screen w-full flex-col'>
       <HeaderView isAuthenticated={isAuthenticated} />
       <RouterView isAuthenticated={isAuthenticated} />
-
+      <FooterView />
       {/* Botões de teste */}
       {process.env.NODE_ENV === 'development' && (
         <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 backdrop-blur-sm'>
