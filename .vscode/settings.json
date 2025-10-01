@@ -5,14 +5,22 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
 
-  // Define Prettier como formatador padrão
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Define formatador específico por linguagem
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
 
   // Ações automáticas ao salvar arquivo
   "editor.codeActionsOnSave": {
     // Corrige todos os problemas do ESLint automaticamente
     "source.fixAll.eslint": "explicit"
   },
+
+  // Força respeito às regras do ESLint mesmo usando Prettier
+  "prettier.eslintIntegration": true,
 
   // === CONFIGURAÇÕES VISUAIS DO EDITOR ===
 

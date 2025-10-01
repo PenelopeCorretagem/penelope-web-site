@@ -11,20 +11,18 @@
   "endOfLine": "lf",
   "jsxSingleQuote": true,
   "quoteProps": "as-needed",
-  "jsxParens": "always",
   "useTabs": false,
   "plugins": ["prettier-plugin-tailwindcss"],
+  "jsxParens": "always",
   "overrides": [
     {
-      "files": "*.json",
+      "files": "*.jsx",
       "options": {
-        "printWidth": 200
-      }
-    },
-    {
-      "files": ["*.config.js", "*.config.mjs"],
-      "options": {
-        "printWidth": 120
+        "jsxBracketSameLine": false,
+        "singleQuote": true,
+        "jsxSingleQuote": true,
+        "printWidth": 80,
+        "parser": "babel"
       }
     }
   ]
