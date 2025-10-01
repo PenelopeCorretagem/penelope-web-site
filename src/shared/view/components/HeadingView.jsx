@@ -26,7 +26,7 @@ export function HeadingView({ children, level, color = 'black', className }) {
 
   return (
     <Component
-      className={`font-title-family leading-none uppercase ${levels[level] ?? levels[1]} ${colors[color]} ${className}`}
+      className={`w-fit font-title-family leading-none uppercase ${levels[level] ?? levels[1]} ${colors[color]} ${className}`}
     >
       {children}
     </Component>

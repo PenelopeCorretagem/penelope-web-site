@@ -43,10 +43,10 @@ export function MenuItemView({
     const variants = {
       default: isActive
         ? 'bg-brand-pink text-brand-white scale-105'
-        : 'bg-brand-white-tertiary text-brand-black hover:bg-brand-pink hover:text-brand-white hover:scale-102',
+        : 'bg-brand-white-tertiary text-brand-black hover:bg-brand-pink hover:text-brand-white hover:scale-105',
       destac: isActive
         ? 'bg-brand-pink text-brand-white scale-105'
-        : 'bg-brand-brown text-brand-white hover:bg-brand-pink hover:scale-102',
+        : 'bg-brand-brown text-brand-white hover:bg-brand-pink hover:scale-105',
     }
     return `${baseClasses} ${variants[variant] || variants.default}`
   }

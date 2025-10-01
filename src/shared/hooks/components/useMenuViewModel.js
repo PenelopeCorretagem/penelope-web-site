@@ -199,6 +199,7 @@ export function useMenuViewModel(isAuthenticated = false) {
     hasErrors: snapshot.hasErrors,
     errorMessages: snapshot.errorMessages,
     isLoading,
+    isMobileMenuOpen: snapshot.isMobileMenuOpen,
 
     // Comandos
     ...commands,
@@ -214,5 +215,18 @@ export function useMenuViewModel(isAuthenticated = false) {
     },
 
     isRouteActive: route => viewModel.isRouteActive(route),
+
+    // Mobile menu controls
+    toggleMobileMenu: () => {
+      console.log('📱 Hook: alternando menu mobile')
+      viewModel.toggleMobileMenu()
+      updateSnapshot()
+    },
+
+    closeMobileMenu: () => {
+      console.log('📱 Hook: fechando menu mobile')
+      viewModel.closeMobileMenu()
+      updateSnapshot()
+    },
   }
 }

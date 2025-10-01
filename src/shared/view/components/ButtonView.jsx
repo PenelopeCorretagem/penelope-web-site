@@ -32,17 +32,17 @@ export function ButtonView({
     const variants = {
       pink: {
         base: 'bg-brand-pink text-brand-white',
-        active: 'bg-brand-brown ring-2 ring-brand-accent',
-        hover: 'hover:bg-brand-brown',
+        active: 'bg-brand-brown',
+        hover: 'hover:bg-brand-pink',
       },
       brown: {
-        base: 'bg-brand-white-secondary text-brand-black',
-        active: 'bg-brand-pink text-brand-white ring-2 ring-brand-accent',
-        hover: 'hover:bg-brand-white-tertiary',
+        base: 'bg-brand-brown text-brand-white',
+        active: 'bg-brand-pink text-brand-white',
+        hover: 'hover:bg-brand-pink hover:text-brand-white',
       },
       white: {
-        base: 'bg-transparent border-2 border-brand-pink text-brand-pink',
-        active: 'bg-brand-pink text-brand-white border-brand-pink',
+        base: 'bg-brand-white text-brand-black',
+        active: 'bg-brand-pink text-brand-white',
         hover: 'hover:bg-brand-pink hover:text-brand-white',
       },
     }
@@ -50,6 +50,7 @@ export function ButtonView({
     const variantStyles = variants[variant] || variants.pink
     const stateClass = active ? variantStyles.active : variantStyles.hover
 
+    console.log([variantStyles.base, stateClass].join(' '))
     return [variantStyles.base, stateClass].join(' ')
   }
 
@@ -84,8 +85,8 @@ export function ButtonView({
     'leading-none',
     'uppercase',
     'transition-all duration-200',
-    'px-4 py-2', // padding base
-    // Dynamic classes
+    'px-4 py-2',
+    'hover:scale-105',
     getVariantClasses(variant, active),
     getWidthClasses(width),
     getShapeClasses(shape),

@@ -13,6 +13,7 @@ export function HeaderView({
       'w-full px-section-x md:px-section-x-md py-5',
       'bg-white shadow-md',
       'transition-all duration-200',
+      'sticky top-0 z-50',
     ].join(' ')
   }
 

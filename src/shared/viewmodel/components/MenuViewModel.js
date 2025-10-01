@@ -28,6 +28,18 @@ export class MenuViewModel {
     return this.model.activeItem
   }
 
+  get isMobileMenuOpen() {
+    return this.model.isMobileMenuOpen
+  }
+
+  toggleMobileMenu() {
+    this.model.isMobileMenuOpen = !this.model.isMobileMenuOpen
+  }
+
+  closeMobileMenu() {
+    this.model.isMobileMenuOpen = false
+  }
+
   get currentRoute() {
     return this.routerService?.route || '/'
   }
@@ -296,6 +308,7 @@ export class MenuViewModel {
       isAuthenticated: this.isAuthenticated,
       hasErrors: this.hasErrors,
       errorMessages: this.errorMessages,
+      isMobileMenuOpen: this.isMobileMenuOpen,
     }
   }
 

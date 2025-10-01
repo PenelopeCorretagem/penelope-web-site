@@ -48,7 +48,6 @@ export function useButtonViewModel(initialModel, config = {}) {
     handleClick: viewModel.handleClick,
   }
 
-  // ✅ Retorna apenas dados necessários
   return {
     text: viewModel.text,
     variant: viewModel.variant,

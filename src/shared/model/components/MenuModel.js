@@ -9,11 +9,10 @@ export class MenuModel {
   constructor(isAuthenticated = false) {
     this.isAuthenticated = isAuthenticated
     this.currentActiveItem = 'home'
-    // Usar instância singleton do RouterModel
+    this.isMobileMenuOpen = false
     this.routerModel = RouterModel.getInstance()
   }
 
-  // Menu base (sempre visível) - usando rotas centralizadas
   getBaseMenuItems() {
     const routes = this.routerModel.getMenuRoutes()
     const currentPath = window.location.pathname

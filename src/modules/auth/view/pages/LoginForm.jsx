@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ButtonView as Botao } from '@shared/view/components/ButtonView'
+import { ErrorDisplay } from '@shared/view/components/ErrorDisplay'
 
 /**
  * LoginForm
@@ -113,8 +114,13 @@ export default function LoginForm() {
         </button>
       </div>
 
-      {/* Mensagem de erro (quando existir) */}
-      {error && <p className='text-center text-sm text-red-500'>{error}</p>}
+      {/* Mensagem de erro */}
+      <ErrorDisplay
+        messages={error ? [error] : []}
+        position='inline'
+        variant='prominent'
+        className='mt-4'
+      />
 
       <div>
         <Botao type='submit' className='w-full'>

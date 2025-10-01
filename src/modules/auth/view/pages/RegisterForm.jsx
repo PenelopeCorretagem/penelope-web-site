@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ButtonView as Botao } from '@shared/view/components/ButtonView'
 import { Eye, EyeOff } from 'lucide-react'
+import { ErrorDisplay } from '@shared/view/components/ErrorDisplay'
 
 export default function RegisterForm({ onEmailExists, onRegisterSuccess }) {
   const [showPassword, setShowPassword] = useState(false)
@@ -105,6 +106,14 @@ export default function RegisterForm({ onEmailExists, onRegisterSuccess }) {
           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
       </div>
+      {/* Mensagem de erro */}
+      <ErrorDisplay
+        messages={error ? [error] : []}
+        position='inline'
+        variant='prominent'
+        className='mt-4'
+      />
+
       <div>
         <Botao type='submit' className='mt-4 w-full' onClick={() => {}}>
           CADASTRAR

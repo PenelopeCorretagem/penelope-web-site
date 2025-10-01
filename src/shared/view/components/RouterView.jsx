@@ -66,7 +66,7 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 
 export function RouterView({ isAuthenticated = false }) {
   return (
-    <main className='router-view bg-brand-white w-full flex-1 overflow-x-hidden'>
+    <main className='router-view bg-brand-white w-full flex-1'>
       <Routes>
         {/* Public Routes */}
         <Route path='/' element={<HomeView />} />

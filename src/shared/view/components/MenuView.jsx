@@ -3,6 +3,7 @@ import { MenuItemView } from '@shared/view/components/MenuItemView'
 import { MenuItemModel } from '@shared/model/components/MenuItemModel'
 import { ErrorDisplayView } from '@shared/view/components/ErrorDisplayView'
 import { useMenuViewModel } from '@shared/hooks/components/useMenuViewModel'
+import { Menu, X } from 'lucide-react'
 
 /**
  * MenuView - Componente de menu principal
@@ -20,16 +21,48 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
     handleItemClick,
     logout,
     isItemActive,
+    isMobileMenuOpen,
+    toggleMobileMenu,
+    closeMobileMenu,
   } = useMenuViewModel(isAuthenticated)
 
   const getMenuContainerClasses = () =>
-    ['flex items-center justify-between', 'w-full h-fit'].join(' ')
+    ['flex items-center justify-end md:justify-between', 'w-full h-fit'].join(
+      ' '
+    )
 
   const getMenuItemsContainerClasses = () =>
-    ['flex items-center gap-2', 'flex-1 justify-center'].join(' ')
+    [
+      'items-center gap-2',
+      'flex-1 justify-center',
+      'hidden md:flex', // Esconde em mobile (<768px) e mostra em md e acima
+      isMobileMenuOpen &&
+        'md:hidden flex absolute top-full left-0 right-0 flex-col bg-white shadow-lg p-4 z-50',
+    ]
+      .filter(Boolean)
+      .join(' ')
 
   const getUserActionsContainerClasses = () =>
-    ['flex items-center gap-2', 'w-fit'].join(' ')
+    [
+      'items-center gap-2',
+      'w-fit',
+      'hidden md:flex', // Esconde em mobile (<768px) e mostra em md e acima
+      isMobileMenuOpen &&
+        'md:hidden flex absolute top-[calc(100%+var(--menu-items-height))] left-0 right-0 justify-center bg-white shadow-lg p-4 z-50',
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+  const getHamburgerButtonClasses = () =>
+    [
+      'hidden max-md:flex', // Escondido por padrão, mas mostra apenas em telas < md (768px)
+      'items-center justify-center',
+      'w-10 h-10',
+      'text-2xl',
+      'cursor-pointer',
+      'transition-colors duration-200',
+      'hover:text-primary-600',
+    ].join(' ')
 
   const handleMenuItemClick = item => {
     handleItemClick(item.id)
@@ -58,6 +91,14 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
 
   return (
     <nav className={menuContainerClasses}>
+      <button
+        onClick={toggleMobileMenu}
+        className={getHamburgerButtonClasses()}
+        aria-label='Toggle menu'
+      >
+        {isMobileMenuOpen ? <X /> : <Menu />}
+      </button>
+
       <div className={getMenuItemsContainerClasses()}>
         {menuItems.map(item => {
           const isActive =
@@ -79,10 +120,13 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
                   iconOnly: item.iconOnly,
                 })
               }
-              onClick={() => handleMenuItemClick(item)}
+              onClick={() => {
+                handleMenuItemClick(item)
+                closeMobileMenu()
+              }}
               className={`transition-all duration-200 ${
                 item.requiresAuth && !isAuthenticated ? 'opacity-50' : ''
-              }`}
+              } ${isMobileMenuOpen ? 'w-full justify-center py-2' : ''}`}
             />
           )
         })}
@@ -104,10 +148,15 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
                   disabled: action.requiresAuth && !isAuthenticated,
                 })
               }
-              onClick={() => handleUserActionClick(action)}
+              onClick={() => {
+                handleUserActionClick(action)
+                closeMobileMenu()
+              }}
               width='fit'
               shape={action.shape || 'square'}
-              className={`transition-all duration-200 ${action.shape === 'circle' ? 'p-2' : ''} `}
+              className={`transition-all duration-200 ${
+                action.shape === 'circle' ? 'p-2' : ''
+              } ${isMobileMenuOpen ? 'w-full justify-center py-2' : ''}`}
               title={action.label}
             />
           )
