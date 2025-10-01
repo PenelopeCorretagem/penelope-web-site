@@ -52,7 +52,6 @@ export class ButtonViewModel {
     return !this.disabled && !this.hasErrors
   }
 
-  // ✅ Métodos de lógica (sem CSS)
   handleClick = event => {
     if (!this.canClick) return
 
