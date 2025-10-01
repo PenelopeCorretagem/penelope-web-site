@@ -2,13 +2,10 @@ import { useContactViewModel } from '../../viewmodel/components/ContactViewModel
 import { MenuView } from '../../../shared/view/components/MenuView'
 import { ContactIconView } from '../components/ContactIconView'
 import { FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook } from 'react-icons/fa'
-import ContactImage from '../../assets/ContactImage.jpg'
+import { CardImageView } from '../components/CardImageView'
 
 export function ContactView() {
   const { contactItems, openLink } = useContactViewModel()
-
-  const overlayOffsetX = 34
-  const overlayOffsetY = -32
 
   // Mapa de ícones (componentes, não instâncias)
   const iconMap = {
@@ -48,23 +45,7 @@ export function ContactView() {
           </div>
         </section>
         <section className='flex items-center justify-center p-22'>
-          <div className='relative inline-block overflow-visible'>
-            <div
-              className='absolute inset-0 left-0 z-0 rounded-md bg-gradient-to-b from-[#B33C8E] to-[#36221D] shadow-lg'
-              style={{
-                transform: `translate(${overlayOffsetX}px, ${overlayOffsetY}px)`,
-              }}
-            />
-
-            <img
-              src={ContactImage}
-              alt='Casal feliz'
-              className='border-brand-primary relative z-10 block rounded-sm border-3 shadow-lg'
-            />
-            <p className='font-default-family text-text-primary text-sm'>
-              Imagem gerada por IA
-            </p>
-          </div>
+          <CardImageView descriptionImage='Imagem gerada por IA' />
         </section>
       </main>
     </>
