@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { HomeView } from '@institutional/view/pages/HomeView'
 import { ErrorDisplayView } from './ErrorDisplayView'
 import { PropertiesView } from '@institutional/view/pages/PropertiesView'
+import { PropertyDetailsView } from '@institutional/view/pages/PropertyDetailsView'
 import { AboutView } from '@institutional/view/pages/AboutView'
 import { ContactsView } from '@institutional/view/pages/ContactsView'
 import { ScheduleView } from '@management/view/pages/ScheduleView'
@@ -71,6 +72,7 @@ export function RouterView({ isAuthenticated = false }) {
         {/* Public Routes */}
         <Route path='/' element={<HomeView />} />
         <Route path='/imoveis' element={<PropertiesView />} />
+        <Route path='/imoveis/1' element={<PropertyDetailsView />} />
         <Route path='/sobre' element={<AboutView />} />
         <Route path='/contatos' element={<ContactsView />} />
         <Route path='/login' element={<LoginView />} />
