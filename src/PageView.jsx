@@ -40,7 +40,7 @@ export function PageView() {
     <div className='flex min-h-screen w-full flex-col'>
       <HeaderView isAuthenticated={isAuthenticated} />
       <RouterView isAuthenticated={isAuthenticated} />
-      <FooterView />
+      <FooterView isAuthenticated={isAuthenticated} />
       {/* Botões de teste */}
       {process.env.NODE_ENV === 'development' && (
         <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 backdrop-blur-sm'>

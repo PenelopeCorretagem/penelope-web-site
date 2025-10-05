@@ -57,6 +57,17 @@ export class MenuViewModel {
   }
 
   /**
+   * Footer-specific getters
+   */
+  get footerSections() {
+    return this.model.getFooterSections()
+  }
+
+  getFooterItem(sectionName, itemId) {
+    return this.model.getFooterItem(sectionName, itemId)
+  }
+
+  /**
    * Navega para um item específico do menu
    * @param {string} itemId - ID do item do menu
    * @returns {Object} Resultado da navegação

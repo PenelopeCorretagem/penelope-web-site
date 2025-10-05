@@ -9,5 +9,5 @@ export const SECTION_BACKGROUND_COLOR_CLASSES = {
   [ESectionBackgroundColor.WHITE]: 'bg-brand-white',
   [ESectionBackgroundColor.WHITE_SECONDARY]: 'bg-brand-white-secondary',
   [ESectionBackgroundColor.PINK]: 'bg-brand-pink',
-  [ESectionBackgroundColor.PINK_GRADIENT]: 'bg-brand-pink-gradient',
+  [ESectionBackgroundColor.PINK_GRADIENT]: 'bg-brand-gradient',
 }

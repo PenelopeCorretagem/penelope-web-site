@@ -4,12 +4,12 @@
  * Implementa validações e presets de tamanho
  */
 export class LogoModel {
-  constructor(colorScheme = 'primary', size = 100) {
+  constructor(colorScheme = 'pink', size = 100) {
     this.colorScheme = colorScheme
     this.size = size
   }
 
-  static COLOR_SCHEMES = ['primary', 'surface', 'text', 'custom']
+  static COLOR_SCHEMES = ['pink', 'brown', 'white', 'black', 'custom']
   static SIZES = {
     small: 40,
     medium: 100,

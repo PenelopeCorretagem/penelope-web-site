@@ -6,14 +6,15 @@ export function LogoView({ model, className = '', customColor }) {
 
   const getLogoColors = (colorScheme, customColor) => {
     const colorMap = {
-      primary: 'text-brand-pink',
-      surface: 'text-brand-white',
-      text: 'text-brand-black',
+      pink: 'text-brand-pink',
+      brown: 'text-brand-brown',
+      white: 'text-brand-white',
+      black: 'text-brand-black',
       custom: '',
     }
 
     return {
-      className: colorMap[colorScheme] || colorMap.primary,
+      className: colorMap[colorScheme] || colorMap.pink,
       useCustom: colorScheme === 'custom',
       customColor: customColor || 'currentColor',
     }

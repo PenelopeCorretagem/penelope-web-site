@@ -5,7 +5,7 @@ import { MenuView } from '@shared/view/components/MenuView'
 export function HeaderView({
   isAuthenticated,
   logoSize = 40,
-  logoColorScheme = 'primary',
+  logoColorScheme = 'pink',
 }) {
   const getHeaderClasses = () => {
     return [

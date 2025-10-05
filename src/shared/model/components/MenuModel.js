@@ -272,6 +272,145 @@ export class MenuModel {
     return false // Por enquanto sempre false
   }
 
+  // Footer menu items organizados por seções
+  getFooterSections() {
+    const routes = this.routerModel.getMenuRoutes()
+    const authRoutes = this.routerModel.getAuthRoutes()
+    const userRoutes = this.routerModel.getUserActionRoutes()
+
+    // Seção Geral - adaptada conforme autenticação
+    const geral = [
+      {
+        id: 'home',
+        text: 'Home',
+        to: routes.HOME,
+        onClick: () => this.handleItemClick('home')
+      },
+      {
+        id: 'about',
+        text: 'Sobre',
+        to: routes.ABOUT,
+        onClick: () => this.handleItemClick('about')
+      }
+    ]
+
+    // Se autenticado, adiciona Perfil e Configurações
+    if (this.isAuthenticated) {
+      geral.push(
+        {
+          id: 'profile',
+          text: 'Perfil',
+          to: userRoutes.PROFILE,
+          onClick: () => this.handleItemClick('profile')
+        },
+        {
+          id: 'settings',
+          text: 'Configurações',
+          to: userRoutes.SETTINGS,
+          onClick: () => this.handleItemClick('settings')
+        }
+      )
+    }
+
+    // Seção Vendas - Agenda só aparece se autenticado
+    const vendas = [
+      {
+        id: 'properties',
+        text: 'Imóveis',
+        to: routes.PROPERTIES,
+        onClick: () => this.handleItemClick('properties')
+      }
+    ]
+
+    // Se autenticado, adiciona Agenda
+    if (this.isAuthenticated) {
+      vendas.push({
+        id: 'schedule',
+        text: 'Agenda',
+        to: routes.SCHEDULE,
+        onClick: () => this.handleItemClick('schedule')
+      })
+    }
+
+    vendas.push({
+      id: 'chatbot',
+      text: 'Chatbot',
+      to: '#',
+      disabled: true,
+      onClick: () => {} // Desabilitado por enquanto
+    })
+
+    // Seção Acesso - diferente para autenticado/não autenticado
+    const acesso = this.isAuthenticated
+      ? [
+        {
+          id: 'logout',
+          text: 'Logout',
+          to: routes.HOME,
+          onClick: () => this.handleItemClick('logout')
+        }
+      ]
+      : [
+        {
+          id: 'login',
+          text: 'Acessar',
+          to: authRoutes.LOGIN,
+          onClick: () => this.handleItemClick('login')
+        },
+        {
+          id: 'register',
+          text: 'Cadastrar',
+          to: authRoutes.REGISTER,
+          onClick: () => this.handleItemClick('register')
+        },
+        {
+          id: 'forgot-password',
+          text: 'Redefinir senha',
+          to: authRoutes.FORGOT_PASSWORD,
+          onClick: () => this.handleItemClick('forgot-password')
+        }
+      ]
+
+    return {
+      geral,
+      vendas,
+      acesso,
+      contatos: [
+        {
+          id: 'email',
+          text: 'E-mail',
+          to: 'mailto:contato@penelopeimoveis.com',
+          onClick: () => {}
+        },
+        {
+          id: 'facebook',
+          text: 'Facebook',
+          to: '#',
+          onClick: () => {}
+        },
+        {
+          id: 'whatsapp',
+          text: 'WhatsApp',
+          to: '#',
+          onClick: () => {}
+        },
+        {
+          id: 'instagram',
+          text: 'Instagram',
+          to: '#',
+          onClick: () => {}
+        }
+      ]
+    }
+  }
+
+  // Método auxiliar para obter item de footer específico
+  getFooterItem(sectionName, itemId) {
+    const sections = this.getFooterSections()
+    const section = sections[sectionName]
+    return section ? section.find(item => item.id === itemId) : null
+  }
+
   // Acesso ao RouterModel para casos especiais
   get routes() {
     return this.routerModel

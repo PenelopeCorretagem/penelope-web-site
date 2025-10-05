@@ -2,6 +2,9 @@
 import { MenuItemView } from '@shared/view/components/MenuItemView'
 import { MenuItemModel } from '@shared/model/components/MenuItemModel'
 import { ErrorDisplayView } from '@shared/view/components/ErrorDisplayView'
+import { LogoView } from './LogoView'
+import { LogoModel } from '@shared/model/components/LogoModel'
+import { HeadingView } from './HeadingView'
 import { useMenuViewModel } from '@shared/hooks/components/useMenuViewModel'
 import { Menu, X } from 'lucide-react'
 
@@ -10,9 +13,18 @@ import { Menu, X } from 'lucide-react'
  * Renderiza navegação principal e ações do usuário
  * Integra com MenuViewModel para gerenciar estado
  * @param {boolean} isAuthenticated - Estado de autenticação do usuário
+ * @param {string} variant - Variante do menu ('navigation' | 'footer')
+ * @param {number} logoSize - Tamanho do logo (apenas para variant footer)
+ * @param {string} logoColorScheme - Esquema de cores do logo (apenas para variant footer)
  */
 
-export function MenuView({ isAuthenticated = false, className = '' }) {
+export function MenuView({
+  isAuthenticated = false,
+  className = '',
+  variant = 'navigation',
+  logoSize = 40,
+  logoColorScheme = 'pink'
+}) {
   const {
     menuItems,
     userActions,
@@ -24,7 +36,8 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
     isMobileMenuOpen,
     toggleMobileMenu,
     closeMobileMenu,
-  } = useMenuViewModel(isAuthenticated)
+    footerSections,
+  } = useMenuViewModel(isAuthenticated, variant)
 
   const getMenuContainerClasses = () =>
     ['flex items-center justify-end md:justify-between', 'w-full h-fit'].join(
@@ -88,6 +101,89 @@ export function MenuView({ isAuthenticated = false, className = '' }) {
   ]
     .filter(Boolean)
     .join(' ')
+
+  // Renderização condicional baseada na variant
+  if (variant === 'footer') {
+    return (
+
+      <div className='flex flex-col md:flex-row  items-center md:items-start justify-between w-full h-fit gap-subsection md-gap-0'>
+        <div className='flex flex-col items-center md:items-start justify-between h-24'>
+          <LogoView
+            model={new LogoModel(logoColorScheme, logoSize)}
+          />
+          <HeadingView level={4} color='pink' className='text-center md:text-start'>seu sonho começa com uma chave</HeadingView>
+        </div>
+        <div className='flex flex-col items-center md:items-start gap-2'>
+          <HeadingView level={6} color='pink' className='font-extrabold'>Geral</HeadingView>
+          {footerSections.geral.map(item => (
+            <a
+              key={item.id}
+              href={item.to}
+              onClick={item.onClick}
+              className="hover:text-brand-pink hover:underline transition-colors duration-200 uppercase cursor-pointer"
+            >
+              <HeadingView level={6} color='black'>
+                {item.text}
+              </HeadingView>
+            </a>
+          ))}
+        </div>
+        <div className='flex flex-col items-center md:items-start gap-2'>
+          <HeadingView level={6} color='pink' className='font-extrabold'>Vendas</HeadingView>
+          {footerSections.vendas.map(item => (
+            <a
+              key={item.id}
+              href={item.disabled ? undefined : item.to}
+              onClick={item.disabled ? undefined : item.onClick}
+              className={`transition-colors duration-200 uppercase ${
+                item.disabled
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'hover:text-brand-pink hover:underline cursor-pointer'
+              }`}
+            >
+              <HeadingView
+                level={6}
+                color={item.disabled ? 'gray' : 'black'}
+              >
+                {item.text}
+              </HeadingView>
+            </a>
+          ))}
+        </div>
+        <div className='flex flex-col items-center md:items-start gap-2'>
+          <HeadingView level={6} color='pink' className='font-extrabold'>Acesso</HeadingView>
+          {footerSections.acesso.map(item => (
+            <a
+              key={item.id}
+              href={item.to}
+              onClick={item.onClick}
+              className="hover:text-brand-pink hover:underline transition-colors duration-200 uppercase cursor-pointer"
+            >
+              <HeadingView level={6} color='black'>
+                {item.text}
+              </HeadingView>
+            </a>
+          ))}
+        </div>
+        <div className='flex flex-col items-center md:items-start gap-2'>
+          <HeadingView level={6} color='pink' className='font-extrabold'>Contatos</HeadingView>
+          {footerSections.contatos.map(item => (
+            <a
+              key={item.id}
+              href={item.to}
+              onClick={item.onClick}
+              className="hover:text-brand-pink hover:underline transition-colors duration-200 uppercase cursor-pointer"
+            >
+              <HeadingView level={6} color='black'>
+                {item.text}
+              </HeadingView>
+            </a>
+          ))}
+        </div>
+      </div>
+
+    )
+  }
 
   return (
     <nav className={menuContainerClasses}>

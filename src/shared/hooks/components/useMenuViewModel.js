@@ -3,7 +3,7 @@ import { MenuViewModel } from '../../viewmodel/components/MenuViewModel'
 import { MenuModel } from '../../model/components/MenuModel'
 import { routerService } from '@shared/services/RouterService'
 
-export function useMenuViewModel(isAuthenticated = false) {
+export function useMenuViewModel(isAuthenticated = false, _variant = 'navigation') {
   const [viewModel] = useState(() => {
     const model = new MenuModel(isAuthenticated)
     return new MenuViewModel(model, routerService)
@@ -200,6 +200,10 @@ export function useMenuViewModel(isAuthenticated = false) {
     errorMessages: snapshot.errorMessages,
     isLoading,
     isMobileMenuOpen: snapshot.isMobileMenuOpen,
+
+    // Footer-specific data
+    footerSections: viewModel.footerSections,
+    getFooterItem: viewModel.getFooterItem.bind(viewModel),
 
     // Comandos
     ...commands,
