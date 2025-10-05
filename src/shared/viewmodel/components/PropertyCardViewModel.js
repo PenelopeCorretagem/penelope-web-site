@@ -1,4 +1,4 @@
-export class CardViewModel {
+export class PropertyCardViewModel {
   constructor(model) {
     this.model = model
   }

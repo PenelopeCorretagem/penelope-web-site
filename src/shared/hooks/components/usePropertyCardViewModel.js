@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
-import { CardModel } from '@shared/model/components/CardModel'
-import { CardViewModel } from '@shared/viewmodel/components/CardViewModel'
+import { PropertyCardModel } from '@shared/model/components/PropertyCardModel'
+import { PropertyCardViewModel } from '@shared/viewmodel/components/PropertyCardViewModel'
 
-export function useCardViewModel({
+export function usePropertyCardViewModel({
   category,
   title,
   subtitle,
@@ -10,14 +10,14 @@ export function useCardViewModel({
   differences = [],
 }) {
   const [viewModel] = useState(() => {
-    const model = new CardModel(
+    const model = new PropertyCardModel(
       category,
       title,
       subtitle,
       description,
       differences
     )
-    return new CardViewModel(model)
+    return new PropertyCardViewModel(model)
   })
 
   const [, setUpdateCounter] = useState(0)
