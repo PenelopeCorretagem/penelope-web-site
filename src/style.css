@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+@layer base {
+  :where(*) {
+    box-sizing: border-box !important;
+  }
+}
+
+
+@utility transition-padding {
+  transition: padding 500ms ease-in-out;
+}
+
+@utility transition-padding-slow {
+  transition: padding 1000ms ease-in-out;
+}
+
+@utility transition-padding-fast {
+  transition: padding 200ms ease-in-out;
+}
+
+@utility transition-px {
+  transition:
+    padding-left 500ms ease-in-out,
+    padding-right 500ms ease-in-out;
+}
+
+@utility transition-py {
+  transition:
+    padding-top 500ms ease-in-out,
+    padding-bottom 500ms ease-in-out;
+}
+
+@layer utilities {
+  .bg-brand-gradient {
+    background: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink));
+  }
+}
+
+
+@theme {
+  --font-default-family: 'Poppins', sans-serif;
+  --font-title-family: 'Darker Grotesque', sans-serif;
+
+  --padding-section-y: 48px;
+  --padding-section-x: 80px;
+  --padding-section: 48px 80px;
+  --padding-section-y-md: 56px;
+  --padding-section-x-md: 104px;
+  --padding-section-md: 56px 104px;
+
+  --padding-button: 8px 16px;
+  --padding-button-x: 16px;
+  --padding-button-y: 8px;
+  --padding-button-md: 12px 24px;
+  --padding-button-x-md: 24px;
+  --padding-button-y-md: 12px;
+
+  --padding-card: 16px;
+  --padding-card-md: 24px;
+
+  --gap-card: 12px;
+  --gap-card-md: 20px;
+
+  --gap-section: 160px;
+  --gap-section-md: 208px;
+
+  --gap-subsection: 24px;
+  --gap-subsection-md: 36px;
+
+  /* Cores de superfície/fundo */
+  --color-brand-white: #dedede; /* Fundo principal */
+  --color-brand-white-secondary: #ebe9e9; /* Fundo secundário */
+  --color-brand-white-tertiary: #cbcbcb; /* Fundo terciário/cards */
+
+  /* Cores de texto */
+  --color-brand-black: #1f1d1f; /* Texto principal */
+
+  /* Cores de marca/destaque */
+  --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */
+  --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
+  --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
+  --color-brand-soft-brown: #816862; /* Variação suave secundária */
+
+   /* Menu Mobile */
+  --menu-items-height: 200px; /* Ajuste conforme necessário */
+
+}

@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Debug Vite + Browser",
+      "configurations": ["Debug Vite Dev Server", "Debug React App (Chrome)"]
+    }
+  ],
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Vite Dev Server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 9229,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "Debug React App (Chrome)",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/src"
+    }
+  ]
+}
