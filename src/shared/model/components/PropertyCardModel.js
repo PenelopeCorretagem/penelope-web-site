@@ -1,4 +1,4 @@
-import { ECategoryCard } from '@shared/Enum/components/ECategorycard'
+import { ECategoryCard } from '@shared/Enum/components/ECategoryCard'
 import { LabelModel } from '@shared/model/components/LabelModel'
 import { ButtonModel } from '@shared/model/components/ButtonModel'
 

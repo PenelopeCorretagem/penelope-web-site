@@ -10,9 +10,9 @@ export function PropertyFeatures({ features }) {
           {features.map((f) => (
             <div
               key={f.label}
-              className="flex items-center gap-2 bg-white border rounded-lg px-4 py-3 text-gray-700 font-medium shadow-sm"
+              className="flex items-center gap-2 bg-brand-gray border rounded-lg px-4 py-3 text-brand-white font-medium shadow-sm"
             >
-              {f.icon && <f.icon className="w-5 h-5 text-pink-600" />}
+              {f.icon && <f.icon className="w-5 h-5 text-brand-white" />}
               {f.label}
             </div>
           ))}

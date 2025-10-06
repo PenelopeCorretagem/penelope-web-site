@@ -10,7 +10,8 @@ import { Car, Dumbbell, Dog } from "lucide-react"
 import { PropertyLocation } from '@shared/view/components/PropertyLocation'
 import { PropertyRegion } from '@shared/view/components/PropertyRegion'
 import { ESectionBackgroundColor } from '@shared/Enum/components/ESectionBackgroundColor'
-import { CardView } from '@shared/view/components/CardView'
+import { PropertiesCarouselView } from '@shared/view/components/PropertiesCarouselView'
+import { PropertyDetailsCard } from '@shared/view/components/PropertyDetailsCard'
 import { ECategoryCard } from '@shared/Enum/components/ECategoryCard'
 
 
@@ -45,7 +46,7 @@ export function PropertyDetailsView() {
     },
   ]
   return (
-    <>
+    <div className="relative">
       <PropertyHeroSection
         title={fakeRequest2[0].title}
         location={fakeRequest2[0].subtitle}
@@ -55,7 +56,32 @@ export function PropertyDetailsView() {
       <PropertyTabs
         tabs={["Sobre o Imóvel", "Diferenciais", "Localização", "Sobre a Região"]}
       />
-      < PropertyOverview description={fakeRequest2[0].description} />
+
+      {/* Container com sticky card - extende até o final */}
+      <div className="relative min-h-screen">
+        < PropertyOverview description={fakeRequest2[0].description} />
+
+        {/* Card Sticky - inicia na posição do PropertyOverview */}
+        <div className="absolute top-16 right-6 z-10 hidden lg:block h-full">
+          <div className="sticky top-6">
+            <PropertyDetailsCard
+              hasLabel={true}
+              category={ECategoryCard.LANCAMENTO}
+              title={fakeRequest2[0].title}
+              subtitle={fakeRequest2[0].subtitle}
+              description={fakeRequest2[0].description}
+              hasDifference={true}
+              differences={fakeRequest2[0].differences}
+              hasButton={true}
+              buttonState="contato"
+              hasShadow={true}
+              hasImage={false}
+              hasHoverEffect={false}
+            />
+          </div>
+        </div>
+      </div>
+
       < PropertyFeatures features={[
         { icon: Car, label: '2 Vagas' },
         { icon: Dumbbell, label: 'Academia' },
@@ -64,29 +90,10 @@ export function PropertyDetailsView() {
       < PropertyLocation locations={fakeRequest2} />
       < PropertyRegion description={fakeRequest2[0].description} image={fakeRequest2[0].imageLink} />
 
-            <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <div className='w-full overflow-x-auto'>
-          <div className='flex flex-row items-center gap-4 md:gap-6 pb-4'>
-            {fakeRequest2.map((property, index) => (
-              <CardView
-                key={index}
-                hasLabel={true}
-                category={property.category}
-                title={property.title}
-                subtitle={property.subtitle}
-                description={property.description}
-                hasDifference={true}
-                differences={property.differences}
-                hasButton={true}
-                hasShadow={true}
-                hasImage={true}
-                imageUrl={property.imageLink}
-              />
-            ))}
-          </div>
-        </div>
+      <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
+        <PropertiesCarouselView properties={fakeRequest2} />
       </SectionView>
-    </>
+    </div>
 
   )
 }
