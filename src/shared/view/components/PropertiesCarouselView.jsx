@@ -5,7 +5,7 @@ import { ButtonView } from './ButtonView'
 import { ButtonModel } from '../../model/components/ButtonModel'
 import { HeadingView } from './HeadingView'
 
-export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [] }) {
+export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [], titleCarousel }) {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
@@ -167,7 +167,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
     <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
       <div className='flex flex-row justify-between items-start'>
         <HeadingView level={2} color='pink' className="text-center mb-4">
-          Nossos Lançamentos
+          {titleCarousel}
         </HeadingView>
 
         {/* Botão Ver Mais */}
