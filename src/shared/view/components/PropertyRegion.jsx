@@ -1,13 +1,13 @@
 import React from "react";
 
-export function PropertyRegion({ description, image }) {
+export function PropertyRegion({ regionDescription, image }) {
   return (
-    <section className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-8 py-12">
+    <section className="mx-auto grid md:grid-cols-2 items-center gap-16 py-12 px-24 bg-brand-white">
       <div>
-        <h2 className="text-xl font-bold mb-4 text-pink-700 uppercase">Sobre a Região</h2>
-        <p className="text-gray-700 leading-relaxed">{description}</p>
+        <h2 className="text-xl font-medium mb-8 text-brand-pink uppercase">Sobre a Região</h2>
+        <p className="text-brand-gray leading-relaxed">{regionDescription}</p>
       </div>
-      <img src={image} alt="Região" className="rounded-lg shadow-lg" />
+      <img src={image} alt="Região" className="rounded shadow-lg" />
     </section>
   );
 };

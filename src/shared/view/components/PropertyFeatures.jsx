@@ -3,17 +3,17 @@ import { Car, Dumbbell, Dog } from "lucide-react"; // Exemplo de ícones
 
 export function PropertyFeatures({ features }) {
   return (
-    <section className="bg-gray-50 py-12">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-xl font-bold mb-6 text-pink-700 uppercase">Diferenciais</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <section className="bg-brand-white-secondary py-12">
+      <div className="mx-auto px-24">
+        <h2 className="text-xl font-medium mb-6 text-brand-pink uppercase">Diferenciais</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-3 max-w-3xl">
           {features.map((f) => (
             <div
               key={f.label}
-              className="flex items-center gap-2 bg-brand-gray border rounded-lg px-4 py-3 text-brand-white font-medium shadow-sm"
+              className="flex items-center justify-start gap-2 bg-brand-gray border rounded px-3 py-3 text-brand-white font-medium shadow-sm"
             >
               {f.icon && <f.icon className="w-5 h-5 text-brand-white" />}
-              {f.label}
+              <span className="truncate">{f.label}</span>
             </div>
           ))}
         </div>
