@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react'
-import { HeaderView } from '@shared/view/components/HeaderView'
-import { RouterView } from '@shared/view/components/RouterView'
-import { useRouter } from '@shared/hooks/components/useRouterViewModel'
-import { FooterView } from '@shared/view/components/FooterView'
+import { HeaderView } from '@shared/components/layout/Header/HeaderView'
+import { RouterView } from '@routes/RouterView'
+import { useRouter } from '@routes/useRouterViewModel'
+import { FooterView } from '@shared/components/layout/Footer/FooterView'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { currentRoute } = useRouter()
+
+  // Rotas onde header e footer devem ser ocultos
+  const authRoutes = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha']
+  const isAuthPage = authRoutes.some(route =>
+    currentRoute === route || currentRoute.startsWith('/redefinir-senha/')
+  )
 
   // Sincroniza estado de autenticação com o JWT
   useEffect(() => {
@@ -19,31 +25,23 @@ export function PageView() {
     const mockJWT = `mock_jwt_token_${Date.now()}`
     localStorage.setItem('jwtToken', mockJWT)
     setIsAuthenticated(true)
-    console.log('🔓 Login realizado')
   }
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken')
     setIsAuthenticated(false)
     window.location.href = '/' // Força redirecionamento para home
-    console.log('🔒 Logout realizado')
   }
 
-  // Debug: log mudanças de rota e auth
-  useEffect(() => {
-    console.log(
-      `📍 PageView: rota atual = ${currentRoute}, auth = ${isAuthenticated}`
-    )
-  }, [currentRoute, isAuthenticated])
 
   return (
     <div className='flex min-h-screen w-full flex-col'>
-      <HeaderView isAuthenticated={isAuthenticated} />
+      {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
       <RouterView isAuthenticated={isAuthenticated} />
-      <FooterView isAuthenticated={isAuthenticated} />
+      {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
       {/* Botões de teste */}
       {process.env.NODE_ENV === 'development' && (
-        <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 backdrop-blur-sm'>
+        <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 z-50 backdrop-blur-sm'>
           <div className='flex gap-2'>
             {!isAuthenticated ? (
               <button

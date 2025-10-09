@@ -6,6 +6,21 @@
   }
 }
 
+/* Auth page animations */
+@keyframes slideIn {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 10;
+  }
+  50%, 100% {
+    opacity: 1;
+    z-index: 50;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.7s;
+}
 
 @utility transition-padding {
   transition: padding 500ms ease-in-out;
@@ -85,4 +100,20 @@
    /* Menu Mobile */
   --menu-items-height: 200px; /* Ajuste conforme necessário */
 
+}
+
+@layer utilities {
+  /* Utilidades para carrossel */
+  .scrollbar-hide {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
 }
