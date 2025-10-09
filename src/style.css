@@ -1,19 +1,25 @@
 @import 'tailwindcss';
 
 @layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  :where(*) {
+    box-sizing: border-box !important;
   }
+}
 
-  html, body {
-    height: 100%;
+/* Auth page animations */
+@keyframes slideIn {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 10;
   }
+  50%, 100% {
+    opacity: 1;
+    z-index: 50;
+  }
+}
 
-  button, input, textarea {
-    all: unset;
-  }
+.animate-slideIn {
+  animation: slideIn 0.7s;
 }
 
 @utility transition-padding {
@@ -40,16 +46,23 @@
     padding-bottom 500ms ease-in-out;
 }
 
+@layer utilities {
+  .bg-brand-gradient {
+    background: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink));
+  }
+}
+
+
 @theme {
   --font-default-family: 'Poppins', sans-serif;
   --font-title-family: 'Darker Grotesque', sans-serif;
 
-  --padding-section-y: 36px;
-  --padding-section-x: 60px;
-  --padding-section-md: 36px 60px;
-  --padding-section-y-md: 48px;
-  --padding-section-x-md: 80px;
-  --padding-section-md: 48px 80px;
+  --padding-section-y: 48px;
+  --padding-section-x: 80px;
+  --padding-section: 48px 80px;
+  --padding-section-y-md: 56px;
+  --padding-section-x-md: 104px;
+  --padding-section-md: 56px 104px;
 
   --padding-button: 8px 16px;
   --padding-button-x: 16px;
@@ -64,6 +77,12 @@
   --gap-card: 12px;
   --gap-card-md: 20px;
 
+  --gap-section: 160px;
+  --gap-section-md: 208px;
+
+  --gap-subsection: 24px;
+  --gap-subsection-md: 36px;
+
   /* Cores de superfície/fundo */
   --color-brand-white: #dedede; /* Fundo principal */
   --color-brand-white-secondary: #ebe9e9; /* Fundo secundário */
@@ -77,4 +96,24 @@
   --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
   --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
   --color-brand-soft-brown: #816862; /* Variação suave secundária */
+
+   /* Menu Mobile */
+  --menu-items-height: 200px; /* Ajuste conforme necessário */
+
+}
+
+@layer utilities {
+  /* Utilidades para carrossel */
+  .scrollbar-hide {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
 }
