@@ -65,11 +65,12 @@ export function PropertyCardView({
         )}
         {hasButton && (
           <ButtonView
-            text={buttonProps.text}
             variant={buttonProps.variant}
             type={buttonProps.type}
             onClick={handleButtonClick}
-          />
+          >
+            {buttonProps.text}
+          </ButtonView>
         )}
       </div>
     </div>

@@ -223,11 +223,12 @@ export function HomeView() {
             Penélope une o melhor dos dois mundos: a experiência e credibilidade da Cury no mercado imobiliário com um atendimento humanizado, próximo e pensado especialmente para quem está dando os primeiros passos rumo à casa própria.
           </TextView>
           <ButtonView
-            text="saber mais"
             variant="brown"
             type="button"
             width='fit'
-          />
+          >
+            saber mais
+          </ButtonView>
         </div>
         {fakeRequest.imageLink != null ?(
           <div

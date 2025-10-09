@@ -44,24 +44,26 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         {/* Botões de navegação - nos cantos do carrossel */}
         <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
           <ButtonView
-            text={<ChevronLeft size={24} className="text-brand-white" />}
             variant="brown"
             type="button"
             width='fit'
             onClick={scrollToLeft}
             className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
             aria-label="Slide anterior"
-          />
+          >
+            <ChevronLeft size={24} className="text-brand-white" />
+          </ButtonView>
 
           <ButtonView
-            text={<ChevronRight size={24} className="text-brand-white" />}
             variant="brown"
             type="button"
             width='fit'
             onClick={scrollToRight}
             className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
             aria-label="Próximo slide"
-          />
+          >
+            <ChevronRight size={24} className="text-brand-white" />
+          </ButtonView>
         </div>
 
         <div

@@ -3,8 +3,8 @@ import { useButtonViewModel } from '@shared/components/ui/Button/useButtonViewMo
 /**
  * ButtonView - Componente de botão
  * Integra com ButtonViewModel para gerenciar estado e comportamento
- * @param {string} text - Texto do botão
- * @param {string} variant - Variante de cor ('pink' | 'brown' | 'white')
+ * @param {Node} children - Conteúdo do botão (texto, ícones, etc.)
+ * @param {string} variant - Variante de cor ('pink' | 'brown' | 'white' | 'border-white')
  * @param {string} type - Tipo do botão ('button' | 'submit' | 'reset')
  * @param {string} width - Largura do botão ('full' | 'fit')
  * @param {string} shape - Forma do botão ('square' | 'circle')
@@ -12,7 +12,7 @@ import { useButtonViewModel } from '@shared/components/ui/Button/useButtonViewMo
  * @param {Function} onClick - Handler de clique
  */
 export function ButtonView({
-  text = '',
+  children = '',
   variant = 'pink',
   type = 'button',
   width = 'full',
@@ -21,7 +21,6 @@ export function ButtonView({
   onClick,
 }) {
   const {
-    text: buttonText,
     type: buttonType,
     active,
     disabled,
@@ -29,7 +28,7 @@ export function ButtonView({
     errorMessages,
     handleClick,
     getButtonClasses,
-  } = useButtonViewModel(text, variant, type, { onClick })
+  } = useButtonViewModel(children, variant, type, { onClick })
 
   const buttonClasses = getButtonClasses(width, shape, className)
 
@@ -44,7 +43,7 @@ export function ButtonView({
       aria-invalid={hasErrors}
       title={hasErrors ? errorMessages : undefined}
     >
-      {buttonText}
+      {children}
 
       {hasErrors && (
         <span className='ml-1 text-red-300' aria-hidden='true'>

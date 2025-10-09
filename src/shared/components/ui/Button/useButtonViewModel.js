@@ -74,6 +74,11 @@ class ButtonViewModel {
         active: 'bg-brand-pink text-brand-white',
         hover: 'hover:bg-brand-pink hover:text-brand-white',
       },
+      'border-white': {
+        base: 'border-2 border-brand-white bg-transparent text-brand-white',
+        active: 'border-2 border-brand-white bg-brand-white text-brand-pink',
+        hover: 'hover:border-2 hover:border-brand-white hover:bg-brand-white hover:text-brand-pink',
+      }
     }
 
     const variantStyles = variants[this.variant] || variants.pink
