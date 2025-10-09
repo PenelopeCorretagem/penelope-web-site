@@ -108,15 +108,17 @@ export function AuthView() {
                 </p>
 
                 <ButtonView
-                  text="Entrar"
-                  variant="white"
+                  variant="border-white"
                   type="button"
                   width="fit"
                   onClick={handleLoginClick}
-                  className="bg-transparent border-2 border-white text-white px-12 py-3 text-xs font-semibold tracking-wider uppercase hover:bg-brand-white hover:text-purple-800 transition-all duration-300"
+                  className=""
                   aria-label="Alternar para formulário de login"
                   aria-pressed={!isActive}
-                />
+                >
+                  Entrar
+                </ButtonView>
+
               </div>
 
             </div>
@@ -139,15 +141,16 @@ export function AuthView() {
                   Clique abaixo e conquiste a chave do seu sonho.
                 </p>
                 <ButtonView
-                  text="Cadastrar"
-                  variant="white"
+                  variant="border-white"
                   type="button"
                   width="fit"
                   onClick={handleRegisterClick}
-                  className="bg-transparent border-2 border-white text-white px-12 py-3 text-xs font-semibold tracking-wider uppercase hover:bg-brand-white hover:text-purple-800 transition-all duration-300"
+                  className=""
                   aria-label="Alternar para formulário de cadastro"
                   aria-pressed={isActive}
-                />
+                >
+                  Cadastrar
+                </ButtonView>
               </div>
             </div>
 
