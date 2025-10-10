@@ -2,9 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { PropertyHeroSection } from '@shared/view/components/PropertyHeroSection'
 import { PropertyTabs } from '@shared/view/components/PropertyTabs'
 import { PropertyOverview } from '@shared/view/components/PropertyOverview'
-import { PropertySummaryCard } from '@shared/view/components/PropertySummaryCard'
 import { SectionView } from '@shared/view/components/SectionView'
-import { ButtonView } from '@shared/view/components/ButtonView'
 import { PropertyFeatures } from '@shared/view/components/PropertyFeatures'
 import { Car, Dumbbell, Dog } from "lucide-react"
 import { PropertyLocation } from '@shared/view/components/PropertyLocation'
@@ -38,15 +36,53 @@ export function PropertyDetailsView() {
     },
   ]
 
-  const titles = [
-    'Stand de Vendas',
-    'Empreendimento'
-  ]
+  const titles = ['Stand de Vendas', 'Empreendimento']
+  const addresses = ['Rua das Flores, 123 - Interlagos, Guarulhos - SP', 'Av. Domingos de Morais, 456 - Vila Mariana, São Paulo - SP']
 
-  const addresses = [
-    'Rua das Flores, 123 - Interlagos, Guarulhos - SP',
-    'Av. Domingos de Morais, 456 - Vila Mariana, São Paulo - SP'
-  ]
+  const sectionRef = useRef(null)
+  const wrapperRef = useRef(null)
+  const cardRef = useRef(null)
+  const [cardStyle, setCardStyle] = useState({ position: 'relative', width: '100%', zIndex: 50 })
+
+
+useEffect(() => {
+  const handleScroll = () => {
+    const section = sectionRef.current
+    const wrapper = wrapperRef.current
+    const card = cardRef.current
+    if (!section || !wrapper || !card) return
+
+    const sectionRect = section.getBoundingClientRect()
+    const wrapperRect = wrapper.getBoundingClientRect()
+    if (sectionRect.top <= 100) {
+      setCardStyle({
+        position: 'fixed',
+        top: 100,
+        left: wrapperRect.left,
+        width: wrapperRect.width,
+        zIndex: 1000, // acima de tudo, sem animação
+      })
+    } else {
+      setCardStyle({
+        position: 'relative',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 50,
+      })
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll)
+  window.addEventListener('resize', handleScroll)
+  handleScroll()
+  return () => {
+    window.removeEventListener('scroll', handleScroll)
+    window.removeEventListener('resize', handleScroll)
+  }
+}, [])
+
+
 
   return (
     <div className="relative h-fit">
@@ -55,40 +91,43 @@ export function PropertyDetailsView() {
         location={fakeRequest2[0].subtitle}
         description={fakeRequest2[0].description}
         image={fakeRequest2[0].imageLink}
+        propertyType={ECategoryCard.EM_OBRAS} // ou EM_OBRAS ou DISPONIVEL
       />
       <PropertyTabs
         tabs={["Sobre o Imóvel", "Diferenciais", "Localização", "Sobre a Região"]}
         anchors={["sobre-imovel", "diferenciais", "localizacao", "sobre-regiao"]}
       />
 
-      {/* Seção: Sobre o Imóvel */}
-      <section id="sobre-imovel">
-        <div>
-          <PropertyOverview overview={fakeRequest2[0].overview} />
+      <section id="sobre-imovel" ref={sectionRef} className="relative py-12">
+        <div className="container mx-auto">
+          <div className="lg:grid lg:grid-cols-[1fr_340px] gap-8 items-start">
+          <div className="flex-1 lg:px-0">
+            <PropertyOverview overview={fakeRequest2[0].overview} />
+          </div>
 
-          {/* Card Sticky */}
-          <div className="absolute top-140 right-6 z-10 hidden lg:block h-full">
-            <div className="sticky top-24">
-              <PropertyDetailsCard
-                hasLabel={true}
-                category={ECategoryCard.LANCAMENTO}
-                title={fakeRequest2[0].title}
-                subtitle={fakeRequest2[0].subtitle}
-                description={fakeRequest2[0].description}
-                hasDifference={true}
-                differences={fakeRequest2[0].differences}
-                hasButton={true}
-                buttonState="contato"
-                hasShadow={true}
-                hasImage={false}
-                hasHoverEffect={false}
-              />
+
+            <div ref={wrapperRef} className="hidden lg:block relative">
+              <div ref={cardRef} style={cardStyle}>
+                <PropertyDetailsCard
+                  hasLabel={true}
+                  category={ECategoryCard.EM_OBRAS}
+                  title={fakeRequest2[0].title}
+                  subtitle={fakeRequest2[0].subtitle}
+                  description={fakeRequest2[0].description}
+                  hasDifference={true}
+                  differences={fakeRequest2[0].differences}
+                  hasButton={true}
+                  buttonState="contato"
+                  hasShadow={true}
+                  hasImage={false}
+                  hasHoverEffect={false}
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Seção: Diferenciais */}
       <section id="diferenciais">
         <PropertyFeatures features={[
           { icon: Car, label: '2 Vagas' },
@@ -103,22 +142,12 @@ export function PropertyDetailsView() {
         ]} />
       </section>
 
-      {/* Seção: Localização */}
       <section id="localizacao">
-        <PropertyLocation
-          locations={fakeRequest2}
-          addresses={addresses}
-          titles={titles}
-        />
+        <PropertyLocation locations={fakeRequest2} addresses={addresses} titles={titles} />
       </section>
 
-      {/* Seção: Sobre a Região */}
       <section id="sobre-regiao">
-        <PropertyRegion
-          regionDescription={fakeRequest2[0].regionDescription}
-          image={fakeRequest2[0].imageLink}
-        />
-
+        <PropertyRegion regionDescription={fakeRequest2[0].regionDescription} image={fakeRequest2[0].imageLink} />
         <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
           <PropertiesCarouselView properties={fakeRequest2} />
         </SectionView>

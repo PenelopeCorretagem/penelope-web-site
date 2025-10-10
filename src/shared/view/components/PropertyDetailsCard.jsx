@@ -4,6 +4,7 @@ import { LabelView } from '@shared/view/components/LabelView'
 import { ButtonView } from '@shared/view/components/ButtonView'
 import { ButtonModel } from '@shared/model/components/ButtonModel'
 import { usePropertyCardViewModel } from '@shared/hooks/components/usePropertyCardViewModel'
+import { ECategoryCard } from '@shared/Enum/components/ECategoryCard'
 
 export function PropertyCardView({
   hasLabel = true,
@@ -18,7 +19,8 @@ export function PropertyCardView({
   hasImage = false,
   hasHoverEffect = false,
   imageUrl,
-  buttonState = 'geral', // 'geral' ou 'contato'
+  buttonState = 'geral',
+  propertyType = ECategoryCard.EM_OBRAS,
 }) {
   const {
     categoryLabel,
@@ -33,6 +35,20 @@ export function PropertyCardView({
     differences,
   })
 
+  const getButtonColor = (category) => {
+    switch (category) {
+      case ECategoryCard.LANCAMENTO:
+        return 'pink';
+      case ECategoryCard.EM_OBRAS:
+        return 'soft-brown';
+      case ECategoryCard.DISPONIVEL:
+        return 'brown';
+      default:
+        return 'pink';
+    }
+  };
+
+  const buttonColor = getButtonColor(propertyType);
   const labelPosition = hasImage ? 'absolute top-0 -translate-y-1/2 left-[1.5rem]' : ''
 
   return (
@@ -62,38 +78,34 @@ export function PropertyCardView({
           <div className='flex flex-col gap-3 w-full'>
             {buttonState === 'geral' ? (
               <>
-                {/* Dois botões lado a lado */}
                 <div className='flex gap-2 w-full'>
                   <ButtonView
-                    model={buttonProps}
+                    model={new ButtonModel('Ver Galeria', buttonColor, 'button')}
                     onClick={handleButtonClick}
                     width='full'
                   />
                   <ButtonView
-                    model={new ButtonModel('Contato', 'brown', 'button')}
+                    model={new ButtonModel('Ver Planta', buttonColor, 'button')}
                     onClick={() => console.log('Contato clicado')}
                     width='full'
                   />
                 </div>
-                {/* Terceiro botão abaixo */}
                 <ButtonView
-                  model={new ButtonModel('Favoritar', 'softBrown', 'button')}
-                  onClick={() => console.log('Favoritar clicado')}
+                  model={new ButtonModel('Assistir Video', buttonColor, 'button')}
+                  onClick={handleButtonClick}
                   width='full'
                 />
               </>
             ) : (
               <>
-                {/* Um único botão quando state for 'contato' */}
                 <ButtonView
-                  model={new ButtonModel('Entre em Contato', 'brown', 'button')}
-                  onClick={() => console.log('Entre em Contato clicado')}
+                  model={new ButtonModel('Conversar Pelo WhatsApp', buttonColor, 'button')}
+                  onClick={handleButtonClick}
                   width='full'
                 />
-                {/* Terceiro botão abaixo */}
                 <ButtonView
-                  model={new ButtonModel('Favoritar', 'softBrown', 'button')}
-                  onClick={() => console.log('Favoritar clicado')}
+                  model={new ButtonModel('Agendar Visita', 'brown', 'button')}
+                  onClick={handleButtonClick}
                   width='full'
                 />
               </>
@@ -105,5 +117,4 @@ export function PropertyCardView({
   )
 }
 
-// Export alternativo para clareza
 export const PropertyDetailsCard = PropertyCardView
