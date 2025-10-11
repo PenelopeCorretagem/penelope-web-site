@@ -11,10 +11,6 @@ export function ProfileView() {
     <SectionView>
       <ManagementMenuView variant="perfil" activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
       <ManagementFormView variant={activeMenu} />
-      <div>
-        <button>Excluir</button>
-        <button>Editar</button>
-      </div>
     </SectionView>
   )
 }
