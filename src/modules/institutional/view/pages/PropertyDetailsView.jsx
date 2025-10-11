@@ -20,7 +20,7 @@ export function PropertyDetailsView() {
       description: '2 dormitórios com opção de terraço',
       overview: 'Apartamento de 2 dormitórios com opção de terraço privativo, localizado em um dos bairros mais valorizados de Guarulhos. O imóvel conta com acabamentos de primeira qualidade, incluindo piso porcelanato, bancadas em granito e armários planejados na cozinha. A sala de estar integrada oferece amplo espaço para convivência familiar, com acesso direto ao terraço que proporciona vista panorâmica da região. O dormitório principal possui suíte completa com box de vidro temperado e ventilação natural. Conta ainda com área de serviço independente, 2 vagas de garagem cobertas e depósito privativo. O condomínio oferece infraestrutura completa com piscina adulto e infantil, academia equipada, salão de festas, playground, quadra poliesportiva e sistema de segurança 24h.',
       regionDescription: 'A região de Interlagos em Guarulhos é conhecida por sua atmosfera tranquila e familiar, oferecendo excelente qualidade de vida. Localizada próxima ao Aeroporto Internacional de Guarulhos, a região conta com fácil acesso às principais rodovias como Dutra e Fernão Dias. O bairro possui infraestrutura completa com supermercados, farmácias, escolas particulares e públicas de qualidade, centros médicos e diversas opções de comércio local. A proximidade com o centro de Guarulhos e São Paulo torna a localização estratégica para quem busca praticidade no dia a dia. A região ainda conta com áreas verdes preservadas, proporcionando um ambiente mais saudável e agradável para toda a família.',
-      category: ECategoryCard.LANCAMENTO,
+      category: ECategoryCard.EM_OBRAS,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -91,7 +91,7 @@ useEffect(() => {
         location={fakeRequest2[0].subtitle}
         description={fakeRequest2[0].description}
         image={fakeRequest2[0].imageLink}
-        propertyType={ECategoryCard.EM_OBRAS} // ou EM_OBRAS ou DISPONIVEL
+        category={fakeRequest2[0].category} // ou EM_OBRAS ou DISPONIVEL
       />
       <PropertyTabs
         tabs={["Sobre o Imóvel", "Diferenciais", "Localização", "Sobre a Região"]}
