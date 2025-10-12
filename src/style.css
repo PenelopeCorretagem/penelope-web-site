@@ -52,6 +52,14 @@
   }
 }
 
+@layer utilities-border {
+  .border-brand-gradient {
+    border: 2px solid;
+    border-radius: 8px;
+    border-image: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink)) 1;
+  }
+}
+
 
 @theme {
   --font-default-family: 'Poppins', sans-serif;
@@ -77,8 +85,8 @@
   --gap-card: 12px;
   --gap-card-md: 20px;
 
-  --gap-section: 160px;
-  --gap-section-md: 208px;
+  --gap-section: 100px;
+  --gap-section-md: 120px;
 
   --gap-subsection: 24px;
   --gap-subsection-md: 36px;
