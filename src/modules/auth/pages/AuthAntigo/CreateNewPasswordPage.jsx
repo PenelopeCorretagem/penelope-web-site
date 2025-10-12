@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ButtonView as Botao } from '@shared/components/ui/Button/ButtonView'
 import { LogoView as Logo } from '@shared/view/components/LogoView'
 import { Modal } from '@shared/view/components/Modal'
-import PasswordChangedPopup from './PasswordChangedPopup'
+import PasswordChangedPopup from '../Auth/PasswordChangedPopup'
 import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 

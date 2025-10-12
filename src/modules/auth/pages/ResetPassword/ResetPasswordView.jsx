@@ -5,38 +5,34 @@ import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ArrowBackView } from '@shared/components/ui/AroowBack/ArrowBackView'
-import { useAuthViewModel } from './useAuthViewModel'
+import { useResetPasswordViewModel } from './useResetPasswordViewModel'
 
-export function AuthView() {
+export function ResetPasswordView() {
   const {
     // Estado
-    isActive,
-    isForgotPassword,
+    _isActive,
+    currentResetType,
 
     // Handlers
-    handleRegisterClick,
-    handleLoginClick,
-    handleForgotPasswordClick,
+    handleVerificationSubmit,
+    handleNewPasswordSubmit,
     handleBackToLogin,
-    handleSubmit,
-    handleForgotPasswordSubmit,
 
     // Configurações de estilo
     getContainerClasses,
-    getSignInPanelStyles,
-    getSignUpPanelStyles,
+    getVerificationPanelStyles,
+    getNewPasswordPanelStyles,
     getToggleContainerClasses,
     getGradientClasses,
     getLeftPanelClasses,
     getRightPanelClasses,
 
     // Dados do modelo
-    signInFormConfig,
-    signUpFormConfig,
-    forgotPasswordFormConfig,
+    verificationFormConfig,
+    newPasswordFormConfig,
     leftPanelContent,
     rightPanelContent
-  } = useAuthViewModel()
+  } = useResetPasswordViewModel()
 
   const containerClasses = getContainerClasses()
   const toggleContainerClasses = getToggleContainerClasses()
@@ -44,76 +40,68 @@ export function AuthView() {
   const leftPanelClasses = getLeftPanelClasses()
   const rightPanelClasses = getRightPanelClasses()
 
+  const _isNewPasswordStep = currentResetType === 'new_password'
+
   return (
     <SectionView paddingClasses='' className="h-screen w-screen flex items-center justify-center overflow-hidden">
       <div className={`${containerClasses.base} ${containerClasses.active}`}>
 
-        {/* Sign In Form */}
+        {/* Verification Form */}
         <div
           className="absolute top-0 left-0 w-3/5 h-full bg-brand-white z-20 p-section md:p-section-md flex flex-col items-center justify-center"
-          style={getSignInPanelStyles()}
+          style={getVerificationPanelStyles()}
         >
           <div className="flex justify-start w-full">
             <ArrowBackView />
           </div>
           <div className="flex-1 flex flex-col w-full items-center justify-center gap-subsection md:gap-subsection-md">
             <FormView
-              title={signInFormConfig.title}
-              subtitle={signInFormConfig.subtitle}
-              fields={signInFormConfig.fields}
-              submitText={signInFormConfig.submitText}
-              onSubmit={handleSubmit}
+              title={verificationFormConfig.title}
+              subtitle={verificationFormConfig.subtitle}
+              fields={verificationFormConfig.fields}
+              submitText={verificationFormConfig.submitText}
+              onSubmit={handleVerificationSubmit}
             />
             <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
-              Esqueceu a senha?
+              Lembrou a senha?
               <button
-                onClick={handleForgotPasswordClick}
+                onClick={handleBackToLogin}
                 className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
               >
-                Redefinir senha
+                Acessar
               </button>
             </TextView>
           </div>
         </div>
 
-        {/* Sign Up Form / Forgot Password Form */}
+        {/* New Password Form */}
         <div
           className="absolute top-0 right-0 w-3/5 h-full bg-brand-white p-section md:p-section-md flex flex-col"
-          style={getSignUpPanelStyles()}
+          style={getNewPasswordPanelStyles()}
         >
           <div className="flex justify-end">
             <LogoView colorScheme="pink" />
           </div>
 
           <div className="flex-1 flex items-center justify-center">
-            {isForgotPassword ? (
-              <div className="w-full">
-                <FormView
-                  title={forgotPasswordFormConfig.title}
-                  subtitle={forgotPasswordFormConfig.subtitle}
-                  fields={forgotPasswordFormConfig.fields}
-                  submitText={forgotPasswordFormConfig.submitText}
-                  onSubmit={handleForgotPasswordSubmit}
-                />
-                <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
-                  Lembrou a senha?
-                  <button
-                    onClick={handleBackToLogin}
-                    className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
-                  >
-                    Acessar
-                  </button>
-                </TextView>
-              </div>
-            ) : (
+            <div className="w-full">
               <FormView
-                title={signUpFormConfig.title}
-                subtitle={signUpFormConfig.subtitle}
-                fields={signUpFormConfig.fields}
-                submitText={signUpFormConfig.submitText}
-                onSubmit={handleSubmit}
+                title={newPasswordFormConfig.title}
+                subtitle={newPasswordFormConfig.subtitle}
+                fields={newPasswordFormConfig.fields}
+                submitText={newPasswordFormConfig.submitText}
+                onSubmit={handleNewPasswordSubmit}
               />
-            )}
+              <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
+                Lembrou a senha?
+                <button
+                  onClick={handleBackToLogin}
+                  className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                >
+                  Acessar
+                </button>
+              </TextView>
+            </div>
           </div>
         </div>
 
@@ -133,26 +121,6 @@ export function AuthView() {
                 <TextView className='text-brand-white'>
                   {leftPanelContent.subtitle}
                 </TextView>
-
-                {leftPanelContent.description && (
-                  <TextView className='text-brand-white'>
-                    {leftPanelContent.description}
-                  </TextView>
-                )}
-
-                {leftPanelContent.buttonText && (
-                  <ButtonView
-                    variant="border-white"
-                    type="button"
-                    width="fit"
-                    onClick={leftPanelContent.buttonAction === 'register' ? handleRegisterClick : handleLoginClick}
-                    className=""
-                    aria-label={`Alternar para formulário de ${leftPanelContent.buttonAction}`}
-                    aria-pressed={leftPanelContent.buttonAction === 'register' ? isActive : !isActive}
-                  >
-                    {leftPanelContent.buttonText}
-                  </ButtonView>
-                )}
               </div>
             </div>
 
@@ -163,8 +131,7 @@ export function AuthView() {
               </div>
               <div className='w-full text-center flex-1 flex flex-col items-center justify-center gap-subsection md:gap-subsection-md'>
                 <HeadingView level={1} className='text-brand-white'>
-                  <span>É novo</span>
-                  <span className='mt-2 block'>por aqui?</span>
+                  Quase lá!
                 </HeadingView>
                 <TextView className='text-brand-white'>
                   {rightPanelContent.subtitle}
@@ -174,10 +141,9 @@ export function AuthView() {
                   variant="border-white"
                   type="button"
                   width="fit"
-                  onClick={handleRegisterClick}
+                  onClick={handleBackToLogin}
                   className=""
-                  aria-label="Alternar para formulário de cadastro"
-                  aria-pressed={isActive}
+                  aria-label="Voltar ao login"
                 >
                   {rightPanelContent.buttonText}
                 </ButtonView>

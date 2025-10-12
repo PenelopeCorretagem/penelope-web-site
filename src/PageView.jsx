@@ -6,13 +6,20 @@ import { FooterView } from '@shared/components/layout/Footer/FooterView'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [_forceUpdate, setForceUpdate] = useState(0)
   const { currentRoute } = useRouter()
 
   // Rotas onde header e footer devem ser ocultos
-  const authRoutes = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha']
+  const authRoutes = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/verificacao']
   const isAuthPage = authRoutes.some(route =>
     currentRoute === route || currentRoute.startsWith('/redefinir-senha/')
   )
+
+  // Debug para verificar mudanças de rota
+  useEffect(() => {
+    // Força re-renderização quando rota muda
+    setForceUpdate(prev => prev + 1)
+  }, [currentRoute, isAuthPage])
 
   // Sincroniza estado de autenticação com o JWT
   useEffect(() => {

@@ -90,6 +90,7 @@
 
   /* Cores de texto */
   --color-brand-black: #1f1d1f; /* Texto principal */
+  --color-brand-dark-gray: #3c3b3c; /* Texto secundário */
 
   /* Cores de marca/destaque */
   --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */

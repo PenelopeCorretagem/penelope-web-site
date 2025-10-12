@@ -130,8 +130,8 @@ class ButtonViewModel {
   getButtonClasses(width = 'full', shape = 'square', additionalClassName = '') {
     const baseClasses = [
       'inline-flex items-center justify-center gap-2',
-      'font-title-family font-medium',
-      'text-[12px] md:text-[16px]',
+      'font-title-family font-bold',
+      'text-[16px] md:text-[20px]',
       'leading-none',
       'uppercase',
       'transition-all duration-200',

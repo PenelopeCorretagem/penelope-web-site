@@ -1,28 +1,27 @@
+import { useTextViewModel } from '@shared/components/ui/Text/useTextViewModel'
+
 /**
  * TextView - Componente base para textos
- * Aplica estilos padrão de texto com responsividade
+ * Aplica estilos padrão de texto com responsividade usando MVVM
  * @param {Node} children - Conteúdo do texto
- * @param {string} className - Classes CSS (incluindo cores)
+ * @param {string} className - Classes CSS adicionais
  */
 export function TextView({
   children,
   className = ''
 }) {
-  // Classes base do componente
-  const baseClasses = [
-    'font-default-family',
-    'text-[12px]',
-    'leading-none',
-    'md:text-[16px]',
-    'text-brand-black',
-  ].join(' ')
+  // Usa o ViewModel para gerenciar CSS
+  const {
+    hasContent,
+    hasErrors,
+    errorMessages,
+    finalClassName,
+  } = useTextViewModel({
+    children,
+    className,
+  })
 
-  // Combina classes base com classes customizadas
-  const finalClassName = className
-    ? `${baseClasses} ${className}`
-    : baseClasses
-
-  if (!children) {
+  if (!hasContent && !children) {
     return null
   }
 
@@ -30,6 +29,8 @@ export function TextView({
     <p
       className={finalClassName}
       role="text"
+      aria-invalid={hasErrors}
+      title={hasErrors ? errorMessages : undefined}
     >
       {children}
     </p>
