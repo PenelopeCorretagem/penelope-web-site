@@ -21,7 +21,7 @@ export class RouterModel {
       // Rotas públicas
       HOME: '/',
       PROPERTIES: '/imoveis',
-      PROPERTY_DETAIL: '/imoveis/:id',
+      PROPERTY_DETAIL: '/imoveis/1',
       PROPERTY_SEARCH: '/imoveis/busca',
       ABOUT: '/sobre',
       CONTACTS: '/contatos',
