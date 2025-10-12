@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 
 /**
@@ -23,6 +24,14 @@ class ButtonViewModel {
 
   get type() {
     return this.model.type
+  }
+
+  get to() {
+    return this.model.to
+  }
+
+  get isLink() {
+    return this.model.isLink()
   }
 
   get active() {
@@ -50,7 +59,7 @@ class ButtonViewModel {
   }
 
   get canClick() {
-    return !this.disabled && !this.hasErrors
+    return !this.disabled && !this.hasErrors && this.model.hasValidRoute()
   }
 
   /**
@@ -210,6 +219,17 @@ class ButtonViewModel {
     }
   }
 
+  setTo = newTo => {
+    try {
+      this.model.setTo(newTo)
+      this.clearErrors()
+      return true
+    } catch (error) {
+      this.addError(error.message)
+      return false
+    }
+  }
+
   addError(message) {
     if (!this.errors.includes(message)) {
       this.errors.push(message)
@@ -226,14 +246,17 @@ class ButtonViewModel {
  * Implementa Factory Pattern - cria o modelo internamente
  * @param {string} text - Texto do botão
  * @param {string} variant - Variante de cor do botão
- * @param {string} type - Tipo do botão
+ * @param {string} type - Tipo do botão ('button', 'submit', 'reset', 'link')
  * @param {Object} config - Configurações adicionais
+ * @param {string} to - URL para navegação (quando type é 'link')
  * @returns {Object} Estado e comandos do botão
  */
-export function useButtonViewModel(text = '', variant = 'pink', type = 'button', config = {}) {
+export function useButtonViewModel(text = '', variant = 'pink', type = 'button', config = {}, to = null) {
+  const navigate = useNavigate()
+
   // ✅ Factory Pattern - Hook cria o modelo
   const [viewModel] = useState(() => {
-    const model = new ButtonModel(text, variant, type)
+    const model = new ButtonModel(text, variant, type, to)
     return new ButtonViewModel(model, config)
   })
   const [, forceUpdate] = useState(0)
@@ -275,13 +298,35 @@ export function useButtonViewModel(text = '', variant = 'pink', type = 'button',
       return success
     },
 
-    handleClick: viewModel.handleClick,
+    setTo: to => {
+      const success = viewModel.setTo(to)
+      if (success) refresh()
+      return success
+    },
+
+    handleClick: (event) => {
+      if (!viewModel.canClick) return
+
+      // Se é um link, navegar usando React Router
+      if (viewModel.isLink && viewModel.to) {
+        event.preventDefault()
+        navigate(viewModel.to)
+        return
+      }
+
+      // Caso contrário, executar onClick normal
+      if (viewModel.onClick) {
+        viewModel.onClick(event, viewModel.model)
+      }
+    },
   }
 
   return {
     text: viewModel.text,
     variant: viewModel.variant,
     type: viewModel.type,
+    to: viewModel.to,
+    isLink: viewModel.isLink,
     active: viewModel.active,
     disabled: viewModel.disabled,
     transition: viewModel.transition,
