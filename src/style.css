@@ -52,15 +52,6 @@
   }
 }
 
-@layer utilities-border {
-  .border-brand-gradient {
-    border: 2px solid;
-    border-radius: 8px;
-    border-image: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink)) 1;
-  }
-}
-
-
 @theme {
   --font-default-family: 'Poppins', sans-serif;
   --font-title-family: 'Darker Grotesque', sans-serif;

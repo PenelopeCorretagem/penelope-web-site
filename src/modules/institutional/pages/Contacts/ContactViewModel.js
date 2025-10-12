@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ContactModel } from '../../model/components/ContactModel'
+import { ContactModel } from './ContactModel'
 
 // ViewModel
 export function useContactViewModel() {
