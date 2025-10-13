@@ -1,18 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { SectionView } from '@shared/view/components/SectionView'
-import { HeadingView } from '@shared/view/components/HeadingView'
-import { TextView } from '@shared/view/components/TextView'
-import { ButtonView } from '@shared/view/components/ButtonView'
-import { PropertyCardView } from '@shared/view/components/PropertyCardView'
 import { ECategoryCard } from '@shared/Enum/components/ECategoryCard'
 import { ESectionBackgroundColor } from '@shared/Enum/components/ESectionBackgroundColor'
-import { Image } from 'lucide-react'
-import { ButtonModel } from '@shared/model/components/ButtonModel'
 import { PropertiesCarouselView } from '@shared/view/components/PropertiesCarouselView'
 import { SearchFilter } from '../../../../shared/view/components/SearchFilter'
 
 export function PropertiesView() {
-  const [cardWidth, setCardWidth] = useState(0)
+  const [setCardWidth] = useState(0)
   const cardRef = useRef(null)
 
   const fakeRequest = [
@@ -152,7 +146,7 @@ export function PropertiesView() {
       window.removeEventListener('resize', calculateCardWidth)
       if (observer) observer.disconnect()
     }
-  }, [])
+  })
 
   return (
     <>

@@ -2,6 +2,8 @@ import { useSearchFilterViewModel } from '../../viewmodel/components/useSearchVi
 import { SelectFilterView } from './SelectFilterView'
 import { ButtonView } from './ButtonView'
 import { Funnel, Search } from 'lucide-react'
+import { ButtonModel } from '@shared/model/components/ButtonModel'
+
 
 export function SearchFilter() {
   const { filters, options, updateFilter, handleSearch } =
@@ -49,8 +51,14 @@ export function SearchFilter() {
         width='fit'
       />
 
-      <ButtonView variant='filtro' shape='square' width='fit'>
-        <Funnel className='h-4 w-4' />
+      <ButtonView
+        variant='filtro'
+        shape='square'
+        width='fit'
+        model={new ButtonModel(<Funnel className='h-4 w-4' />
+          , 'brown', 'button')}
+        className='h-13 w-4'
+      >
       </ButtonView>
 
       <ButtonView
@@ -58,8 +66,10 @@ export function SearchFilter() {
         shape='square'
         width='fit'
         onClick={handleSearch}
+        model={new ButtonModel(<Search className='h-4 w-4' />
+          , 'pink', 'button')}
+        className='h-13 w-13'
       >
-        <Search className='h-4 w-4' />
       </ButtonView>
     </div>
   )
