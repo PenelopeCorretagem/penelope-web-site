@@ -4,20 +4,21 @@
  * Implementa validações e toggles de estado
  */
 export class ButtonModel {
-  constructor(text = '', variant = 'pink', type = 'button') {
+  constructor(text = '', variant = 'pink', type = 'button', to = null) {
     this.text = text
     this.variant = variant
     this.type = type
+    this.to = to // URL para navegação quando type é 'link'
     this.active = false
     this.disabled = false
     this.transition = false
   }
 
-  static VARIANTS = ['pink', 'brown', 'white', 'border-white']
-  static TYPES = ['button', 'submit', 'reset']
+  static VARIANTS = ['pink', 'brown', 'white', 'gray', 'border-white']
+  static TYPES = ['button', 'submit', 'reset', 'link']
 
   isValid() {
-    return this.isValidVariant() && this.isValidType()
+    return this.isValidVariant() && this.isValidType() && this.hasValidRoute()
   }
 
   isValidVariant() {
@@ -48,6 +49,18 @@ export class ButtonModel {
       )
     }
     this.type = newType
+  }
+
+  setTo(newTo) {
+    this.to = newTo
+  }
+
+  isLink() {
+    return this.type === 'link'
+  }
+
+  hasValidRoute() {
+    return this.isLink() ? Boolean(this.to) : true
   }
 
   toggle() {

@@ -4,7 +4,17 @@
   :where(*) {
     box-sizing: border-box !important;
   }
+
+  @font-face {
+    font-family: 'Tan-Nimbus';
+    src: url('/src/shared/assets/fonts/Tan-Nimbus.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
 }
+
 
 /* Auth page animations */
 @keyframes slideIn {
@@ -50,12 +60,16 @@
   .bg-brand-gradient {
     background: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink));
   }
-}
 
+  .font-tan-nimbus {
+    font-family: 'Tan-Nimbus', serif !important;
+  }
+}
 
 @theme {
   --font-default-family: 'Poppins', sans-serif;
   --font-title-family: 'Darker Grotesque', sans-serif;
+  --font-tan-nimbus: 'Tan-Nimbus', serif;
 
   --padding-section-y: 48px;
   --padding-section-x: 80px;
@@ -77,8 +91,8 @@
   --gap-card: 12px;
   --gap-card-md: 20px;
 
-  --gap-section: 160px;
-  --gap-section-md: 208px;
+  --gap-section: 100px;
+  --gap-section-md: 120px;
 
   --gap-subsection: 24px;
   --gap-subsection-md: 36px;
@@ -90,12 +104,14 @@
 
   /* Cores de texto */
   --color-brand-black: #1f1d1f; /* Texto principal */
+  --color-brand-dark-gray: #3c3b3c; /* Texto secundário */
 
   /* Cores de marca/destaque */
   --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */
   --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
   --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
   --color-brand-soft-brown: #816862; /* Variação suave secundária */
+  --color-brand-gray: #777676; /* Cinza para textos secundários */
 
    /* Menu Mobile */
   --menu-items-height: 200px; /* Ajuste conforme necessário */

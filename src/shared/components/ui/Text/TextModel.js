@@ -58,7 +58,6 @@ export class TextModel {
       hasContent: this.hasContent,
       isEmpty: this.isEmpty,
       isValid: this.isValid,
-      colorValue: this.colorValue,
     }
   }
 

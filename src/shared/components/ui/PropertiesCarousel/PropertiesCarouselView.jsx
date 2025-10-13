@@ -32,12 +32,12 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         </HeadingView>
 
         <ButtonView
-          text="Ver Mais"
           variant="brown"
           type="button"
           width='fit'
           aria-label="Ver mais propriedades"
-        />
+        >Ver Mais
+        </ButtonView>
       </div>
 
       <div className="relative">
