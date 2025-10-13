@@ -4,7 +4,17 @@
   :where(*) {
     box-sizing: border-box !important;
   }
+
+  @font-face {
+    font-family: 'Tan-Nimbus';
+    src: url('/src/shared/assets/fonts/Tan-Nimbus.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
 }
+
 
 /* Auth page animations */
 @keyframes slideIn {
@@ -50,11 +60,16 @@
   .bg-brand-gradient {
     background: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink));
   }
+
+  .font-tan-nimbus {
+    font-family: 'Tan-Nimbus', serif !important;
+  }
 }
 
 @theme {
   --font-default-family: 'Poppins', sans-serif;
   --font-title-family: 'Darker Grotesque', sans-serif;
+  --font-tan-nimbus: 'Tan-Nimbus', serif;
 
   --padding-section-y: 48px;
   --padding-section-x: 80px;

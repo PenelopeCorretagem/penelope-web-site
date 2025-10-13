@@ -33,7 +33,7 @@ export function AboutView() {
           <img src={PenelopeImage} alt="Corretora Penélope" />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={1} className="text-left text-brand-white">
+          <HeadingView level={3} className="text-left text-brand-white font-tan-nimbus">
             Penélope ou Isabella
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-brand-white">
@@ -64,7 +64,7 @@ export function AboutView() {
 
       <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY} className="flex flex-row items-between justify-between gap-section md:gap-section-md">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
-          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" className='shadow-md ' />
+          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md ' />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
           <HeadingView level={2} className="text-left text-brand-pink">

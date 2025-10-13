@@ -4,7 +4,7 @@ export class ImageModel {
     BACKGROUND: 'background'
   }
 
-  static validateImageProps(src, alt) {
+  static validateImageProps(_src, alt, _description) {
     const errors = []
 
     if (!alt || alt.trim() === '') {

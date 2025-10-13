@@ -1,10 +1,9 @@
 import { useMemo } from 'react'
 import { ImageModel } from './ImageModel'
 
-export function useImageViewModel({ src, alt, mode = 'auto', className = '' }) {
+export function useImageViewModel({ src, alt, description, mode = 'auto', className = '' }) {
   const imageMode = useMemo(() => {
     if (mode === 'auto') {
-      // Auto-detecta o modo baseado nas classes
       return className.includes('bg-cover') || className.includes('flex-1')
         ? ImageModel.MODES.BACKGROUND
         : ImageModel.MODES.IMAGE
@@ -13,8 +12,8 @@ export function useImageViewModel({ src, alt, mode = 'auto', className = '' }) {
   }, [mode, className])
 
   const validation = useMemo(() => {
-    return ImageModel.validateImageProps(src, alt)
-  }, [src, alt])
+    return ImageModel.validateImageProps(src, alt, description)
+  }, [src, alt, description])
 
   const finalClassName = useMemo(() => {
     const defaultClasses = ImageModel.getDefaultClasses(imageMode)
@@ -29,12 +28,18 @@ export function useImageViewModel({ src, alt, mode = 'auto', className = '' }) {
     return imageMode === ImageModel.MODES.BACKGROUND
   }, [imageMode])
 
+  const hasDescription = useMemo(() => {
+    return description && description.trim() !== ''
+  }, [description])
+
   return {
     hasImage,
     isBackgroundMode,
     finalClassName,
     validation,
+    hasDescription,
     src,
-    alt
+    alt,
+    description
   }
 }

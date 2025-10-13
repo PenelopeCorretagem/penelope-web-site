@@ -1,13 +1,15 @@
 import { Image } from 'lucide-react'
 import { useImageViewModel } from './useImageViewModel'
+import { TextView } from '@shared/components/ui/Text/TextView'
 
-export function ImageView({ src, alt, mode, className }) {
+export function ImageView({ src, alt, description, mode, className }) {
   const {
     hasImage,
     isBackgroundMode,
     finalClassName,
-    validation
-  } = useImageViewModel({ src, alt, mode, className })
+    validation,
+    hasDescription
+  } = useImageViewModel({ src, alt, description, mode, className })
 
   if (!hasImage) {
     return (
@@ -30,11 +32,18 @@ export function ImageView({ src, alt, mode, className }) {
   }
 
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={`rounded-sm border-transparent bg-gradient-to-t from-brand-brown to-brand-pink p-0.5 w-fit ${finalClassName}`}
-      title={!validation.isValid ? validation.errors.join(', ') : undefined}
-    />
+    <div className="flex flex-col gap-card md:gap-card-md">
+      <img
+        src={src}
+        alt={alt}
+        className={`rounded-sm border-transparent bg-gradient-to-t from-brand-brown to-brand-pink p-0.5 w-fit ${finalClassName}`}
+        title={!validation.isValid ? validation.errors.join(', ') : undefined}
+      />
+      {hasDescription && (
+        <TextView className="text-brand-dark-gray">
+          {description}
+        </TextView>
+      )}
+    </div>
   )
 }

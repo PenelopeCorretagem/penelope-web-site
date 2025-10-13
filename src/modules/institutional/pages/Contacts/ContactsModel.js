@@ -1,4 +1,4 @@
-export class ContactModel {
+export class ContactsModel {
   constructor() {
     this.contactItems = [
       { id: 'mail', icon: 'FaEnvelope', route: '/' },
