@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { TextView } from '@shared/components/ui/Text/TextView'
+import { InputView } from '@shared/components/ui/Input/InputView'
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 
-export function SingInForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate() // 2. Inicialize o hook de navegação
+export function SignInForm() {
+
+  const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     email: '',
@@ -60,41 +62,33 @@ export function SingInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className='mt-8 w-full space-y-6 text-left'>
-      <div>
-        <input
-          id='email'
-          name='email'
-          type='email'
-          required
-          placeholder='Email'
-          value={formData.email}
-          onChange={handleChange}
-          className='w-full rounded-md bg-[#E9BEDC] px-4 py-3 text-black placeholder:text-black focus:ring-2 focus:ring-[#B33C8E] focus:outline-none'
-        />
-      </div>
+    <form onSubmit={handleSubmit} className='w-full flex flex-col gap-6 items-center'>
+      <HeadingView level={2} color='black' className='text-center'>Acessar Conta</HeadingView>
+      <TextView>Utilize seu email e senha para entrar.</TextView>
 
-      <div className='relative'>
-        <input
-          id='password-login'
-          name='senha'
-          type={showPassword ? 'text' : 'password'}
-          required
-          placeholder='Senha'
-          value={formData.senha}
-          onChange={handleChange}
-          className='w-full rounded-md bg-[#E9BEDC] px-4 py-3 pr-12 text-black placeholder:text-black focus:ring-2 focus:ring-[#B33C8E] focus:outline-none'
-        />
-        <button
-          type='button'
-          className='absolute inset-y-0 right-0 flex items-center pr-3'
-          onClick={() => setShowPassword(!showPassword)}
-        >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-        </button>
-      </div>
+      <InputView
+        id="email"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        type={'email'}
+        placeholder="E-mail:"
+        hasLabel={false}
+        required={true}
+      />
 
-      {/* Mensagem de erro */}
+      <InputView
+        id="password-login"
+        name="senha"
+        value={formData.senha}
+        onChange={handleChange}
+        type={'password'}
+        placeholder="Senha:"
+        hasLabel={false}
+        required={true}
+        showPasswordToggle={true}
+      />
+
       <ErrorDisplayView
         messages={error ? [error] : []}
         position='inline'
@@ -102,21 +96,19 @@ export function SingInForm() {
         className='mt-4'
       />
 
-      <div>
-        <ButtonView type='submit' className='w-full'>
-          ACESSAR
-        </ButtonView>
-      </div>
+      <ButtonView type='submit' width='full'>
+        Acessar
+      </ButtonView>
 
-      <p className='pt-2 text-center text-sm text-gray-600'>
-        Esqueceu a senha?{' '}
+      <TextView className='text-brand-gray flex gap-1 items-center justify-center'>
+        Esqueceu a senha?
         <Link
-          to='/esqueci-a-senha'
-          className='font-semibold text-[#B33C8E] hover:underline'
+          to='/esqueci-senha'
+          className='font-semibold text-brand-pink hover:underline'
         >
           Redefinir senha
         </Link>
-      </p>
+      </TextView>
     </form>
   )
 }

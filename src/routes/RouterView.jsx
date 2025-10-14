@@ -9,6 +9,7 @@ import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
 import { ProfileView } from '@management/pages/Profile/ProfileView'
 import { SettingsView } from '@management/pages/Settings/SettingsView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
+import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
 
 // Views de erro
 const NotFoundPage = () => {
@@ -76,6 +77,11 @@ export function RouterView({ isAuthenticated = false }) {
         <Route path='/sobre' element={<AboutView />} />
         <Route path='/contatos' element={<ContactsView />} />
         <Route path='/login' element={<AuthView />} />
+        <Route path='/registro' element={<AuthView />} />
+        <Route path='/esqueci-senha' element={<AuthView />} />
+        <Route path='/verificacao' element={<ResetPasswordView />} />
+        <Route path='/verificacao-:token' element={<ResetPasswordView />} />
+        <Route path='/redefinir-senha' element={<ResetPasswordView />} />
 
         {/* Protected Routes */}
         <Route

@@ -31,7 +31,8 @@ export class RouterModel {
       LOGIN: '/login',
       REGISTER: '/registro',
       FORGOT_PASSWORD: '/esqueci-senha',
-      RESET_PASSWORD: '/redefinir-senha/:token',
+      VERIFICATION_CODE: '/verificacao',
+      RESET_PASSWORD: '/redefinir-senha',
 
       // Rotas autenticadas - usuário comum
       PROFILE: '/perfil',
