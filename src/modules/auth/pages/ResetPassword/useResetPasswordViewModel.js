@@ -1,47 +1,91 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { ResetPasswordModel } from './ResetPasswordModel'
+import { validateResetToken, resetPassword } from '../../../../shared/services/apiService'
 
 /**
  * useResetPasswordViewModel - ViewModel para gerenciar a lógica de redefinição de senha
  * Centraliza estado, navegação e lógica de apresentação
  */
 export function useResetPasswordViewModel() {
-  const [isActive, setIsActive] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
   const location = useLocation()
   const resetPasswordModel = useMemo(() => new ResetPasswordModel(), [])
+
+  const [isActive, setIsActive] = useState(false)
+  const [status, setStatus] = useState('validating');
+
+  const [validToken, setValidToken] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Estado computado baseado na rota atual
   const currentResetType = resetPasswordModel.getResetTypeFromRoute(location.pathname)
 
-  // Sincroniza estado com a rota atual
   useEffect(() => {
-    switch (currentResetType) {
-      case resetPasswordModel.resetTypes.NEW_PASSWORD:
-        setIsActive(true)
-        break
-      case resetPasswordModel.resetTypes.VERIFICATION:
-      default:
-        setIsActive(false)
-        break
+    setIsActive(currentResetType === resetPasswordModel.resetTypes.NEW_PASSWORD);
+  }, [currentResetType, resetPasswordModel.resetTypes]);
+
+   useEffect(() => {
+    const tokenFromUrl = searchParams.get('token');
+    if (tokenFromUrl) {
+      const validate = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+          await validateResetToken(tokenFromUrl);
+          setValidToken(tokenFromUrl);
+          // SUCESSO: Navega para a próxima etapa, passando o token
+          navigate(resetPasswordModel.getResetPasswordRoute(), { state: { token: tokenFromUrl } });
+        } catch (err) {
+          setError('Link de redefinição inválido ou expirado.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      validate();
     }
-  }, [currentResetType, resetPasswordModel.resetTypes])
+  }, [searchParams, navigate, resetPasswordModel]);
 
-  // Handlers de navegação
-  const handleVerificationSubmit = useCallback(async (_formData) => {
-    // Simular validação do código
-    // Em caso real, validar com API
-    navigate(resetPasswordModel.getResetPasswordRoute())
-    return { success: true, message: 'Código verificado com sucesso!' }
-  }, [navigate, resetPasswordModel])
+  // Handler para o formulário de verificação (caso o usuário chegue sem token)
+  const handleVerificationSubmit = useCallback(async (formData) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await validateResetToken(formData.token);
+      setValidToken(formData.token);
+      navigate(resetPasswordModel.getResetPasswordRoute(), { state: { token: formData.token } });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Código inválido ou expirado.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleNewPasswordSubmit = useCallback(async (_formData) => {
-    // Simular redefinição de senha
-    // Em caso real, enviar nova senha para API
-    navigate(resetPasswordModel.getLoginRoute())
-    return { success: true, message: 'Senha redefinida com sucesso!' }
-  }, [navigate, resetPasswordModel])
+  // Handler para o formulário de nova senha
+  const handleNewPasswordSubmit = useCallback(async (formData) => {
+    const tokenFromState = location.state?.token || validToken;
+    if (!tokenFromState) {
+        setError('Token de sessão perdido. Por favor, tente novamente.');
+        return;
+    }
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError('As senhas não coincidem.');
+      return;
+    }
+    setIsLoading(true);
+    setError('');
+    try {
+      await resetPassword({ token: tokenFromState, newPassword: formData.newPassword });
+      alert('Senha redefinida com sucesso!');
+      handleBackToLogin();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Ocorreu um erro ao redefinir a senha.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, location.state, validToken]);
 
   const handleBackToLogin = useCallback(() => {
     navigate(resetPasswordModel.getLoginRoute())
@@ -113,6 +157,9 @@ export function useResetPasswordViewModel() {
     // Estado
     isActive,
     currentResetType,
+    token: searchParams.get('token') || '',
+    isLoading,
+    error,
 
     // Handlers
     handleVerificationSubmit,

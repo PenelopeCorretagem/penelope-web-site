@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
 import { RouterModel } from '@routes/RouterModel'
+import { registerUser, loginUser, forgotPassword } from '../../../../shared/services/apiService'
 
 /**
  * useAuthViewModel - ViewModel para gerenciar a lógica de autenticação
@@ -10,6 +11,8 @@ import { RouterModel } from '@routes/RouterModel'
 export function useAuthViewModel() {
   const [isActive, setIsActive] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate()
   const location = useLocation()
   const authModel = useMemo(() => new AuthModel(), [])
@@ -66,18 +69,68 @@ export function useAuthViewModel() {
   }, [navigate, authModel])
 
   // Handler de submit
-  const handleSubmit = useCallback(async (_formData) => {
-    // Sua lógica aqui
-    return { success: true, message: 'Sucesso!' }
-  }, [])
+  const handleLoginSubmit = useCallback(async (formData) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await loginUser(formData);
+      const { token } = response.data;
+      localStorage.setItem('jwtToken', token);
+      console.log('Login bem-sucedido, token:', token);
+      navigate('/home');
+
+      setIsLoading(false);
+      return { success: true };
+    } catch (err) {
+      setIsLoading(false);
+      const errorMessage = 'E-mail ou senha inválidos.';
+      setError(errorMessage);
+      console.error('Erro no login:', err);
+      return { success: false, message: errorMessage };
+    }
+  }, [navigate]);
+
+  // NOVA FUNÇÃO: Apenas para Cadastro
+  const handleRegisterSubmit = useCallback(async (formData) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await registerUser(formData);
+      console.log('Cadastro bem-sucedido:', response.data);
+      alert('Cadastro realizado com sucesso! Faça o login para continuar.');
+      handleLoginClick(); // Volta para a tela de login
+
+      setIsLoading(false);
+      return { success: true };
+    } catch (err) {
+      setIsLoading(false);
+      const errorMessage = err.response?.data?.message || 'Ocorreu um erro no cadastro.';
+      setError(errorMessage);
+      console.error('Erro no cadastro:', err);
+      return { success: false, message: errorMessage };
+    }
+  }, [handleLoginClick]);
 
   // Handler específico para esqueci minha senha
   const handleForgotPasswordSubmit = useCallback(async (_formData) => {
-    // Aqui você faria a chamada da API para enviar o email de reset
-    // Por enquanto, vamos apenas navegar para a página de verificação
-    navigate(routerModel.get('VERIFICATION_CODE').replace('-:token', ''))
-    return { success: true, message: 'E-mail de recuperação enviado!' }
-  }, [navigate, routerModel])
+    setIsLoading(true);
+    setError('');
+
+    try{
+      const response = await forgotPassword(_formData.email);
+      console.log('Solicitação de recuperação de senha enviada:', response.data);
+      alert(response.data.message || 'Instruções de recuperação de senha enviadas para seu e-mail.');
+      handleBackToLogin();
+      setIsLoading(false);
+      return { success: true }
+    } catch (error) {
+      setIsLoading(false);
+      const errorMessage = error.response?.data?.message || 'Erro ao processar a requisição.';
+      setError(errorMessage);
+      console.error('Erro na recuperação de senha:', error);
+      return { success: false, message: errorMessage };
+    }
+    }, [handleBackToLogin])
 
   // Configurações de CSS para animações
   const getContainerClasses = () => ({
@@ -143,7 +196,8 @@ export function useAuthViewModel() {
     handleLoginClick,
     handleForgotPasswordClick,
     handleBackToLogin,
-    handleSubmit,
+    handleLoginSubmit,
+    handleRegisterSubmit,
     handleForgotPasswordSubmit,
 
     // Configurações de estilo

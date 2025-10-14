@@ -12,13 +12,16 @@ export function AuthView() {
     // Estado
     isActive,
     isForgotPassword,
+    isLoading,
+    error,
 
     // Handlers
     handleRegisterClick,
     handleLoginClick,
     handleForgotPasswordClick,
     handleBackToLogin,
-    handleSubmit,
+    handleLoginSubmit,
+    handleRegisterSubmit,
     handleForgotPasswordSubmit,
 
     // Configurações de estilo
@@ -62,7 +65,9 @@ export function AuthView() {
               subtitle={signInFormConfig.subtitle}
               fields={signInFormConfig.fields}
               submitText={signInFormConfig.submitText}
-              onSubmit={handleSubmit}
+              onSubmit={handleLoginSubmit}
+              isLoading={isLoading}
+              errorMessage={error}
             />
             <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
               Esqueceu a senha?
@@ -94,6 +99,8 @@ export function AuthView() {
                   fields={forgotPasswordFormConfig.fields}
                   submitText={forgotPasswordFormConfig.submitText}
                   onSubmit={handleForgotPasswordSubmit}
+                  isLoading={isLoading}
+                  errorMessage={error}
                 />
                 <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
                   Lembrou a senha?
@@ -111,7 +118,7 @@ export function AuthView() {
                 subtitle={signUpFormConfig.subtitle}
                 fields={signUpFormConfig.fields}
                 submitText={signUpFormConfig.submitText}
-                onSubmit={handleSubmit}
+                onSubmit={handleRegisterSubmit}
               />
             )}
           </div>
