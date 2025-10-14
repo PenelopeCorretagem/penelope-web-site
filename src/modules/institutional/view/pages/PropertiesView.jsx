@@ -3,7 +3,8 @@ import { SectionView } from '@shared/view/components/SectionView'
 import { ECategoryCard } from '@shared/Enum/components/ECategoryCard'
 import { ESectionBackgroundColor } from '@shared/Enum/components/ESectionBackgroundColor'
 import { PropertiesCarouselView } from '@shared/view/components/PropertiesCarouselView'
-import { SearchFilter } from '../../../../shared/view/components/SearchFilter'
+import { SearchFilterView } from '../../../../shared/view/components/SearchFilterView'
+import { ResultTitleView } from '../../../../shared/view/components/ResultTitleView'
 
 export function PropertiesView() {
   const [setCardWidth] = useState(0)
@@ -150,12 +151,9 @@ export function PropertiesView() {
 
   return (
     <>
-      <SearchFilter />
-      <div className='bg-surface-primary flex h-fit items-center justify-between py-6 px-24'>
-        <p className='text-[32px] leading-snug font-semibold tracking-tight text-[#36221D] uppercase'>
-          67 APARTAMENTOS EM SÃO PAULO COM 3 DORMITÓRIOS
-        </p>
-      </div>
+      <SearchFilterView />
+      <ResultTitleView />
+
       <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
         <PropertiesCarouselView properties={fakeRequest} titleCarousel="Lançamentos" />
       </SectionView>

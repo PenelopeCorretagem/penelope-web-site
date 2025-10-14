@@ -5,7 +5,7 @@ import { Funnel, Search } from 'lucide-react'
 import { ButtonModel } from '@shared/model/components/ButtonModel'
 
 
-export function SearchFilter() {
+export function SearchFilterView() {
   const { filters, options, updateFilter, handleSearch } =
     useSearchFilterViewModel()
 
