@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
 import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
@@ -7,14 +7,33 @@ import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilte
 import { ResultTitleView } from '@shared/components/ui/ResultTitle/ResultTitleView'
 
 export function PropertiesView() {
-  const [setCardWidth] = useState(0)
-  const cardRef = useRef(null)
+  // state for filters
+
+  // Estado de filtros levantado aqui para tornar a tela dinâmica
+  const [pendingFilters, setPendingFilters] = useState({
+    city: '',
+    region: '',
+    type: '',
+    bedrooms: '',
+  })
+
+  // appliedFilters são os filtros que foram efetivamente aplicados (quando o usuário clica no funil)
+  const [appliedFilters, setAppliedFilters] = useState({})
+
+  const updatePendingFilter = (key, value) => {
+    setPendingFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  const applyFilters = () => {
+    setAppliedFilters({ ...pendingFilters })
+  }
 
   const fakeRequest = [
     {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
+      bedrooms: 2,
       category: EPropertyCardCategory.LANCAMENTO,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -23,6 +42,7 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
+      bedrooms: 3,
       category: EPropertyCardCategory.LANCAMENTO,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -31,6 +51,7 @@ export function PropertiesView() {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
+      bedrooms: 1,
       category: EPropertyCardCategory.LANCAMENTO,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -39,6 +60,7 @@ export function PropertiesView() {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
+      bedrooms: 2,
       category: EPropertyCardCategory.LANCAMENTO,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -49,6 +71,7 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
+      bedrooms: 3,
       category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -57,6 +80,7 @@ export function PropertiesView() {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
+      bedrooms: 1,
       category: EPropertyCardCategory.DISPONIVEL,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -65,6 +89,7 @@ export function PropertiesView() {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
+      bedrooms: 2,
       category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -73,6 +98,7 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
+      bedrooms: 3,
       category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -83,6 +109,7 @@ export function PropertiesView() {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
+      bedrooms: 1,
       category: EPropertyCardCategory.EM_OBRAS,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -91,6 +118,7 @@ export function PropertiesView() {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
+      bedrooms: 2,
       category: EPropertyCardCategory.EM_OBRAS,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -99,6 +127,7 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
+      bedrooms: 3,
       category: EPropertyCardCategory.EM_OBRAS,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
@@ -106,6 +135,7 @@ export function PropertiesView() {
     {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
+      bedrooms: 1,
       description: '1 dormitório com vista para o mar',
       category: EPropertyCardCategory.EM_OBRAS,
       differences: ['1 vaga', '1 suíte', '38m²'],
@@ -113,55 +143,126 @@ export function PropertiesView() {
     },
   ]
 
-  useEffect(() => {
-    const calculateCardWidth = () => {
-      if (cardRef.current) {
-        const width = cardRef.current.offsetWidth
-        setCardWidth(width)
-      }
-    }
+  // Construir opções dinâmicas a partir dos dados fake
+  const gatherOptions = (lists) => {
+    const cities = new Set()
+    const regions = new Set()
+    const types = new Set()
+    const bedrooms = new Set()
 
-    // Múltiplas tentativas para garantir que funcione
-    const timer1 = setTimeout(calculateCardWidth, 0)
-    const timer2 = setTimeout(calculateCardWidth, 100) // Fallback
-
-    // Também no load da janela
-    window.addEventListener('load', calculateCardWidth)
-    window.addEventListener('resize', calculateCardWidth)
-
-    let observer
-    if (cardRef.current) {
-      observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const width = entry.contentRect.width
-          setCardWidth(width)
+    lists.forEach(list => {
+      list.forEach(p => {
+        if (p.title) cities.add(p.title)
+        if (p.subtitle) regions.add(p.subtitle)
+        if (p.category) types.add(p.category)
+        // Prefer extrair a quantidade de dormitórios a partir da descrição
+        // Ex.: '2 dormitórios com opção de terraço' -> '2 Dormitórios'
+        const desc = p.description || ''
+        const dormMatch = desc.match(/(\d+)\s*dormi/i)
+        // Preferir campo explícito `bedrooms` se existir
+        if (p.bedrooms) {
+          const n = Number(p.bedrooms)
+          const label = `${n} Dormitório${n > 1 ? 's' : ''}`
+          bedrooms.add(label)
+        } else if (dormMatch) {
+          const n = parseInt(dormMatch[1], 10)
+          const label = `${n} Dormitório${n > 1 ? 's' : ''}`
+          bedrooms.add(label)
+        } else if (Array.isArray(p.differences)) {
+          // fallback: procurar dentro de differences por menção a dormitórios
+          p.differences.forEach(d => {
+            const m = d.match(/(\d+)\s*dormi/i)
+            if (m) {
+              const n = parseInt(m[1], 10)
+              const label = `${n} Dormitório${n > 1 ? 's' : ''}`
+              bedrooms.add(label)
+            }
+          })
         }
       })
-      observer.observe(cardRef.current)
-    }
+    })
 
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
-      window.removeEventListener('load', calculateCardWidth)
-      window.removeEventListener('resize', calculateCardWidth)
-      if (observer) observer.disconnect()
+    return {
+      cities: Array.from(cities),
+      regions: Array.from(regions),
+      types: Array.from(types),
+      bedrooms: Array.from(bedrooms),
     }
-  })
+  }
+
+  const options = gatherOptions([fakeRequest, fakeRequest2, fakeRequest3])
+  // Prepend placeholder options so selects show friendly default labels
+  const optionsWithPlaceholders = {
+    cities: [{ label: 'Cidade', value: '' }, ...options.cities],
+    regions: [{ label: 'Região', value: '' }, ...options.regions],
+    types: [{ label: 'Estagio da Obra', value: '' }, ...options.types],
+    bedrooms: [{ label: 'Dormitórios', value: '' }, ...options.bedrooms],
+  }
+
+  // Note: previously there was resize/calc logic here updating a card width state.
+  // That state wasn't used anywhere in this component, so it has been removed to
+  // keep the component simpler and avoid unused listeners.
+  const filterPredicate = (p) => (
+    (Object.keys(appliedFilters).length === 0 ? true : (
+      (appliedFilters.city ? p.title === appliedFilters.city : true) &&
+      (appliedFilters.region ? p.subtitle === appliedFilters.region : true) &&
+      (appliedFilters.type ? p.category === appliedFilters.type : true) &&
+      (appliedFilters.bedrooms ? (
+        (() => {
+          const m = String(appliedFilters.bedrooms).match(/(\d+)/)
+          if (!m) return true
+          const n = Number(m[1])
+          return p.bedrooms ? p.bedrooms === n : (
+            Array.isArray(p.differences) ? p.differences.some(d => d.includes(`${n}`)) : true
+          )
+        })()
+      ) : true)
+    ))
+  )
+
+  const filtered1 = fakeRequest.filter(filterPredicate)
+  const filtered2 = fakeRequest2.filter(filterPredicate)
+  const filtered3 = fakeRequest3.filter(filterPredicate)
+
+  const totalResults = filtered1.length + filtered2.length + filtered3.length
 
   return (
     <>
-      <SearchFilterView />
-      <ResultTitleView />
-      <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
-        <PropertiesCarouselView properties={fakeRequest} titleCarousel="Lançamentos" />
-      </SectionView>
-      <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Disponível" />
-      </SectionView>
-      <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
-        <PropertiesCarouselView properties={fakeRequest3} titleCarousel="Em Obras" />
-      </SectionView>
+      <SearchFilterView
+        filters={pendingFilters}
+        updateFilter={updatePendingFilter}
+        handleSearch={() => { /* opcional: acionar busca global */ }}
+        onApply={applyFilters}
+        options={optionsWithPlaceholders}
+      />
+      <ResultTitleView
+        results={totalResults}
+        filters={appliedFilters}
+      />
+      {filtered1.length > 0 && (
+        <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
+          <PropertiesCarouselView
+            properties={filtered1}
+            titleCarousel="Lançamentos"
+          />
+        </SectionView>
+      )}
+      {filtered2.length > 0 && (
+        <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
+          <PropertiesCarouselView
+            properties={filtered2}
+            titleCarousel="Disponível"
+          />
+        </SectionView>
+      )}
+      {filtered3.length > 0 && (
+        <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
+          <PropertiesCarouselView
+            properties={filtered3}
+            titleCarousel="Em Obras"
+          />
+        </SectionView>
+      )}
     </>
   )
 }

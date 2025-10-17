@@ -6,9 +6,20 @@ export class SelectFilterModel {
   }
 
   getFormattedOptions() {
-    return this.options.map(option => ({
-      label: option.toUpperCase(),
-      value: option,
-    }))
+    return this.options.map(option => {
+      // If option is an object with label/value, respect it (don't uppercase label)
+      if (option && typeof option === 'object' && ('value' in option)) {
+        return {
+          label: option.label,
+          value: option.value,
+        }
+      }
+
+      // otherwise it's a primitive/string
+      return {
+        label: String(option).toUpperCase(),
+        value: option,
+      }
+    })
   }
 }

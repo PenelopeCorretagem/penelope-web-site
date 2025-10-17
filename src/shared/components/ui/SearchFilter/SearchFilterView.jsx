@@ -1,12 +1,15 @@
 import { useSearchFilterViewModel } from '@shared/components/ui/SearchFilter/useSearchViewModel'
 import { SelectFilterView } from '@shared/components/ui/SelectFilter/SelectFilterView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { FaSearch, FaFilter } from 'react-icons/fa'
 
-export function SearchFilterView() {
-  const { filters, options, updateFilter, handleSearch } =
-    useSearchFilterViewModel()
+export function SearchFilterView({ filters: externalFilters = null, updateFilter: externalUpdate = null, handleSearch: externalHandleSearch = null, onApply: externalOnApply = null, options: externalOptions = null }) {
+  const { filters: localFilters, options: defaultOptions, updateFilter: localUpdate } = useSearchFilterViewModel()
+  const filters = externalFilters || localFilters
+  const updateFilter = externalUpdate || localUpdate
+  const handleSearch = externalHandleSearch || (() => {})
+  const onApply = externalOnApply || (() => {})
+  const options = externalOptions || defaultOptions
 
   return (
     <div className='flex flex-wrap items-center justify-center gap-4 border-y-2 border-gray-400 bg-[#cbcbcb] p-4 shadow'>
@@ -54,10 +57,12 @@ export function SearchFilterView() {
         variant='softbrown'
         shape='square'
         width='fit'
-        model={new ButtonModel(<FaFilter className='h-4 w-4' />
-          , 'brown', 'button')}
-        className='h-13 w-4'
+        onClick={onApply}
+        className='h-10 w-10 p-7'
+        title='Filtrar'
       >
+        <FaFilter className='h-4 w-4' aria-hidden='true' />
+        <span className='sr-only'>Filtrar</span>
       </ButtonView>
 
       <ButtonView
@@ -65,10 +70,11 @@ export function SearchFilterView() {
         shape='square'
         width='fit'
         onClick={handleSearch}
-        model={new ButtonModel(<FaSearch className='h-4 w-4' />
-          , 'pink', 'button')}
-        className='h-13 w-13'
+        className='h-10 w-10 p-7'
+        title='Buscar'
       >
+        <FaSearch className='h-4 w-4' aria-hidden='true' />
+        <span className='sr-only'>Buscar</span>
       </ButtonView>
     </div>
   )
