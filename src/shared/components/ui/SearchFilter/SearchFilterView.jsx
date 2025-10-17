@@ -1,9 +1,8 @@
 import { useSearchFilterViewModel } from '@shared/components/ui/SearchFilter/useSearchViewModel'
 import { SelectFilterView } from '@shared/components/ui/SelectFilter/SelectFilterView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { Funnel, Search } from 'lucide-react'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
-
+import { FaSearch, FaFilter } from 'react-icons/fa'
 
 export function SearchFilterView() {
   const { filters, options, updateFilter, handleSearch } =
@@ -52,21 +51,21 @@ export function SearchFilterView() {
       />
 
       <ButtonView
-        variant='filtro'
+        variant='softbrown'
         shape='square'
         width='fit'
-        model={new ButtonModel(<Funnel className='h-4 w-4' />
+        model={new ButtonModel(<FaFilter className='h-4 w-4' />
           , 'brown', 'button')}
         className='h-13 w-4'
       >
       </ButtonView>
 
       <ButtonView
-        variant='busca'
+        variant='brown'
         shape='square'
         width='fit'
         onClick={handleSearch}
-        model={new ButtonModel(<Search className='h-4 w-4' />
+        model={new ButtonModel(<FaSearch className='h-4 w-4' />
           , 'pink', 'button')}
         className='h-13 w-13'
       >

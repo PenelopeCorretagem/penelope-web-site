@@ -1,15 +1,20 @@
+import { useSelectFilterViewModel } from './useSelectFilterViewModel'
+
 export function SelectFilterView({
-  options = [],
   value,
   onChange,
-  name = 'filtro',
-  id = 'select_filter',
+  name,
+  id,
+  options = [],
   width = 'fit',
   className = '',
   variant = 'default',
   shape = 'square',
   disabled = false,
 }) {
+  const { options: formattedOptions, name: modelName, id: modelId } =
+    useSelectFilterViewModel({ options, name, id })
+
   const baseClasses = [
     'appearance-none',
     'font-semibold uppercase',
@@ -41,8 +46,8 @@ export function SelectFilterView({
   return (
     <div className={`relative ${widths[width]}`}>
       <select
-        name={name}
-        id={id}
+        name={modelName}
+        id={modelId}
         value={value}
         disabled={disabled}
         onChange={onChange}
@@ -52,19 +57,18 @@ export function SelectFilterView({
           shapes[shape],
           widths[width],
           className,
-          'pr-10', // espaço para ícone
+          'pr-10',
         ]
           .filter(Boolean)
           .join(' ')}
       >
-        {options.map(option => (
-          <option key={option} value={option}>
-            {option.toUpperCase()}
+        {formattedOptions.map(({ label, value }) => (
+          <option key={value} value={value}>
+            {label}
           </option>
         ))}
       </select>
 
-      {/* Ícone de seta */}
       <div className='pointer-events-none absolute inset-y-0 right-3 flex items-center'>
         <svg
           className='h-4 w-4 text-gray-500'
