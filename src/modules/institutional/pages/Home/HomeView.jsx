@@ -204,7 +204,7 @@ export function HomeView() {
 
       {/*Distac Properties*/ }
       <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <PropertiesCarouselView properties={fakeRequest2} />
+        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
       </SectionView>
 
       {/*Penélope + Cury*/ }

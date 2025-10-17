@@ -42,12 +42,14 @@ export function PropertiesView() {
       category: EPropertyCardCategory.LANCAMENTO,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
+    }
+  ]
+  const fakeRequest2 = [
     {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -55,7 +57,7 @@ export function PropertiesView() {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.DISPONIVEL,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -63,7 +65,7 @@ export function PropertiesView() {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -71,15 +73,17 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.DISPONIVEL,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
+    }
+  ]
+  const fakeRequest3 = [
     {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.EM_OBRAS,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -87,7 +91,7 @@ export function PropertiesView() {
       title: 'Guarulhos',
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.EM_OBRAS,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -95,7 +99,7 @@ export function PropertiesView() {
       title: 'São Paulo',
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.EM_OBRAS,
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -103,7 +107,7 @@ export function PropertiesView() {
       title: 'Rio de Janeiro',
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: EPropertyCardCategory.EM_OBRAS,
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -151,6 +155,12 @@ export function PropertiesView() {
       <ResultTitleView />
       <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
         <PropertiesCarouselView properties={fakeRequest} titleCarousel="Lançamentos" />
+      </SectionView>
+      <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
+        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Disponível" />
+      </SectionView>
+      <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
+        <PropertiesCarouselView properties={fakeRequest3} titleCarousel="Em Obras" />
       </SectionView>
     </>
   )
