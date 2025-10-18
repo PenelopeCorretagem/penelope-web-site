@@ -78,6 +78,11 @@ class ButtonViewModel {
         active: 'bg-brand-pink text-brand-white',
         hover: 'hover:bg-brand-pink hover:text-brand-white',
       },
+      softbrown: {
+        base: 'bg-brand-soft-brown text-brand-white',
+        active: 'bg-brand-pink text-brand-white',
+        hover: 'hover:bg-brand-pink hover:text-brand-white',
+      },
       white: {
         base: 'bg-brand-white text-brand-black',
         active: 'bg-brand-pink text-brand-white',
