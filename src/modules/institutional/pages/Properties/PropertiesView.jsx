@@ -7,9 +7,7 @@ import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilte
 import { ResultTitleView } from '@shared/components/ui/ResultTitle/ResultTitleView'
 
 export function PropertiesView() {
-  // state for filters
 
-  // Estado de filtros levantado aqui para tornar a tela dinâmica
   const [pendingFilters, setPendingFilters] = useState({
     city: '',
     region: '',
@@ -17,7 +15,6 @@ export function PropertiesView() {
     bedrooms: '',
   })
 
-  // appliedFilters são os filtros que foram efetivamente aplicados (quando o usuário clica no funil)
   const [appliedFilters, setAppliedFilters] = useState({})
 
   const updatePendingFilter = (key, value) => {
@@ -143,7 +140,6 @@ export function PropertiesView() {
     },
   ]
 
-  // Construir opções dinâmicas a partir dos dados fake
   const gatherOptions = (lists) => {
     const cities = new Set()
     const regions = new Set()
@@ -155,11 +151,8 @@ export function PropertiesView() {
         if (p.title) cities.add(p.title)
         if (p.subtitle) regions.add(p.subtitle)
         if (p.category) types.add(p.category)
-        // Prefer extrair a quantidade de dormitórios a partir da descrição
-        // Ex.: '2 dormitórios com opção de terraço' -> '2 Dormitórios'
         const desc = p.description || ''
         const dormMatch = desc.match(/(\d+)\s*dormi/i)
-        // Preferir campo explícito `bedrooms` se existir
         if (p.bedrooms) {
           const n = Number(p.bedrooms)
           const label = `${n} Dormitório${n > 1 ? 's' : ''}`
@@ -169,7 +162,6 @@ export function PropertiesView() {
           const label = `${n} Dormitório${n > 1 ? 's' : ''}`
           bedrooms.add(label)
         } else if (Array.isArray(p.differences)) {
-          // fallback: procurar dentro de differences por menção a dormitórios
           p.differences.forEach(d => {
             const m = d.match(/(\d+)\s*dormi/i)
             if (m) {
@@ -191,7 +183,7 @@ export function PropertiesView() {
   }
 
   const options = gatherOptions([fakeRequest, fakeRequest2, fakeRequest3])
-  // Prepend placeholder options so selects show friendly default labels
+
   const optionsWithPlaceholders = {
     cities: [{ label: 'Cidade', value: '' }, ...options.cities],
     regions: [{ label: 'Região', value: '' }, ...options.regions],
@@ -199,9 +191,6 @@ export function PropertiesView() {
     bedrooms: [{ label: 'Dormitórios', value: '' }, ...options.bedrooms],
   }
 
-  // Note: previously there was resize/calc logic here updating a card width state.
-  // That state wasn't used anywhere in this component, so it has been removed to
-  // keep the component simpler and avoid unused listeners.
   const filterPredicate = (p) => (
     (Object.keys(appliedFilters).length === 0 ? true : (
       (appliedFilters.city ? p.title === appliedFilters.city : true) &&
