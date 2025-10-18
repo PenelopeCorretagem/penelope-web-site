@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom'
 
 /**
  * ButtonView - Componente de botão
+ * Integra com ButtonViewModel para gerenciar estado e comportamento
+ * @param {Node} children - Conteúdo do botão (texto, ícones, etc.)
+ * @param {string} variant - Variante de cor ('pink' | 'brown' | 'soft-brown' | 'white' | 'border-white' | 'gray' | 'transparent')
+ * @param {string} type - Tipo do botão ('button' | 'submit' | 'reset' | 'link')
+ * @param {string} to - URL para navegação (quando type é 'link')
+ * @param {string} width - Largura do botão ('full' | 'fit')
+ * @param {string} shape - Forma do botão ('square' | 'circle')
  * @param {Node} children - Conteúdo do botão
  * @param {string} variant - Variante de cor
  * @param {string} type - Tipo do botão
