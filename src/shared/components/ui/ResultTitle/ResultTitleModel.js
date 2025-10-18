@@ -6,7 +6,6 @@ export class ResultTitleModel {
 
   getTitle() {
     const { city, bedrooms } = this.filters || {}
-    // results may be a number (total) or an array; normalize to number
     const count = typeof this.results === 'number' ? this.results : (Array.isArray(this.results) ? this.results.length : 0)
 
     const cityText = city || 'todas as cidades'
