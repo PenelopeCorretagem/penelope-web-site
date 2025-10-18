@@ -1,9 +1,9 @@
-import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
+import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { memo } from 'react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { usePropertiesCarouselViewModel } from '@shared/components/ui/PropertiesCarousel/usePropertiesCarouselViewModel'
+import { usePropertiesCarouselViewModel } from '@domains/property/PropertiesCarousel/usePropertiesCarouselViewModel'
 
 export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [] }) {
   const {

@@ -4,7 +4,7 @@ import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { ArrowBackView } from '@shared/components/ui/AroowBack/ArrowBackView'
+import { ArrowBackView } from '@shared/components/ui/ArrowBack/ArrowBackView'
 import { useResetPasswordViewModel } from './useResetPasswordViewModel'
 
 export function ResetPasswordView() {

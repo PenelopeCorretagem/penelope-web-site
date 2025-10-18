@@ -4,7 +4,6 @@ import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 
 /**
  * ButtonViewModel - Gerencia a lógica e apresentação de botões
- * Estende BaseElementViewModel para funcionalidades base de UI
  */
 class ButtonViewModel {
   constructor(model = new ButtonModel(), { onClick } = {}) {
@@ -92,6 +91,11 @@ class ButtonViewModel {
         base: 'border-2 border-brand-white bg-transparent text-brand-white',
         active: 'border-2 border-brand-white bg-brand-white text-brand-pink',
         hover: 'hover:border-2 hover:border-brand-white hover:bg-brand-white hover:text-brand-pink',
+      },
+      transparent: {
+        base: 'bg-transparent text-brand-white',
+        active: 'text-brand-black',
+        hover: 'hover:text-brand-black',
       }
     }
 
@@ -134,9 +138,26 @@ class ButtonViewModel {
   }
 
   /**
-   * Retorna todas as classes CSS concatenadas
+   * Verifica se há classes de padding customizadas
    */
-  getButtonClasses(width = 'full', shape = 'square', additionalClassName = '') {
+  hasCustomPadding(className) {
+    if (!className) return false
+    return /\b(p-|px-|py-|pt-|pb-|pl-|pr-)\d+/.test(className)
+  }
+
+  /**
+   * Verifica se há classes de cor de texto customizadas
+   */
+  hasCustomTextColor(className) {
+    if (!className) return false
+    return /\btext-\w+/.test(className)
+  }
+
+  /**
+   * Retorna todas as classes CSS concatenadas
+   * ✅ FIX: Agora recebe className e verifica corretamente
+   */
+  getButtonClasses(width = 'full', shape = 'square', className = '') {
     const baseClasses = [
       'inline-flex items-center justify-center gap-2',
       'font-title-family font-bold',
@@ -147,21 +168,22 @@ class ButtonViewModel {
       'hover:scale-105'
     ].join(' ')
 
-    // Conditional padding - only apply default if no custom padding in className
-    const defaultPadding = additionalClassName.includes('px-') ||
-                          additionalClassName.includes('py-') ||
-                          additionalClassName.includes('p-')
-      ? ''
-      : 'px-4 py-2'
+    // ✅ FIX: Verifica className corretamente
+    const defaultPadding = this.hasCustomPadding(className) ? '' : 'px-4 py-2'
+
+    // ✅ FIX: Se tem cor customizada, não adiciona cores da variant
+    const variantClasses = this.hasCustomTextColor(className)
+      ? '' // Não adiciona cores se houver customização
+      : this.getVariantClasses(this.active)
 
     return [
       baseClasses,
       defaultPadding,
-      this.getVariantClasses(this.active),
+      variantClasses,
       this.getWidthClasses(width),
       this.getShapeClasses(shape),
       this.getStateClasses(),
-      additionalClassName,
+      className, // className por último para sobrescrever
     ]
       .filter(Boolean)
       .join(' ')
@@ -243,25 +265,16 @@ class ButtonViewModel {
 
 /**
  * Hook para gerenciar estado e interações do ButtonViewModel
- * Implementa Factory Pattern - cria o modelo internamente
- * @param {string} text - Texto do botão
- * @param {string} variant - Variante de cor do botão
- * @param {string} type - Tipo do botão ('button', 'submit', 'reset', 'link')
- * @param {Object} config - Configurações adicionais
- * @param {string} to - URL para navegação (quando type é 'link')
- * @returns {Object} Estado e comandos do botão
  */
 export function useButtonViewModel(text = '', variant = 'pink', type = 'button', config = {}, to = null) {
   const navigate = useNavigate()
 
-  // ✅ Factory Pattern - Hook cria o modelo
   const [viewModel] = useState(() => {
     const model = new ButtonModel(text, variant, type, to)
     return new ButtonViewModel(model, config)
   })
   const [, forceUpdate] = useState(0)
 
-  // Atualiza o onClick sempre que o config muda
   viewModel.onClick = config.onClick
 
   const refresh = useCallback(() => {
@@ -307,14 +320,12 @@ export function useButtonViewModel(text = '', variant = 'pink', type = 'button',
     handleClick: (event) => {
       if (!viewModel.canClick) return
 
-      // Se é um link, navegar usando React Router
       if (viewModel.isLink && viewModel.to) {
         event.preventDefault()
         navigate(viewModel.to)
         return
       }
 
-      // Caso contrário, executar onClick normal
       if (viewModel.onClick) {
         viewModel.onClick(event, viewModel.model)
       }
@@ -334,9 +345,9 @@ export function useButtonViewModel(text = '', variant = 'pink', type = 'button',
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
     canClick: viewModel.canClick,
-    // ✅ Método CSS vindo do ViewModel
-    getButtonClasses: (width, shape, additionalClassName) =>
-      viewModel.getButtonClasses(width, shape, additionalClassName),
+    // ✅ FIX: Agora passa className para o método
+    getButtonClasses: (width, shape, className) =>
+      viewModel.getButtonClasses(width, shape, className),
     ...commands,
   }
 }

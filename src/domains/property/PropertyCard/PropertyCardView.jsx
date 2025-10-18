@@ -2,7 +2,7 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { usePropertyCardViewModel } from '@shared/components/ui/PropertyCard/usePropertyCardViewModel'
+import { usePropertyCardViewModel } from '@domains/property/PropertyCard/usePropertyCardViewModel'
 
 export function PropertyCardView({
   hasLabel = true,

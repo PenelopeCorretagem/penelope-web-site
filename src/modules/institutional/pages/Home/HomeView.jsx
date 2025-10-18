@@ -3,12 +3,12 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
-import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
+import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
+import { EPropertyCardCategory } from '@domains/property/PropertyCard/EPropertyCardCategory'
 import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
-import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
+import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
 
 export function HomeView() {
   const [cardWidth, setCardWidth] = useState(0)

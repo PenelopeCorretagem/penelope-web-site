@@ -1,4 +1,4 @@
-import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
+import { EPropertyCardCategory } from '@domains/property/PropertyCard/EPropertyCardCategory'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 

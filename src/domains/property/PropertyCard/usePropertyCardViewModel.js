@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
+import { PropertyCardModel } from '@domains/property/PropertyCard/PropertyCardModel'
 
 /**
  * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard

@@ -1,6 +1,6 @@
 // modules/institutional/components/NavMenuView.jsx
 import { NavItemView } from '@shared/components/ui/NavItem/NavItemView'
-import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useNavMenuViewModel } from '@shared/components/layout/NavMenu/useNavMenuViewModel'

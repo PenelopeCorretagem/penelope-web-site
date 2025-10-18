@@ -3,13 +3,12 @@ import { Link } from 'react-router-dom'
 
 /**
  * ButtonView - Componente de botão
- * Integra com ButtonViewModel para gerenciar estado e comportamento
- * @param {Node} children - Conteúdo do botão (texto, ícones, etc.)
- * @param {string} variant - Variante de cor ('pink' | 'brown' | 'white' | 'border-white')
- * @param {string} type - Tipo do botão ('button' | 'submit' | 'reset' | 'link')
- * @param {string} to - URL para navegação (quando type é 'link')
- * @param {string} width - Largura do botão ('full' | 'fit')
- * @param {string} shape - Forma do botão ('square' | 'circle')
+ * @param {Node} children - Conteúdo do botão
+ * @param {string} variant - Variante de cor
+ * @param {string} type - Tipo do botão
+ * @param {string} to - URL para navegação
+ * @param {string} width - Largura ('full' | 'fit')
+ * @param {string} shape - Forma ('square' | 'circle')
  * @param {string} className - Classes CSS adicionais
  * @param {Function} onClick - Handler de clique
  */
@@ -35,6 +34,7 @@ export function ButtonView({
     getButtonClasses,
   } = useButtonViewModel(children, variant, type, { onClick }, to)
 
+  // ✅ FIX: Passa className para getButtonClasses
   const buttonClasses = getButtonClasses(width, shape, className)
 
   const buttonContent = (
@@ -55,7 +55,6 @@ export function ButtonView({
     </>
   )
 
-  // Se for um link, renderizar como Link do React Router
   if (isLink && buttonTo) {
     return (
       <Link
@@ -73,7 +72,6 @@ export function ButtonView({
     )
   }
 
-  // Caso contrário, renderizar como botão normal
   return (
     <button
       type={buttonType}
