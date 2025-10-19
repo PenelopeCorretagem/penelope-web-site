@@ -86,7 +86,7 @@ class ButtonViewModel {
       gray: {
         base: 'bg-brand-gray text-brand-white',
         active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        hover: 'hover:bg-brand-gray hover:text-brand-white',
       },
       'border-white': {
         base: 'border-2 border-brand-white bg-transparent text-brand-white',
