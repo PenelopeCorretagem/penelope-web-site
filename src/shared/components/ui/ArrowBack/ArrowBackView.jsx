@@ -1,5 +1,5 @@
 import { LucideArrowLeftToLine } from 'lucide-react'
-import { useArrowBackViewModel } from '@shared/components/ui/AroowBack/useArrowBackViewModel'
+import { useArrowBackViewModel } from '@shared/components/ui/ArrowBack/useArrowBackViewModel'
 
 /**
  * ArrowBackView - Botão de voltar página usando MVVM

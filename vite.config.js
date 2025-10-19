@@ -21,7 +21,11 @@ export default defineConfig(({ command, mode }) => {
         '@institutional': path.resolve(__dirname, './src/modules/institutional'),
         '@auth': path.resolve(__dirname, './src/modules/auth'),
         '@management': path.resolve(__dirname, './src/modules/management'),
-        '@routes': path.resolve(__dirname, './src/routes'),
+        '@routes': path.resolve(__dirname, './src/app/routes'),
+        '@domains': path.resolve(__dirname, './src/domains'),
+        '@utils': path.resolve(__dirname, './src/shared/utils'),
+        '@services': path.resolve(__dirname, './src/app/services'),
+        '@app': path.resolve(__dirname, './src/app'),
       },
     },
 

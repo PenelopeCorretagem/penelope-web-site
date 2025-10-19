@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { HomeView } from '@institutional/pages/Home/HomeView'
-import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
 import { AboutView } from '@institutional/pages/About/AboutView'
 import { ContactsView } from '@institutional/pages/Contacts/ContactsView'

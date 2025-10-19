@@ -14,7 +14,7 @@ export class ButtonModel {
     this.transition = false
   }
 
-  static VARIANTS = ['pink', 'brown', 'white', 'gray', 'border-white']
+  static VARIANTS = ['pink', 'brown', 'white', 'gray', 'border-white', 'transparent', 'soft-brown']
   static TYPES = ['button', 'submit', 'reset', 'link']
 
   isValid() {

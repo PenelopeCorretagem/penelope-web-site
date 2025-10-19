@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'

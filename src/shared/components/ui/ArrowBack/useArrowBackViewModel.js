@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowBackModel } from '@shared/components/ui/AroowBack/ArrowBackModel'
+import { ArrowBackModel } from '@shared/components/ui/ArrowBack/ArrowBackModel'
 
 /**
  * ArrowBackViewModel - Gerencia lógica e CSS do botão de voltar

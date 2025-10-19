@@ -1,6 +1,6 @@
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useFormViewModel } from '@shared/components/ui/Form/useFormViewModel'
