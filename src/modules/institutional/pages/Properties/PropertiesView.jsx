@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
+// import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
 import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
-import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
+// import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 import { ResultTitleView } from '@shared/components/ui/ResultTitle/ResultTitleView'
 

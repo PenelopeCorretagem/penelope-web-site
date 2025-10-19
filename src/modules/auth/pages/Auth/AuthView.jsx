@@ -6,6 +6,7 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ArrowBackView } from '@shared/components/ui/ArrowBack/ArrowBackView'
 import { useAuthViewModel } from './useAuthViewModel'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function AuthView() {
   const {
@@ -14,6 +15,7 @@ export function AuthView() {
     isForgotPassword,
     isLoading,
     error,
+    alertConfig,
 
     // Handlers
     handleRegisterClick,
@@ -23,6 +25,7 @@ export function AuthView() {
     handleLoginSubmit,
     handleRegisterSubmit,
     handleForgotPasswordSubmit,
+    handleCloseAlert,
 
     // Configurações de estilo
     getContainerClasses,
@@ -61,13 +64,13 @@ export function AuthView() {
           </div>
           <div className="flex-1 flex flex-col w-full items-center justify-center gap-subsection md:gap-subsection-md">
             <FormView
-              title={signInFormConfig.title}
+            title={signInFormConfig.title}
               subtitle={signInFormConfig.subtitle}
               fields={signInFormConfig.fields}
               submitText={signInFormConfig.submitText}
+              errorMessage={error}
               onSubmit={handleLoginSubmit}
               isLoading={isLoading}
-              errorMessage={error}
             />
             <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
               Esqueceu a senha?
@@ -100,7 +103,7 @@ export function AuthView() {
                   submitText={forgotPasswordFormConfig.submitText}
                   onSubmit={handleForgotPasswordSubmit}
                   isLoading={isLoading}
-                  errorMessage={error}
+                  // errorMessage={error}
                 />
                 <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
                   Lembrou a senha?
@@ -119,6 +122,8 @@ export function AuthView() {
                 fields={signUpFormConfig.fields}
                 submitText={signUpFormConfig.submitText}
                 onSubmit={handleRegisterSubmit}
+                isLoading={isLoading}
+                // errorMessage={error}
               />
             )}
           </div>
@@ -194,6 +199,16 @@ export function AuthView() {
           </div>
         </div>
       </div>
+
+      <AlertView
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={alertConfig?.onClose || handleCloseAlert}
+      >
+        {alertConfig?.children}
+      </AlertView>
+
     </SectionView>
   )
 }

@@ -7,6 +7,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { ArrowBackView } from '@shared/components/ui/ArrowBack/ArrowBackView'
 import { useResetPasswordViewModel } from './useResetPasswordViewModel'
 import { Link } from 'react-router-dom'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function ResetPasswordView() {
   const {
@@ -16,11 +17,13 @@ export function ResetPasswordView() {
     isLoading,
     error,
     token,
+    alertConfig,
 
     // Handlers
     handleVerificationSubmit,
     handleNewPasswordSubmit,
     handleBackToLogin,
+    handleCloseAlert,
 
     // Configurações de estilo
     getContainerClasses,
@@ -182,6 +185,16 @@ export function ResetPasswordView() {
           </div>
         </div>
       </div>
+
+      <AlertView
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={alertConfig?.onClose || handleCloseAlert}
+      >
+        {alertConfig?.children}
+      </AlertView>
+
     </SectionView>
   )
 }
