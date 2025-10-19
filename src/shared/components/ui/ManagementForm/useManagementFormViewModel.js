@@ -32,11 +32,11 @@ class ManagementFormViewModel {
 
   // CSS classes específicas para formulários de gerenciamento
   get formClasses() {
-    return 'grid grid-cols-2 gap-subsection md:gap-subsection-md'
+    return 'w-full flex flex-col gap-6 items-start'
   }
 
   get titleClasses() {
-    return 'text-left text-brand-dark-gray font-semibold'
+    return 'text-brand-pink'
   }
 
   get subtitleClasses() {

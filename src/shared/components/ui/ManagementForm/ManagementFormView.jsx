@@ -98,16 +98,9 @@ export function ManagementFormView({
   return (
     <>
       <form onSubmit={viewModel.handleSubmit} className={viewModel.formClasses} key={isEditing ? 'editing' : 'viewing'}>
-        {/* Título de Edição */}
-        {isEditing && (
-          <HeadingView level={2} className="text-2xl font-bold mb-6 text-center">
-            {location.pathname === '/acesso' ? 'EDITAR ACESSO' : 'EDITAR PERFIL'}
-          </HeadingView>
-        )}
-
-        {/* Título Original */}
-        {!isEditing && viewModel.hasTitle && (
-          <HeadingView level={2} className={viewModel.titleClasses}>
+        {/* Título */}
+        {isEditing && title && (
+          <HeadingView level={3} className={viewModel.titleClasses}>
             {title}
           </HeadingView>
         )}
@@ -120,43 +113,45 @@ export function ManagementFormView({
         )}
 
         {/* Campos */}
-        {fields.map((field) => (
-          <div key={field.name} className={viewModel.fieldContainerClasses}>
-            <InputView
-              id={field.name}
-              name={field.name}
-              type={field.type || 'text'}
-              placeholder={isEditing ? (field.placeholder || '') : ''}
-              value={viewModel.getFieldValue(field.name)}
-              onChange={isEditing ? viewModel.handleFieldChange(field.name) : undefined}
-              onClick={isEditing ? field.onClick : undefined}
-              hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
-              required={isEditing && (field.required || false)}
-              showPasswordToggle={isEditing && field.showPasswordToggle}
-              isActive={isEditing && !viewModel.isLoading}
-              maxLength={field.maxLength}
-              minLength={field.minLength}
-              step={field.step}
-              min={field.min}
-              max={field.max}
-              autoComplete={field.autoComplete}
-              readOnly={!isEditing}
-              disabled={!isEditing || viewModel.isLoading}
-              pattern={isEditing ? field.pattern : undefined}
-              inputMode={isEditing ? field.inputMode : undefined}
-              className={!isEditing ? 'bg-gray-50 border-gray-200' : ''}
-            >
-              {field.label || ''}
-            </InputView>
+        <div className="w-full grid grid-cols-2 gap-subsection md:gap-subsection-md">
+          {fields.map((field) => (
+            <div key={field.name} className={viewModel.fieldContainerClasses}>
+              <InputView
+                id={field.name}
+                name={field.name}
+                type={field.type || 'text'}
+                placeholder={isEditing ? (field.placeholder || '') : ''}
+                value={viewModel.getFieldValue(field.name)}
+                onChange={isEditing ? viewModel.handleFieldChange(field.name) : undefined}
+                onClick={isEditing ? field.onClick : undefined}
+                hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
+                required={isEditing && (field.required || false)}
+                showPasswordToggle={isEditing && field.showPasswordToggle}
+                isActive={isEditing && !viewModel.isLoading}
+                maxLength={field.maxLength}
+                minLength={field.minLength}
+                step={field.step}
+                min={field.min}
+                max={field.max}
+                autoComplete={field.autoComplete}
+                readOnly={!isEditing}
+                disabled={!isEditing || viewModel.isLoading}
+                pattern={isEditing ? field.pattern : undefined}
+                inputMode={isEditing ? field.inputMode : undefined}
+                className={!isEditing ? 'bg-gray-50 border-gray-200' : ''}
+              >
+                {field.label || ''}
+              </InputView>
 
-            {/* Erro específico do campo */}
-            {viewModel.hasFieldError(field.name) && (
-            <div className="text-red-600 text-sm mt-1">
-              {viewModel.getFieldError(field.name)}
+              {/* Erro específico do campo */}
+              {viewModel.hasFieldError(field.name) && (
+              <div className="text-red-600 text-sm mt-1">
+                {viewModel.getFieldError(field.name)}
+              </div>
+              )}
             </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
 
         {/* Mensagem de sucesso */}
         {viewModel.hasSuccess && (
@@ -182,51 +177,51 @@ export function ManagementFormView({
           {footerContent}
         </div>
         )}
-      </form>
 
-      {/* Botões de ação */}
-      <div className="w-full flex justify-start gap-4 mt-4">
-        {!isEditing ? (
-          <>
-            <ButtonView
-              type="button"
-              width={submitWidth}
-              onClick={onDelete}
-              variant="gray"
-            >
-              EXCLUIR
-            </ButtonView>
-            <ButtonView
-              type="button"
-              width={submitWidth}
-              onClick={handleEdit}
-              variant="pink"
-            >
-              EDITAR
-            </ButtonView>
-          </>
-        ) : (
-          <>
-            <ButtonView
-              type="button"
-              width={submitWidth}
-              onClick={handleCancel}
-              variant="gray"
-            >
-              CANCELAR
-            </ButtonView>
-            <ButtonView
-              type="button"
-              width={submitWidth}
-              onClick={() => document.querySelector('form').requestSubmit()}
-              disabled={viewModel.isLoading}
-              variant="pink"
-            >
-              {viewModel.isLoading ? 'Salvando...' : 'SALVAR'}
-            </ButtonView>
-          </>
-        )}
-      </div>
+        {/* Botões de ação */}
+        <div className="w-full flex justify-start gap-4 mt-4">
+          {!isEditing ? (
+            <>
+              <ButtonView
+                type="button"
+                width={submitWidth}
+                onClick={onDelete}
+                variant="gray"
+              >
+                EXCLUIR
+              </ButtonView>
+              <ButtonView
+                type="button"
+                width={submitWidth}
+                onClick={handleEdit}
+                variant="pink"
+              >
+                EDITAR
+              </ButtonView>
+            </>
+          ) : (
+            <>
+              <ButtonView
+                type="button"
+                width={submitWidth}
+                onClick={handleCancel}
+                variant="gray"
+              >
+                CANCELAR
+              </ButtonView>
+              <ButtonView
+                type="button"
+                width={submitWidth}
+                onClick={() => document.querySelector('form').requestSubmit()}
+                disabled={viewModel.isLoading}
+                variant="pink"
+              >
+                {viewModel.isLoading ? 'Salvando...' : 'SALVAR'}
+              </ButtonView>
+            </>
+          )}
+        </div>
+      </form>
     </>
   )
 }
