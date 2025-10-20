@@ -6,17 +6,24 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ArrowBackView } from '@shared/components/ui/ArrowBack/ArrowBackView'
 import { useResetPasswordViewModel } from './useResetPasswordViewModel'
+import { Link } from 'react-router-dom'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function ResetPasswordView() {
   const {
     // Estado
-    _isActive,
+    status,
     currentResetType,
+    isLoading,
+    error,
+    token,
+    alertConfig,
 
     // Handlers
     handleVerificationSubmit,
     handleNewPasswordSubmit,
     handleBackToLogin,
+    handleCloseAlert,
 
     // Configurações de estilo
     getContainerClasses,
@@ -33,6 +40,26 @@ export function ResetPasswordView() {
     leftPanelContent,
     rightPanelContent
   } = useResetPasswordViewModel()
+
+  if (status === 'validating' || status === 'invalid' || status === 'success') {
+    let message = 'Validando seu link...';
+    if (status === 'invalid') message = error || 'Link inválido ou expirado.';
+    if (status === 'success') message = 'Senha redefinida com sucesso! Redirecionando...';
+
+     return (
+      <SectionView className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center p-8 bg-white shadow-lg rounded-lg">
+          <LogoView colorScheme="pink" size={80} />
+          <h2 className={`text-2xl font-bold mt-6 ${status === 'invalid' ? 'text-red-500' : ''}`}>{message}</h2>
+          {status === 'invalid' && (
+            <Link to="/auth" className="mt-6 font-semibold text-brand-pink hover:underline">
+              Voltar para o Login
+            </Link>
+          )}
+        </div>
+      </SectionView>
+    );
+  }
 
   const containerClasses = getContainerClasses()
   const toggleContainerClasses = getToggleContainerClasses()
@@ -61,6 +88,9 @@ export function ResetPasswordView() {
               fields={verificationFormConfig.fields}
               submitText={verificationFormConfig.submitText}
               onSubmit={handleVerificationSubmit}
+              isLoading={isLoading}
+              errorMessage={error}
+              initialValues={{ token: token }}
             />
             <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
               Lembrou a senha?
@@ -92,6 +122,8 @@ export function ResetPasswordView() {
                 fields={newPasswordFormConfig.fields}
                 submitText={newPasswordFormConfig.submitText}
                 onSubmit={handleNewPasswordSubmit}
+                isLoading={isLoading}
+                errorMessage={error}
               />
               <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
                 Lembrou a senha?
@@ -156,6 +188,16 @@ export function ResetPasswordView() {
           </div>
         </div>
       </div>
+
+      <AlertView
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={alertConfig?.onClose || handleCloseAlert}
+      >
+        {alertConfig?.children}
+      </AlertView>
+
     </SectionView>
   )
 }

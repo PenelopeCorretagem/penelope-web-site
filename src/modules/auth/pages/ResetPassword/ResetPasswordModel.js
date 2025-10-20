@@ -23,7 +23,7 @@ export class ResetPasswordModel {
   getVerificationFields() {
     return [
       {
-        name: 'verification-code',
+        name: 'token',
         type: 'text',
         placeholder: 'Código de verificação:',
         required: true,
@@ -34,14 +34,14 @@ export class ResetPasswordModel {
   getNewPasswordFields() {
     return [
       {
-        name: 'new-password',
+        name: 'newPassword',
         type: 'password',
         placeholder: 'Nova senha:',
         required: true,
         showPasswordToggle: true,
       },
       {
-        name: 'confirm-password',
+        name: 'confirmPassword',
         type: 'password',
         placeholder: 'Confirmar senha:',
         required: true,

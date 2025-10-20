@@ -1,47 +1,113 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { ResetPasswordModel } from './ResetPasswordModel'
+import { validateResetToken, resetPassword } from '../../../../shared/services/apiService'
 
-/**
- * useResetPasswordViewModel - ViewModel para gerenciar a lógica de redefinição de senha
- * Centraliza estado, navegação e lógica de apresentação
- */
 export function useResetPasswordViewModel() {
-  const [isActive, setIsActive] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
   const location = useLocation()
   const resetPasswordModel = useMemo(() => new ResetPasswordModel(), [])
 
-  // Estado computado baseado na rota atual
+  // Estados principais da sua lógica de animação
+  const [isActive, setIsActive] = useState(false)
   const currentResetType = resetPasswordModel.getResetTypeFromRoute(location.pathname)
 
-  // Sincroniza estado com a rota atual
+  // Estados para a API e formulários
+  const [validToken, setValidToken] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [alertConfig, setAlertConfig] = useState(null);
+
+  const handleCloseAlert = useCallback(() => {
+    setAlertConfig(null);
+  }, []);
+
+  // Sincroniza o estado 'isActive' com a rota atual
   useEffect(() => {
-    switch (currentResetType) {
-      case resetPasswordModel.resetTypes.NEW_PASSWORD:
-        setIsActive(true)
-        break
-      case resetPasswordModel.resetTypes.VERIFICATION:
-      default:
-        setIsActive(false)
-        break
+    setIsActive(currentResetType === resetPasswordModel.resetTypes.NEW_PASSWORD);
+  }, [currentResetType, resetPasswordModel.resetTypes]);
+
+  // Efeito para validar o token da URL assim que a página carrega
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get('token');
+    if (tokenFromUrl) {
+      const validate = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+          // 1. Valida o token com a API
+          await validateResetToken(tokenFromUrl);
+          // 2. Salva o token validado no estado
+          setValidToken(tokenFromUrl);
+          // 3. Navega para a tela de nova senha (o que aciona a animação)
+          navigate(resetPasswordModel.getResetPasswordRoute(), { state: { token: tokenFromUrl } });
+        } catch (err) {
+          setError('Link de redefinição inválido ou expirado.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      validate();
     }
-  }, [currentResetType, resetPasswordModel.resetTypes])
+  }, [searchParams, navigate, resetPasswordModel]); // Dependências corrigidas
 
-  // Handlers de navegação
-  const handleVerificationSubmit = useCallback(async (_formData) => {
-    // Simular validação do código
-    // Em caso real, validar com API
-    navigate(resetPasswordModel.getResetPasswordRoute())
-    return { success: true, message: 'Código verificado com sucesso!' }
-  }, [navigate, resetPasswordModel])
+  // Handler para o formulário de verificação (se o usuário digitar o código)
+  const handleVerificationSubmit = useCallback(async (formData) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await validateResetToken(formData.token);
+      setValidToken(formData.token);
+      // Navega para a próxima etapa, passando o token
+      navigate(resetPasswordModel.getResetPasswordRoute(), { state: { token: formData.token } });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Código inválido ou expirado.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, resetPasswordModel]); // Dependências corrigidas
 
-  const handleNewPasswordSubmit = useCallback(async (_formData) => {
-    // Simular redefinição de senha
-    // Em caso real, enviar nova senha para API
-    navigate(resetPasswordModel.getLoginRoute())
-    return { success: true, message: 'Senha redefinida com sucesso!' }
-  }, [navigate, resetPasswordModel])
+  // Handler para o formulário de nova senha
+  const handleNewPasswordSubmit = useCallback(async (formData) => {
+    // Busca o token do estado da navegação (preferencial) ou do estado do hook
+    const token = location.state?.token || validToken;
+
+    if (!token) {
+      const msg = 'Token de sessão perdido. Por favor, tente novamente.';
+      setError(msg);
+      setAlertConfig({ type: 'error', message: msg, onClose: handleCloseAlert });
+      return;
+    }
+    if (formData.newPassword !== formData.confirmPassword) {
+      const msg = 'As senhas não coincidem.';
+      setError(msg);
+      setAlertConfig({ type: 'error', message: msg, onClose: handleCloseAlert });
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setAlertConfig(null);
+
+    try {
+      await resetPassword({ token, newPassword: formData.newPassword });
+      setAlertConfig({
+        type: 'success',
+        message: 'Senha redefinida com sucesso!',
+        onClose: () => {
+          setAlertConfig(null);
+          navigate('/auth');
+        }
+      });
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Ocorreu um erro ao redefinir a senha.';
+      setError(errorMessage);
+      setAlertConfig({ type: 'error', message: errorMessage, onClose: handleCloseAlert });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, location.state, validToken, handleCloseAlert]); // 'handleCloseAlert' adicionado
 
   const handleBackToLogin = useCallback(() => {
     navigate(resetPasswordModel.getLoginRoute())
@@ -113,6 +179,10 @@ export function useResetPasswordViewModel() {
     // Estado
     isActive,
     currentResetType,
+    token: searchParams.get('token') || '',
+    isLoading,
+    error,
+    alertConfig,
 
     // Handlers
     handleVerificationSubmit,
@@ -120,6 +190,7 @@ export function useResetPasswordViewModel() {
     handleBackToLogin,
     handleGoToNewPassword,
     handleGoToVerification,
+    handleCloseAlert : () => setAlertConfig(null),
 
     // Configurações de estilo
     getContainerClasses,

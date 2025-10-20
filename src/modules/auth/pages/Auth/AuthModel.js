@@ -20,13 +20,13 @@ export class AuthModel {
   getSignInFields() {
     return [
       {
-        name: 'email-sign-in',
+        name: 'email',
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
       },
       {
-        name: 'senha-sign-in',
+        name: 'senha',
         type: 'password',
         placeholder: 'Senha:',
         required: true,
@@ -38,19 +38,19 @@ export class AuthModel {
   getSignUpFields() {
     return [
       {
-        name: 'nomeCompleto-sign-up',
+        name: 'nomeCompleto',
         type: 'text',
         placeholder: 'Nome Completo:',
         required: true,
       },
       {
-        name: 'email-sign-up',
+        name: 'email',
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
       },
       {
-        name: 'senha-sign-up',
+        name: 'senha',
         type: 'password',
         placeholder: 'Senha:',
         required: true,
@@ -62,7 +62,7 @@ export class AuthModel {
   getForgotPasswordFields() {
     return [
       {
-        name: 'email-forgot-password',
+        name: 'email',
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
@@ -84,7 +84,7 @@ export class AuthModel {
           title: 'Criar Conta',
           subtitle: 'Preencha os campos para iniciar sua jornada.',
           fields: this.getSignUpFields(),
-          submitText: 'Acessar'
+          submitText: 'Cadastrar'
         }
       case this.authTypes.FORGOT_PASSWORD:
         return {
