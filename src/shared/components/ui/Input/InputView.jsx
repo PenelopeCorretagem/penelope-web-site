@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useInputViewModel } from '@shared/components/ui/Input/useInputViewModel'
+import { getInputThemeClasses } from '@shared/styles/theme'
 
 /**
  * InputView - Componente de input
@@ -48,7 +49,7 @@ export function InputView({
     errorMessages,
     containerClasses,
     labelClasses,
-    inputClasses,
+    errorClasses,
     handleChange,
     handleFocus,
     handleBlur,
@@ -61,6 +62,15 @@ export function InputView({
     isActive,
     hasLabel,
     required,
+  })
+
+  // Gerar classes do input com toggle se necessário
+  const inputClasses = getInputThemeClasses({
+    isActive,
+    disabled: !isEditable,
+    hasErrors,
+    withToggle: hasToggleButton,
+    className: '',
   })
 
   const togglePassword = () => {
@@ -84,7 +94,7 @@ export function InputView({
 
       <div className="relative">
         <input
-          className={`${inputClasses} ${hasToggleButton ? 'pr-12' : ''}`}
+          className={inputClasses}
           type={actualType}
           id={inputId}
           name={inputName}
@@ -115,7 +125,7 @@ export function InputView({
       </div>
 
       {hasErrors && (
-        <div className="text-red-600 text-sm mt-1" id={`${inputId}-error`}>
+        <div className={errorClasses} id={`${inputId}-error`}>
           {errorMessages}
         </div>
       )}

@@ -1,18 +1,19 @@
-import { EColors } from '@shared/Enum/EColors.js'
-import { ELevels } from '@shared/components/ui/Heading/EHeading.js'
+import { theme } from '@shared/styles/theme'
+
 /**
  * HeadingModel - Modelo de dados para o componente Heading
  * Gerencia estado e validação de títulos/cabeçalhos
  */
 export class HeadingModel {
-
-
   static DEFAULTS = {
     level: 1,
-    color: EColors.BLACK,
+    color: 'black',
     children: '',
     className: '',
   }
+
+  static THEME_COLORS = Object.keys(theme.heading.colors)
+  static VALID_LEVELS = [1, 2, 3, 4, 5, 6]
 
   constructor({
     level = HeadingModel.DEFAULTS.level,
@@ -33,14 +34,9 @@ export class HeadingModel {
       return Math.floor(level)
     }
 
-    // Aceita strings como 'h1', 'h2', etc.
+    // Aceita strings como 'h1', 'h2', etc. ou '1', '2', etc.
     if (typeof level === 'string') {
-      const numericLevel = ELevels[level.toUpperCase()]
-      if (numericLevel) {
-        return numericLevel
-      }
-
-      // Tenta extrair número da string
+      // Tenta extrair número da string (funciona para 'h1', 'H1', '1', etc.)
       const parsed = parseInt(level.replace(/\D/g, ''), 10)
       if (parsed >= 1 && parsed <= 6) {
         return parsed
@@ -51,14 +47,8 @@ export class HeadingModel {
   }
 
   validateColor(color) {
-    // Verifica se é uma das chaves do enum (BLACK, PINK, etc.)
-    if (typeof color === 'string' && EColors[color.toUpperCase()]) {
-      return EColors[color.toUpperCase()]
-    }
-
-    // Verifica se é um dos valores do enum ('black', 'pink', etc.)
-    const colorValues = Object.values(EColors)
-    if (typeof color === 'string' && colorValues.includes(color)) {
+    // Verifica se é uma cor válida do theme
+    if (typeof color === 'string' && HeadingModel.THEME_COLORS.includes(color)) {
       return color
     }
 
@@ -67,11 +57,10 @@ export class HeadingModel {
 
   // Getters
   get isValid() {
-    const colorValues = Object.values(EColors)
     return (
       this.level >= 1 &&
       this.level <= 6 &&
-      colorValues.includes(this.color) &&
+      HeadingModel.THEME_COLORS.includes(this.color) &&
       typeof this.children !== 'undefined'
     )
   }

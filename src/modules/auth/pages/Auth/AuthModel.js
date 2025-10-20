@@ -103,9 +103,16 @@ export class AuthModel {
       case this.authTypes.FORGOT_PASSWORD:
         return {
           title: 'Tranquilo,',
-          subtitle: 'Vamos te ajudar, informe seus dados para que possamos recuperar sua senha senha.'
+          subtitle: 'Vamos te ajudar, informe seus dados para que possamos recuperar sua senha.'
         }
-      default:
+      case this.authTypes.REGISTER:
+        return {
+          title: 'Já tem conta?',
+          subtitle: 'Se você já possui uma conta, faça login para continuar.',
+          buttonText: 'Entrar',
+          buttonAction: 'login'
+        }
+      default: // LOGIN
         return {
           title: 'Seja Bem-vindo!',
           subtitle: 'Já tem uma conta? Faça login para continuar.',

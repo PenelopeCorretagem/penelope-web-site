@@ -1,6 +1,7 @@
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { NavMenuView } from '@shared/components/layout/NavMenu/NavMenuView'
 import { useHeaderFactory } from '@shared/components/layout/Header/useHeaderViewModel'
+import { getHeaderContentThemeClasses } from '@shared/styles/theme'
 
 export function HeaderView({
   // Props semânticas em vez de lógica interna
@@ -19,7 +20,7 @@ export function HeaderView({
     errorMessages,
     isValid,
     headerClasses,
-    logoClasses,
+    logoSizeClasses,
   } = useHeaderFactory({
     logoSize,
     logoColorScheme,
@@ -27,6 +28,8 @@ export function HeaderView({
     sticky,
     showShadow,
   })
+
+  const contentClasses = getHeaderContentThemeClasses({})
 
   if (!isValid) {
     // Estado inválido detectado - componente ainda renderiza com fallbacks
@@ -40,12 +43,14 @@ export function HeaderView({
       aria-invalid={hasErrors}
       title={hasErrors ? errorMessages : undefined}
     >
-      <LogoView
-        size={viewLogoSize}
-        colorScheme={viewLogoColorScheme}
-        className={logoClasses}
-      />
-      <NavMenuView isAuthenticated={viewIsAuthenticated} />
+      <div className={contentClasses}>
+        <LogoView
+          size={viewLogoSize}
+          colorScheme={viewLogoColorScheme}
+          className={logoSizeClasses}
+        />
+        <NavMenuView isAuthenticated={viewIsAuthenticated} />
+      </div>
     </header>
   )
 }

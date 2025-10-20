@@ -4,22 +4,20 @@ export class ImageModel {
     BACKGROUND: 'background'
   }
 
-  static validateImageProps(_src, alt, _description) {
-    const errors = []
-
-    if (!alt || alt.trim() === '') {
-      errors.push('Alt text é obrigatório para acessibilidade')
+  static determineMode(mode, className) {
+    if (mode === 'auto') {
+      return className.includes('bg-cover') || className.includes('flex-1')
+        ? ImageModel.MODES.BACKGROUND
+        : ImageModel.MODES.IMAGE
     }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    }
+    return mode
   }
 
-  static getDefaultClasses(mode) {
-    return mode === ImageModel.MODES.IMAGE
-      ? 'max-h-72 min-w-lg'
-      : ''
+  static hasValidSource(src) {
+    return src != null && src !== ''
+  }
+
+  static hasValidDescription(description) {
+    return description && description.trim() !== ''
   }
 }

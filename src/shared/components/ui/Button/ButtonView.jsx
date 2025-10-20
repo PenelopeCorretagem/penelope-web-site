@@ -2,79 +2,64 @@ import { useButtonViewModel } from '@shared/components/ui/Button/useButtonViewMo
 import { Link } from 'react-router-dom'
 
 /**
- * ButtonView - Componente de botão
- * Integra com ButtonViewModel para gerenciar estado e comportamento
- * @param {Node} children - Conteúdo do botão (texto, ícones, etc.)
- * @param {string} variant - Variante de cor ('pink' | 'brown' | 'soft-brown' | 'white' | 'border-white' | 'gray' | 'transparent')
- * @param {string} type - Tipo do botão ('button' | 'submit' | 'reset' | 'link')
- * @param {string} to - URL para navegação (quando type é 'link')
- * @param {string} width - Largura do botão ('full' | 'fit')
- * @param {string} shape - Forma do botão ('square' | 'circle')
- * @param {Node} children - Conteúdo do botão
- * @param {string} variant - Variante de cor
- * @param {string} type - Tipo do botão
- * @param {string} to - URL para navegação
- * @param {string} width - Largura ('full' | 'fit')
- * @param {string} shape - Forma ('square' | 'circle')
- * @param {string} className - Classes CSS adicionais
- * @param {Function} onClick - Handler de clique
+ * ButtonView - Componente de botão usando theme design-model
  */
 export function ButtonView({
   children = '',
-  variant = 'pink',
+  color = 'pink',
   type = 'button',
   to = null,
   width = 'full',
   shape = 'square',
   className = '',
   onClick,
+  disabled = false,
+  active = false,
 }) {
   const {
     type: buttonType,
     to: buttonTo,
     isLink,
-    active,
-    disabled,
-    hasErrors,
-    errorMessages,
+    disabled: viewModelDisabled,
     handleClick,
     getButtonClasses,
-  } = useButtonViewModel(children, variant, type, { onClick }, to)
+  } = useButtonViewModel(children, color, type, { onClick }, to)
 
-  // ✅ FIX: Passa className para getButtonClasses
-  const buttonClasses = getButtonClasses(width, shape, className)
+  const isDisabled = disabled || viewModelDisabled
+  const isActive = active
 
-  const buttonContent = (
+  // Use theme classes directly without removing padding
+  const buttonClasses = getButtonClasses(width, shape, className, isDisabled, isActive)
+
+  const content = (
     <>
       {children}
-
-      {hasErrors && (
-        <span className='ml-1 text-red-300' aria-hidden='true'>
-          ⚠️
-        </span>
-      )}
-
-      {active && (
-        <span className='ml-1' aria-hidden='true'>
-          ✓
-        </span>
-      )}
     </>
   )
+
+  // Click handler
+  const handleButtonClick = (event) => {
+    if (isDisabled) {
+      event.preventDefault()
+      return
+    }
+
+    if (handleClick) {
+      handleClick(event)
+    }
+  }
 
   if (isLink && buttonTo) {
     return (
       <Link
         to={buttonTo}
         className={buttonClasses}
-        onClick={handleClick}
-        aria-pressed={active}
-        aria-disabled={disabled}
-        aria-invalid={hasErrors}
-        title={hasErrors ? errorMessages : undefined}
+        onClick={handleButtonClick}
+        aria-pressed={isActive}
+        aria-disabled={isDisabled}
         role="button"
       >
-        {buttonContent}
+        {content}
       </Link>
     )
   }
@@ -83,14 +68,11 @@ export function ButtonView({
     <button
       type={buttonType}
       className={buttonClasses}
-      onClick={handleClick}
-      disabled={disabled}
-      aria-pressed={active}
-      aria-disabled={disabled}
-      aria-invalid={hasErrors}
-      title={hasErrors ? errorMessages : undefined}
+      onClick={handleButtonClick}
+      disabled={isDisabled}
+      aria-pressed={isActive}
     >
-      {buttonContent}
+      {content}
     </button>
   )
 }

@@ -1,7 +1,7 @@
 export class AlertModel {
   constructor({
     isVisible = false,
-    type = 'info', // novo: tipo do alerta
+    type = 'info',
     message = '',
     onClose = () => {},
     children = null

@@ -78,6 +78,9 @@
   --padding-section-x-md: 104px;
   --padding-section-md: 56px 104px;
 
+    --padding-header: 16px 80px;
+  --padding-header-md: 24px 104px;
+
   --padding-button: 8px 16px;
   --padding-button-x: 16px;
   --padding-button-y: 8px;

@@ -1,5 +1,5 @@
-import { useSearchFilterViewModel } from '@shared/components/ui/SearchFilter/useSearchViewModel'
-import { SelectFilterView } from '@shared/components/ui/SelectFilter/SelectFilterView'
+import { useSearchFilterViewModel } from '@institutional/components/SearchFilter/useSearchViewModel'
+import { SelectFilterView } from '@institutional/components/SelectFilter/SelectFilterView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { FaSearch, FaFilter } from 'react-icons/fa'
 

@@ -1,24 +1,22 @@
 import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
+import { getButtonThemeClasses } from '@shared/styles/theme'
 
 /**
- * ButtonViewModel - Gerencia a lógica e apresentação de botões
+ * ButtonViewModel - Gerencia a lógica e apresentação de botões usando theme design-model
  */
 class ButtonViewModel {
   constructor(model = new ButtonModel(), { onClick } = {}) {
     this.model = model
     this.onClick = onClick
-    this.errors = []
   }
 
-  // ✅ Getters de dados (sem CSS)
   get text() {
     return this.model.text
   }
 
-  get variant() {
-    return this.model.variant
+  get color() {
+    return this.model.color
   }
 
   get type() {
@@ -41,318 +39,89 @@ class ButtonViewModel {
     return this.model.disabled
   }
 
-  get transition() {
-    return this.model.transition
-  }
-
-  get hasErrors() {
-    return this.errors.length > 0
-  }
-
-  get errorMessages() {
-    return this.errors.join(', ')
-  }
-
-  get isValid() {
-    return this.model.isValid()
-  }
-
   get canClick() {
-    return !this.disabled && !this.hasErrors && this.model.hasValidRoute()
+    return !this.disabled
   }
 
-  /**
-   * ✅ MVVM: ViewModel gerencia mapeamento CSS
-   * Retorna classes CSS baseadas na variante e estado ativo
-   */
-  getVariantClasses(active) {
-    const variants = {
-      pink: {
-        base: 'bg-brand-pink text-brand-white',
-        active: 'bg-brand-brown',
-        hover: 'hover:bg-brand-pink',
-      },
-      brown: {
-        base: 'bg-brand-brown text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
-      },
-      'soft-brown': {
-        base: 'bg-brand-soft-brown text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
-      },
-      white: {
-        base: 'bg-brand-white text-brand-black',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
-      },
-      gray: {
-        base: 'bg-brand-gray text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
-      },
-      'border-white': {
-        base: 'border-2 border-brand-white bg-transparent text-brand-white',
-        active: 'border-2 border-brand-white bg-brand-white text-brand-pink',
-        hover: 'hover:border-2 hover:border-brand-white hover:bg-brand-white hover:text-brand-pink',
-      },
-      transparent: {
-        base: 'bg-transparent text-brand-white',
-        active: 'text-brand-black',
-        hover: 'hover:text-brand-black',
-      }
-    }
+  getButtonClasses(width = 'full', shape = 'square', className = '', disabled = false, active = false) {
+    // Only detect custom padding if it's actually intended to override theme padding
+    const customPadding = /\bp-button-|\bpx-button-|\bpy-button-/.test(className || '')
+    const customTextColor = /\btext-\w+/.test(className || '')
 
-    const variantStyles = variants[this.variant] || variants.pink
-    const stateClass = active ? variantStyles.active : variantStyles.hover
-
-    return [variantStyles.base, stateClass].join(' ')
+    return getButtonThemeClasses({
+      color: this.color,
+      active: active || this.active,
+      width,
+      shape,
+      disabled: disabled || this.disabled,
+      className,
+      customPadding,
+      customTextColor,
+    })
   }
 
-  /**
-   * Retorna classes de largura
-   */
-  getWidthClasses(width) {
-    const widths = {
-      full: 'w-full',
-      fit: 'w-fit',
-    }
-    return widths[width] || widths.full
-  }
-
-  /**
-   * Retorna classes de forma
-   */
-  getShapeClasses(shape) {
-    const shapes = {
-      square: 'rounded-sm',
-      circle: 'rounded-full',
-    }
-    return shapes[shape] || shapes.square
-  }
-
-  /**
-   * Retorna classes de estado baseadas em erros e habilitação
-   */
-  getStateClasses() {
-    if (this.hasErrors) return 'border-2 border-red-500'
-    if (this.disabled) return 'cursor-not-allowed pointer-events-none opacity-50'
-    if (this.canClick) return 'cursor-pointer'
-    return ''
-  }
-
-  /**
-   * Verifica se há classes de padding customizadas
-   */
-  hasCustomPadding(className) {
-    if (!className) return false
-    return /\b(p-|px-|py-|pt-|pb-|pl-|pr-)\d+/.test(className)
-  }
-
-  /**
-   * Verifica se há classes de cor de texto customizadas
-   */
-  hasCustomTextColor(className) {
-    if (!className) return false
-    return /\btext-\w+/.test(className)
-  }
-
-  /**
-   * Retorna todas as classes CSS concatenadas
-   * ✅ FIX: Agora recebe className e verifica corretamente
-   */
-  getButtonClasses(width = 'full', shape = 'square', className = '') {
-    const baseClasses = [
-      'inline-flex items-center justify-center gap-2',
-      'font-title-family font-bold',
-      'text-[16px] md:text-[20px]',
-      'leading-none',
-      'uppercase',
-      'transition-all duration-200',
-      'hover:scale-105'
-    ].join(' ')
-
-    // ✅ FIX: Verifica className corretamente
-    const defaultPadding = this.hasCustomPadding(className) ? '' : 'px-4 py-2'
-
-    // ✅ FIX: Se tem cor customizada, não adiciona cores da variant
-    const variantClasses = this.hasCustomTextColor(className)
-      ? '' // Não adiciona cores se houver customização
-      : this.getVariantClasses(this.active)
-
-    return [
-      baseClasses,
-      defaultPadding,
-      variantClasses,
-      this.getWidthClasses(width),
-      this.getShapeClasses(shape),
-      this.getStateClasses(),
-      className, // className por último para sobrescrever
-    ]
-      .filter(Boolean)
-      .join(' ')
-  }
-
-  handleClick = event => {
-    if (!this.canClick) return
-
-    if (this.onClick) {
-      this.onClick(event, this.model)
-    }
-  }
-
-  toggle = () => {
-    if (!this.canClick) return false
-
-    this.model.toggle()
-    return true
-  }
-
-  updateVariant = newVariant => {
-    try {
-      this.model.updateVariant(newVariant)
-      this.clearErrors()
+  toggle() {
+    if (this.canClick) {
+      this.model.toggle()
       return true
-    } catch (error) {
-      this.addError(error.message)
-      return false
     }
-  }
-
-  updateText = newText => {
-    try {
-      this.model.updateText(newText)
-      this.clearErrors()
-      return true
-    } catch (error) {
-      this.addError(error.message)
-      return false
-    }
-  }
-
-  setDisabled = disabled => {
-    this.model.setDisabled(disabled)
-  }
-
-  setType = newType => {
-    try {
-      this.model.setType(newType)
-      this.clearErrors()
-      return true
-    } catch (error) {
-      this.addError(error.message)
-      return false
-    }
-  }
-
-  setTo = newTo => {
-    try {
-      this.model.setTo(newTo)
-      this.clearErrors()
-      return true
-    } catch (error) {
-      this.addError(error.message)
-      return false
-    }
-  }
-
-  addError(message) {
-    if (!this.errors.includes(message)) {
-      this.errors.push(message)
-    }
-  }
-
-  clearErrors() {
-    this.errors = []
+    return false
   }
 }
 
 /**
  * Hook para gerenciar estado e interações do ButtonViewModel
  */
-export function useButtonViewModel(text = '', variant = 'pink', type = 'button', config = {}, to = null) {
-  const navigate = useNavigate()
-
+export function useButtonViewModel(text = '', color = 'pink', type = 'button', config = {}, to = null) {
   const [viewModel] = useState(() => {
-    const model = new ButtonModel(text, variant, type, to)
+    const model = new ButtonModel(text, color, type, to)
     return new ButtonViewModel(model, config)
   })
   const [, forceUpdate] = useState(0)
-
-  viewModel.onClick = config.onClick
 
   const refresh = useCallback(() => {
     forceUpdate(prev => prev + 1)
   }, [])
 
-  const commands = {
-    toggle: () => {
-      const success = viewModel.toggle()
-      if (success) refresh()
-      return success
-    },
+  const handleClick = useCallback((event) => {
+    if (!viewModel.canClick) {
+      event.preventDefault()
+      return
+    }
 
-    updateVariant: variant => {
-      const success = viewModel.updateVariant(variant)
-      if (success) refresh()
-      return success
-    },
-
-    updateText: text => {
-      const success = viewModel.updateText(text)
-      if (success) refresh()
-      return success
-    },
-
-    setDisabled: disabled => {
-      viewModel.setDisabled(disabled)
-      refresh()
-    },
-
-    setType: type => {
-      const success = viewModel.setType(type)
-      if (success) refresh()
-      return success
-    },
-
-    setTo: to => {
-      const success = viewModel.setTo(to)
-      if (success) refresh()
-      return success
-    },
-
-    handleClick: (event) => {
-      if (!viewModel.canClick) return
-
-      if (viewModel.isLink && viewModel.to) {
-        event.preventDefault()
-        navigate(viewModel.to)
-        return
+    // Para links, deixa o comportamento padrão do Link component
+    if (viewModel.isLink && viewModel.to) {
+      if (config.onClick) {
+        config.onClick(event, viewModel.model)
       }
+      return
+    }
 
-      if (viewModel.onClick) {
-        viewModel.onClick(event, viewModel.model)
-      }
-    },
-  }
+    // Para botões normais, executa a ação onClick
+    if (config.onClick) {
+      // Garante que o evento seja passado corretamente
+      config.onClick(event, viewModel.model)
+    }
+  }, [viewModel, config])
+
+  const toggle = useCallback(() => {
+    const success = viewModel.toggle()
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
   return {
     text: viewModel.text,
-    variant: viewModel.variant,
+    color: viewModel.color,
     type: viewModel.type,
     to: viewModel.to,
     isLink: viewModel.isLink,
     active: viewModel.active,
     disabled: viewModel.disabled,
-    transition: viewModel.transition,
-    hasErrors: viewModel.hasErrors,
-    errorMessages: viewModel.errorMessages,
-    isValid: viewModel.isValid,
     canClick: viewModel.canClick,
-    // ✅ FIX: Agora passa className para o método
-    getButtonClasses: (width, shape, className) =>
-      viewModel.getButtonClasses(width, shape, className),
-    ...commands,
+    getButtonClasses: (width, shape, className, disabled, active) =>
+      viewModel.getButtonClasses(width, shape, className, disabled, active),
+    handleClick,
+    toggle,
   }
 }

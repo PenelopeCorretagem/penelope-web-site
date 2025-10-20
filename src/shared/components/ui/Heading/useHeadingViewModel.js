@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { HeadingModel } from '@shared/components/ui/Heading/HeadingModel'
+import { getHeadingThemeClasses } from '@shared/styles/theme'
 
 /**
  * HeadingViewModel - Gerencia a lógica e apresentação do Heading
@@ -52,43 +53,16 @@ class HeadingViewModel {
     return this.model.isValid && !this.hasErrors
   }
 
-  // Lógica de CSS - centralizada no ViewModel
-  get levelClasses() {
-    const levels = {
-      1: 'text-[28px] font-bold md:text-[44px]',
-      2: 'text-[24px] font-semibold md:text-[38px]',
-      3: 'text-[20px] font-semibold md:text-[32px]',
-      4: 'text-[16px] font-medium md:text-[26px]',
-      5: 'text-[12px] font-medium md:text-[20px]',
-      6: 'text-[8px] font-normal md:text-[14px]',
-    }
-
-    return levels[this.level] || levels[1]
+  // Lógica de CSS usando theme.js
+  get finalClassName() {
+    return getHeadingThemeClasses({
+      level: this.model.level,
+      color: this.model.color,
+      className: this.model.className,
+    })
   }
 
-  get colorClasses() {
-    const colors = {
-      black: 'text-brand-black',
-      pink: 'text-brand-pink',
-      white: 'text-brand-white',
-      softBrown: 'text-brand-soft-brown',
-    }
-
-    return colors[this.color] || colors.black
-  }
-
-  get baseClasses() {
-    return [
-      'w-fit',
-      'font-title-family',
-      'leading-none',
-      'uppercase',
-      this.levelClasses,
-      this.colorClasses,
-    ].join(' ')
-  }
-
-  // Função para mesclar classes removendo conflitos de font-weight
+  // Funções para mesclar classes removendo conflitos de font-weight
   mergeClasses(baseClasses, customClasses) {
     if (!customClasses || customClasses.trim() === '') {
       return baseClasses
@@ -111,10 +85,6 @@ class HeadingViewModel {
     }
 
     return [...finalClasses, ...custom].join(' ')
-  }
-
-  get finalClassName() {
-    return this.mergeClasses(this.baseClasses, this.className)
   }
 
   // Métodos de ação
@@ -210,7 +180,7 @@ class HeadingViewModel {
 }
 
 /**
- * Hook base para HeadingViewModel
+ * Hook para gerenciar estado e CSS do Heading
  */
 export function useHeadingViewModel(initialModel) {
   const [viewModel] = useState(() => new HeadingViewModel(initialModel))
@@ -264,10 +234,7 @@ export function useHeadingViewModel(initialModel) {
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
 
-    // CSS Classes
-    baseClasses: viewModel.baseClasses,
-    levelClasses: viewModel.levelClasses,
-    colorClasses: viewModel.colorClasses,
+    // CSS Classes (gerenciadas pelo ViewModel usando theme.js)
     finalClassName: viewModel.finalClassName,
 
     // Commands
@@ -349,10 +316,7 @@ export function useHeadingFactory({
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
 
-    // CSS Classes
-    baseClasses: viewModel.baseClasses,
-    levelClasses: viewModel.levelClasses,
-    colorClasses: viewModel.colorClasses,
+    // CSS Classes (gerenciadas pelo ViewModel usando theme.js)
     finalClassName: viewModel.finalClassName,
 
     // Commands

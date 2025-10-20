@@ -33,10 +33,12 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
 
         <ButtonView
           variant="brown"
+          size="medium"
           type="button"
           width='fit'
           aria-label="Ver mais propriedades"
-        >Ver Mais
+        >
+          Ver Mais
         </ButtonView>
       </div>
 
@@ -45,24 +47,26 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
           <ButtonView
             variant="brown"
+            size="small"
             type="button"
             width='fit'
             onClick={scrollToLeft}
             className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
             aria-label="Slide anterior"
           >
-            <ChevronLeft size={24} className="text-brand-white" />
+            <ChevronLeft size={24} />
           </ButtonView>
 
           <ButtonView
             variant="brown"
+            size="small"
             type="button"
             width='fit'
             onClick={scrollToRight}
             className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
             aria-label="Próximo slide"
           >
-            <ChevronRight size={24} className="text-brand-white" />
+            <ChevronRight size={24} />
           </ButtonView>
         </div>
 

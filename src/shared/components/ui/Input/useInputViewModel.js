@@ -1,5 +1,11 @@
 import { useState, useCallback } from 'react'
 import { InputModel } from '@shared/components/ui/Input/InputModel'
+import {
+  getInputThemeClasses,
+  getInputLabelThemeClasses,
+  getInputContainerThemeClasses,
+  getInputErrorThemeClasses
+} from '@shared/styles/theme'
 
 /**
  * InputViewModel - Gerencia a lógica e apresentação do Input
@@ -84,38 +90,31 @@ class InputViewModel {
     return this.model.isValid && !this.hasErrors
   }
 
-  // Lógica de CSS - centralizada no ViewModel
+  // Lógica de CSS - centralizada no ViewModel usando theme
   get inputClasses() {
-    const baseClasses = 'w-full px-4 py-2 rounded-sm transition-colors duration-200'
-
-    // Classes de placeholder
-    const placeholderClasses = 'placeholder:text-brand-dark-gray placeholder:text-[12px] md:placeholder:text-[16px] placeholder:uppercase placeholder:font-default-family'
-
-    const stateClasses = this.isActive
-      ? 'bg-brand-soft-pink focus:bg-brand-white focus:ring-2 focus:ring-brand-pink focus:outline-none'
-      : 'bg-brand-white-tertiary'
-
-    const disabledClasses = !this.isEditable
-      ? 'cursor-not-allowed opacity-60'
-      : 'hover:bg-opacity-80'
-
-    const errorClasses = this.hasErrors
-      ? 'border-2 border-red-400 focus:ring-red-400'
-      : ''
-
-    return [baseClasses, placeholderClasses, stateClasses, disabledClasses, errorClasses].join(' ')
+    return getInputThemeClasses({
+      isActive: this.isActive,
+      disabled: this.disabled,
+      hasErrors: this.hasErrors,
+      withToggle: false, // será ajustado pelo componente quando necessário
+      className: '',
+    })
   }
 
   get labelClasses() {
-    const baseClasses = 'uppercase font-semibold font-default-family text-[12px] leading-none md:text-[16px]'
-    const errorClasses = this.hasErrors ? 'text-red-600' : 'text-brand-dark-gray'
-    const requiredClasses = this.required ? 'after:content-["*"] after:text-red-500 after:ml-1' : ''
-
-    return [baseClasses, errorClasses, requiredClasses].join(' ')
+    return getInputLabelThemeClasses({
+      hasErrors: this.hasErrors,
+      required: this.required,
+      className: '',
+    })
   }
 
   get containerClasses() {
-    return 'w-full flex flex-col gap-2'
+    return getInputContainerThemeClasses()
+  }
+
+  get errorClasses() {
+    return getInputErrorThemeClasses()
   }
 
   // Métodos de ação
@@ -406,6 +405,7 @@ export function useInputViewModel(initialProps = {}) {
     containerClasses: viewModel.containerClasses,
     labelClasses: viewModel.labelClasses,
     inputClasses: viewModel.inputClasses,
+    errorClasses: viewModel.errorClasses,
 
     // Event Handlers
     handleChange,

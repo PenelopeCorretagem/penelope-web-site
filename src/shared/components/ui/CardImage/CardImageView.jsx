@@ -1,33 +1,40 @@
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import { useCardImageViewModel } from './useCardImageViewModel'
+import {
+  getCardImageContainerThemeClasses,
+  getCardImageWrapperThemeClasses,
+  getCardImageBackgroundThemeClasses,
+  getCardImagePositionThemeClasses,
+  getCardImageDescriptionThemeClasses
+} from '@shared/styles/theme'
 
-export function CardImageView({ src, alt, description, position, className }) {
+export function CardImageView({ src, alt, description, position = 'bottom-right', className }) {
   const {
-    validation,
-    positionClasses,
-    paddingClasses,
     hasDescription,
-    imageClassName
+    src: processedSrc,
+    alt: processedAlt,
+    description: processedDescription,
+    position: processedPosition,
+    className: processedClassName
   } = useCardImageViewModel({ src, alt, description, position, className })
 
   return (
-    <div className='flex flex-col items-start gap-1.5'>
-      <div className={`relative w-fit ${paddingClasses}`}>
-        <div className='relative z-0 w-fit rounded-sm bg-brand-gradient'>
-          <div className={`relative z-10 ${positionClasses}`}>
+    <div className={getCardImageContainerThemeClasses()}>
+      <div className={getCardImageWrapperThemeClasses({ position: processedPosition })}>
+        <div className={getCardImageBackgroundThemeClasses()}>
+          <div className={getCardImagePositionThemeClasses({ position: processedPosition })}>
             <ImageView
-              src={src}
-              alt={alt}
-              className={imageClassName}
-              title={!validation.isValid ? validation.errors.join(', ') : undefined}
+              src={processedSrc}
+              alt={processedAlt}
+              className={processedClassName}
             />
           </div>
         </div>
       </div>
       {hasDescription && (
-        <TextView className='text-brand-dark-gray mt-2 text-sm'>
-          {description}
+        <TextView className={getCardImageDescriptionThemeClasses()}>
+          {processedDescription}
         </TextView>
       )}
     </div>

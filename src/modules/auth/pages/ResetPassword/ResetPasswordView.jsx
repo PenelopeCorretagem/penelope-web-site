@@ -66,7 +66,8 @@ export function ResetPasswordView() {
               Lembrou a senha?
               <button
                 onClick={handleBackToLogin}
-                className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                className="font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer p-0 min-h-0 h-auto inline-block"
+                style={{ pointerEvents: 'auto' }}
               >
                 Acessar
               </button>
@@ -96,7 +97,8 @@ export function ResetPasswordView() {
                 Lembrou a senha?
                 <button
                   onClick={handleBackToLogin}
-                  className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                  className="font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer p-0 min-h-0 h-auto inline-block"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Acessar
                 </button>
@@ -138,11 +140,12 @@ export function ResetPasswordView() {
                 </TextView>
 
                 <ButtonView
-                  variant="border-white"
+                  color="white"
                   type="button"
                   width="fit"
+                  shape="square"
                   onClick={handleBackToLogin}
-                  className=""
+                  className="border-2 border-brand-white bg-transparent text-brand-white hover:bg-brand-white hover:text-brand-pink transition-all duration-200"
                   aria-label="Voltar ao login"
                 >
                   {rightPanelContent.buttonText}

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useNavItemFactory } from '@shared/components/ui/NavItem/useNavItemViewModel'
+import { getNavMenuItemThemeClasses, getNavMenuActionThemeClasses } from '@shared/styles/theme'
 import * as LucideIcons from 'lucide-react'
 
 export function NavItemView({
@@ -19,6 +20,9 @@ export function NavItemView({
   className = '',
   onClick,
   children,
+  isMobileMenuOpen = false,
+  requiresAuth = false,
+  isAuthenticated = true,
 }) {
   const location = useLocation()
 
@@ -60,73 +64,64 @@ export function NavItemView({
       : location.pathname === viewTo || location.pathname.startsWith(`${viewTo}/`)
     : initialActive
 
-  const getVariantClasses = (variant, isActive) => {
-    const baseClasses = 'transition-all duration-200'
-    const variants = {
-      default: isActive
-        ? 'bg-brand-pink text-brand-white scale-105'
-        : 'bg-brand-white-tertiary text-brand-black hover:bg-brand-pink hover:text-brand-white hover:scale-105',
-      destac: isActive
-        ? 'bg-brand-pink text-brand-white scale-105'
-        : 'bg-brand-brown text-brand-white hover:bg-brand-pink hover:scale-105',
+  // Usa as classes do tema baseado no tipo de componente
+  const getThemeClasses = () => {
+    if (shape === 'circle') {
+      return getNavMenuActionThemeClasses({
+        shape,
+        requiresAuth,
+        isAuthenticated,
+        isMobileMenuOpen,
+        variant: viewVariant,
+        className
+      })
     }
-    return `${baseClasses} ${variants[variant] || variants.default}`
+
+    return getNavMenuItemThemeClasses({
+      isActive,
+      requiresAuth,
+      isAuthenticated,
+      isMobileMenuOpen,
+      variant: viewVariant,
+      className
+    })
   }
 
-  const getWidthClasses = width => {
-    const widths = {
-      full: 'w-full',
-      fit: 'w-fit',
-    }
-    return widths[width] || widths.fit
+  // Classes adicionais para estado
+  const getStateClasses = () => {
+    const classes = []
+
+    if (hasErrors) classes.push('border-2 border-red-500')
+    if (viewDisabled || !canClick) classes.push('opacity-50 pointer-events-none')
+    if (width === 'full') classes.push('w-full')
+
+    return classes.join(' ')
   }
 
-  const getShapeClasses = shape => {
-    const shapes = {
-      square: 'rounded-sm px-4 py-2',
-      circle: 'rounded-full p-3',
-    }
-    return shapes[shape] || shapes.square
-  }
-
-  const getStateClasses = (disabled, hasErrors, canClick) => {
-    if (hasErrors) return 'border-2 border-red-500'
-    if (disabled) return 'cursor-not-allowed pointer-events-none opacity-50'
-    if (canClick) return 'cursor-pointer'
-    return ''
-  }
-
-  // Construção de classes
-  const menuItemClasses = [
-    // Base classes
-    'inline-flex items-center justify-center gap-2',
-    'font-title-family font-medium',
-    'uppercase text-[12px] md:text-[16px]',
-    'leading-none',
-    'transition-all duration-200',
-    // Dynamic classes
-    getVariantClasses(viewVariant, isActive),
-    getWidthClasses(width),
-    getShapeClasses(shape),
-    getStateClasses(viewDisabled, hasErrors, canClick),
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ')
-
+  const finalClasses = `${getThemeClasses()} ${getStateClasses()}`.trim()
   const displayText = viewIconOnly ? null : children || viewText
+
+  // Handler que respeita canClick
+  const handleItemClick = (event) => {
+    if (!canClick) {
+      event.preventDefault()
+      return
+    }
+    handleClick(event)
+  }
 
   // Renderização condicional baseada no tipo
   if (viewTo) {
     return (
       <Link
         to={viewTo}
-        className={menuItemClasses}
-        onClick={handleClick}
+        className={finalClasses}
+        onClick={handleItemClick}
         aria-pressed={isActive}
-        aria-disabled={viewDisabled}
+        aria-disabled={viewDisabled || !canClick}
         aria-invalid={hasErrors}
         title={hasErrors ? errorMessages : undefined}
+        tabIndex={canClick ? 0 : -1}
       >
         {renderIcon()}
         {displayText}
@@ -137,13 +132,14 @@ export function NavItemView({
   // Button padrão
   return (
     <button
-      className={menuItemClasses}
-      onClick={handleClick}
-      disabled={viewDisabled}
+      className={finalClasses}
+      onClick={handleItemClick}
+      disabled={viewDisabled || !canClick}
       aria-pressed={isActive}
-      aria-disabled={viewDisabled}
+      aria-disabled={viewDisabled || !canClick}
       aria-invalid={hasErrors}
       title={hasErrors ? errorMessages : undefined}
+      tabIndex={canClick ? 0 : -1}
     >
       {renderIcon()}
       {displayText}

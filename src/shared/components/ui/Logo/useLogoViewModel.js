@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { LogoModel } from '@shared/components/ui/Logo/LogoModel'
+import { getLogoThemeClasses } from '@shared/styles/theme'
 
 /**
  * LogoViewModel - Gerencia a lógica de apresentação do logotipo
@@ -38,50 +39,17 @@ class LogoViewModel {
   }
 
   /**
-   * ✅ MVVM: ViewModel gerencia mapeamento CSS
+   * ✅ MVVM: ViewModel gerencia mapeamento CSS usando theme
    * Retorna classes CSS baseadas no esquema de cores
    */
-  get colorClassName() {
-    const colorMap = {
-      pink: 'text-brand-pink',
-      brown: 'text-brand-brown',
-      white: 'text-brand-white',
-      black: 'text-brand-black',
-      custom: '',
-    }
-    return colorMap[this.colorScheme] || colorMap.pink
-  }
-
-  /**
-   * Retorna classes de estado baseadas em erros e validação
-   */
-  get stateClassName() {
-    if (this.hasErrors) return 'opacity-50 filter grayscale'
-    if (!this.isValid) return 'opacity-80'
-    return ''
-  }
-
-  /**
-   * Verifica se deve usar cor customizada
-   */
-  get useCustomColor() {
-    return this.colorScheme === 'custom'
-  }
-
-  /**
-   * Retorna todas as classes CSS concatenadas
-   */
   getLogoClasses(customColor, additionalClassName = '') {
-    const baseClasses = 'fill-current transition-all duration-200'
-
-    return [
-      baseClasses,
-      this.colorClassName,
-      this.stateClassName,
-      additionalClassName,
-    ]
-      .filter(Boolean)
-      .join(' ')
+    return getLogoThemeClasses({
+      colorScheme: this.colorScheme,
+      disabled: this.hasErrors,
+      invalid: !this.isValid,
+      className: additionalClassName,
+      customColor: this.useCustomColor,
+    })
   }
 
   /**

@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { FooterModel } from '@shared/components/layout/Footer/FooterModel'
+import { getFooterThemeClasses, getFooterCopyrightThemeClasses } from '@shared/styles/theme'
 
 /**
  * FooterViewModel - Gerencia a lógica de apresentação do footer
@@ -65,12 +66,7 @@ class FooterViewModel {
    * @returns {string} Classes CSS
    */
   getFooterContainerClasses() {
-    return [
-      'flex flex-col items-center justify-center',
-      'p-section md:p-section-md',
-      'w-full h-auto',
-      'gap-subsection md:gap-subsection-md'
-    ].join(' ')
+    return getFooterThemeClasses({})
   }
 
   /**
@@ -78,11 +74,7 @@ class FooterViewModel {
    * @returns {string} Classes CSS
    */
   getCopyrightClasses() {
-    return [
-      'w-full text-center',
-      'border-t-2 border-brand-white-tertiary',
-      'pt-section-y'
-    ].join(' ')
+    return getFooterCopyrightThemeClasses({})
   }
 
   /**

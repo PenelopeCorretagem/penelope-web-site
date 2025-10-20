@@ -1,9 +1,9 @@
-import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
+import { theme } from '@shared/styles/theme'
 
 export class SectionModel {
   constructor({
     children,
-    backgroundColor = ESectionBackgroundColor.WHITE,
+    backgroundColor = 'white',
     paddingClasses = 'p-section md:p-section-md',
     gapClasses = 'gap-section md:gap-section-md',
     className = '',
@@ -15,7 +15,7 @@ export class SectionModel {
     this.className = className
   }
 
-  static VALID_BACKGROUND_COLORS = Object.values(ESectionBackgroundColor)
+  static VALID_BACKGROUND_COLORS = Object.keys(theme.section.background)
 
   isValidBackgroundColor(backgroundColor) {
     const backGroundColorValue = String(backgroundColor).trim()

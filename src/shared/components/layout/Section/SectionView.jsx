@@ -1,5 +1,13 @@
 import { useSectionViewModel } from '@shared/components/layout/Section/useSectionViewModel'
 
+/**
+ * SectionView - Componente de seção
+ * @param {React.ReactNode} children - Conteúdo da seção
+ * @param {string} backgroundColor - Cor de fundo ('white', 'white-secondary', 'pink', 'pinkGradient')
+ * @param {string} paddingClasses - Classes de padding
+ * @param {string} gapClasses - Classes de espaçamento
+ * @param {string} className - Classes CSS adicionais
+ */
 export function SectionView({
   children,
   backgroundColor = 'white',

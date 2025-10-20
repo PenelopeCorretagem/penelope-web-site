@@ -1,17 +1,16 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowBackModel } from '@shared/components/ui/ArrowBack/ArrowBackModel'
+import { getArrowBackThemeClasses, getArrowBackIconClasses } from '@shared/styles/theme'
 
 /**
- * ArrowBackViewModel - Gerencia lógica e CSS do botão de voltar
+ * ArrowBackViewModel - Gerencia lógica do botão de voltar
  */
 class ArrowBackViewModel {
   constructor(model = new ArrowBackModel()) {
     this.model = model
-    this.navigate = null
   }
 
-  // Getters
   get size() {
     return this.model.size
   }
@@ -24,41 +23,23 @@ class ArrowBackViewModel {
     return this.model.ariaLabel
   }
 
-  // CSS Classes
-  get buttonClasses() {
-    const baseClasses = 'font-semibold cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none'
-    const defaultColorClasses = 'text-brand-dark-gray hover:text-brand-pink'
-    const disabledClasses = this.disabled ? 'opacity-50 cursor-not-allowed' : ''
-
-    return [baseClasses, defaultColorClasses, disabledClasses].filter(Boolean).join(' ')
+  get canClick() {
+    return !this.disabled
   }
 
-  get buttonBaseClasses() {
-    const baseClasses = 'font-semibold cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none'
-    const disabledClasses = this.disabled ? 'opacity-50 cursor-not-allowed' : ''
+  getButtonClasses(className = '') {
+    const customColor = /\btext-\w+/.test(className || '')
 
-    return [baseClasses, disabledClasses].filter(Boolean).join(' ')
-  }  get iconClasses() {
-    return 'inline'
+    return getArrowBackThemeClasses({
+      color: 'default',
+      disabled: this.disabled,
+      className,
+      customColor,
+    })
   }
 
-  // Métodos
-  setNavigate(navigate) {
-    this.navigate = navigate
-  }
-
-  handleClick = () => {
-    if (this.disabled || !this.navigate) return
-    this.navigate(-1)
-  }
-
-  getState() {
-    return {
-      ...this.model.toJSON(),
-      buttonClasses: this.buttonClasses,
-      buttonBaseClasses: this.buttonBaseClasses,
-      iconClasses: this.iconClasses,
-    }
+  getIconClasses(className = '') {
+    return getArrowBackIconClasses({ className })
   }
 }
 
@@ -69,32 +50,23 @@ export function useArrowBackViewModel(initialProps = {}) {
   const navigate = useNavigate()
 
   const [viewModel] = useState(() => {
-    const model = new ArrowBackModel(initialProps)
-    const vm = new ArrowBackViewModel(model)
-    vm.setNavigate(navigate)
-    return vm
+    return new ArrowBackViewModel(new ArrowBackModel(initialProps))
   })
 
   const handleClick = useCallback(() => {
-    viewModel.handleClick()
-  }, [viewModel])
+    if (viewModel.canClick) {
+      navigate(-1)
+    }
+  }, [viewModel, navigate])
 
   return {
-    // Data
     size: viewModel.size,
     disabled: viewModel.disabled,
     ariaLabel: viewModel.ariaLabel,
-
-    // CSS
-    buttonClasses: viewModel.buttonClasses,
-    buttonBaseClasses: viewModel.buttonBaseClasses,
-    iconClasses: viewModel.iconClasses,
-
-    // Handlers
+    canClick: viewModel.canClick,
+    getButtonClasses: (className) => viewModel.getButtonClasses(className),
+    getIconClasses: (className) => viewModel.getIconClasses(className),
     handleClick,
-
-    // Utilities
-    getState: viewModel.getState.bind(viewModel),
   }
 }
 

@@ -1,11 +1,100 @@
 import { useState, useCallback } from 'react'
-import { LabelViewModel } from '@shared/components/ui/Label/LabelViewModel'
+import { LabelModel } from '@shared/components/ui/Label/LabelModel'
+import { getLabelThemeClasses } from '@shared/styles/theme'
+
+/**
+ * LabelViewModel - Gerencia a lógica e apresentação de labels
+ */
+class LabelViewModel {
+  constructor(model = new LabelModel()) {
+    this.model = model
+    this.errors = []
+  }
+
+  get displayText() {
+    return this.model.text || 'Label'
+  }
+
+  get variant() {
+    return this.model.variant
+  }
+
+  get size() {
+    return this.model.size
+  }
+
+  get hasErrors() {
+    return this.errors.length > 0
+  }
+
+  get errorMessages() {
+    return this.errors.join(', ')
+  }
+
+  get isValid() {
+    return this.model.isValid()
+  }
+
+  get isEmpty() {
+    return !this.model.hasText()
+  }
+
+  // Lógica de CSS usando theme.js
+  get finalClassName() {
+    return getLabelThemeClasses({
+      variant: this.variant,
+      size: this.size,
+      isEmpty: this.isEmpty,
+      invalid: this.hasErrors,
+    })
+  }
+
+  updateText = newText => {
+    try {
+      this.model.updateText(newText)
+      this.clearErrors()
+      return true
+    } catch (error) {
+      this.addError(error.message)
+      return false
+    }
+  }
+
+  updateVariant = newVariant => {
+    try {
+      this.model.updateVariant(newVariant)
+      this.clearErrors()
+      return true
+    } catch (error) {
+      this.addError(error.message)
+      return false
+    }
+  }
+
+  updateSize = newSize => {
+    try {
+      this.model.updateSize(newSize)
+      this.clearErrors()
+      return true
+    } catch (error) {
+      this.addError(error.message)
+      return false
+    }
+  }
+
+  addError(message) {
+    if (!this.errors.includes(message)) {
+      this.errors.push(message)
+    }
+  }
+
+  clearErrors() {
+    this.errors = []
+  }
+}
 
 /**
  * Hook para gerenciar estado e interações do LabelViewModel
- * @param {LabelModel} initialModel - Modelo inicial do label
- * @param {Object} config - Configurações adicionais
- * @returns {Object} Estado e comandos do label
  */
 export function useLabelViewModel(initialModel) {
   const [viewModel] = useState(() => new LabelViewModel(initialModel))
@@ -33,6 +122,11 @@ export function useLabelViewModel(initialModel) {
       if (success) refresh()
       return success
     },
+
+    clearErrors: () => {
+      viewModel.clearErrors()
+      refresh()
+    },
   }
 
   return {
@@ -43,6 +137,9 @@ export function useLabelViewModel(initialModel) {
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
     isEmpty: viewModel.isEmpty,
+    finalClassName: viewModel.finalClassName,
     ...commands,
   }
 }
+
+export { LabelViewModel }

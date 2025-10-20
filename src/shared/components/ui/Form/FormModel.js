@@ -60,7 +60,12 @@ export class FormModel {
   }
 
   get isValid() {
-    return !this.hasErrors && this.fields.every(field => this.isFieldValid(field))
+    // Para formulários de auth, não validar campos vazios até que o usuário tente submeter
+    // Apenas verifica se não há erros de validação
+    const hasValidationErrors = Object.keys(this.fieldErrors).some(key => this.fieldErrors[key])
+    const hasGeneralErrors = this.errorMessages.length > 0
+
+    return !hasValidationErrors && !hasGeneralErrors
   }
 
   get formData() {
@@ -71,20 +76,26 @@ export class FormModel {
   isFieldValid(field) {
     const value = this.fieldValues[field.name]
 
-    // Campo obrigatório
-    if (field.required && (!value || value.trim() === '')) {
-      return false
+    // Para validação em tempo real, só valida se o campo não está vazio
+    // ou se está sendo validado explicitamente
+    if (!value || value.trim() === '') {
+      // Só retorna inválido se o campo for obrigatório E estivermos validando no submit
+      return true // Permite campos vazios durante digitação
     }
 
     // Validação por tipo
-    if (value && field.type === 'email') {
+    if (field.type === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       return emailRegex.test(value)
     }
 
     // Validação customizada
     if (field.validate && typeof field.validate === 'function') {
-      return field.validate(value, this.formData)
+      try {
+        return field.validate(value, this.formData)
+      } catch (error) {
+        return error.message
+      }
     }
 
     return true
@@ -131,10 +142,22 @@ export class FormModel {
     this.fieldErrors = {}
 
     this.fields.forEach(field => {
-      this.validateField(field.name)
+      const value = this.fieldValues[field.name]
+
+      // Validação completa no submit - incluindo campos obrigatórios
+      if (field.required && (!value || value.trim() === '')) {
+        this.fieldErrors[field.name] = field.errorMessage || `${field.label || field.placeholder} é obrigatório`
+      } else if (value && value.trim() !== '') {
+        // Só valida formato se o campo não estiver vazio
+        if (!this.isFieldValid(field)) {
+          this.fieldErrors[field.name] = this.getFieldErrorMessage(field)
+        }
+      }
     })
 
-    return this.isValid
+    const isValid = Object.keys(this.fieldErrors).length === 0
+
+    return isValid
   }
 
   // Métodos de atualização

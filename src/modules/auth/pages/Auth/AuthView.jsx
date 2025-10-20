@@ -67,8 +67,12 @@ export function AuthView() {
             <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
               Esqueceu a senha?
               <button
-                onClick={handleForgotPasswordClick}
-                className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleForgotPasswordClick(e)
+                }}
+                className="font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer p-0 min-h-0 h-auto inline-block"
+                style={{ pointerEvents: 'auto' }}
               >
                 Redefinir senha
               </button>
@@ -98,8 +102,12 @@ export function AuthView() {
                 <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
                   Lembrou a senha?
                   <button
-                    onClick={handleBackToLogin}
-                    className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleBackToLogin(e)
+                    }}
+                    className="font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer p-0 min-h-0 h-auto inline-block"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     Acessar
                   </button>
@@ -142,11 +150,20 @@ export function AuthView() {
 
                 {leftPanelContent.buttonText && (
                   <ButtonView
-                    variant="border-white"
+                    color="white"
                     type="button"
                     width="fit"
-                    onClick={leftPanelContent.buttonAction === 'register' ? handleRegisterClick : handleLoginClick}
-                    className=""
+                    shape="square"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (leftPanelContent.buttonAction === 'register') {
+                        handleRegisterClick(e)
+                      } else {
+                        handleLoginClick(e)
+                      }
+                    }}
+                    className="border-2 border-brand-white bg-transparent text-brand-white hover:bg-brand-white hover:text-brand-pink transition-all duration-200"
                     aria-label={`Alternar para formulário de ${leftPanelContent.buttonAction}`}
                     aria-pressed={leftPanelContent.buttonAction === 'register' ? isActive : !isActive}
                   >
@@ -171,11 +188,16 @@ export function AuthView() {
                 </TextView>
 
                 <ButtonView
-                  variant="border-white"
+                  color="white"
                   type="button"
                   width="fit"
-                  onClick={handleRegisterClick}
-                  className=""
+                  shape="square"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleRegisterClick(e)
+                  }}
+                  className="border-2 border-brand-white bg-transparent text-brand-white hover:bg-brand-white hover:text-brand-pink transition-all duration-200"
                   aria-label="Alternar para formulário de cadastro"
                   aria-pressed={isActive}
                 >

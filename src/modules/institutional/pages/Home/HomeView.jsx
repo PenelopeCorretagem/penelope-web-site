@@ -5,7 +5,6 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
 import { EPropertyCardCategory } from '@domains/property/PropertyCard/EPropertyCardCategory'
-import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
@@ -161,7 +160,7 @@ export function HomeView() {
 
   return (
     <>
-      {/*Distac Announcement Property*/ }
+      {/*Destac Announcement Property*/ }
       <SectionView paddingClasses='p-0' gapClasses='gap-0' className='flex flex-row'>
         <div className='bg-brand-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
           <div className='flex flex-col items-center gap-subsection md:gap-subsection-md'>
@@ -202,8 +201,8 @@ export function HomeView() {
         />
       </SectionView>
 
-      {/*Distac Properties*/ }
-      <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
+      {/*Destac Properties*/ }
+      <SectionView backgroundColor="white-secondary">
         <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
       </SectionView>
 
@@ -222,6 +221,7 @@ export function HomeView() {
           </TextView>
           <ButtonView
             variant="brown"
+            size="medium"
             type="button"
             width='fit'
           >

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { HeaderModel } from '@shared/components/layout/Header/HeaderModel'
+import { getHeaderThemeClasses, getHeaderContentThemeClasses, getHeaderLogoSizeThemeClasses } from '@shared/styles/theme'
 
 /**
  * HeaderViewModel - Gerencia a lógica e apresentação do Header
@@ -46,35 +47,18 @@ class HeaderViewModel {
 
   // Lógica de CSS - centralizada no ViewModel
   get headerClasses() {
-    const baseClasses = [
-      'flex items-center justify-between',
-      'w-full px-section-x md:px-section-x-md py-5',
-      'bg-white',
-      'transition-all duration-200',
-    ]
-
-    // Shadow
-    if (this.showShadow) {
-      baseClasses.push('shadow-md')
-    }
-
-    // Sticky
-    if (this.sticky) {
-      baseClasses.push('sticky top-0 z-50')
-    }
-
-    return baseClasses.join(' ')
+    return getHeaderThemeClasses({
+      sticky: this.sticky,
+      showShadow: this.showShadow
+    })
   }
 
   get logoClasses() {
-    return [
-      'transition-opacity hover:opacity-80',
-      'cursor-pointer',
-    ].join(' ')
+    return getHeaderContentThemeClasses({})
   }
 
   get logoSizeClasses() {
-    return this.model.logoSizeClass
+    return getHeaderLogoSizeThemeClasses({ size: this.logoSize })
   }
 
   // Métodos de ação

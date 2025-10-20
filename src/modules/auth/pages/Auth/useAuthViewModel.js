@@ -38,25 +38,29 @@ export function useAuthViewModel() {
   }, [currentAuthType, authModel.authTypes])
 
   // Handlers de navegação
-  const handleRegisterClick = useCallback(() => {
+  const handleRegisterClick = useCallback((event) => {
+    event?.preventDefault?.()
     setIsActive(true)
     setIsForgotPassword(false)
     navigate(authModel.routes[authModel.authTypes.REGISTER])
   }, [navigate, authModel])
 
-  const handleLoginClick = useCallback(() => {
+  const handleLoginClick = useCallback((event) => {
+    event?.preventDefault?.()
     setIsActive(false)
     setIsForgotPassword(false)
     navigate(authModel.routes[authModel.authTypes.LOGIN])
   }, [navigate, authModel])
 
-  const handleForgotPasswordClick = useCallback(() => {
+  const handleForgotPasswordClick = useCallback((event) => {
+    event?.preventDefault?.()
     setIsForgotPassword(true)
     setIsActive(true)
     navigate(authModel.routes[authModel.authTypes.FORGOT_PASSWORD])
   }, [navigate, authModel])
 
-  const handleBackToLogin = useCallback(() => {
+  const handleBackToLogin = useCallback((event) => {
+    event?.preventDefault?.()
     setIsActive(false)
     navigate(authModel.routes[authModel.authTypes.LOGIN])
     // Espera a transição terminar antes de limpar o isForgotPassword

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { SectionModel } from '@shared/components/layout/Section/SectionModel'
-import { SECTION_BACKGROUND_COLOR_CLASSES } from '@shared/components/layout/Section/ESectionBackgroundColor'
+import { getSectionThemeClasses, getSectionBackgroundThemeClasses } from '@shared/styles/theme'
 
 /**
  * SectionViewModel - Gerencia a lógica e apresentação da Section
@@ -43,24 +43,57 @@ class SectionViewModel {
   getBackgroundColorClass() {
     try {
       const validColor = this.model.validateBackgroundColor()
-      return SECTION_BACKGROUND_COLOR_CLASSES[validColor] || SECTION_BACKGROUND_COLOR_CLASSES.white
+      return getSectionBackgroundThemeClasses({ backgroundColor: validColor })
     } catch (error) {
       this.addError(error.message)
-      return SECTION_BACKGROUND_COLOR_CLASSES.white
+      return getSectionBackgroundThemeClasses({ backgroundColor: 'white' })
     }
   }
 
   getSectionClasses() {
-    return [
-      'section',
-      'w-full',
-      'h-fit',
-      this.model.gapClasses,
-      this.model.paddingClasses,
-      this.getBackgroundColorClass(),
-      this.model.className,
-      this.hasErrors ? 'border-2 border-red-500' : '',
-    ].filter(Boolean).join(' ')
+    try {
+      const validColor = this.model.validateBackgroundColor()
+
+      // Se paddingClasses ou gapClasses foram customizadas, usa elas diretamente
+      const useCustomPadding = this.model.paddingClasses !== 'p-section md:p-section-md'
+      const useCustomGap = this.model.gapClasses !== 'gap-section md:gap-section-md'
+
+      if (useCustomPadding || useCustomGap) {
+        // Usa classes customizadas diretamente
+        return [
+          'section',
+          'w-full',
+          'h-fit',
+          this.model.gapClasses,
+          this.model.paddingClasses,
+          this.getBackgroundColorClass(),
+          this.model.className,
+          this.hasErrors ? 'border-2 border-red-500' : '',
+        ].filter(Boolean).join(' ')
+      }
+
+      // Usa o theme padrão
+      return getSectionThemeClasses({
+        backgroundColor: validColor,
+        padding: 'default',
+        gap: 'default',
+        className: [
+          this.model.className,
+          this.hasErrors ? 'border-2 border-red-500' : '',
+        ].filter(Boolean).join(' ')
+      })
+    } catch (error) {
+      this.addError(error.message)
+      return getSectionThemeClasses({
+        backgroundColor: 'white',
+        padding: 'default',
+        gap: 'default',
+        className: [
+          this.model.className,
+          'border-2 border-red-500',
+        ].filter(Boolean).join(' ')
+      })
+    }
   }
 
   addError(message) {

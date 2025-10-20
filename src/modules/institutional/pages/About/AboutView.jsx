@@ -2,7 +2,6 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { CardImageView } from '@shared/components/ui/CardImage/CardImageView'
-import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import AboutImage from '@institutional/assets/woman-holding-keys.jpg'
 import PenelopeImage from '@institutional/assets/penelope.png'
@@ -13,7 +12,7 @@ export function AboutView() {
 
   return (
     <>
-      <SectionView backgroundColor={ESectionBackgroundColor.WHITE} className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView backgroundColor="white" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[50%] justify-center">
           <HeadingView level={1} className="text-left text-brand-pink">
             Seu sonho começa com uma chave
@@ -28,7 +27,7 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView backgroundColor={ESectionBackgroundColor.PINK_GRADIENT} className="flex flex-row items-between gap-section md:gap-section-md">
+      <SectionView backgroundColor="pinkGradient" className="flex flex-row items-between gap-section md:gap-section-md">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
           <img src={PenelopeImage} alt="Corretora Penélope" />
         </div>
@@ -45,7 +44,7 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView backgroundColor={ESectionBackgroundColor.WHITE} className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView backgroundColor="white" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
           <HeadingView level={2}  className="text-left text-brand-pink">
             Imóveis Com a qualidade Cury
@@ -62,7 +61,7 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY} className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView backgroundColor="white-secondary" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
           <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md ' />
         </div>

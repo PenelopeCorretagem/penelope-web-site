@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
-import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
-import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
-import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
-import { ResultTitleView } from '@shared/components/ui/ResultTitle/ResultTitleView'
+import { EPropertyCardCategory } from '@domains/property/PropertyCard/EPropertyCardCategory'
+import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
+import { SearchFilterView } from '@institutional/components/SearchFilter/SearchFilterView'
+import { ResultTitleView } from '@institutional/components/ResultTitle/ResultTitleView'
 
 export function PropertiesView() {
 
@@ -229,7 +228,7 @@ export function PropertiesView() {
         filters={appliedFilters}
       />
       {filtered1.length > 0 && (
-        <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
+        <SectionView backgroundColor="white-secondary">
           <PropertiesCarouselView
             properties={filtered1}
             titleCarousel="Lançamentos"
@@ -237,7 +236,7 @@ export function PropertiesView() {
         </SectionView>
       )}
       {filtered2.length > 0 && (
-        <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
+        <SectionView backgroundColor="white-secondary">
           <PropertiesCarouselView
             properties={filtered2}
             titleCarousel="Disponível"
@@ -245,7 +244,7 @@ export function PropertiesView() {
         </SectionView>
       )}
       {filtered3.length > 0 && (
-        <SectionView backgroundColor={ESectionBackgroundColor.LANCAMENTO}>
+        <SectionView backgroundColor="white-secondary">
           <PropertiesCarouselView
             properties={filtered3}
             titleCarousel="Em Obras"

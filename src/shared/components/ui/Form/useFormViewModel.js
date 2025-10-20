@@ -1,9 +1,18 @@
 import { useState, useCallback } from 'react'
 import { FormModel } from '@shared/components/ui/Form/FormModel'
+import {
+  getFormThemeClasses,
+  getFormTitleThemeClasses,
+  getFormSubtitleThemeClasses,
+  getFormFieldContainerThemeClasses,
+  getFormErrorContainerThemeClasses,
+  getFormSuccessContainerThemeClasses,
+  getFormSubmitButtonThemeClasses,
+  getFormFooterThemeClasses
+} from '@shared/styles/theme'
 
 /**
- * FormViewModel - Gerencia a lógica e apresentação do Form
- * Centraliza a lógica de CSS e comportamento de formulários
+ * FormViewModel - Gerencia a lógica e apresentação do Form usando theme design-model
  */
 class FormViewModel {
   constructor(model = new FormModel()) {
@@ -83,37 +92,63 @@ class FormViewModel {
     return this.model.formData
   }
 
-  // Lógica de CSS - centralizada no ViewModel
-  get formClasses() {
-    return 'w-full flex flex-col gap-6 items-center'
+  // Lógica de CSS usando theme.js
+  getFormClasses(className = '') {
+    return getFormThemeClasses({
+      hasErrors: this.hasErrors,
+      isLoading: this.isLoading,
+      className
+    })
   }
 
-  get titleClasses() {
-    return 'text-center text-brand-pink'
+  getTitleClasses(className = '') {
+    return getFormTitleThemeClasses({
+      hasTitle: this.hasTitle,
+      className
+    })
   }
 
-  get subtitleClasses() {
-    return 'text-center text-brand-dark-gray'
+  getSubtitleClasses(className = '') {
+    return getFormSubtitleThemeClasses({
+      hasSubtitle: this.hasSubtitle,
+      className
+    })
   }
 
-  get fieldContainerClasses() {
-    return 'w-full'
+  getFieldContainerClasses(className = '') {
+    return getFormFieldContainerThemeClasses({
+      className
+    })
   }
 
-  get errorContainerClasses() {
-    return 'w-full'
+  getErrorContainerClasses(className = '') {
+    return getFormErrorContainerThemeClasses({
+      hasErrors: this.hasErrors,
+      className
+    })
   }
 
-  get successContainerClasses() {
-    return 'w-full p-4 bg-green-100 border border-green-400 text-green-700 rounded'
+  getSuccessContainerClasses(className = '') {
+    return getFormSuccessContainerThemeClasses({
+      hasSuccess: this.hasSuccess,
+      className
+    })
   }
 
-  get submitButtonClasses() {
-    return this.isLoading ? 'opacity-50 cursor-not-allowed' : ''
+  getSubmitButtonClasses(className = '') {
+    return getFormSubmitButtonThemeClasses({
+      isLoading: this.isLoading,
+      isValid: this.isValid,
+      submitWidth: this.submitWidth,
+      className
+    })
   }
 
-  get footerClasses() {
-    return 'w-full text-center'
+  getFooterClasses(className = '') {
+    return getFormFooterThemeClasses({
+      hasFooter: this.hasFooter,
+      className
+    })
   }
 
   // Métodos de ação
@@ -165,6 +200,7 @@ class FormViewModel {
   handleSubmit = async (event) => {
     event.preventDefault()
 
+    // Validação completa apenas no submit
     if (!this.validateForm()) {
       return false
     }
@@ -338,15 +374,15 @@ export function useFormViewModel(initialProps = {}) {
     isValid: viewModel.isValid,
     formData: viewModel.formData,
 
-    // CSS Classes
-    formClasses: viewModel.formClasses,
-    titleClasses: viewModel.titleClasses,
-    subtitleClasses: viewModel.subtitleClasses,
-    fieldContainerClasses: viewModel.fieldContainerClasses,
-    errorContainerClasses: viewModel.errorContainerClasses,
-    successContainerClasses: viewModel.successContainerClasses,
-    submitButtonClasses: viewModel.submitButtonClasses,
-    footerClasses: viewModel.footerClasses,
+    // CSS Classes usando theme.js
+    formClasses: viewModel.getFormClasses(),
+    titleClasses: viewModel.getTitleClasses(),
+    subtitleClasses: viewModel.getSubtitleClasses(),
+    fieldContainerClasses: viewModel.getFieldContainerClasses(),
+    errorContainerClasses: viewModel.getErrorContainerClasses(),
+    successContainerClasses: viewModel.getSuccessContainerClasses(),
+    submitButtonClasses: viewModel.getSubmitButtonClasses(),
+    footerClasses: viewModel.getFooterClasses(),
 
     // Event Handlers
     handleFieldChange,

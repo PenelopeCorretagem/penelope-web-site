@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { TextModel } from '@shared/components/ui/Text/TextModel'
+import { getTextThemeClasses } from '@shared/styles/theme'
 
 /**
  * TextViewModel - Gerencia a lógica e apresentação do Text
@@ -40,23 +41,11 @@ class TextViewModel {
     return this.model.isValid && !this.hasErrors
   }
 
-  // Lógica de CSS - centralizada no ViewModel
-  get baseClasses() {
-    return [
-      'font-default-family',
-      'text-[12px]',
-      'leading-none',
-      'md:text-[16px]',
-      'text-brand-black',
-    ].join(' ')
-  }
-
+  // Lógica de CSS usando theme.js
   get finalClassName() {
-    if (!this.className || this.className.trim() === '') {
-      return this.baseClasses
-    }
-
-    return `${this.baseClasses} ${this.className}`
+    return getTextThemeClasses({
+      className: this.model.className,
+    })
   }
 
   // Métodos de ação
@@ -164,8 +153,7 @@ export function useTextViewModel({
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
 
-    // CSS Classes (gerenciadas pelo ViewModel)
-    baseClasses: viewModel.baseClasses,
+    // CSS Classes (gerenciadas pelo ViewModel usando theme.js)
     finalClassName: viewModel.finalClassName,
 
     // Commands
