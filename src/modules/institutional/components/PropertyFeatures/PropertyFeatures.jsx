@@ -13,10 +13,10 @@ export function PropertyFeatures({ features }) {
           return (
             <div
               key={f.label}
-              className="flex items-center justify-start gap-2 bg-brand-gray border rounded px-3 py-3 text-brand-white font-medium"
+              className="flex items-center justify-center gap-2 bg-brand-gray border rounded px-3 py-3 text-brand-white font-medium"
             >
               {IconComponent ? <IconComponent className="w-5 h-5 text-brand-white" /> : null}
-              <TextView className="text-brand-white truncate">{f.label}</TextView>
+              <TextView className="text-brand-white text-center">{f.label}</TextView>
             </div>
           );
         })}

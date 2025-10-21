@@ -28,3 +28,15 @@ export const addresses = [
   'Rua das Flores, 123 - Interlagos, Guarulhos - SP',
   'Av. Domingos de Morais, 456 - Vila Mariana, São Paulo - SP'
 ]
+
+export const propertyFeatures = [
+  { icon: "CINEMA", label: "Cinema 3D" },
+  { icon: "PET", label: "Espaço Pet" },
+  { icon: "LOUNGE", label: "Lounge Panorâmico" },
+  { icon: "MERCADO", label: "Mercado" },
+  { icon: "TENIS", label: "Quadra de Tênis" },
+  { icon: "CHURRASQUEIRA", label: "Churrasqueira" },
+  { icon: "YOGA", label: "Espaço Yoga" },
+  { icon: "LAVANDERIA", label: "Lavanderia" },
+  { icon: "GAMES", label: "Sala de Games" }
+]

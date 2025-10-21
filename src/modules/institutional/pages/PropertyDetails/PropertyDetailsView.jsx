@@ -12,7 +12,7 @@ import { PropertyDetailsCardView } from '@institutional/components/PropertyDetai
 import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory.js'
 import { EFeatureIcon } from '@institutional/components/PropertyFeatures/EFeatureIcon.js'
 
-import { fakeRequest2, titles, addresses } from './PropertyDetailsModel'
+import { fakeRequest2, titles, addresses, propertyFeatures } from './PropertyDetailsModel'
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
@@ -37,7 +37,7 @@ export function PropertyDetailsView() {
         anchors={["sobre-imovel", "diferenciais", "localizacao", "sobre-regiao"]}
       />
 
-      <SectionView id="sobre-imovel" ref={sectionRef} className="relative py-12">
+      <section id="sobre-imovel" ref={sectionRef} className="relative py-12">
         <div className="container mx-auto">
           <div className="lg:grid lg:grid-cols-[1fr_340px] gap-8 items-start">
             <div className="flex-1 lg:px-0">
@@ -60,20 +60,10 @@ export function PropertyDetailsView() {
             </div>
           </div>
         </div>
-      </SectionView>
+      </section>
 
       <SectionView id="diferenciais" backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <PropertyFeatures features={[
-          { icon: "SPA", label: "Spa Relaxante" },
-          { icon: "CINEMA", label: "Cinema 3D" },
-          { icon: "HALTER", label: "Academia" },
-          { icon: "PET", label: "Espaço Pet" },
-          { icon: "POMAR", label: "Pomar" },
-          { icon: "LOUNGE", label: "Lounge Panorâmico" },
-          { icon: "CESTA_MERCADO", label: "Cesta Mercado" },
-          { icon: "BEACH_TENIS", label: "Beach Tennis" },
-          { icon: "FORNO_PIZZA", label: "Forno de Pizza" },
-        ]} />
+        <PropertyFeatures features={propertyFeatures} />
       </SectionView>
 
       <SectionView id="localizacao" backgroundColor={ESectionBackgroundColor.PINK_GRADIENT}>
@@ -84,7 +74,7 @@ export function PropertyDetailsView() {
         <PropertyRegion regionDescription={fakeRequest2[0].regionDescription} image={fakeRequest2[0].imageLink} />
       </SectionView>
       <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <PropertiesCarouselView properties={fakeRequest2} />
+        <PropertiesCarouselView titleCarousel="Imóveis Relacionados" properties={fakeRequest2} />
       </SectionView>
     </div>
   )

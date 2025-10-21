@@ -1,5 +1,5 @@
 import React from "react";
-import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView.jsx'
+import { PropertyDetailsCardView } from "../PropertyDetails Card/PropertyDetailsCardView.jsx";
 import { PropertyHeroSectionModel } from './PropertyHeroSectionModel';
 import { usePropertyHeroSectionViewModel } from './usePropertyHeroSectionViewModel';
 
@@ -12,7 +12,7 @@ export function PropertyHeroSectionView(props) {
       <div className="mx-auto flex flex-col md:flex-row items-stretch min-h-[440px]">
         {/* Card de Informações */}
         <div className="flex items-center justify-center md:w-7/20 w-full p-6">
-          <PropertyCardView
+          <PropertyDetailsCardView
             hasLabel={true}
             category={category}
             title={title}
@@ -23,6 +23,7 @@ export function PropertyHeroSectionView(props) {
             hasShadow={true}
             hasImage={false}
             hasHoverEffect={false}
+            buttonState="geral"
           />
         </div>
 

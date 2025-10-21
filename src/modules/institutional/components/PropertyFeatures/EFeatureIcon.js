@@ -1,51 +1,30 @@
-import {
-  Spa,
-  Film,
-  Dumbbell,
-  PawPrint,
-  Apple,
-  Users,
-  Sun,
-  Store,
-  TreePine,
-  Sofa,
-  Salad,
-  ShoppingBasket,
-  Tennis,
-  Utensils,
-  Hammer,
-  Bed,
-  Network,
-  WandSparkles,
-  Flower2,
-  PartyPopper,
-  WashingMachine,
-  Building,
-  Gamepad2,
-} from "lucide-react";
+// React Icons imports
+import { PiCourtBasketball, PiSunHorizonBold } from "react-icons/pi";
+import { GrBasket, GrLounge } from "react-icons/gr";
+import { GiTheater, GiMeditation, GiWashingMachine } from "react-icons/gi";
+import { FaTools, FaDog, FaGlassCheers, FaCarrot } from "react-icons/fa";
+import { FaBasketShopping } from "react-icons/fa6";
+import { MdForest, MdOutlineSportsTennis, MdOutdoorGrill } from "react-icons/md";
+import { TbHorseToy, TbYoga } from "react-icons/tb";
+import { BiSolidJoystick } from "react-icons/bi";
 
 export const EFeatureIcon = {
-  SPA: Spa,
-  CINEMA: Film,
-  HALTER: Dumbbell,
-  PET: PawPrint,
-  POMAR: Apple,
-  USUARIOS: Users,
-  SOLARIO: Sun,
-  LOJA: Store,
-  PRACA: TreePine,
-  LOUNGE: Sofa,
-  PIQUENIQUE: Salad,
-  CESTA_MERCADO: ShoppingBasket,
-  BEACH_TENIS: Tennis,
-  FORNO_PIZZA: Utensils,
-  OFICINA: Hammer,
-  REDE: Bed,
-  COWORKING: Network,
-  MAQUIAGEM: WandSparkles,
-  BRINQUEDO: Flower2,
-  SALAO_FESTAS: PartyPopper,
-  LAVANDERIA: WashingMachine, // Corrigido!
-  ROOFTOP: Building,
-  CONTROLE_VIDEOGAME: Gamepad2,
+  QUADRA_BASQUETE: PiCourtBasketball,
+  CESTA: GrBasket,
+  CINEMA: GiTheater,
+  OFICINA: FaTools,
+  PET: FaDog,
+  FLORESTA: MdForest,
+  BRINQUEDO: TbHorseToy,
+  LOUNGE: GrLounge,
+  YOGA: TbYoga,
+  MEDITACAO: GiMeditation,
+  BRINDE: FaGlassCheers,
+  LAVANDERIA: GiWashingMachine,
+  SOLARIO: PiSunHorizonBold,
+  MERCADO: FaBasketShopping,
+  TENIS: MdOutlineSportsTennis,
+  CHURRASQUEIRA: MdOutdoorGrill,
+  HORTA: FaCarrot,
+  GAMES: BiSolidJoystick,
 };

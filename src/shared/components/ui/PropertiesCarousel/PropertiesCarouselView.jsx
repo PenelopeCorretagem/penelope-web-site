@@ -5,7 +5,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { usePropertiesCarouselViewModel } from '@shared/components/ui/PropertiesCarousel/usePropertiesCarouselViewModel'
 
-export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [] }) {
+export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [], titleCarousel }) {
   const {
     containerRef,
     scrollProgress,
@@ -28,16 +28,16 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
     <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
       <div className='flex flex-row justify-between items-start'>
         <HeadingView level={2} color='pink' className="text-center">
-          Nossos Lançamentos
+          {titleCarousel}
         </HeadingView>
 
         <ButtonView
-          text="Ver Mais"
           variant="brown"
           type="button"
           width='fit'
           aria-label="Ver mais propriedades"
-        />
+        >Ver Mais
+        </ButtonView>
       </div>
 
       <div className="relative">

@@ -9,7 +9,7 @@ export function PropertyLocation({ locations, addresses = [], titles = [] }) {
       <HeadingView level={3} className="text-brand-white mb-10">
         Localização
       </HeadingView>
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className={`grid gap-8 ${locations.length === 1 ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
         {locations.map((loc, index) => (
           <div key={loc.type || index} className="flex flex-col h-full">
             <div className="flex items-start gap-3">

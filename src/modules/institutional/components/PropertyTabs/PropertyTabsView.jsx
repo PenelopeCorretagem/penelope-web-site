@@ -6,6 +6,14 @@ import { Heading } from "lucide-react";
 export function PropertyTabsView({ tabs, anchors }) {
   const { activeTab, handleTabClick } = usePropertyTabsViewModel(anchors);
 
+  const handleSmoothScroll = (anchor) => {
+    const element = document.getElementById(anchor);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+      handleTabClick(anchor);
+    }
+  };
+
   return (
     <nav className="border-b border-gray-200 bg-brand-white-secondary">
       <div className="mx-auto px-22">
@@ -17,17 +25,18 @@ export function PropertyTabsView({ tabs, anchors }) {
                 activeTab === anchors[idx] ? 'text-brand-pink' : 'text-brand-black'
               }`}
             >
-              <HeadingView level={4}
-                as="a"
+              <a
                 href={`#${anchors[idx]}`}
                 className="hover:text-brand-pink focus:text-brand-pink transition-colors cursor-pointer font-medium"
                 onClick={(e) => {
                   e.preventDefault();
-                  handleTabClick(anchors[idx]);
+                  handleSmoothScroll(anchors[idx]);
                 }}
               >
-                {tab}
-              </HeadingView>
+                <HeadingView level={4}>
+                  {tab}
+                </HeadingView>
+              </a>
             </li>
           ))}
         </ul>

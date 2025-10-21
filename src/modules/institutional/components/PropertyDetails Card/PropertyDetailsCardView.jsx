@@ -17,6 +17,7 @@ export function PropertyDetailsCardView({
   hasImage = false,
   hasHoverEffect = false,
   imageUrl,
+  buttonState = 'contato',
 }) {
   const {
     categoryLabel,
@@ -59,20 +60,50 @@ export function PropertyDetailsCardView({
         <TextView className='uppercase'>{description}</TextView>
         {hasButton && (
           <div className="flex flex-col gap-3 w-full">
-            <ButtonView
-              variant={buttonColor}
-              type="button"
-              onClick={handleButtonClick}
-            >
-              Conversar pelo WhatsApp
-            </ButtonView>
-            <ButtonView
-              variant="brown"
-              type="button"
-              onClick={handleButtonClick}
-            >
-              Agendar Visita
-            </ButtonView>
+            {buttonState === 'geral' ? (
+              <>
+                <div className="flex gap-2 w-full">
+                  <ButtonView
+                    variant={buttonColor}
+                    type="button"
+                    onClick={handleButtonClick}
+                  >
+                    Ver Galeria
+                  </ButtonView>
+                  <ButtonView
+                    variant={buttonColor}
+                    type="button"
+                    onClick={handleButtonClick}
+                  >
+                    Ver Planta
+                  </ButtonView>
+                </div>
+                <ButtonView
+                  variant={buttonColor}
+                  type="button"
+                  onClick={handleButtonClick}
+                >
+                  Assistir Video
+                </ButtonView>
+              </>
+            ) : (
+              <>
+                <ButtonView
+                  variant={buttonColor}
+                  type="button"
+                  onClick={handleButtonClick}
+                >
+                  Conversar pelo WhatsApp
+                </ButtonView>
+                <ButtonView
+                  variant="brown"
+                  type="button"
+                  onClick={handleButtonClick}
+                >
+                  Agendar Visita
+                </ButtonView>
+              </>
+            )}
           </div>
         )}
       </div>
