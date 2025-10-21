@@ -5,7 +5,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyCardViewModel } from '@shared/components/ui/PropertyCard/usePropertyCardViewModel'
 import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory.js'
 
-export function PropertyDetailsCard({
+export function PropertyDetailsCardView({
   hasLabel = true,
   category = EPropertyCardCategory.LANCAMENTO,
   title,
@@ -17,7 +17,6 @@ export function PropertyDetailsCard({
   hasImage = false,
   hasHoverEffect = false,
   imageUrl,
-  buttonState = 'geral',
 }) {
   const {
     categoryLabel,
@@ -60,50 +59,20 @@ export function PropertyDetailsCard({
         <TextView className='uppercase'>{description}</TextView>
         {hasButton && (
           <div className="flex flex-col gap-3 w-full">
-            {buttonState === 'geral' ? (
-              <>
-                <div className="flex gap-2 w-full">
-                  <ButtonView
-                    variant={buttonColor}
-                    type="button"
-                    onClick={handleButtonClick}
-                  >
-                    Ver Galeria
-                  </ButtonView>
-                  <ButtonView
-                    variant={buttonColor}
-                    type="button"
-                    onClick={handleButtonClick}
-                  >
-                    Ver Planta
-                  </ButtonView>
-                </div>
-                <ButtonView
-                  variant={buttonColor}
-                  type="button"
-                  onClick={handleButtonClick}
-                >
-                  Assistir Video
-                </ButtonView>
-              </>
-            ) : (
-              <>
-                <ButtonView
-                  variant={buttonColor}
-                  type="button"
-                  onClick={handleButtonClick}
-                >
-                  Conversar pelo WhatsApp
-                </ButtonView>
-                <ButtonView
-                  variant="brown"
-                  type="button"
-                  onClick={handleButtonClick}
-                >
-                  Agendar Visita
-                </ButtonView>
-              </>
-            )}
+            <ButtonView
+              variant={buttonColor}
+              type="button"
+              onClick={handleButtonClick}
+            >
+              Conversar pelo WhatsApp
+            </ButtonView>
+            <ButtonView
+              variant="brown"
+              type="button"
+              onClick={handleButtonClick}
+            >
+              Agendar Visita
+            </ButtonView>
           </div>
         )}
       </div>

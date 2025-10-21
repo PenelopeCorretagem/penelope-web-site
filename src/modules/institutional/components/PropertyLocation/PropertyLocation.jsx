@@ -1,13 +1,17 @@
 import React from "react";
 import { Store, Building } from "lucide-react";
+import { HeadingView } from "@shared/components/ui/Heading/HeadingView.jsx";
+import { TextView } from "@shared/components/ui/Text/TextView.jsx";
 
 export function PropertyLocation({ locations, addresses = [], titles = [] }) {
   return (
-    <section className="bg-gradient-to-b from-brand-pink to-brand-brown py-12 text-white">
-      <div className="mx-auto px-24 grid md:grid-cols-2 gap-8">
+    <>
+      <HeadingView level={3} className="text-brand-white mb-10">
+        Localização
+      </HeadingView>
+      <div className="grid md:grid-cols-2 gap-8">
         {locations.map((loc, index) => (
           <div key={loc.type || index} className="flex flex-col h-full">
-            {/* Título e endereço juntos */}
             <div className="flex items-start gap-3">
               <div className="bg-brand-white rounded-lg p-4">
                 {index === 0 ?
@@ -17,25 +21,35 @@ export function PropertyLocation({ locations, addresses = [], titles = [] }) {
               </div>
               <div>
                 {titles[index] && (
-                  <h3 className="text-brand-white font-bold text-xl mb-0">{titles[index]}</h3>
+                  <HeadingView level={4} className="text-brand-white mb-0">
+                    {titles[index]}
+                  </HeadingView>
                 )}
                 {addresses[index] && (
-                  <p className="text-brand-white font-medium text-lg mt-3">{addresses[index]}</p>
+                  <TextView className="text-brand-white font-medium text-lg mt-3">
+                    {addresses[index]}
+                  </TextView>
                 )}
               </div>
             </div>
             <div className="flex-grow mt-8"></div>
-            <p className="text-brand-white text-base font-semibold mb-4">Veja como chegar</p>
+            <TextView className="text-brand-white text-base font-semibold mb-4">
+              Veja como chegar
+            </TextView>
             <div className="bg-brand-pink p-6 rounded-lg min-h-[440px] flex flex-col items-center justify-center">
-              <h3 className="font-semibold uppercase text-sm">{loc.type}</h3>
-              <p className="mt-1 text-brand-white">{loc.address}</p>
-              <button className="mt-4 bg-white text-pink-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100">
+              <HeadingView level={5} className="font-semibold uppercase text-sm">
+                {loc.type}
+              </HeadingView>
+              <TextView className="mt-1 text-brand-white">
+                {loc.address}
+              </TextView>
+              <button className="mt-4 bg-white text-brand-pink px-4 py-2 rounded-lg font-semibold hover:bg-gray-100">
                 Exibir Mapa
               </button>
             </div>
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }

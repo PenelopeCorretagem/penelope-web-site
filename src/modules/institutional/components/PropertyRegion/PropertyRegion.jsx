@@ -1,13 +1,20 @@
 import React from "react";
+import { HeadingView } from "@shared/components/ui/Heading/HeadingView.jsx";
+import { TextView } from "@shared/components/ui/Text/TextView.jsx";
+import { EColors } from "@shared/Enum/EColors.js";
 
 export function PropertyRegion({ regionDescription, image }) {
   return (
-    <section className="mx-auto grid md:grid-cols-2 items-center gap-16 py-12 px-24 bg-brand-white">
+    <div className="grid md:grid-cols-2 items-center gap-16">
       <div>
-        <h2 className="text-xl font-medium mb-8 text-brand-pink uppercase">Sobre a Região</h2>
-        <p className="text-brand-gray leading-relaxed">{regionDescription}</p>
+        <HeadingView level={3} className="mb-10 uppercase text-brand-pink">
+          Sobre a Região
+        </HeadingView>
+        <TextView className="text-brand-gray leading-relaxed">
+          {regionDescription}
+        </TextView>
       </div>
       <img src={image} alt="Região" className="rounded shadow-lg" />
-    </section>
+    </div>
   );
-};
+}
