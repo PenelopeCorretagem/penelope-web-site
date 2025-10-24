@@ -14,8 +14,8 @@ export class ButtonModel {
     this.transition = false
   }
 
-  static VARIANTS = ['pink', 'brown', 'softbrown', 'white', 'gray', 'border-white']
-  static TYPES = ['button', 'submit', 'reset', 'link']
+  static VARIANTS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray']
+  static TYPES = ['button', 'submit', 'reset']
 
   isValid() {
     return this.isValidVariant() && this.isValidType() && this.hasValidRoute()

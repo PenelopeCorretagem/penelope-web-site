@@ -6,6 +6,7 @@ export function SectionView({
   paddingClasses = 'p-section md:p-section-md',
   gapClasses = 'gap-section md:gap-section-md',
   className = '',
+  ...props
 }) {
   const { getSectionClasses, hasErrors, errorMessages } = useSectionViewModel({
     children,
@@ -15,8 +16,12 @@ export function SectionView({
     className,
   })
 
+  if (props.id) {
+    console.log(`SectionView recebeu id: ${props.id}`)
+  }
+
   return (
-    <section className={getSectionClasses()}>
+    <section id={props.id} className={getSectionClasses()}>
       {hasErrors && (
         <div className="text-red-500 text-sm mb-2">
           Erro: {errorMessages}
