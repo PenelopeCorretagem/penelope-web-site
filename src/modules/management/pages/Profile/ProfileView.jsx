@@ -6,10 +6,28 @@ import { EPlaceholderManagementForm } from '@shared/Enum/EPlaceholderManagementF
 
 export function ProfileView() {
   const [activeMenu, setActiveMenu] = useState('perfil')
+  const [isEditing, setIsEditing] = useState(false)
 
-  // Handler para mudar menu e resetar edição
   const handleMenuChange = (newMenu) => {
     setActiveMenu(newMenu)
+    setIsEditing(false)
+  }
+
+  // Dados iniciais simulados para teste
+  const initialData = {
+    perfil: {
+      firstName: 'João',
+      lastName: 'Silva',
+      cpf: '123.456.789-00',
+      birthDate: '1990-01-01',
+      monthlyIncome: '5000',
+      phone: '(11) 99999-9999'
+    },
+    acesso: {
+      email: 'joao@email.com',
+      currentPassword: '',
+      newPassword: ''
+    }
   }
 
   // Configurações dos campos por tipo de formulário
@@ -85,13 +103,18 @@ export function ProfileView() {
     }
   }
 
+  const currentConfig = formConfigs[activeMenu]
+
   const handleSubmit = async (data) => {
     try {
-      // TODO: Implementar chamada à API
       console.log('Dados enviados:', data)
+      const result = { success: true, message: 'Dados atualizados com sucesso!' }
 
-      // Simular sucesso
-      return { success: true, message: 'Dados atualizados com sucesso!' }
+      if (result.success) {
+        setIsEditing(false)
+      }
+
+      return result
     } catch (error) {
       return {
         success: false,
@@ -100,7 +123,17 @@ export function ProfileView() {
     }
   }
 
-  const currentConfig = formConfigs[activeMenu]
+  const handleDelete = () => {
+    console.log('🗑️ Delete action')
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+  }
 
   return (
     <SectionView className='flex flex-col h-screen gap-0subsection md:gap-subsection-md'>
@@ -110,11 +143,14 @@ export function ProfileView() {
         setActiveMenu={handleMenuChange}
       />
       <ManagementFormView
-        key={activeMenu}
         title={currentConfig.title}
         fields={currentConfig.fields}
-        footerContent={currentConfig.footerContent}
         onSubmit={handleSubmit}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
+        onCancel={handleCancel}
+        isEditing={isEditing}
+        initialData={initialData[activeMenu]}
         submitWidth="fit"
       />
     </SectionView>

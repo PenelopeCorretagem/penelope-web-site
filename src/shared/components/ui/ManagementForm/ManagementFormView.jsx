@@ -1,15 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { ErrorDisplayView } from '@shared/components/ui/ErrorDisplay/ErrorDisplayView'
+import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { useManagementFormViewModel } from './useManagementFormViewModel'
 
 /**
- * ManagementFormView - formulário adaptado para telas de gerenciamento (perfil, settings)
- * Permite visualização, edição e exclusão de dados
+ * ManagementFormView - formulário simplificado para gerenciamento
  */
 export function ManagementFormView({
   title = '',
@@ -18,211 +15,191 @@ export function ManagementFormView({
   submitWidth = 'fit',
   onSubmit,
   onDelete,
+  onEdit,
+  onCancel,
+  isEditing = false,
   initialData = {},
   footerContent,
-  initialErrors = [],
-  initialSuccess = '',
-  initialLoading = false,
 }) {
-  const [isEditing, setIsEditing] = useState(false)
-  const location = useLocation()
+  const [fieldValues, setFieldValues] = useState({})
+  const [errors, setErrors] = useState([])
+  const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const viewModel = useManagementFormViewModel({
-    title,
-    subtitle,
-    fields,
-    submitWidth,
-    onSubmit: async (data) => {
-      const result = await onSubmit?.(data)
-      if (result?.success) {
-        setIsEditing(false)
-      }
-      return result
-    },
-    footerContent,
-    errorMessages: initialErrors,
-    successMessage: initialSuccess,
-    isLoading: initialLoading,
-  })
-
-  // Efeito para carregar dados iniciais
+  // Carregar dados iniciais apenas uma vez
   useEffect(() => {
-    if (initialData) {
-      Object.entries(initialData).forEach(([fieldName, value]) => {
-        if (value !== undefined) {
-          viewModel.updateFieldValue(fieldName, value)
-        }
-      })
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFieldValues(initialData)
     }
-  }, [initialData, viewModel])
+  }, []) // Sem dependências para rodar apenas uma vez
 
-  // Referência para armazenar o pathname anterior
-  const previousPathRef = useRef(location.pathname)
-
-  // Efeito para resetar estado na mudança de rota
+  // Resetar valores quando initialData muda (mudança de menu)
   useEffect(() => {
-    const currentPath = location.pathname
-    const previousPath = previousPathRef.current
-
-    // Verifica se está mudando entre as rotas de perfil e acesso
-    const isPerfilOrAcesso = currentPath.includes('perfil') || currentPath.includes('acesso')
-    const wasPerfilOrAcesso = previousPath.includes('perfil') || previousPath.includes('acesso')
-
-    // Se ambos os caminhos (atual e anterior) são de perfil/acesso e são diferentes
-    if (isPerfilOrAcesso && wasPerfilOrAcesso && currentPath !== previousPath) {
-      setIsEditing(false)
-      viewModel.clearErrors()
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFieldValues(initialData)
     }
+  }, [JSON.stringify(initialData)]) // Usar JSON.stringify para deep comparison
 
-    previousPathRef.current = currentPath
-  }, [location.pathname, viewModel])
-
-  // Handler para ativar modo de edição
-  const handleEdit = () => {
-    setIsEditing(true)
+  const handleFieldChange = (fieldName) => (value) => {
+    setFieldValues(prev => ({
+      ...prev,
+      [fieldName]: value
+    }))
   }
 
-  // Handler para cancelar edição
-  const handleCancel = () => {
-    setIsEditing(false)
-    if (initialData) {
-      Object.entries(initialData).forEach(([fieldName, value]) => {
-        if (value !== undefined) {
-          viewModel.updateFieldValue(fieldName, value)
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+
+    setLoading(true)
+    setErrors([])
+    setSuccess('')
+
+    try {
+      if (onSubmit) {
+        const result = await onSubmit(fieldValues)
+
+        if (result?.success) {
+          setSuccess(result.message || 'Dados atualizados com sucesso!')
+        } else if (result?.error) {
+          setErrors(Array.isArray(result.error) ? result.error : [result.error])
         }
-      })
+
+        return result
+      }
+    } catch (error) {
+      setErrors([error.message || 'Erro ao atualizar dados'])
+    } finally {
+      setLoading(false)
     }
-    viewModel.clearErrors()
+  }
+
+  const handleCancel = () => {
+    if (initialData) {
+      setFieldValues(initialData)
+    }
+    setErrors([])
+    onCancel?.()
+  }
+
+  const getFieldValue = (fieldName) => {
+    return fieldValues[fieldName] || ''
   }
 
   return (
-    <>
-      <form onSubmit={viewModel.handleSubmit} className={viewModel.formClasses} key={isEditing ? 'editing' : 'viewing'}>
-        {/* Título */}
-        {isEditing && title && (
-          <HeadingView level={3} className={viewModel.titleClasses}>
-            {title}
-          </HeadingView>
-        )}
+    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6 items-start">
+      {/* Título */}
+      {isEditing && title && (
+        <HeadingView level={3} className="text-brand-pink">
+          {title}
+        </HeadingView>
+      )}
 
-        {/* Subtítulo */}
-        {viewModel.hasSubtitle && (
-        <TextView className={viewModel.subtitleClasses}>
+      {/* Subtítulo */}
+      {subtitle && (
+        <TextView className="text-left text-brand-gray">
           {subtitle}
         </TextView>
-        )}
+      )}
 
-        {/* Campos */}
-        <div className="w-full grid grid-cols-2 gap-subsection md:gap-subsection-md">
-          {fields.map((field) => (
-            <div key={field.name} className={viewModel.fieldContainerClasses}>
-              <InputView
-                id={field.name}
-                name={field.name}
-                type={field.type || 'text'}
-                placeholder={isEditing ? (field.placeholder || '') : ''}
-                value={viewModel.getFieldValue(field.name)}
-                onChange={isEditing ? viewModel.handleFieldChange(field.name) : undefined}
-                onClick={isEditing ? field.onClick : undefined}
-                hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
-                required={isEditing && (field.required || false)}
-                showPasswordToggle={isEditing && field.showPasswordToggle}
-                isActive={isEditing && !viewModel.isLoading}
-                maxLength={field.maxLength}
-                minLength={field.minLength}
-                step={field.step}
-                min={field.min}
-                max={field.max}
-                autoComplete={field.autoComplete}
-                readOnly={!isEditing}
-                disabled={!isEditing || viewModel.isLoading}
-                pattern={isEditing ? field.pattern : undefined}
-                inputMode={isEditing ? field.inputMode : undefined}
-                className={!isEditing ? 'bg-gray-50 border-gray-200' : ''}
-              >
-                {field.label || ''}
-              </InputView>
+      {/* Campos */}
+      <div className="w-full grid grid-cols-2 gap-subsection md:gap-subsection-md">
+        {fields.map((field) => (
+          <div key={field.name} className="w-full">
+            <InputView
+              id={field.name}
+              name={field.name}
+              type={field.type || 'text'}
+              placeholder={isEditing ? (field.placeholder || '') : ''}
+              value={getFieldValue(field.name)}
+              onChange={isEditing ? handleFieldChange(field.name) : undefined}
+              hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
+              required={isEditing && (field.required || false)}
+              showPasswordToggle={isEditing && field.showPasswordToggle}
+              isActive={isEditing}
+              readOnly={!isEditing}
+              maxLength={field.maxLength}
+              minLength={field.minLength}
+              step={field.step}
+              min={field.min}
+              max={field.max}
+              autoComplete={field.autoComplete}
+              pattern={isEditing ? field.pattern : undefined}
+              inputMode={isEditing ? field.inputMode : undefined}
+            >
+              {field.label || ''}
+            </InputView>
+          </div>
+        ))}
+      </div>
 
-              {/* Erro específico do campo */}
-              {viewModel.hasFieldError(field.name) && (
-              <div className="text-red-600 text-sm mt-1">
-                {viewModel.getFieldError(field.name)}
-              </div>
-              )}
-            </div>
-          ))}
+      {/* Mensagem de sucesso */}
+      {success && (
+        <div className="w-full p-3 bg-green-50 border border-green-300 text-green-700 rounded">
+          {success}
         </div>
+      )}
 
-        {/* Mensagem de sucesso */}
-        {viewModel.hasSuccess && (
-        <div className={viewModel.successContainerClasses}>
-          {viewModel.successMessage}
-        </div>
-        )}
-
-        {/* Erros gerais */}
-        {viewModel.hasErrors && viewModel.errorMessages.length > 0 && (
-        <div className={viewModel.errorContainerClasses}>
+      {/* Erros gerais */}
+      {errors.length > 0 && (
+        <div className="w-full mt-2">
           <ErrorDisplayView
-            messages={viewModel.errorMessages}
+            messages={errors}
             position="inline"
             variant="prominent"
           />
         </div>
-        )}
+      )}
 
-        {/* Rodapé */}
-        {viewModel.hasFooter && (
-        <div className={viewModel.footerClasses}>
+      {/* Rodapé */}
+      {footerContent && (
+        <div className="w-full mt-4">
           {footerContent}
         </div>
-        )}
+      )}
 
-        {/* Botões de ação */}
-        <div className="w-full flex justify-start gap-4 mt-4">
-          {!isEditing ? (
-            <>
-              <ButtonView
-                type="button"
-                width={submitWidth}
-                onClick={onDelete}
-                variant="gray"
-              >
-                EXCLUIR
-              </ButtonView>
-              <ButtonView
-                type="button"
-                width={submitWidth}
-                onClick={handleEdit}
-                variant="pink"
-              >
-                EDITAR
-              </ButtonView>
-            </>
-          ) : (
-            <>
-              <ButtonView
-                type="button"
-                width={submitWidth}
-                onClick={handleCancel}
-                variant="gray"
-              >
-                CANCELAR
-              </ButtonView>
-              <ButtonView
-                type="button"
-                width={submitWidth}
-                onClick={() => document.querySelector('form').requestSubmit()}
-                disabled={viewModel.isLoading}
-                variant="pink"
-              >
-                {viewModel.isLoading ? 'Salvando...' : 'SALVAR'}
-              </ButtonView>
-            </>
-          )}
-        </div>
-      </form>
-    </>
+      {/* Botões de ação */}
+      <div className="w-full flex justify-start gap-4 mt-4">
+        {!isEditing ? (
+          <>
+            <ButtonView
+              type="button"
+              width={submitWidth}
+              onClick={onDelete}
+              variant="gray"
+            >
+              EXCLUIR
+            </ButtonView>
+            <ButtonView
+              type="button"
+              width={submitWidth}
+              onClick={onEdit}
+              variant="pink"
+            >
+              EDITAR
+            </ButtonView>
+          </>
+        ) : (
+          <>
+            <ButtonView
+              type="button"
+              width={submitWidth}
+              onClick={handleCancel}
+              variant="gray"
+            >
+              CANCELAR
+            </ButtonView>
+            <ButtonView
+              type="submit"
+              width={submitWidth}
+              disabled={loading}
+              variant="pink"
+            >
+              {loading ? 'Salvando...' : 'SALVAR'}
+            </ButtonView>
+          </>
+        )}
+      </div>
+    </form>
   )
 }
 

@@ -122,6 +122,11 @@ export const theme = {
       brown: 'text-brand-brown',
       softBrown: 'text-brand-soft-brown',
       gray: 'text-brand-gray',
+    },
+    states: {
+      default: '',
+      active: 'text-brand-pink underline',
+      hover: 'hover:text-brand-pink transition-colors'
     }
   },
   text: {
@@ -169,10 +174,11 @@ export const theme = {
       state: {
         active: 'bg-brand-soft-pink focus:bg-brand-white focus:ring-2 focus:ring-brand-pink focus:outline-none',
         inactive: 'bg-brand-white-terciary',
-        disabled: 'cursor-not-allowed opacity-60',
+        disabled: 'bg-brand-white-tertiary text-gray-500 cursor-not-allowed opacity-75',
         enabled: 'hover:bg-opacity-80',
         error: 'border-2 border-brand-pink focus:ring-brand-pink',
         normal: '',
+        readOnly: 'bg-brand-white-tertiary text-gray-600 cursor-text select-text',
       }
     },
     label: {
@@ -313,7 +319,7 @@ export const theme = {
     ].join(' '),
     colors: {
       default: {
-        base: 'bg-brand-white-tertiary text-brand-black',
+        base: 'bg-brand-white-terciary text-brand-black',
         active: 'bg-brand-pink text-brand-white',
         hover: 'hover:bg-brand-pink hover:text-brand-white',
       },
@@ -478,17 +484,20 @@ export function getLogoThemeClasses({
 export function getHeadingThemeClasses({
   level = 1,
   color = 'black',
+  state = 'default',
   className = '',
   customTextColor = false,
 }) {
   const t = theme.heading
   const levelClasses = t.levels[level] || t.levels[1]
   const colorClasses = customTextColor ? '' : t.colors[color] || t.colors.black
+  const stateClasses = t.states[state] || t.states.default
 
   return [
     t.base,
     levelClasses,
-    colorClasses,
+    stateClasses === 'text-brand-pink underline' ? stateClasses : colorClasses,
+    stateClasses !== 'text-brand-pink underline' ? t.states.hover : '',
     className
   ].filter(Boolean).join(' ')
 }
@@ -535,30 +544,31 @@ export function getLabelThemeClasses({
 export function getInputThemeClasses({
   isActive = true,
   disabled = false,
+  readOnly = false,
   hasErrors = false,
   withToggle = false,
   className = '',
 }) {
   const t = theme.input.input
 
-  const stateClasses = isActive
-    ? t.state.active
-    : t.state.inactive
+  let stateClasses = ''
 
-  const disabledClasses = disabled
-    ? t.state.disabled
-    : t.state.enabled
+  if (disabled) {
+    stateClasses = t.state.disabled
+  } else if (readOnly) {
+    stateClasses = t.state.readOnly
+  } else if (isActive) {
+    stateClasses = t.state.active
+  } else {
+    stateClasses = t.state.inactive
+  }
 
-  const errorClasses = hasErrors
-    ? t.state.error
-    : t.state.normal
-
+  const errorClasses = hasErrors ? t.state.error : t.state.normal
   const toggleClasses = withToggle ? 'pr-12' : ''
 
   return [
     t.base,
     stateClasses,
-    disabledClasses,
     errorClasses,
     toggleClasses,
     className

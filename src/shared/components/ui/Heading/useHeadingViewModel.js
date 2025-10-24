@@ -253,6 +253,7 @@ export function useHeadingViewModel(initialModel) {
 export function useHeadingFactory({
   level = 1,
   color = 'black',
+  state = 'default',
   children = '',
   className = '',
 } = {}) {
@@ -267,6 +268,14 @@ export function useHeadingFactory({
   })
 
   const [, forceUpdate] = useState(0)
+
+  // Lógica de CSS usando theme.js com estado
+  const finalClassName = getHeadingThemeClasses({
+    level: viewModel.level,
+    color: viewModel.color,
+    state,
+    className: viewModel.className,
+  })
 
   const refresh = useCallback(() => {
     forceUpdate(prev => prev + 1)
@@ -317,7 +326,7 @@ export function useHeadingFactory({
     isValid: viewModel.isValid,
 
     // CSS Classes (gerenciadas pelo ViewModel usando theme.js)
-    finalClassName: viewModel.finalClassName,
+    finalClassName,
 
     // Commands
     ...commands,

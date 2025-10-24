@@ -64,7 +64,7 @@ export function AuthView() {
           </div>
           <div className="flex-1 flex flex-col w-full items-center justify-center gap-subsection md:gap-subsection-md">
             <FormView
-            title={signInFormConfig.title}
+              title={signInFormConfig.title}
               subtitle={signInFormConfig.subtitle}
               fields={signInFormConfig.fields}
               submitText={signInFormConfig.submitText}

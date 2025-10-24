@@ -7,12 +7,16 @@ import { useHeadingFactory } from '@shared/components/ui/Heading/useHeadingViewM
  * @param {number} level - Nível do título (1-6)
  * @param {string} color - Cor do título
  * @param {string} className - Classes CSS adicionais
+ * @param {object} style - Estilos inline (sobrescreve classes CSS)
  */
 export function HeadingView({
   children,
   level = 1,
   color = 'black',
-  className = ''
+  state = 'default',
+  className = '',
+  style = {},
+  ...props
 }) {
   const {
     componentTag,
@@ -23,6 +27,7 @@ export function HeadingView({
   } = useHeadingFactory({
     level,
     color,
+    state,
     children,
     className,
   })
@@ -37,10 +42,12 @@ export function HeadingView({
   return (
     <Component
       className={finalClassName}
+      style={style}
       role="heading"
       aria-level={level}
       aria-invalid={hasErrors}
       title={hasErrors ? errorMessages : undefined}
+      {...props}
     >
       {children}
     </Component>

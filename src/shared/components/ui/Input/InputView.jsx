@@ -1,22 +1,9 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { useInputViewModel } from '@shared/components/ui/Input/useInputViewModel'
-import { getInputThemeClasses } from '@shared/styles/theme'
+import { getInputThemeClasses, getInputLabelThemeClasses, getInputContainerThemeClasses } from '@shared/styles/theme'
 
 /**
- * InputView - Componente de input
- * Renderiza campos de entrada usando MVVM
- * @param {string} children - Label do input (quando hasLabel=true)
- * @param {string} id - ID único do input
- * @param {string} placeholder - Texto placeholder
- * @param {string} type - Tipo do input ('text', 'email', 'password', etc.)
- * @param {string} value - Valor inicial do input
- * @param {boolean} isActive - Se o input está ativo/editável
- * @param {boolean} hasLabel - Se deve mostrar label
- * @param {boolean} required - Se o campo é obrigatório
- * @param {boolean} showPasswordToggle - Se deve mostrar botão de toggle para senha
- * @param {Function} onChange - Handler para mudanças de valor
- * @param {Function} onClick - Handler para cliques no input
+ * InputView - Componente de input simplificado
  */
 export function InputView({
   children,
@@ -27,50 +14,36 @@ export function InputView({
   isActive = true,
   hasLabel = true,
   required = false,
+  disabled = false,
+  readOnly = false,
   showPasswordToggle = false,
   onChange,
   onClick,
+  ...otherProps
 }) {
-  // Estado local para controlar visibilidade da senha
   const [showPassword, setShowPassword] = useState(false)
 
   // Determina o tipo real do input baseado no toggle
   const actualType = (type === 'password' && showPassword) ? 'text' : type
   const hasToggleButton = type === 'password' && showPasswordToggle
-  const {
-    value: inputValue,
-    placeholder: inputPlaceholder,
-    id: inputId,
-    name: inputName,
-    label: inputLabel,
-    isEditable,
-    shouldShowLabel,
-    hasErrors,
-    errorMessages,
-    containerClasses,
-    labelClasses,
-    errorClasses,
-    handleChange,
-    handleFocus,
-    handleBlur,
-  } = useInputViewModel({
-    value,
-    placeholder,
-    type,
-    id,
-    label: children || '',
-    isActive,
-    hasLabel,
-    required,
-  })
 
-  // Gerar classes do input com toggle se necessário
+  // IDs e nomes
+  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+  const inputName = otherProps.name || inputId
+  const label = children || ''
+
+  // Classes CSS usando o theme
+  const containerClasses = getInputContainerThemeClasses()
+  const labelClasses = getInputLabelThemeClasses({
+    hasErrors: false,
+    required: required,
+  })
   const inputClasses = getInputThemeClasses({
-    isActive,
-    disabled: !isEditable,
-    hasErrors,
+    isActive: isActive && !disabled,
+    disabled: disabled,
+    readOnly: readOnly,
+    hasErrors: false,
     withToggle: hasToggleButton,
-    className: '',
   })
 
   const togglePassword = () => {
@@ -78,7 +51,6 @@ export function InputView({
   }
 
   const handleInputChange = (event) => {
-    handleChange(event)
     if (onChange) {
       onChange(event.target.value, event)
     }
@@ -86,9 +58,9 @@ export function InputView({
 
   return (
     <div className={containerClasses}>
-      {shouldShowLabel && (
+      {hasLabel && label && (
         <label className={labelClasses} htmlFor={inputId}>
-          {inputLabel}:
+          {label}:
         </label>
       )}
 
@@ -98,17 +70,14 @@ export function InputView({
           type={actualType}
           id={inputId}
           name={inputName}
-          placeholder={inputPlaceholder}
-          value={inputValue}
-          disabled={!isEditable}
-          readOnly={!isEditable}
+          placeholder={placeholder}
+          value={value}
+          disabled={disabled}
+          readOnly={readOnly}
           required={required}
           onChange={handleInputChange}
           onClick={onClick}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          aria-invalid={hasErrors}
-          aria-describedby={hasErrors ? `${inputId}-error` : undefined}
+          {...otherProps}
         />
 
         {hasToggleButton && (
@@ -123,12 +92,6 @@ export function InputView({
           </button>
         )}
       </div>
-
-      {hasErrors && (
-        <div className={errorClasses} id={`${inputId}-error`}>
-          {errorMessages}
-        </div>
-      )}
     </div>
   )
 }

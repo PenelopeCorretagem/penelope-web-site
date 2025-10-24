@@ -42,23 +42,23 @@ export function ResetPasswordView() {
   } = useResetPasswordViewModel()
 
   if (status === 'validating' || status === 'invalid' || status === 'success') {
-    let message = 'Validando seu link...';
-    if (status === 'invalid') message = error || 'Link inválido ou expirado.';
-    if (status === 'success') message = 'Senha redefinida com sucesso! Redirecionando...';
+    let message = 'Validando seu link...'
+    if (status === 'invalid') message = error || 'Link inválido ou expirado.'
+    if (status === 'success') message = 'Senha redefinida com sucesso! Redirecionando...'
 
-     return (
+    return (
       <SectionView className="h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center p-8 bg-white shadow-lg rounded-lg">
           <LogoView colorScheme="pink" size={80} />
           <h2 className={`text-2xl font-bold mt-6 ${status === 'invalid' ? 'text-red-500' : ''}`}>{message}</h2>
           {status === 'invalid' && (
-            <Link to="/auth" className="mt-6 font-semibold text-brand-pink hover:underline">
-              Voltar para o Login
-            </Link>
+          <Link to="/auth" className="mt-6 font-semibold text-brand-pink hover:underline">
+            Voltar para o Login
+          </Link>
           )}
         </div>
       </SectionView>
-    );
+    )
   }
 
   const containerClasses = getContainerClasses()
