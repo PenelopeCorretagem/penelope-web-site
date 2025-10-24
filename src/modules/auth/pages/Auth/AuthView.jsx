@@ -1,145 +1,175 @@
-import { useState } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
-import { SingInForm } from '@auth/components/ui/SingInForm/SingInForm'
-import { SingUpForm } from '@auth/components/ui/SingUpForm/SingUpForm'
+import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
+import { ArrowBackView } from '@shared/components/ui/AroowBack/ArrowBackView'
+import { useAuthViewModel } from './useAuthViewModel'
 
 export function AuthView() {
-  const [isActive, setIsActive] = useState(false)
+  const {
+    // Estado
+    isActive,
+    isForgotPassword,
 
-  // ✅ Estados dos modais que faltavam
-  const [_emailExistsModalOpen, setEmailExistsModalOpen] = useState(false)
-  const [_confirmEmailModalOpen, setConfirmEmailModalOpen] = useState(false)
+    // Handlers
+    handleRegisterClick,
+    handleLoginClick,
+    handleForgotPasswordClick,
+    handleBackToLogin,
+    handleSubmit,
+    handleForgotPasswordSubmit,
 
-  const handleRegisterClick = () => {
-    setIsActive(true)
-  }
+    // Configurações de estilo
+    getContainerClasses,
+    getSignInPanelStyles,
+    getSignUpPanelStyles,
+    getToggleContainerClasses,
+    getGradientClasses,
+    getLeftPanelClasses,
+    getRightPanelClasses,
 
-  const handleLoginClick = () => {
-    setIsActive(false)
-  }
+    // Dados do modelo
+    signInFormConfig,
+    signUpFormConfig,
+    forgotPasswordFormConfig,
+    leftPanelContent,
+    rightPanelContent
+  } = useAuthViewModel()
 
-  const handleForgotPassword = () => {
-    // TODO: Implementar esqueci senha
-  }
+  const containerClasses = getContainerClasses()
+  const toggleContainerClasses = getToggleContainerClasses()
+  const gradientClasses = getGradientClasses()
+  const leftPanelClasses = getLeftPanelClasses()
+  const rightPanelClasses = getRightPanelClasses()
 
   return (
     <SectionView paddingClasses='' className="h-screen w-screen flex items-center justify-center overflow-hidden">
-      <div className={`
-        relative w-full h-full bg-brand-white  overflow-hidden
-        transition-all duration-700 ease-in-out
-        ${isActive ? 'active' : ''}
-      `}
-      >
+      <div className={`${containerClasses.base} ${containerClasses.active}`}>
 
         {/* Sign In Form */}
         <div
-          className="absolute top-0 left-0 w-1/2 h-full bg-brand-white transition-all duration-700 ease-in-out z-20 p-section md:p-section-md flex flex-col items-center justify-between"
-          style={{
-            transform: isActive ? 'translateX(100%)' : 'translateX(0%)',
-            opacity: isActive ? 0 : 1,
-            pointerEvents: isActive ? 'none' : 'auto'
-          }}
+          className="absolute top-0 left-0 w-3/5 h-full bg-brand-white z-20 p-section md:p-section-md flex flex-col items-center justify-center"
+          style={getSignInPanelStyles()}
         >
-          <div className='w-full max-w-md text-center h-full flex flex-col justify-center items-center px-8'>
-            <HeadingView level={2} color='black'>Acessar Conta</HeadingView>
-            <TextView>Utilize seu email e senha para entrar.</TextView>
-            <SingInForm onForgotPasswordClick={handleForgotPassword} />
+          <div className="flex justify-start w-full">
+            <ArrowBackView />
           </div>
-
+          <div className="flex-1 flex flex-col w-full items-center justify-center gap-subsection md:gap-subsection-md">
+            <FormView
+              title={signInFormConfig.title}
+              subtitle={signInFormConfig.subtitle}
+              fields={signInFormConfig.fields}
+              submitText={signInFormConfig.submitText}
+              onSubmit={handleSubmit}
+            />
+            <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center'>
+              Esqueceu a senha?
+              <button
+                onClick={handleForgotPasswordClick}
+                className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+              >
+                Redefinir senha
+              </button>
+            </TextView>
+          </div>
         </div>
 
-        {/* Sign Up Form */}
+        {/* Sign Up Form / Forgot Password Form */}
         <div
-          className="absolute top-0 right-0 w-1/2 h-full bg-brand-white transition-all duration-700 ease-in-out p-section md:p-section-md flex flex-col items-center justify-between"
-          style={{
-            transform: isActive ? 'translateX(0%)' : 'translateX(-100%)',
-            opacity: isActive ? 1 : 0,
-            zIndex: isActive ? 50 : 10
-          }}
+          className="absolute top-0 right-0 w-3/5 h-full bg-brand-white p-section md:p-section-md flex flex-col"
+          style={getSignUpPanelStyles()}
         >
-          <div className='w-full flex justify-end'><LogoView colorScheme='pink' /></div>
-          <div className='w-full max-w-md text-center h-full flex flex-col justify-center items-center px-8'>
-            <HeadingView level={2} color='pink'>Criar Conta</HeadingView>
-            <TextView>Preencha os campos para iniciar sua jornada.</TextView>
-            <SingUpForm
-              onEmailExists={() => setEmailExistsModalOpen(true)}
-              onRegisterSuccess={() => setConfirmEmailModalOpen(true)}
-            />
+          <div className="flex justify-end">
+            <LogoView colorScheme="pink" />
+          </div>
+
+          <div className="flex-1 flex items-center justify-center">
+            {isForgotPassword ? (
+              <div className="w-full">
+                <FormView
+                  title={forgotPasswordFormConfig.title}
+                  subtitle={forgotPasswordFormConfig.subtitle}
+                  fields={forgotPasswordFormConfig.fields}
+                  submitText={forgotPasswordFormConfig.submitText}
+                  onSubmit={handleForgotPasswordSubmit}
+                />
+                <TextView className='text-brand-dark-gray flex gap-1 items-center justify-center mt-6'>
+                  Lembrou a senha?
+                  <button
+                    onClick={handleBackToLogin}
+                    className='font-semibold text-brand-pink hover:underline bg-transparent border-none cursor-pointer'
+                  >
+                    Acessar
+                  </button>
+                </TextView>
+              </div>
+            ) : (
+              <FormView
+                title={signUpFormConfig.title}
+                subtitle={signUpFormConfig.subtitle}
+                fields={signUpFormConfig.fields}
+                submitText={signUpFormConfig.submitText}
+                onSubmit={handleSubmit}
+              />
+            )}
           </div>
         </div>
 
         {/* Toggle Container */}
-        <div className={`
-          absolute top-0 left-1/2 w-1/2 h-full overflow-hidden z-[1000]
-          transition-all duration-700 ease-in-out
-          ${isActive
-          ? 'transform -translate-x-full' : ''
-          }
-        `}
-        >
-          <div className={`
-            bg-brand-gradient h-full
-            relative -left-full w-[200%] transform
-            transition-all duration-700 ease-in-out
-            ${isActive ? 'translate-x-1/2' : 'translate-x-0'}
-          `}
-          >
+        <div className={`${toggleContainerClasses.base} ${toggleContainerClasses.transform}`}>
+          <div className={`${gradientClasses.base} ${gradientClasses.transform}`}>
 
             {/* Toggle Left Panel */}
-            <div className={`
-              absolute w-1/2 h-full p-section md:p-section-md flex flex-col items-center justify-between text-center top-0
-              transition-all duration-700 ease-in-out
-              ${isActive ? 'transform translate-x-0' : 'transform -translate-x-[200%]'}
-            `}
-            >
-              <div className='w-full max-w-md text-center'>
-                {/* Conteúdo condicional baseado na view ativa */}
-
-                <h2 className='font-agh1 text-4xl font-bold'>
-                  <span>SEJA</span>
-                  <span className='mt-2 block'>BEM-VINDO!</span>
-                </h2>
-                <p className='font-agh3 mt-8'>
-                  Já tem uma conta? Faça login para continuar.
-                </p>
-
-                <ButtonView
-                  variant="border-white"
-                  type="button"
-                  width="fit"
-                  onClick={handleLoginClick}
-                  className=""
-                  aria-label="Alternar para formulário de login"
-                  aria-pressed={!isActive}
-                >
-                  Entrar
-                </ButtonView>
-
+            <div className={`${leftPanelClasses.base} ${leftPanelClasses.transform}`}>
+              <div className="flex justify-start w-full">
+                <ArrowBackView className="text-brand-white hover:text-brand-black" />
               </div>
+              <div className='w-full text-center flex-1 flex flex-col items-center justify-center gap-subsection md:gap-subsection-md'>
+                <HeadingView level={1} className='text-brand-white'>
+                  {leftPanelContent.title}
+                </HeadingView>
+                <TextView className='text-brand-white'>
+                  {leftPanelContent.subtitle}
+                </TextView>
 
+                {leftPanelContent.description && (
+                  <TextView className='text-brand-white'>
+                    {leftPanelContent.description}
+                  </TextView>
+                )}
+
+                {leftPanelContent.buttonText && (
+                  <ButtonView
+                    variant="border-white"
+                    type="button"
+                    width="fit"
+                    onClick={leftPanelContent.buttonAction === 'register' ? handleRegisterClick : handleLoginClick}
+                    className=""
+                    aria-label={`Alternar para formulário de ${leftPanelContent.buttonAction}`}
+                    aria-pressed={leftPanelContent.buttonAction === 'register' ? isActive : !isActive}
+                  >
+                    {leftPanelContent.buttonText}
+                  </ButtonView>
+                )}
+              </div>
             </div>
 
             {/* Toggle Right Panel */}
-            <div className={`
-              absolute right-0 w-1/2 h-fullp-section md:p-section-md flex flex-col items-center justify-between text-center top-0
-              transition-all duration-700 ease-in-out
-              ${isActive ? 'transform translate-x-[200%]' : 'transform translate-x-0'}
-            `}
-            >
+            <div className={`${rightPanelClasses.base} ${rightPanelClasses.transform}`}>
+              <div className="flex justify-end w-full">
+                <LogoView colorScheme='white' />
+              </div>
+              <div className='w-full text-center flex-1 flex flex-col items-center justify-center gap-subsection md:gap-subsection-md'>
+                <HeadingView level={1} className='text-brand-white'>
+                  <span>É novo</span>
+                  <span className='mt-2 block'>por aqui?</span>
+                </HeadingView>
+                <TextView className='text-brand-white'>
+                  {rightPanelContent.subtitle}
+                </TextView>
 
-              <div className='w-full flex justify-end'><LogoView colorScheme='white' /></div>
-              <div className='w-full max-w-md text-center'>
-                <h2 className='font-agh1 text-4xl font-bold'>
-                  <span>É NOVO</span>
-                  <span className='mt-2 block'>POR AQUI?</span>
-                </h2>
-                <p className='font-agh3 mt-8'>
-                  Clique abaixo e conquiste a chave do seu sonho.
-                </p>
                 <ButtonView
                   variant="border-white"
                   type="button"
@@ -149,7 +179,7 @@ export function AuthView() {
                   aria-label="Alternar para formulário de cadastro"
                   aria-pressed={isActive}
                 >
-                  Cadastrar
+                  {rightPanelContent.buttonText}
                 </ButtonView>
               </div>
             </div>

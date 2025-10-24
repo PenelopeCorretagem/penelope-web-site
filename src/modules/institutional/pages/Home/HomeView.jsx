@@ -6,7 +6,8 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
 import { EPropertyCardCategory } from '@shared/components/ui/PropertyCard/EPropertyCardCategory'
 import { ESectionBackgroundColor } from '@shared/components/layout/Section/ESectionBackgroundColor'
-import { Image } from 'lucide-react'
+import { ImageView } from '@shared/components/ui/Image/ImageView'
+import LogoCury from '@institutional/assets/logo-cury.jpg'
 import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 
 export function HomeView() {
@@ -193,20 +194,17 @@ export function HomeView() {
             </div>
           </div>
         </div>
-        {fakeRequest.imageLink != null ?(
-          <div
-            className='flex-1 bg-cover bg-center bg-no-repeat'
-            style={{ backgroundImage: `url(${fakeRequest.imageLink})` }}
-            role="img"
-            aria-label="Imagem do imóvel"
-          >
-          </div>
-        ) : <div className='flex-1 flex items-center justify-center bg-brand-white-secondary'><Image className='w-[50%] h-[50%] text-brand-white-tertiary' /></div>}
+        <ImageView
+          src={fakeRequest.imageLink}
+          alt="Imagem do imóvel"
+          mode="background"
+          className='flex-1 bg-cover bg-center bg-no-repeat'
+        />
       </SectionView>
 
       {/*Distac Properties*/ }
       <SectionView backgroundColor={ESectionBackgroundColor.WHITE_SECONDARY}>
-        <PropertiesCarouselView properties={fakeRequest2} />
+        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
       </SectionView>
 
       {/*Penélope + Cury*/ }
@@ -230,14 +228,12 @@ export function HomeView() {
             saber mais
           </ButtonView>
         </div>
-        {fakeRequest.imageLink != null ?(
-          <div
-            className='flex-1 bg-cover bg-center bg-no-repeat border-2 border-brand-black rounded-sm'
-            style={{ backgroundImage: `url(${fakeRequest.imageLink})` }}
-            role="img"
-            aria-label="Imagem do imóvel"
-          />
-        ) : <div className='flex-1 flex items-center justify-center bg-brand-white-secondary'><Image className='w-[50%] h-[50%] text-brand-white-tertiary' /></div>}
+
+        <ImageView
+          src={LogoCury}
+          alt="Imagem da Logo da Cury"
+        />
+
       </SectionView>
 
     </>

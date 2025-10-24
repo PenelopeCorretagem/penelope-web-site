@@ -164,19 +164,45 @@ export function useRouter() {
     // Sincroniza com o React Router
     const handleRouteChange = () => {
       const currentPath = window.location.pathname
+      console.log('🔄 Route change detected:', currentPath, 'from:', routerViewModel.route)
       if (currentPath !== routerViewModel.route) {
         routerViewModel.routerModel.setCurrentRoute(currentPath)
         setCurrentRoute(currentPath)
       }
     }
 
-    // Escuta mudanças de rota do React Router
-    window.addEventListener('popstate', handleRouteChange)
+    // Handler específico para popstate (botão voltar/avançar)
+    const handlePopState = (_event) => {
+      const currentPath = window.location.pathname
+      routerViewModel.routerModel.setCurrentRoute(currentPath)
+      setCurrentRoute(currentPath)
+    }
+
+    // Escuta mudanças de rota do navegador (botão voltar/avançar)
+    window.addEventListener('popstate', handlePopState)
+
+    // Escuta mudanças programáticas de rota (pushState/replaceState)
+    const originalPushState = window.history.pushState
+    const originalReplaceState = window.history.replaceState
+
+    window.history.pushState = function(...args) {
+      originalPushState.apply(this, args)
+      handleRouteChange()
+    }
+
+    window.history.replaceState = function(...args) {
+      originalReplaceState.apply(this, args)
+      handleRouteChange()
+    }
 
     // Configura estado inicial
     handleRouteChange()
 
-    return () => window.removeEventListener('popstate', handleRouteChange)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+      window.history.pushState = originalPushState
+      window.history.replaceState = originalReplaceState
+    }
   }, [routerViewModel])
 
   // Retorna os métodos já com bind
