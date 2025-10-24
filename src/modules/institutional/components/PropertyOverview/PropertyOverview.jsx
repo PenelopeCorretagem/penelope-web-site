@@ -5,7 +5,7 @@ import { EColors } from "@shared/Enum/EColors.js";
 
 export function PropertyOverview({ overview }) {
   return (
-    <div className="mx-24 md:w-4/5 min-h-[340px]">
+    <div className="md:w-4/5 min-h-[340px]">
       <HeadingView level={3} className="mb-8 uppercase text-brand-pink">
         Sobre o Imóvel
       </HeadingView>
