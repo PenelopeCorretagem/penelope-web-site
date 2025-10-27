@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { HomeView } from '@institutional/pages/Home/HomeView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
+import { PropertyDetailsView } from '@institutional/pages/PropertyDetails/PropertyDetailsView'
 import { AboutView } from '@institutional/pages/About/AboutView'
 import { ContactsView } from '@institutional/pages/Contacts/ContactsView'
 import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
@@ -26,7 +27,7 @@ const NotFoundPage = () => {
       />
       <button
         onClick={() => navigate(-1)}
-        className='bg-brand-pink hover:bg-brand-brown rounded px-6 py-2 text-white transition-colors'
+        className='bg-distac-primary hover:bg-distac-secondary rounded px-6 py-2 text-white transition-colors'
       >
         Voltar
       </button>
@@ -49,7 +50,7 @@ const UnauthorizedPage = () => {
       />
       <button
         onClick={() => navigate('/')}
-        className='bg-brand-pink hover:bg-brand-brown rounded px-6 py-2 text-white transition-colors'
+        className='bg-distac-primary hover:bg-distac-secondary rounded px-6 py-2 text-white transition-colors'
       >
         Ir para Home
       </button>
@@ -67,11 +68,12 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 
 export function RouterView({ isAuthenticated = false }) {
   return (
-    <main className='router-view bg-brand-white w-full flex-1'>
+    <main className='router-view bg-default-light w-full flex-1'>
       <Routes>
         {/* Public Routes */}
         <Route path='/' element={<HomeView />} />
         <Route path='/imoveis' element={<PropertiesView />} />
+        <Route path='/imoveis/:id' element={<PropertyDetailsView />} />
         <Route path='/sobre' element={<AboutView />} />
         <Route path='/contatos' element={<ContactsView />} />
         <Route path='/login' element={<AuthView />} />

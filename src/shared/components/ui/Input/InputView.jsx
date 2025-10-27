@@ -83,7 +83,7 @@ export function InputView({
         {hasToggleButton && (
           <button
             type="button"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-black focus:outline-none transition-colors duration-200"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-default-dark focus:outline-none transition-colors duration-200"
             onClick={togglePassword}
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             tabIndex={-1}

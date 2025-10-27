@@ -1,35 +1,26 @@
-import { useSectionViewModel } from '@shared/components/layout/Section/useSectionViewModel'
+import { getSectionThemeClasses } from '@shared/styles/theme'
 
 /**
  * SectionView - Componente de seção
  * @param {React.ReactNode} children - Conteúdo da seção
  * @param {string} backgroundColor - Cor de fundo ('white', 'white-secondary', 'pink', 'pinkGradient')
- * @param {string} paddingClasses - Classes de padding
- * @param {string} gapClasses - Classes de espaçamento
- * @param {string} className - Classes CSS adicionais
+ * @param {string} className - Classes CSS adicionais (podem sobrescrever padding e gap padrões)
  */
 export function SectionView({
   children,
-  backgroundColor = 'white',
-  paddingClasses = 'p-section md:p-section-md',
-  gapClasses = 'gap-section md:gap-section-md',
   className = '',
+  ...props
 }) {
-  const { getSectionClasses, hasErrors, errorMessages } = useSectionViewModel({
-    children,
-    backgroundColor,
-    paddingClasses,
-    gapClasses,
-    className,
-  })
+
+  const getSectionClasses = () => {
+    return [getSectionThemeClasses(),
+      className]
+      .filter(Boolean)
+      .join(' ')
+  }
 
   return (
-    <section className={getSectionClasses()}>
-      {hasErrors && (
-        <div className="text-red-500 text-sm mb-2">
-          Erro: {errorMessages}
-        </div>
-      )}
+    <section id={props.id} className={getSectionClasses()}>
       {children}
     </section>
   )

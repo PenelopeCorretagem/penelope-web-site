@@ -161,8 +161,8 @@ export function HomeView() {
   return (
     <>
       {/*Destac Announcement Property*/ }
-      <SectionView paddingClasses='p-0' gapClasses='gap-0' className='flex flex-row'>
-        <div className='bg-brand-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
+      <SectionView className='!p-0 !gap-0'>
+        <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
           <div className='flex flex-col items-center gap-subsection md:gap-subsection-md'>
             <div
               style={{
@@ -172,7 +172,7 @@ export function HomeView() {
             >
               <HeadingView
                 level={2}
-                className='text-center text-brand-white'
+                className='text-center text-default-light'
               >
                 Seu sonho começa com uma chave
               </HeadingView>
@@ -202,19 +202,19 @@ export function HomeView() {
       </SectionView>
 
       {/*Destac Properties*/ }
-      <SectionView backgroundColor="white-secondary">
+      <SectionView className="bg-default-light-alt">
         <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
       </SectionView>
 
       {/*Penélope + Cury*/ }
-      <SectionView className='flex flex-row'>
+      <SectionView>
         <div className='flex flex-col items-start justify-center flex-1 gap-subsection md:gap-subsection-md'>
           <HeadingView
             level={2}
             className='text-left'
           >
             Imóveis Com a qualidade Cury -
-            <span className='text-brand-pink'> seu sonho começa com uma chave</span>
+            <span className='text-distac-primary'> seu sonho começa com uma chave</span>
           </HeadingView>
           <TextView>
             Penélope une o melhor dos dois mundos: a experiência e credibilidade da Cury no mercado imobiliário com um atendimento humanizado, próximo e pensado especialmente para quem está dando os primeiros passos rumo à casa própria.
@@ -222,8 +222,9 @@ export function HomeView() {
           <ButtonView
             variant="brown"
             size="medium"
-            type="button"
             width='fit'
+            type="link"
+            to='/sobre'
           >
             saber mais
           </ButtonView>
@@ -235,7 +236,6 @@ export function HomeView() {
         />
 
       </SectionView>
-
     </>
   )
 }

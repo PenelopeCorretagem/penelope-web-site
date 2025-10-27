@@ -1,19 +1,27 @@
-import { useHeadingFactory } from '@shared/components/ui/Heading/useHeadingViewModel'
+import { useHeadingFactory } from './useHeadingViewModel'
 
 /**
- * HeadingView - Componente de título
- * Renderiza títulos com diferentes níveis
- * @param {Node} children - Conteúdo do título
- * @param {number} level - Nível do título (1-6)
- * @param {string} color - Cor do título
- * @param {string} className - Classes CSS adicionais
- * @param {object} style - Estilos inline (sobrescreve classes CSS)
+ * HeadingView component dynamically renders a semantic heading element (h1–h6)
+ * with theme-based styling and accessibility attributes.
+ *
+ * @param {Object} props - Component props.
+ * @param {React.ReactNode} props.children - The text content or elements to be displayed inside the heading.
+ * @param {number} [props.level=1] - The heading level (1–6), which determines the rendered tag (e.g., <h1>, <h2>).
+ * @param {string} [props.className=''] - Additional CSS class names for custom styling.
+ * @param {Object} [props.style={}] - Inline style object for additional customizations.
+ * @param {Object} [props.props] - Any other valid HTML attributes to be spread onto the heading element.
+ *
+ * @returns {JSX.Element | null} - Returns a styled heading element if content exists, otherwise null.
+ *
+ * @example
+ * <HeadingView level={2} color="primary" className="mb-4">
+ *   Section Title
+ * </HeadingView>
  */
+
 export function HeadingView({
   children,
   level = 1,
-  color = 'black',
-  state = 'default',
   className = '',
   style = {},
   ...props
@@ -22,12 +30,8 @@ export function HeadingView({
     componentTag,
     finalClassName,
     hasContent,
-    hasErrors,
-    errorMessages,
   } = useHeadingFactory({
     level,
-    color,
-    state,
     children,
     className,
   })
@@ -36,7 +40,6 @@ export function HeadingView({
     return null
   }
 
-  // Obtém o componente dinamicamente
   const Component = componentTag
 
   return (
@@ -45,8 +48,6 @@ export function HeadingView({
       style={style}
       role="heading"
       aria-level={level}
-      aria-invalid={hasErrors}
-      title={hasErrors ? errorMessages : undefined}
       {...props}
     >
       {children}

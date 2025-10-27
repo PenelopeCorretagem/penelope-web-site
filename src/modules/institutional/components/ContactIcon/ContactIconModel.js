@@ -36,6 +36,6 @@ export class ContactIconModel {
   }
 
   static getBaseClasses() {
-    return 'bg-brand-pink h-fit w-fit rounded-full text-brand-white cursor-pointer transition-all duration-200 hover:bg-brand-soft-pink hover:scale-105'
+    return 'bg-distac-primary h-fit w-fit rounded-full text-default-light cursor-pointer transition-all duration-200 hover:bg-distac-primary-light hover:scale-105'
   }
 }

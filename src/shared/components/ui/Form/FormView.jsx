@@ -1,4 +1,5 @@
 import { InputView } from '@shared/components/ui/Input/InputView'
+import { TextAreaView } from '@shared/components/ui/TextArea/TextAreaView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { TextView } from '@shared/components/ui/Text/TextView'
@@ -102,21 +103,38 @@ export function FormView({
       {/* Campos */}
       {fields.map((field) => (
         <div key={field.name} className={fieldContainerClasses}>
-          <InputView
-            id={field.name}
-            name={field.name}
-            type={field.type || 'text'}
-            placeholder={field.placeholder || ''}
-            value={getFieldValue(field.name)}
-            onChange={handleFieldChange(field.name)}
-            onClick={field.onClick}
-            hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
-            required={field.required || false}
-            showPasswordToggle={field.showPasswordToggle || false}
-            isActive={!isLoading}
-          >
-            {field.label || ''}
-          </InputView>
+          {field.type === 'textarea' ? (
+            <TextAreaView
+              id={field.name}
+              name={field.name}
+              placeholder={field.placeholder || ''}
+              value={getFieldValue(field.name)}
+              onChange={handleFieldChange(field.name)}
+              onClick={field.onClick}
+              hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
+              required={field.required || false}
+              isActive={!isLoading}
+              rows={field.rows || 4}
+            >
+              {field.label || ''}
+            </TextAreaView>
+          ) : (
+            <InputView
+              id={field.name}
+              name={field.name}
+              type={field.type || 'text'}
+              placeholder={field.placeholder || ''}
+              value={getFieldValue(field.name)}
+              onChange={handleFieldChange(field.name)}
+              onClick={field.onClick}
+              hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
+              required={field.required || false}
+              showPasswordToggle={field.showPasswordToggle || false}
+              isActive={!isLoading}
+            >
+              {field.label || ''}
+            </InputView>
+          )}
 
           {/* Erro específico do campo */}
           {hasFieldError(field.name) && (

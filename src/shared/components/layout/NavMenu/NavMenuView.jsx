@@ -1,151 +1,187 @@
-// modules/institutional/components/NavMenuView.jsx
-import { NavItemView } from '@shared/components/ui/NavItem/NavItemView'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useNavMenuViewModel } from '@shared/components/layout/NavMenu/useNavMenuViewModel'
 import { Menu, X } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
+import { Link } from 'react-router-dom'
 
+/**
+ * NavMenuView component is responsible for rendering the navigation and footer menus
+ * of the Penélope application, adapting its layout and content based on authentication state
+ * and variant ("navigation" or "footer").
+ *
+ * It follows the MVVM pattern, using the `useNavMenuViewModel` hook to manage all
+ * business logic, routes, authentication checks, and state control.
+ *
+ * @component
+ * @param {Object} props - Component properties.
+ * @param {boolean} [props.isAuthenticated=false] - Defines if the current user is authenticated.
+ * @param {string} [props.className=''] - Custom Tailwind CSS classes for layout and style adjustments.
+ * @param {'navigation' | 'footer'} [props.variant='navigation'] - Determines whether the component renders the main navigation bar or the footer menu.
+ *
+ * @example
+ * // Example 1: Standard navigation bar
+ * <NavMenuView isAuthenticated={true} variant="navigation" />
+ *
+ * @example
+ * // Example 2: Footer variant with grouped links
+ * <NavMenuView variant="footer" />
+ *
+ * @description
+ * The `NavMenuView` dynamically builds two types of menu structures:
+ *
+ * - **Navigation Variant:** Displays the top navigation bar with brand logo,
+ *   navigation links, and user action buttons (login, profile, logout, etc.).
+ *   Includes mobile responsiveness and a collapsible menu controlled by state.
+ *
+ * - **Footer Variant:** Renders a structured footer with grouped sections
+ *   (“Geral”, “Vendas”, “Acesso”, “Contatos”) and a brand message.
+ *   Each group displays relevant links, adjusted according to the user's
+ *   authentication status.
+ *
+ * Internally, the component:
+ * - Uses `ButtonView`, `HeadingView`, and `LogoView` for consistent UI structure.
+ * - Leverages `useNavMenuViewModel` for logic abstraction (state, routes, active states, and actions).
+ * - Imports and renders icons dynamically from `lucide-react` using the `renderIcon` helper.
+ * - Uses `ErrorDisplayView` to handle and display potential feedback or navigation errors.
+ *
+ * Accessibility:
+ * - Provides appropriate ARIA labels for mobile toggle buttons.
+ * - Hides or disables items based on authentication requirements.
+ *
+ * Responsive Behavior:
+ * - On large screens, displays horizontal navigation with labeled buttons.
+ * - On small screens, switches to a toggleable mobile menu with icons.
+ */
 export function NavMenuView({
   isAuthenticated = false,
   className = '',
   variant = 'navigation',
-  logoSize = 40,
-  logoColorScheme = 'pink'
 }) {
-  const {
-    menuItems,
-    userActions,
-    handleItemClick,
-    logout,
-    isMobileMenuOpen,
-    toggleMobileMenu,
-    closeMobileMenu,
-    footerSections,
-    getMenuContainerClasses,
-    getMenuItemsClasses,
-    getUserActionsClasses,
-    getHamburgerClasses,
-    getFooterClasses,
-    getFooterSectionClasses,
-    getFooterLinkClasses,
-  } = useNavMenuViewModel(isAuthenticated)
+  const viewModel = useNavMenuViewModel(isAuthenticated)
+
+  // Render helpers
+  const renderIcon = (iconName) => {
+    if (!iconName) return null
+    const Icon = LucideIcons[iconName]
+    return Icon ? <Icon className='h-3 w-3 lg:h-4 lg:w-4' /> : null
+  }
+
+  const renderMenuItem = (item) => {
+    const isActive = viewModel.isItemActive(item.route)
+
+    return (
+      <ButtonView
+        key={item.id}
+        color={item.variant === 'destac' ? 'brown' : 'white'}
+        type={item.route ? 'link' : 'button'}
+        to={item.route}
+        width='fit'
+        shape='square'
+        disabled={item.requiresAuth && !viewModel.isAuthenticated}
+        active={isActive}
+        onClick={viewModel.handleItemClick}
+        className={viewModel.getItemClasses(item, isActive)}
+      >
+        {renderIcon(item.icon)}
+        {!item.iconOnly && item.label}
+      </ButtonView>
+    )
+  }
+
+  const renderUserAction = (action) => {
+    // Logout não deve usar estado ativo baseado em rota
+    const isActive = action.isLogoutAction ? false : viewModel.isItemActive(action.route)
+
+    return (
+      <ButtonView
+        key={action.id}
+        color={action.variant === 'destac' ? 'brown' : 'white'}
+        type={action.isLogoutAction ? 'button' : (action.route ? 'link' : 'button')}
+        to={action.isLogoutAction ? undefined : action.route}
+        width='fit'
+        shape={action.shape || 'square'}
+        disabled={action.requiresAuth && !viewModel.isAuthenticated}
+        active={isActive}
+        onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
+        title={action.label}
+      >
+        {renderIcon(action.icon)}
+        {!action.iconOnly && action.label}
+      </ButtonView>
+    )
+  }
+
+  const renderFooterSection = (sectionName, items) => (
+    <div key={sectionName} className={viewModel.getFooterSectionClasses()}>
+      <HeadingView level={6} className='text-distac-primary font-extrabold'>
+        {getSectionTitle(sectionName)}
+      </HeadingView>
+      {items.map(item => (
+        <a
+          key={item.id}
+          href={item.disabled ? undefined : item.to}
+          onClick={item.disabled ? undefined : item.onClick}
+          className={viewModel.getFooterLinkClasses(item.disabled)}
+        >
+          <HeadingView level={6}>
+            {item.text}
+          </HeadingView>
+        </a>
+      ))}
+    </div>
+  )
+
+  const getSectionTitle = (sectionName) => {
+    const titles = {
+      geral: 'Geral',
+      vendas: 'Vendas',
+      acesso: 'Acesso',
+      contatos: 'Contatos'
+    }
+    return titles[sectionName] || sectionName
+  }
 
   // Footer variant
   if (variant === 'footer') {
-    const footerClasses = getFooterClasses()
-    const sectionClasses = getFooterSectionClasses()
-
     return (
-      <div className={footerClasses}>
+      <div className={viewModel.getFooterClasses()}>
         <div className='flex flex-col items-center md:items-start justify-between h-24'>
-          <LogoView size={logoSize} colorScheme={logoColorScheme} />
-          <HeadingView level={4} className='text-center text-brand-pink md:text-start'>
-            seu sonho começa com uma chave
+          <LogoView hasHoverEffect={true} />
+          <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
+            Seu sonho começa com uma chave
           </HeadingView>
         </div>
 
-        {Object.entries(footerSections).map(([sectionName, items]) => (
-          <div key={sectionName} className={sectionClasses}>
-            <HeadingView level={6} className='text-brand-pink font-extrabold'>
-              {sectionName === 'geral' ? 'Geral' :
-                sectionName === 'vendas' ? 'Vendas' :
-                  sectionName === 'acesso' ? 'Acesso' :
-                    sectionName === 'contatos' ? 'Contatos' : sectionName}
-            </HeadingView>
-            {items.map(item => {
-              const linkClasses = getFooterLinkClasses(item.disabled)
-              return (
-                <a
-                  key={item.id}
-                  href={item.disabled ? undefined : item.to}
-                  onClick={item.disabled ? undefined : item.onClick}
-                  className={linkClasses}
-                >
-                  <HeadingView
-                    level={6}
-                    className={item.disabled ? 'text-gray-500' : 'text-brand-black'}
-                  >
-                    {item.text}
-                  </HeadingView>
-                </a>
-              )
-            })}
-          </div>
-        ))}
+        {Object.entries(viewModel.footerSections).map(([sectionName, items]) =>
+          renderFooterSection(sectionName, items)
+        )}
       </div>
     )
   }
 
-  // Navigation variant - VOLTA PARA A LÓGICA QUE FUNCIONAVA
-  const menuContainerClasses = getMenuContainerClasses(className)
-  const menuItemsClasses = getMenuItemsClasses(isMobileMenuOpen)
-  const userActionsClasses = getUserActionsClasses(isMobileMenuOpen)
-  const hamburgerClasses = getHamburgerClasses()
-
+  // Navigation variant
   return (
-    <nav className={menuContainerClasses}>
+    <nav className={viewModel.getMenuContainerClasses(className)}>
       <button
-        onClick={toggleMobileMenu}
-        className={`${hamburgerClasses} lg:hidden`}
+        onClick={viewModel.toggleMobileMenu}
+        className={`${viewModel.getHamburgerClasses()} lg:hidden`}
         aria-label='Toggle menu'
       >
-        {isMobileMenuOpen ? <X /> : <Menu />}
+        {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
       </button>
+      <Link  to='/' className={`inline-block transform transition-transform duration-300 hover:scale-110`}>
+        <LogoView height={'40'} className='text-distac-primary fill-current' />
+      </Link>
 
-      <div className={menuItemsClasses}>
-        {menuItems.map(item => {
-          return (
-            <NavItemView
-              key={item.id}
-              text={item.label}
-              variant={item.variant}
-              to={item.route}
-              disabled={item.requiresAuth && !isAuthenticated}
-              icon={item.icon}
-              iconOnly={item.iconOnly}
-              width='fit'
-              shape='square'
-              onClick={() => {
-                handleItemClick()
-                closeMobileMenu()
-              }}
-              className={`transition-all duration-200 ${
-                item.requiresAuth && !isAuthenticated ? 'opacity-50' : ''
-              } ${isMobileMenuOpen ? 'w-full justify-center py-2' : ''}`}
-            />
-          )
-        })}
+      <div className={viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen)}>
+        {viewModel.menuItems.map(renderMenuItem)}
       </div>
 
-      <div className={userActionsClasses}>
-        {userActions.map(action => {
-          return (
-            <NavItemView
-              key={action.id}
-              text={action.label || ''}
-              variant={action.variant}
-              to={action.route}
-              icon={action.icon}
-              iconOnly={action.iconOnly}
-              disabled={action.requiresAuth && !isAuthenticated}
-              width='fit'
-              shape={action.shape || 'square'}
-              onClick={() => {
-                if (action.id === 'logout') {
-                  logout()
-                } else {
-                  handleItemClick()
-                }
-                closeMobileMenu()
-              }}
-              className={`transition-all duration-200 ${
-                action.shape === 'circle' ? 'p-2' : ''
-              } ${isMobileMenuOpen ? 'w-full justify-center py-2' : ''}`}
-              title={action.label}
-            />
-          )
-        })}
+      <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
+        {viewModel.userActions.map(renderUserAction)}
       </div>
 
       <ErrorDisplayView

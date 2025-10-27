@@ -12,9 +12,9 @@ export function AboutView() {
 
   return (
     <>
-      <SectionView backgroundColor="white" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView className="justify-between">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[50%] justify-center">
-          <HeadingView level={1} className="text-left text-brand-pink">
+          <HeadingView level={1} className="text-left text-distac-primary">
             Seu sonho começa com uma chave
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md text-sm">
@@ -27,26 +27,26 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView backgroundColor="pinkGradient" className="flex flex-row items-between gap-section md:gap-section-md">
+      <SectionView className="bg-distac-gradient">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
           <img src={PenelopeImage} alt="Corretora Penélope" />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={3} className="text-left text-brand-white font-tan-nimbus">
-            Penélope ou Isabella
+          <HeadingView level={3} className="text-left text-default-light font-tan-nimbus">
+            Penélope ou Isabella?
           </HeadingView>
-          <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-brand-white">
+          <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-default-light">
             A corretora Penélope é mais do que um nome comercial — é a expressão da corretora Isabelle, uma jovem apaixonada por ajudar pessoas a conquistarem seu primeiro imóvel. Penélope é a identidade profissional que Isabella criou para se comunicar de forma mais leve, próxima e acolhedora com seus clientes, especialmente jovens das classes C e D de São Paulo que estão dando seus primeiros passos rumo à casa própria.
           </TextView>
-          <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-brand-white">
+          <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-default-light">
             Com uma abordagem empática e transparente, Isabella — como Penélope — transforma o processo de compra em uma jornada emocional, onde cada chave entregue representa um novo capítulo de vida. Ela não vende apenas imóveis: oferece escuta, parceria e celebração em cada etapa, tornando-se uma verdadeira ponte entre pessoas e sonhos.
           </TextView>
         </div>
       </SectionView>
 
-      <SectionView backgroundColor="white" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={2}  className="text-left text-brand-pink">
+          <HeadingView level={2}  className="text-left text-distac-primary">
             Imóveis Com a qualidade Cury
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md">
@@ -61,12 +61,12 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView backgroundColor="white-secondary" className="flex flex-row items-between justify-between gap-section md:gap-section-md">
+      <SectionView className=" bg-default-light-alt">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
           <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md ' />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={2} className="text-left text-brand-pink">
+          <HeadingView level={2} className="text-left text-distac-primary">
             Penélope + Cury
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md">

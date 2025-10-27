@@ -29,7 +29,7 @@ export function SelectFilterView({
   ]
 
   const variants = {
-    default: 'bg-brand-white-secondary',
+    default: 'bg-default-light-secondary',
     destac: 'bg-brand-primary text-surface-primary',
   }
 

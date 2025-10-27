@@ -34,7 +34,8 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         <ButtonView
           variant="brown"
           size="medium"
-          type="button"
+          type="link"
+          to='/imoveis'
           width='fit'
           aria-label="Ver mais propriedades"
         >
@@ -46,24 +47,22 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         {/* Botões de navegação - nos cantos do carrossel */}
         <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
           <ButtonView
-            variant="brown"
-            size="small"
+            color="brown"
             type="button"
             width='fit'
             onClick={scrollToLeft}
-            className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
+            className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
             aria-label="Slide anterior"
           >
             <ChevronLeft size={24} />
           </ButtonView>
 
           <ButtonView
-            variant="brown"
-            size="small"
+            color="brown"
             type="button"
             width='fit'
             onClick={scrollToRight}
-            className="hover:scale-110 py-3 px-3 pointer-events-auto shadow-lg"
+            className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
             aria-label="Próximo slide"
           >
             <ChevronRight size={24} />
@@ -133,9 +132,9 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
       </div>
 
       <div className="w-full">
-        <div className="w-full bg-brand-white-tertiary rounded-full h-1.5 overflow-hidden">
+        <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-brand-pink h-full rounded-full transition-all duration-500 ease-out"
+            className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
             style={{
               width: `${scrollProgress}%`,
               transform: `translateX(0%)`,

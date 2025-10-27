@@ -1,56 +1,29 @@
 /**
- * LabelModel - Gerencia estado e validações de labels
- * Controla texto, variantes visuais e tamanhos
- * Implementa validações de estado
+ * LabelModel - Gerencia texto e variante do label
  */
 export class LabelModel {
-  constructor(text = '', variant = 'pink', size = 'medium') {
+  constructor(text = '', variant = 'pink') {
     this.text = text
     this.variant = variant
-    this.size = size
   }
 
   static VARIANTS = ['pink', 'softPink', 'brown', 'softBrown', 'gray']
-  static SIZES = ['small', 'medium', 'large']
 
-  isValid() {
-    return this.isValidVariant() && this.isValidSize() && this.hasText()
+  hasText() {
+    return typeof this.text === 'string' && this.text.trim().length > 0
   }
 
   isValidVariant() {
     return LabelModel.VARIANTS.includes(this.variant)
   }
 
-  isValidSize() {
-    return LabelModel.SIZES.includes(this.size)
-  }
-
-  hasText() {
-    return typeof this.text === 'string' && this.text.trim().length > 0
-  }
-
   updateText(newText) {
-    if (typeof newText !== 'string') {
-      throw new Error('Text must be a string')
-    }
-    this.text = newText
+    this.text = String(newText || '')
   }
 
   updateVariant(newVariant) {
-    if (!LabelModel.VARIANTS.includes(newVariant)) {
-      throw new Error(
-        `Invalid variant. Must be one of: ${LabelModel.VARIANTS.join(', ')}`
-      )
+    if (LabelModel.VARIANTS.includes(newVariant)) {
+      this.variant = newVariant
     }
-    this.variant = newVariant
-  }
-
-  updateSize(newSize) {
-    if (!LabelModel.SIZES.includes(newSize)) {
-      throw new Error(
-        `Invalid size. Must be one of: ${LabelModel.SIZES.join(', ')}`
-      )
-    }
-    this.size = newSize
   }
 }

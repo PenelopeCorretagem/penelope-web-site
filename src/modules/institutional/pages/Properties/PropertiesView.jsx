@@ -228,7 +228,7 @@ export function PropertiesView() {
         filters={appliedFilters}
       />
       {filtered1.length > 0 && (
-        <SectionView backgroundColor="white-secondary">
+        <SectionView>
           <PropertiesCarouselView
             properties={filtered1}
             titleCarousel="Lançamentos"
@@ -236,7 +236,7 @@ export function PropertiesView() {
         </SectionView>
       )}
       {filtered2.length > 0 && (
-        <SectionView backgroundColor="white-secondary">
+        <SectionView className="bg-default-light-alt">
           <PropertiesCarouselView
             properties={filtered2}
             titleCarousel="Disponível"
@@ -244,7 +244,7 @@ export function PropertiesView() {
         </SectionView>
       )}
       {filtered3.length > 0 && (
-        <SectionView backgroundColor="white-secondary">
+        <SectionView>
           <PropertiesCarouselView
             properties={filtered3}
             titleCarousel="Em Obras"

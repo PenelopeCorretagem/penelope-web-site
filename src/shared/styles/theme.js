@@ -1,53 +1,53 @@
 export const theme = {
   button: {
     base: [
-      'inline-flex items-center justify-center gap-2',
-      'font-title-family font-bold',
-      'text-[16px] md:text-[20px]',
+      'inline-flex items-center justify-center gap-button md:gap-button-md',
+      'font-title font-bold',
+      'text-base md:text-xl',
       'leading-none',
       'uppercase',
       'transition-all duration-200',
       'hover:scale-105'
     ].join(' '),
     padding: {
-      default: 'px-4 py-2',
-      circle: 'p-button-y', // Padding igual em todos os lados para círculo
+      default: 'p-button md:p-button-md',
+      circle: 'p-button-y md:p-button-y-md',
     },
     colors: {
       pink: {
-        base: 'bg-brand-pink text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-distac-primary text-default-light',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       brown: {
-        base: 'bg-brand-brown text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-distac-secondary text-default-light',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       'soft-brown': {
-        base: 'bg-brand-soft-brown text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-distac-secondary-light text-default-light',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       white: {
-        base: 'bg-brand-white text-brand-black',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-default-light-muted text-default-dark',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       gray: {
-        base: 'bg-brand-gray text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-default-dark-muted text-default-light',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       'border-white': {
-        base: 'border-2 border-brand-white bg-transparent text-brand-white',
-        active: 'border-2 border-brand-white bg-brand-white text-brand-pink',
-        hover: 'hover:border-2 hover:border-brand-white hover:bg-brand-white hover:text-brand-pink',
+        base: 'border-2 border-default-light bg-transparent text-default-light',
+        active: 'border-2 border-default-light bg-default-light text-distac-primary',
+        hover: 'hover:border-2 hover:border-default-light hover:bg-default-light hover:text-distac-primary',
       },
       transparent: {
-        base: 'bg-transparent text-brand-white',
-        active: 'text-brand-white',
-        hover: 'hover:text-brand-white',
+        base: 'bg-transparent text-default-light',
+        active: 'text-default-light',
+        hover: 'hover:text-default-light',
       }
     },
     width: {
@@ -66,7 +66,7 @@ export const theme = {
       enabled: 'cursor-pointer',
     }
   },
-  arrowBack: {
+  backbutton: {
     base: [
       'font-semibold',
       'cursor-pointer',
@@ -74,36 +74,14 @@ export const theme = {
       'hover:scale-105',
       'focus:outline-none'
     ].join(' '),
-    colors: {
-      default: 'text-brand-dark-gray hover:text-brand-pink',
-    },
-    state: {
-      disabled: 'opacity-50 cursor-not-allowed',
-      enabled: 'cursor-pointer',
-    },
     icon: {
       base: 'inline',
-    }
-  },
-  logo: {
-    base: 'fill-current transition-colors duration-200',
-    colors: {
-      pink: 'text-brand-pink',
-      brown: 'text-brand-brown',
-      white: 'text-brand-white',
-      black: 'text-brand-black',
-      custom: '',
-    },
-    state: {
-      disabled: 'opacity-50 filter grayscale',
-      invalid: 'opacity-80',
-      normal: '',
     }
   },
   heading: {
     base: [
       'w-fit',
-      'font-title-family',
+      'font-title text-default-dark',
       'leading-none',
       'uppercase',
     ].join(' '),
@@ -115,51 +93,29 @@ export const theme = {
       5: 'text-[12px] font-medium md:text-[20px]',
       6: 'text-[8px] font-normal md:text-[14px]',
     },
-    colors: {
-      black: 'text-brand-black',
-      pink: 'text-brand-pink',
-      white: 'text-brand-white',
-      brown: 'text-brand-brown',
-      softBrown: 'text-brand-soft-brown',
-      gray: 'text-brand-gray',
-    },
-    states: {
-      default: '',
-      active: 'text-brand-pink underline',
-      hover: 'hover:text-brand-pink transition-colors'
-    }
   },
   text: {
     base: [
-      'font-default-family',
-      'text-[12px]',
+      'text-xs md:text-base',
       'leading-none',
-      'md:text-[16px]',
-      'text-brand-black',
+      'font-default',
+      'text-default-dark',
     ].join(' '),
   },
   label: {
     base: [
-      'inline-block rounded font-medium',
+      'text-[12px] md:text-[14px] text-center',
+      'px-2 py-1 md:px-3 md:py-2',
+      'inline-block rounded-sm font-medium',
       'transition-all duration-200',
     ].join(' '),
     variants: {
-      pink: 'bg-brand-pink text-brand-white',
-      softPink: 'bg-brand-soft-pink text-brand-white',
-      brown: 'bg-brand-brown text-brand-white',
-      softBrown: 'bg-brand-soft-brown text-brand-white',
-      gray: 'bg-brand-white-tertiary text-brand-black',
+      pink: 'bg-distac-primary text-default-light',
+      softPink: 'bg-distac-primary-light text-default-light',
+      brown: 'bg-distac-secondary text-default-light',
+      softBrown: 'bg-distac-secondary-light text-default-light',
+      gray: 'bg-default-dark-light text-default-light',
     },
-    sizes: {
-      small: 'text-[12px] px-2 py-1',
-      medium: 'text-[16px] px-3 py-2',
-      large: 'text-[20px] px-4 py-3',
-    },
-    state: {
-      empty: 'opacity-60',
-      invalid: 'border border-yellow-400',
-      normal: '',
-    }
   },
   input: {
     container: 'w-full flex flex-col gap-2',
@@ -167,54 +123,54 @@ export const theme = {
       base: [
         'w-full px-4 py-2 rounded-sm',
         'transition-colors duration-200',
-        'placeholder:text-brand-dark-gray',
+        'placeholder:text-default-dark-muted',
         'placeholder:text-[12px] md:placeholder:text-[16px]',
-        'placeholder:uppercase placeholder:font-default-family'
+        'placeholder:uppercase placeholder:font-default'
       ].join(' '),
       state: {
-        active: 'bg-brand-soft-pink focus:bg-brand-white focus:ring-2 focus:ring-brand-pink focus:outline-none',
-        inactive: 'bg-brand-white-terciary',
-        disabled: 'bg-brand-white-tertiary text-gray-500 cursor-not-allowed opacity-75',
+        active: 'bg-distac-primary-light focus:bg-default-light focus:ring-2 focus:ring-distac-primary focus:outline-none',
+        inactive: 'bg-default-light-terciary',
+        disabled: 'bg-default-light-tertiary text-gray-500 cursor-not-allowed opacity-75',
         enabled: 'hover:bg-opacity-80',
-        error: 'border-2 border-brand-pink focus:ring-brand-pink',
+        error: 'border-2 border-distac-primary focus:ring-distac-primary',
         normal: '',
-        readOnly: 'bg-brand-white-tertiary text-gray-600 cursor-text select-text',
+        readOnly: 'bg-default-light-tertiary text-gray-600 cursor-text select-text',
       }
     },
     label: {
       base: [
-        'uppercase font-semibold font-default-family',
+        'uppercase font-semibold font-default',
         'text-[12px] leading-none md:text-[16px]'
       ].join(' '),
       state: {
-        error: 'text-brand-pink',
-        normal: 'text-brand-dark-gray',
+        error: 'text-distac-primary',
+        normal: 'text-default-dark-muted',
       },
-      required: 'after:content-["*"] after:text-brand-pink after:ml-1'
+      required: 'after:content-["*"] after:text-distac-primary after:ml-1'
     },
-    error: 'text-brand-pink text-sm mt-1'
+    error: 'text-distac-primary text-sm mt-1'
   },
   image: {
     modes: {
       image: {
-        base: 'max-h-72 min-w-lg rounded-sm border-transparent bg-gradient-to-t from-brand-brown to-brand-pink p-0.5 w-fit',
+        base: 'max-h-72 min-w-lg rounded-sm border-transparent bg-gradient-to-t from-distac-secondary to-distac-primary p-0.5 w-fit',
       },
       background: {
         base: 'bg-cover bg-center bg-no-repeat',
       }
     },
     container: 'flex flex-col gap-card md:gap-card-md',
-    placeholder: 'flex-1 flex items-center justify-center bg-brand-white-secondary',
-    placeholderIcon: 'w-[100px] h-[100px] text-brand-white-tertiary',
-    description: 'text-brand-dark-gray'
+    placeholder: 'flex-1 flex items-center justify-center bg-default-light-secondary',
+    placeholderIcon: 'w-[100px] h-[100px] text-default-light-tertiary',
+    description: 'text-default-dark-muted'
   },
   cardImage: {
     container: 'flex flex-col items-start gap-1.5',
     imageWrapper: 'relative w-fit',
-    background: 'relative z-0 w-fit rounded-sm bg-brand-gradient',
+    background: 'relative z-0 w-fit rounded-sm bg-distac-gradient',
     imageContainer: 'relative z-10',
     image: 'block rounded-sm shadow-sm object-cover',
-    description: 'text-brand-dark-gray mt-2 text-sm',
+    description: 'text-default-dark-muted mt-2 text-sm',
     positions: {
       'bottom-left': {
         transform: '-translate-x-8 translate-y-8',
@@ -236,8 +192,8 @@ export const theme = {
   },
   form: {
     container: 'w-full flex flex-col gap-6 items-center',
-    title: 'text-center text-brand-pink',
-    subtitle: 'text-center text-brand-dark-gray',
+    title: 'text-center text-distac-primary',
+    subtitle: 'text-center text-default-dark-muted',
     fieldContainer: 'w-full',
     errorContainer: 'w-full',
     successContainer: 'w-full p-4 bg-green-100 border border-green-400 text-green-700 rounded',
@@ -256,30 +212,20 @@ export const theme = {
     ].join(' '),
     copyright: [
       'w-full text-center',
-      'border-t-2 border-brand-white-tertiary',
+      'border-t-2 border-default-light-muted',
       'pt-section-y'
     ].join(' '),
   },
   header: {
     container: [
       'w-full',
-      'bg-brand-white-secondary',
+      'bg-default-light',
       'transition-all duration-300',
       'p-header md:p-header-md',
+      'flex items-center justify-center',
     ].join(' '),
     sticky: 'sticky top-0 z-50',
     shadow: 'shadow-lg',
-    content: [
-      'flex items-center justify-between',
-    ].join(' '),
-    logo: {
-      sizes: {
-        small: 'w-8 h-8',
-        medium: 'w-10 h-10',
-        large: 'w-12 h-12',
-        extraLarge: 'w-14 h-14',
-      }
-    }
   },
   navMenu: {
     container: [
@@ -319,80 +265,111 @@ export const theme = {
     ].join(' '),
     colors: {
       default: {
-        base: 'bg-brand-white-terciary text-brand-black',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-default-light-terciary text-default-dark',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       },
       destac: {
-        base: 'bg-brand-brown text-brand-white',
-        active: 'bg-brand-pink text-brand-white',
-        hover: 'hover:bg-brand-pink hover:text-brand-white',
+        base: 'bg-distac-secondary text-default-light',
+        active: 'bg-distac-primary text-default-light',
+        hover: 'hover:bg-distac-primary hover:text-default-light',
       }
     },
     footer: {
       container: [
         'flex flex-col md:flex-row items-center md:items-start',
-        'justify-between w-full h-fit gap-subsection md-gap-0'
+        'justify-between w-full h-fit gap-subsection md:gap-0'
       ].join(' '),
       logoSection: 'flex flex-col items-center md:items-start justify-between h-24',
       section: 'flex flex-col items-center md:items-start gap-2',
-      sectionTitle: 'text-brand-pink font-extrabold',
+      sectionTitle: 'text-distac-primary font-extrabold',
       sectionLink: [
-        'hover:text-brand-pink hover:underline',
+        'text-default-dark',
+        'hover:text-distac-primary hover:underline',
         'transition-colors duration-200',
         'uppercase cursor-pointer'
       ].join(' '),
-      disabledLink: 'cursor-not-allowed opacity-50'
+      disabledLink: 'cursor-not-allowed opacity-50 text-gray-500'
     }
   },
   section: {
-    base: 'section w-full h-fit',
+    base: 'section flex w-full h-fit bg-default-light',
     padding: {
       default: 'p-section md:p-section-md',
     },
     gap: {
       default: 'gap-section md:gap-section-md',
-    },
-    background: {
-      white: 'bg-brand-white',
-      'white-secondary': 'bg-brand-white-secondary',
-      pink: 'bg-brand-pink',
-      pinkGradient: 'bg-brand-gradient',
     }
   },
   auth: {
     container: {
-      base: 'relative w-full h-full bg-brand-white overflow-hidden transition-all duration-700 ease-in-out',
+      base: 'relative w-full h-full bg-default-light overflow-hidden transition-all duration-700 ease-in-out',
       active: 'active'
     },
     signInPanel: {
-      base: 'absolute top-0 left-0 w-3/5 h-full bg-brand-white z-20 p-section md:p-section-md flex flex-col items-center justify-center transition-all duration-700 ease-in-out'
+      base: 'absolute top-0 left-0 w-3/5 h-full bg-default-light z-20 p-section md:p-section-md flex flex-col items-center justify-center transition-all duration-700 ease-in-out',
+      states: {
+        active: 'translate-x-[166.67%] opacity-0 invisible pointer-events-none',
+        inactive: 'translate-x-0 opacity-100 visible pointer-events-auto'
+      }
     },
     signUpPanel: {
-      base: 'absolute top-0 right-0 w-3/5 h-full bg-brand-white p-section md:p-section-md flex flex-col transition-all duration-700 ease-in-out'
+      base: 'absolute top-0 right-0 w-3/5 h-full bg-default-light p-section md:p-section-md flex flex-col transition-all duration-700 ease-in-out',
+      states: {
+        active: 'translate-x-0 opacity-100 visible z-50',
+        inactive: 'translate-x-[-166.67%] opacity-0 invisible z-10'
+      }
     },
     toggleContainer: {
       base: 'absolute top-0 left-3/5 w-2/5 h-full overflow-hidden z-[1000] transition-all duration-700 ease-in-out',
-      transform: 'transform -translate-x-[150%]'
+      states: {
+        active: 'transform -translate-x-[150%]',
+        inactive: 'transform translate-x-0'
+      }
     },
     gradient: {
-      base: 'bg-brand-gradient h-full relative -left-full w-[200%] transform transition-all duration-700 ease-in-out',
-      transform: 'translate-x-1/2'
+      base: 'bg-distac-gradient h-full relative -left-full w-[200%] transform transition-all duration-700 ease-in-out',
+      states: {
+        active: 'translate-x-1/2',
+        inactive: 'translate-x-0'
+      }
     },
     leftPanel: {
       base: 'absolute w-1/2 h-full p-section md:p-section-md flex flex-col top-0 transition-all duration-700 ease-in-out',
-      transform: 'transform translate-x-0',
-      hidden: 'transform -translate-x-[200%]'
+      states: {
+        active: 'transform translate-x-0',
+        inactive: 'transform -translate-x-[200%]'
+      }
     },
     rightPanel: {
       base: 'absolute right-0 w-1/2 h-full p-section md:p-section-md flex flex-col top-0 transition-all duration-700 ease-in-out',
-      transform: 'transform translate-x-[200%]',
-      visible: 'transform translate-x-0'
+      states: {
+        active: 'transform translate-x-[200%]',
+        inactive: 'transform translate-x-0'
+      }
+    },
+    backButton: {
+      signIn: 'flex justify-start w-full',
+      leftPanel: 'flex justify-start w-full',
+      rightPanel: 'flex justify-end w-full'
+    },
+    formContainer: {
+      base: 'flex-1 flex flex-col w-full items-center justify-center gap-subsection md:gap-subsection-md'
+    },
+    linkButton: {
+      base: 'font-semibold text-distac-primary hover:underline bg-transparent border-none cursor-pointer p-0 min-h-0 h-auto inline-block',
+      container: 'text-default-dark-muted flex gap-1 items-center justify-center'
+    },
+    toggleButton: {
+      base: '' // Removido as classes customizadas
+    },
+    panelContent: {
+      base: 'w-full text-center flex-1 flex flex-col items-center justify-center gap-subsection md:gap-subsection-md'
     }
   }
 }
 
-// Helper para montar classes do botão
+// Helper simplificado para montar classes do botão
 export function getButtonThemeClasses({
   color = 'pink',
   active = false,
@@ -400,26 +377,22 @@ export function getButtonThemeClasses({
   shape = 'square',
   disabled = false,
   className = '',
-  customPadding = false,
-  customTextColor = false,
 }) {
   const t = theme.button
   const colorObj = t.colors[color] || t.colors.pink
 
-  // Se está ativo, usa as classes active, senão usa base + hover
-  const colorClasses = customTextColor ? '' : active
+  // Classes de cor baseadas no estado
+  const colorClasses = active
     ? colorObj.active
     : `${colorObj.base} ${colorObj.hover}`
 
-  // Padding especial para círculo - usa padding igual em todos os lados (p-button-y)
-  const paddingClass = customPadding ? '' :
-    shape === 'circle' ? t.padding.circle : t.padding.default
-
+  // Padding baseado na forma
+  const paddingClass = shape === 'circle' ? t.padding.circle : t.padding.default
   const widthClass = t.width[width] || t.width.full
   const shapeClass = t.shape[shape] || t.shape.square
-
   const stateClasses = disabled ? t.state.disabled : t.state.enabled
 
+  // CSS natural: últimas classes sobrescrevem as anteriores
   return [
     t.base,
     paddingClass,
@@ -427,115 +400,94 @@ export function getButtonThemeClasses({
     widthClass,
     shapeClass,
     stateClasses,
-    className
+    className // className por último para permitir sobrescrita
   ].filter(Boolean).join(' ')
 }
 
 // Helper para montar classes do ArrowBack
-export function getArrowBackThemeClasses({
-  color = 'default',
-  disabled = false,
+export function getBackButtonThemeClasses({
   className = '',
-  customColor = false,
 }) {
-  const t = theme.arrowBack
-  const colorClasses = customColor ? '' : t.colors[color] || t.colors.default
-  const stateClasses = disabled ? t.state.disabled : t.state.enabled
+  const t = theme.backbutton
 
   return [
     t.base,
-    colorClasses,
-    stateClasses,
     className
   ].filter(Boolean).join(' ')
 }
 
-export function getArrowBackIconClasses(params = {}) {
+export function getBackButtonIconClasses(params = {}) {
   const { className = '' } = params
-  const t = theme.arrowBack
+  const t = theme.backbutton
   return [t.icon.base, className].filter(Boolean).join(' ')
-}
-
-// Helper para montar classes do Logo
-export function getLogoThemeClasses({
-  colorScheme = 'pink',
-  disabled = false,
-  invalid = false,
-  className = '',
-  customColor = false,
-}) {
-  const t = theme.logo
-  const colorClasses = customColor ? '' : t.colors[colorScheme] || t.colors.pink
-
-  let stateClasses = ''
-  if (disabled) stateClasses = t.state.disabled
-  else if (invalid) stateClasses = t.state.invalid
-  else stateClasses = t.state.normal
-
-  return [
-    t.base,
-    colorClasses,
-    stateClasses,
-    className
-  ].filter(Boolean).join(' ')
 }
 
 // Helper para montar classes do Heading
 export function getHeadingThemeClasses({
   level = 1,
-  color = 'black',
-  state = 'default',
   className = '',
-  customTextColor = false,
 }) {
   const t = theme.heading
   const levelClasses = t.levels[level] || t.levels[1]
-  const colorClasses = customTextColor ? '' : t.colors[color] || t.colors.black
-  const stateClasses = t.states[state] || t.states.default
 
   return [
     t.base,
     levelClasses,
-    stateClasses === 'text-brand-pink underline' ? stateClasses : colorClasses,
-    stateClasses !== 'text-brand-pink underline' ? t.states.hover : '',
     className
   ].filter(Boolean).join(' ')
 }
 
-// Helper para montar classes do Text
+/**
+ * Generates the final CSS class string for text elements by combining
+ * the base theme styles with any additional custom classes provided.
+ *
+ * @param {Object} options - Configuration options.
+ * @param {string} [options.className=''] - Additional CSS class names to append to the base text style.
+ *
+ * @returns {string} - The computed CSS class string for the text element.
+ *
+ * @example
+ * const className = getTextThemeClasses({ className: 'text-lg font-semibold' });
+ * // Returns something like: "'text-xs md:text-base leading-none'"
+ */
 export function getTextThemeClasses({
   className = '',
 }) {
-  const t = theme.text
+  const text = theme.text
 
   return [
-    t.base,
+    text.base,
     className
   ].filter(Boolean).join(' ')
 }
 
-// Helper para montar classes do Label
+/**
+ * Generates the final CSS class string for label elements by combining
+ * base styles, variant, size, and state-specific theme classes with optional custom classes.
+ *
+ * @param {Object} options - Configuration options.
+ * @param {string} [options.variant='pink'] - The color variant of the label (must match a theme variant).
+ * @param {string} [options.size='medium'] - The size variant of the label (must match a theme size).
+ * @param {boolean} [options.isEmpty=false] - If true, applies the "empty" state styling.
+ * @param {boolean} [options.invalid=false] - If true, applies the "invalid" state styling.
+ * @param {string} [options.className=''] - Additional CSS class names to append to the label.
+ *
+ * @returns {string} - The computed CSS class string for the label element.
+ *
+ * @example
+ * const classes = getLabelThemeClasses({ variant: 'purple', size: 'small', invalid: true });
+ * // Returns something like: "label-base label-purple label-small label-invalid"
+ */
 export function getLabelThemeClasses({
   variant = 'pink',
-  size = 'medium',
-  isEmpty = false,
-  invalid = false,
   className = '',
 }) {
   const t = theme.label
   const variantClasses = t.variants[variant] || t.variants.pink
-  const sizeClasses = t.sizes[size] || t.sizes.medium
-
-  let stateClasses = ''
-  if (isEmpty) stateClasses = t.state.empty
-  else if (invalid) stateClasses = t.state.invalid
-  else stateClasses = t.state.normal
 
   return [
     t.base,
     variantClasses,
-    sizeClasses,
-    stateClasses,
     className
   ].filter(Boolean).join(' ')
 }
@@ -693,10 +645,8 @@ export function getCardImageDescriptionThemeClasses(params = {}) {
 }
 
 // Helper para montar classes do Form
-export function getFormThemeClasses({
-  className = '',
-}) {
-  return [theme.form.container, className].filter(Boolean).join(' ')
+export function getFormThemeClasses() {
+  return [theme.form.container].filter(Boolean).join(' ')
 }
 
 export function getFormTitleThemeClasses(params = {}) {
@@ -769,22 +719,6 @@ export function getHeaderThemeClasses({
   ].filter(Boolean).join(' ')
 }
 
-export function getHeaderContentThemeClasses(params = {}) {
-  const { className = '' } = params
-  return [theme.header.content, className].filter(Boolean).join(' ')
-}
-
-export function getHeaderLogoSizeThemeClasses({ size = 40 }) {
-  const t = theme.header.logo.sizes
-
-  if (size === 32) return t.small
-  if (size === 40) return t.medium
-  if (size === 48) return t.large
-  if (size === 56) return t.extraLarge
-
-  return t.medium
-}
-
 // Helper para montar classes do NavMenu
 export function getNavMenuThemeClasses({
   hasErrors = false,
@@ -852,7 +786,7 @@ export function getNavMenuItemThemeClasses({
     'items-center',
     'justify-center',
     'gap-2',
-    'font-title-family',
+    'font-title',
     'font-medium',
     'uppercase',
     'text-[12px]',
@@ -925,7 +859,7 @@ export function getNavMenuActionThemeClasses({
     'items-center',
     'justify-center',
     'gap-2',
-    'font-title-family',
+    'font-title',
     'font-medium',
     'uppercase',
     'text-[12px]',
@@ -976,37 +910,87 @@ export function getNavMenuActionThemeClasses({
 }
 
 // Helper para montar classes do Section
-export function getSectionThemeClasses({
-  backgroundColor = 'white',
-  padding = 'default',
-  gap = 'default',
-  className = '',
-}) {
+export function getSectionThemeClasses() {
   const t = theme.section
-  const backgroundClasses = t.background[backgroundColor] || t.background.white
-  const paddingClasses = t.padding[padding] || t.padding.default
-  const gapClasses = t.gap[gap] || t.gap.default
-
-  return [
-    t.base,
-    paddingClasses,
-    gapClasses,
-    backgroundClasses,
-    className
+  return [t.base
+    , t.padding.default
+    , t.gap.default
   ].filter(Boolean).join(' ')
 }
 
-export function getSectionBackgroundThemeClasses({ backgroundColor = 'white' }) {
-  const t = theme.section
-  return t.background[backgroundColor] || t.background.white
+// Helper functions for Auth component
+export function getAuthContainerThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.container
+  const activeClass = isActive ? t.active : ''
+
+  return [t.base, activeClass, className].filter(Boolean).join(' ')
 }
 
-export function getSectionPaddingThemeClasses({ padding = 'default' }) {
-  const t = theme.section
-  return t.padding[padding] || t.padding.default
+export function getAuthSignInPanelThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.signInPanel
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
 }
 
-export function getSectionGapThemeClasses({ gap = 'default' }) {
-  const t = theme.section
-  return t.gap[gap] || t.gap.default
+export function getAuthSignUpPanelThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.signUpPanel
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthToggleContainerThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.toggleContainer
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthGradientThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.gradient
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthLeftPanelThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.leftPanel
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthRightPanelThemeClasses({ isActive = false, className = '' } = {}) {
+  const t = theme.auth.rightPanel
+  const stateClass = isActive ? t.states.active : t.states.inactive
+
+  return [t.base, stateClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthBackButtonThemeClasses({ variant = 'signIn', className = '' } = {}) {
+  const t = theme.auth.backButton
+  const variantClass = t[variant] || t.signIn
+
+  return [variantClass, className].filter(Boolean).join(' ')
+}
+
+export function getAuthFormContainerThemeClasses({ className = '' } = {}) {
+  return [theme.auth.formContainer.base, className].filter(Boolean).join(' ')
+}
+
+export function getAuthLinkButtonThemeClasses({ className = '' } = {}) {
+  return [theme.auth.linkButton.base, className].filter(Boolean).join(' ')
+}
+
+export function getAuthLinkContainerThemeClasses({ className = '' } = {}) {
+  return [theme.auth.linkButton.container, className].filter(Boolean).join(' ')
+}
+
+export function getAuthToggleButtonThemeClasses({ className = '' } = {}) {
+  return [theme.auth.toggleButton.base, className].filter(Boolean).join(' ')
+}
+
+export function getAuthPanelContentThemeClasses({ className = '' } = {}) {
+  return [theme.auth.panelContent.base, className].filter(Boolean).join(' ')
 }

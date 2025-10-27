@@ -1,20 +1,98 @@
 @import 'tailwindcss';
 
-@layer base {
-  :where(*) {
-    box-sizing: border-box !important;
-  }
+/* Design tokens */
+@theme {
+  /* === Cores Semânticas (Functional Tokens) === */
+  --color-distac-primary: #b33c8e;          /* Rosa principal da marca */
+  --color-distac-primary-light: #e9bedc;    /* Rosa suave */
+  --color-distac-secondary: #36221d;        /* Marrom escuro */
+  --color-distac-secondary-light: #816862;  /* Marrom suave */
+  --color-default-light: #ebe9e9;           /* Branco primário */
+  --color-default-light-alt: #dedede;       /* Branco secundário */
+  --color-default-light-muted: #cbcbcb;     /* Branco terciário */
+  --color-default-dark: #1f1d1f;            /* Preto da marca */
+  --color-default-dark-muted: #3c3b3c;      /* Cinza escuro */
+  --color-default-dark-light: #777676;      /* Cinza claro */
 
-  @font-face {
-    font-family: 'Tan-Nimbus';
-    src: url('/src/shared/assets/fonts/Tan-Nimbus.ttf') format('truetype');
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-  }
+  --padding-section-y: 48px;
+  --padding-section-x: 80px;
+  --padding-section: 48px 80px;
+  --padding-section-y-md: 56px;
+  --padding-section-x-md: 104px;
+  --padding-section-md: 56px 104px;
 
+  --padding-header: 16px 80px;
+  --padding-header-md: 24px 104px;
+
+  --padding-button: 8px 16px;
+  --padding-button-x: 16px;
+  --padding-button-y: 8px;
+  --padding-button-md: 12px 24px;
+  --padding-button-x-md: 24px;
+  --padding-button-y-md: 12px;
+
+  --gap-button: 8px;
+  --gap-button-md: 12px;
+
+  --padding-card: 16px;
+  --padding-card-md: 24px;
+
+  --gap-card: 12px;
+  --gap-card-md: 20px;
+
+  --gap-section: 100px;
+  --gap-section-md: 120px;
+
+  --gap-subsection: 24px;
+  --gap-subsection-md: 36px;
 }
 
+/* Fontes personalizadas */
+@font-face {
+  font-family: 'Tan-Nimbus';
+  src: url('/src/shared/assets/fonts/Tan-Nimbus.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Global styles */
+@layer base {
+  :where(*) {
+    box-sizing: border-box;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .font-tan-nimbus {
+    font-family: 'Tan-Nimbus', serif !important;
+  }
+
+  /* Utilidades para carrossel */
+  .scrollbar-hide {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.7s;
+  }
+}
+
+@utility bg-distac-gradient {
+  background: linear-gradient(to top, var(--color-distac-secondary), var(--color-distac-primary)) !important;
+}
+
+/* Animations and Transitions */
 
 /* Auth page animations */
 @keyframes slideIn {
@@ -26,10 +104,6 @@
     opacity: 1;
     z-index: 50;
   }
-}
-
-.animate-slideIn {
-  animation: slideIn 0.7s;
 }
 
 @utility transition-padding {
@@ -54,85 +128,4 @@
   transition:
     padding-top 500ms ease-in-out,
     padding-bottom 500ms ease-in-out;
-}
-
-@layer utilities {
-  .bg-brand-gradient {
-    background: linear-gradient(to top, var(--color-brand-brown), var(--color-brand-pink));
-  }
-
-  .font-tan-nimbus {
-    font-family: 'Tan-Nimbus', serif !important;
-  }
-}
-
-@theme {
-  --font-default-family: 'Poppins', sans-serif;
-  --font-title-family: 'Darker Grotesque', sans-serif;
-  --font-tan-nimbus: 'Tan-Nimbus', serif;
-
-  --padding-section-y: 48px;
-  --padding-section-x: 80px;
-  --padding-section: 48px 80px;
-  --padding-section-y-md: 56px;
-  --padding-section-x-md: 104px;
-  --padding-section-md: 56px 104px;
-
-    --padding-header: 16px 80px;
-  --padding-header-md: 24px 104px;
-
-  --padding-button: 8px 16px;
-  --padding-button-x: 16px;
-  --padding-button-y: 8px;
-  --padding-button-md: 12px 24px;
-  --padding-button-x-md: 24px;
-  --padding-button-y-md: 12px;
-
-  --padding-card: 16px;
-  --padding-card-md: 24px;
-
-  --gap-card: 12px;
-  --gap-card-md: 20px;
-
-  --gap-section: 100px;
-  --gap-section-md: 120px;
-
-  --gap-subsection: 24px;
-  --gap-subsection-md: 36px;
-
-  /* Cores de superfície/fundo */
-  --color-brand-white: #dedede; /* Fundo principal */
-  --color-brand-white-secondary: #ebe9e9; /* Fundo secundário */
-  --color-brand-white-tertiary: #cbcbcb; /* Fundo terciário/cards */
-
-  /* Cores de texto */
-  --color-brand-black: #1f1d1f; /* Texto principal */
-  --color-brand-dark-gray: #3c3b3c; /* Texto secundário */
-
-  /* Cores de marca/destaque */
-  --color-brand-pink: #b33c8e; /* Cor principal da marca (rosa) */
-  --color-brand-soft-pink: #e9bedc; /* Variação suave da marca */
-  --color-brand-brown: #36221d; /* Cor secundária (marrom escuro) */
-  --color-brand-soft-brown: #816862; /* Variação suave secundária */
-  --color-brand-gray: #777676; /* Cinza para textos secundários */
-
-   /* Menu Mobile */
-  --menu-items-height: 200px; /* Ajuste conforme necessário */
-
-}
-
-@layer utilities {
-  /* Utilidades para carrossel */
-  .scrollbar-hide {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-  }
-
-  .touch-pan-x {
-    touch-action: pan-x;
-  }
 }

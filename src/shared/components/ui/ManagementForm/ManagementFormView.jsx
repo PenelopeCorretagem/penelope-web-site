@@ -89,14 +89,14 @@ export function ManagementFormView({
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6 items-start">
       {/* Título */}
       {isEditing && title && (
-        <HeadingView level={3} className="text-brand-pink">
+        <HeadingView level={3} className="text-distac-primary">
           {title}
         </HeadingView>
       )}
 
       {/* Subtítulo */}
       {subtitle && (
-        <TextView className="text-left text-brand-gray">
+        <TextView className="text-left text-default-dark-muted">
           {subtitle}
         </TextView>
       )}

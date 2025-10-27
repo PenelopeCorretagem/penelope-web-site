@@ -12,7 +12,7 @@ const createTextAction = (text, actionText, type, config = {}) => ({
   text,
   actionText,
   type,
-  color: 'text-brand-pink',
+  color: 'text-distac-primary',
   hoverEffect: 'hover:underline',
   ...config
 })

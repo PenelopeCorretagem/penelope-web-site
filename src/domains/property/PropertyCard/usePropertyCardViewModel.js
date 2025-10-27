@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { PropertyCardModel } from '@domains/property/PropertyCard/PropertyCardModel'
 
 /**
@@ -22,9 +22,19 @@ class PropertyCardViewModel {
     return this.model.getDifferenceLabels()
   }
 
-  handleButtonClick() {
-    // Button click handled - could be extended with specific logic
-    // this.model.getButton() contains button configuration if needed
+
+  get hasDifferences() {
+    return this.model.hasDifferences
+  }
+
+  handleButtonClick(onButtonClick) {
+    if (typeof onButtonClick === 'function') {
+      onButtonClick({
+        category: this.model.category,
+        title: this.model.title,
+        subtitle: this.model.subtitle,
+      })
+    }
   }
 }
 
@@ -34,34 +44,51 @@ export function usePropertyCardViewModel({
   subtitle,
   description,
   differences = [],
+  onButtonClick,
 }) {
+  const model = useMemo(() => {
+    try {
+      return new PropertyCardModel(
+        category,
+        title,
+        subtitle,
+        description,
+        differences
+      )
+    } catch (error) {
+      console.error('Erro ao criar PropertyCardModel:', error)
+      return null
+    }
+  }, [category, title, subtitle, description, differences])
+
   const [viewModel] = useState(() => {
-    const model = new PropertyCardModel(
-      category,
-      title,
-      subtitle,
-      description,
-      differences
-    )
+    if (!model) return null
     return new PropertyCardViewModel(model)
   })
 
-  const [, setUpdateCounter] = useState(0)
-
-  const forceUpdate = useCallback(() => {
-    setUpdateCounter(prev => prev + 1)
-  }, [])
-
   const handleButtonClick = useCallback(() => {
-    viewModel.handleButtonClick()
-    forceUpdate()
-  }, [viewModel, forceUpdate])
+    if (!viewModel) return
+    viewModel.handleButtonClick(onButtonClick)
+  }, [viewModel, onButtonClick])
+
+  if (!viewModel) {
+    return {
+      categoryLabel: null,
+      button: null,
+      formattedDifferences: [],
+      hasDifferences: false,
+      handleButtonClick: () => {},
+      hasError: true,
+    }
+  }
 
   return {
     categoryLabel: viewModel.categoryLabel,
     button: viewModel.button,
     formattedDifferences: viewModel.formattedDifferences,
+    hasDifferences: viewModel.hasDifferences,
     handleButtonClick,
+    hasError: false,
   }
 }
 

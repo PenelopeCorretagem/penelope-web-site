@@ -20,8 +20,8 @@ export function useManagementFormViewModel(initialProps = {}) {
 
   // CSS classes fixas
   const formClasses = 'w-full flex flex-col gap-6 items-start'
-  const titleClasses = 'text-brand-pink'
-  const subtitleClasses = 'text-left text-brand-gray'
+  const titleClasses = 'text-distac-primary'
+  const subtitleClasses = 'text-left text-default-dark-muted'
   const fieldContainerClasses = 'w-full'
   const errorContainerClasses = 'w-full mt-2'
   const successContainerClasses = 'w-full p-3 bg-green-50 border border-green-300 text-green-700 rounded'

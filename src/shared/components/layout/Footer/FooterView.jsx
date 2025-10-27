@@ -1,46 +1,30 @@
 import { NavMenuView } from '@shared/components/layout/NavMenu/NavMenuView'
-import { useFooterViewModel } from '@shared/components/layout/Footer/useFooterViewModel'
+import {
+  getFooterThemeClasses,
+  getFooterCopyrightThemeClasses,
+} from '@shared/styles/theme'
 
 /**
- * FooterView - Componente de footer principal
- * Renderiza menu do footer e informações de copyright
- * Integra com FooterViewModel para gerenciar estado
- * @param {boolean} isAuthenticated - Estado de autenticação do usuário
- * @param {number} logoSize - Tamanho do logo
- * @param {string} logoColorScheme - Esquema de cores do logo
- * @param {string} className - Classes CSS adicionais
+ * FooterView - Rodapé principal da aplicação
  */
-
 export function FooterView({
   isAuthenticated = false,
-  logoSize = 40,
-  logoColorScheme = 'pink',
-  className = ''
+  className = '',
 }) {
-  const {
-    copyrightInfo,
-    logoConfig,
-    footerContainerClasses,
-    copyrightClasses
-  } = useFooterViewModel(isAuthenticated, logoSize, logoColorScheme)
-
-  const containerClasses = [
-    footerContainerClasses,
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const currentYear = new Date().getFullYear()
+  const containerClasses = `${getFooterThemeClasses(className)} ${className}`.trim()
+  const copyrightClasses = getFooterCopyrightThemeClasses()
 
   return (
     <footer className={containerClasses}>
       <NavMenuView
         isAuthenticated={isAuthenticated}
-        variant='footer'
-        logoSize={logoConfig.size}
-        logoColorScheme={logoConfig.colorScheme}
+        variant="footer"
+        logoSize={'40'}
+        logoColorScheme={'pink'}
       />
       <div className={copyrightClasses}>
-        {copyrightInfo.text}
+        © {currentYear} Penélope - Consultora de Imóveis | Todos os direitos reservados.
       </div>
     </footer>
   )

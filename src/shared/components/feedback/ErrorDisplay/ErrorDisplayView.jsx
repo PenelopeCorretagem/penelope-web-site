@@ -1,3 +1,5 @@
+import { AlertTriangle, Lock, FileX, Shield } from 'lucide-react'
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 /**
  * ErrorDisplay - Componente reutilizável para exibição de erros
  * @param {Object} props
@@ -5,14 +7,43 @@
  * @param {string} props.position - Posição do erro (top, bottom, inline)
  * @param {string} props.variant - Variante visual (subtle, prominent)
  * @param {string} props.className - Classes CSS adicionais
+ * @param {string|number} props.type - Tipo de erro (404, 403, 401) ou generic
+ * @param {function} props.onBack - Função para voltar (opcional)
  */
 export function ErrorDisplayView({
   messages = [],
   position = 'bottom',
-  variant = 'subtle',
   className = '',
+  type = 'generic',
 }) {
-  if (!messages || messages.length === 0) return null
+  const errorConfig = {
+    404: {
+      icon: FileX,
+      defaultMessage: 'Página não encontrada',
+    },
+    403: {
+      icon: Shield,
+      defaultMessage: 'Acesso não autorizado',
+    },
+    401: {
+      icon: Lock,
+      defaultMessage: 'Token de autenticação necessário',
+    },
+    generic: {
+      icon: AlertTriangle,
+      defaultMessage: 'Erro encontrado',
+    },
+  }
+
+  const config = errorConfig[type] || errorConfig.generic
+  const Icon = config.icon
+
+  // Use default message if no messages provided
+  const displayMessages = messages && messages.length > 0
+    ? messages
+    : [config.defaultMessage]
+
+  if (!displayMessages || displayMessages.length === 0) return null
 
   const getPositionClasses = () => {
     const positions = {
@@ -23,28 +54,21 @@ export function ErrorDisplayView({
     return positions[position] || positions.bottom
   }
 
-  const getVariantClasses = () => {
-    const variants = {
-      subtle: 'border-b border-red-200 bg-red-50 px-4 py-2',
-      prominent: 'border-2 border-red-500 bg-red-100 px-4 py-3',
-    }
-    return variants[variant] || variants.subtle
-  }
-
   const containerClasses = [
-    'flex items-center gap-2',
+    'flex flex-col items-center gap-3 px-4 py-3',
     getPositionClasses(),
-    getVariantClasses(),
-    className,
+    className
   ]
     .filter(Boolean)
     .join(' ')
 
   return (
     <div role='alert' aria-live='polite' className={containerClasses}>
-      <div className='flex items-center gap-2 text-sm text-red-600'>
-        <span aria-hidden='true'>⚠️</span>
-        <span>{Array.isArray(messages) ? messages.join(', ') : messages}</span>
+      <div className="flex items-center gap-2 text-sm text-distac-primary">
+        <span aria-hidden='true'>
+          <Icon size={28} />
+        </span>
+        <HeadingView level={4}>{Array.isArray(displayMessages) ? displayMessages.join(', ') : displayMessages}</HeadingView>
       </div>
     </div>
   )
