@@ -21,18 +21,27 @@ export function PageView() {
 
   useEffect(() => {
     setForceUpdate(prev => prev + 1)
+    const jwtToken = localStorage.getItem('jwtToken')
+    setIsAuthenticated(!!jwtToken)
   }, [currentRoute, isAuthPage])
 
   useEffect(() => {
-    const jwtToken = localStorage.getItem('jwtToken')
-    setIsAuthenticated(!!jwtToken)
-  }, [])
+    const checkAuth = () => {
+      const jwtToken = localStorage.getItem('jwtToken')
+      setIsAuthenticated(!!jwtToken)
+    }
 
-  const handleLogin = () => {
-    const mockJWT = `mock_jwt_token_${Date.now()}`
-    localStorage.setItem('jwtToken', mockJWT)
-    setIsAuthenticated(true)
-  }
+    checkAuth()
+
+    const onStorage = (event) => {
+      if (event.key === 'jwtToken') {
+        checkAuth()
+      }
+    }
+
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken')
@@ -50,21 +59,15 @@ export function PageView() {
       {process.env.NODE_ENV === 'development' && (
         <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 z-50 backdrop-blur-sm'>
           <div className='flex gap-2'>
-            {!isAuthenticated ? (
-              <button
-                onClick={handleLogin}
-                className='rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600'
-              >
-                Login (DEV)
-              </button>
-            ) : (
+            {/* Only keep logout for convenience in dev; login must be done via the real form */}
+            {isAuthenticated ? (
               <button
                 onClick={handleLogout}
                 className='rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600'
               >
                 Logout (DEV)
               </button>
-            )}
+            ) : null}
             {/* Botão para mostrar feedback */}
             <button
               onClick={() => setShowFeedback(true)}
