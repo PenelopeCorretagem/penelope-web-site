@@ -59,14 +59,20 @@ const UnauthorizedPage = () => {
 }
 
 // Protected Route component
-const ProtectedRoute = ({ isAuthenticated, children }) => {
+const ProtectedRoute = ({ isAuthenticated, authReady, children }) => {
+
+  if (!authReady) {
+    return null
+  }
+
   if (!isAuthenticated) {
     return <Navigate to='/login' replace />
   }
+
   return children
 }
 
-export function RouterView({ isAuthenticated = false }) {
+export function RouterView({ isAuthenticated = false, authReady = false }) {
   return (
     <main className='router-view bg-default-light w-full flex-1'>
       <Routes>
@@ -87,8 +93,7 @@ export function RouterView({ isAuthenticated = false }) {
         <Route
           path='/agenda'
           element={
-            // eslint-disable-next-line react/jsx-wrap-multilines
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <ScheduleView />
             </ProtectedRoute>
           }
@@ -96,8 +101,7 @@ export function RouterView({ isAuthenticated = false }) {
         <Route
           path='/perfil'
           element={
-            // eslint-disable-next-line react/jsx-wrap-multilines
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <ProfileView />
             </ProtectedRoute>
           }
@@ -105,8 +109,7 @@ export function RouterView({ isAuthenticated = false }) {
         <Route
           path='/configuracoes'
           element={
-            // eslint-disable-next-line react/jsx-wrap-multilines
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <SettingsView />
             </ProtectedRoute>
           }

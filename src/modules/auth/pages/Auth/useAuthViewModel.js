@@ -90,7 +90,7 @@ export function useAuthViewModel() {
       setTimeout(() => {
         setAlertConfig(null)
         navigate("/perfil")
-      }, 2000)
+      }, 1500)
     } catch (err) {
       console.error('Erro no login:', err)
       setAlertConfig({
@@ -109,7 +109,9 @@ export function useAuthViewModel() {
     setIsLoading(true)
     setAlertConfig(null)
     try {
-      const response = await registerUser(formData)
+      const payload = { ...formData }
+      if (payload.confirmSenha) delete payload.confirmSenha
+      const response = await registerUser(payload)
       console.log('Cadastro bem-sucedido:', response.data)
 
       setAlertConfig({
