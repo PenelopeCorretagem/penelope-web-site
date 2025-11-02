@@ -2,11 +2,23 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ManagementMenuView } from '@management/components/ui/ManagementMenu/ManagementMenuView'
 import { ManagementFormView } from '@shared/components/ui/ManagementForm/ManagementFormView.jsx'
 import { useState } from 'react'
-import { EPlaceholderManagementForm } from '@shared/Enum/EPlaceholderManagementForm'
 
 export function ProfileView() {
   const [activeMenu, setActiveMenu] = useState('perfil')
   const [isEditing, setIsEditing] = useState(false)
+
+  // Placeholders para os campos do formulário
+  const placeholders = {
+    primeiroNome: 'Digite seu primeiro nome',
+    sobrenome: 'Digite seu sobrenome',
+    cpf: 'Digite seu CPF (somente números)',
+    dataNascimento: 'DD/MM/AAAA',
+    rendaMedia: 'Informe sua renda mensal aproximada',
+    celular: 'Digite seu número de celular com DDD',
+    email: 'Digite seu endereço de e-mail',
+    senhaAtual: 'Digite sua senha atual',
+    novaSenha: 'Crie uma nova senha'
+  }
 
   const handleMenuChange = (newMenu) => {
     console.log('handleMenuChange called with:', newMenu)
@@ -26,7 +38,7 @@ export function ProfileView() {
     },
     acesso: {
       email: 'joao@email.com',
-      currentPassword: '',
+      currentPassword: '12345678',
       newPassword: ''
     }
   }
@@ -39,39 +51,39 @@ export function ProfileView() {
         {
           name: 'firstName',
           label: 'Nome',
-          placeholder: EPlaceholderManagementForm.PRIMEIRO_NOME,
+          placeholder: placeholders.primeiroNome,
           required: true
         },
         {
           name: 'lastName',
           label: 'Sobrenome',
-          placeholder: EPlaceholderManagementForm.SOBRENOME,
+          placeholder: placeholders.sobrenome,
           required: true
         },
         {
           name: 'cpf',
           label: 'CPF',
-          placeholder: EPlaceholderManagementForm.CPF,
+          placeholder: placeholders.cpf,
           required: true
         },
         {
           name: 'birthDate',
           label: 'Data de Nascimento',
           type: 'date',
-          placeholder: EPlaceholderManagementForm.DATA_NASCIMENTO,
+          placeholder: placeholders.dataNascimento,
           required: true
         },
         {
           name: 'monthlyIncome',
           label: 'Renda Média Mensal',
           type: 'number',
-          placeholder: EPlaceholderManagementForm.RENDA_MEDIA,
+          placeholder: placeholders.rendaMedia,
           required: true
         },
         {
           name: 'phone',
           label: 'Celular',
-          placeholder: EPlaceholderManagementForm.CELULAR,
+          placeholder: placeholders.celular,
           required: true
         }
       ],
@@ -83,21 +95,21 @@ export function ProfileView() {
           name: 'email',
           type: 'email',
           label: 'Email',
-          placeholder: EPlaceholderManagementForm.EMAIL,
+          placeholder: placeholders.email,
           required: true
         },
         {
           name: 'currentPassword',
           type: 'password',
           label: 'Senha Atual',
-          placeholder: EPlaceholderManagementForm.SENHA_ATUAL,
+          placeholder: placeholders.senhaAtual,
           required: true
         },
         {
           name: 'newPassword',
           type: 'password',
           label: 'Nova Senha',
-          placeholder: EPlaceholderManagementForm.NOVA_SENHA,
+          placeholder: placeholders.novaSenha,
           required: true
         }
       ]

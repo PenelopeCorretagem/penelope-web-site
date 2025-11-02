@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { registerUser, loginUser, forgotPassword } from '../../../../shared/services/apiService'
+import { registerUser, loginUser, forgotPassword } from '@app/services/apiService'
 
 /**
  * useAuthViewModel - ViewModel para gerenciar a lógica de autenticação
@@ -89,7 +89,7 @@ export function useAuthViewModel() {
 
       setTimeout(() => {
         setAlertConfig(null)
-        navigate("/perfil")
+        navigate('/perfil')
       }, 1500)
     } catch (err) {
       console.error('Erro no login:', err)

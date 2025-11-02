@@ -54,9 +54,9 @@ export function PageView() {
 
   return (
     <div className='flex min-h-screen w-full flex-col'>
-  {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
-  <RouterView isAuthenticated={isAuthenticated} authReady={authReady} />
-  {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
+      {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
+      <RouterView isAuthenticated={isAuthenticated} authReady={authReady} />
+      {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
 
       {/* Botões de teste */}
       {import.meta.env.DEV && import.meta.env.MODE === 'development' && (

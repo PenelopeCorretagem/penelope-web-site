@@ -42,7 +42,7 @@ export function ManagementFormView(props) {
               onChange={vm.handleFieldChange(field.name)}
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={vm.isEditing && (field.required || false)}
-              showPasswordToggle={vm.isEditing && field.showPasswordToggle}
+              showPasswordToggle={field.type === 'password'}
               isActive={vm.isEditing}
               readOnly={!vm.isEditing}
               maxLength={field.maxLength}
