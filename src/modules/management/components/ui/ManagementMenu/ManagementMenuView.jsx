@@ -8,6 +8,10 @@ export function ManagementMenuView({ variant, activeMenu, setActiveMenu }) {
 
   const menuItems = variants[variant] || []
 
+  const handleMenuClick = (item) => {
+    setActiveMenu(item)
+  }
+
   return (
     <nav className='flex items-center gap-subsection md:gap-subsection-md'>
       {menuItems.map(item => {
@@ -16,12 +20,17 @@ export function ManagementMenuView({ variant, activeMenu, setActiveMenu }) {
         return (
           <button
             key={item}
-            onClick={() => setActiveMenu(item)}
-            className='cursor-pointer'
+            onClick={() => handleMenuClick(item)}
+            className={`cursor-pointer transition-colors duration-200 ${
+              isActive
+                ? 'text-distac-primary'
+                : 'text-default-dark hover:text-distac-primary'
+            }`}
+            type="button"
           >
             <HeadingView
               level={2}
-              state={isActive ? 'active' : 'default'}
+              className="transition-colors duration-200 !text-current"
             >
               {item}
             </HeadingView>

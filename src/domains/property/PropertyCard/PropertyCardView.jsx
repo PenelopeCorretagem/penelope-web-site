@@ -2,90 +2,159 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { usePropertyCardViewModel } from '@domains/property/PropertyCard/usePropertyCardViewModel'
+import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 
 export function PropertyCardView({
-  hasLabel = true,
   category,
   title,
   subtitle,
   description,
-  hasDifference = false,
   differences = [],
+  buttonState = 'simple',
+  hasLabel = true,
+  hasDifference = false,
   hasButton = false,
   hasShadow = false,
   hasImage = false,
   hasHoverEffect = false,
   imageUrl,
   onButtonClick,
+  className = '',
 }) {
   const {
     categoryLabel,
-    button: buttonProps,
+    buttons,
     formattedDifferences,
-    hasDifferences,
+    shouldRenderButtons,
+    shouldRenderImage,
+    shouldRenderLabel,
+    shouldRenderDifferences,
+    containerClasses,
+    cardClasses,
+    labelPosition,
+    buttonLayout,
     handleButtonClick,
-    hasError
+    hasError,
+    model
   } = usePropertyCardViewModel({
     category,
     title,
     subtitle,
     description,
     differences,
-    onButtonClick
+    buttonState,
+    hasLabel,
+    hasButton,
+    hasShadow,
+    hasImage,
+    hasHoverEffect,
+    imageUrl,
+    onButtonClick,
+    className
   })
 
   if (hasError) {
     return (
-      <div className="flex flex-col max-w-sm bg-default-light-alt p-card rounded-sm">
+      <div className={`flex flex-col max-w-sm bg-default-light-alt p-card rounded-sm ${className}`}>
         <TextView className="text-distac-primary">Erro ao carregar propriedade</TextView>
       </div>
     )
   }
 
-  const labelPosition = hasImage ? 'absolute top-0 -translate-y-1/2 left-[1.5rem]' : ''
-  const containerClasses = [
-    'flex flex-col max-w-sm transition-transform duration-200',
-    hasHoverEffect ? 'hover:scale-105' : ''
-  ].filter(Boolean).join(' ')
+  const renderButtons = () => {
+    if (!shouldRenderButtons) return null
 
-  const cardClasses = [
-    'bg-default-light p-card md:p-card-md gap-card md:gap-card-md',
-    'flex w-full flex-col items-start relative',
-    hasImage ? 'rounded-b-sm' : 'rounded-sm',
-    hasShadow ? 'drop-shadow-md' : ''
-  ].filter(Boolean).join(' ')
+    if (buttonLayout === 'grid') {
+      const [gallery, floorplan, video] = buttons
+      return (
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex gap-2 w-full">
+            <ButtonView
+              variant={gallery.variant}
+              type={gallery.type}
+              onClick={() => handleButtonClick(gallery.action)}
+            >
+              {gallery.text}
+            </ButtonView>
+            <ButtonView
+              variant={floorplan.variant}
+              type={floorplan.type}
+              onClick={() => handleButtonClick(floorplan.action)}
+            >
+              {floorplan.text}
+            </ButtonView>
+          </div>
+          <ButtonView
+            variant={video.variant}
+            type={video.type}
+            onClick={() => handleButtonClick(video.action)}
+          >
+            {video.text}
+          </ButtonView>
+        </div>
+      )
+    }
+
+    if (buttonLayout === 'column') {
+      return (
+        <div className="flex flex-col gap-3 w-full">
+          {buttons.map((button, index) => (
+            <ButtonView
+              key={`button-${index}`}
+              variant={button.variant}
+              type={button.type}
+              onClick={() => handleButtonClick(button.action)}
+            >
+              {button.text}
+            </ButtonView>
+          ))}
+        </div>
+      )
+    }
+
+    return buttons.map((button, index) => (
+      <ButtonView
+        key={`button-${index}`}
+        variant={button.variant}
+        type={button.type}
+        onClick={() => handleButtonClick(button.action)}
+        className="mt-auto"
+      >
+        {button.text}
+      </ButtonView>
+    ))
+  }
 
   return (
-    <div className={containerClasses}>
-      {hasImage && imageUrl && (
+    <div className={`${containerClasses} ${className}`}>
+      {shouldRenderImage && (
         <div
           className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'
-          style={{ backgroundImage: `url(${imageUrl})` }}
+          style={{ backgroundImage: `url(${model.imageUrl})` }}
           role="img"
-          aria-label={`Imagem do imóvel ${title}`}
+          aria-label={`Imagem do imóvel ${model.title}`}
         />
       )}
 
       <div className={cardClasses}>
-        {hasLabel && categoryLabel && (
+        {shouldRenderLabel && (
           <LabelView model={categoryLabel} className={labelPosition} />
         )}
 
         <div className='flex flex-col gap-2 w-full pt-2 md:pt-3'>
           <HeadingView level={4} className="text-default-dark">
-            {title}
+            {model.title}
           </HeadingView>
           <HeadingView level={5} className={`text-distac-primary`}>
-            {subtitle}
+            {model.subtitle}
           </HeadingView>
         </div>
 
         <TextView className='uppercase text-default-dark'>
-          {description}
+          {model.description}
         </TextView>
 
-        {hasDifference && hasDifferences && (
+        {hasDifference && shouldRenderDifferences && (
           <div className='gap-card md:gap-card-md grid w-full grid-cols-3'>
             {formattedDifferences.map((labelModel, index) => (
               <LabelView key={`difference-${index}`} model={labelModel} />
@@ -93,16 +162,7 @@ export function PropertyCardView({
           </div>
         )}
 
-        {hasButton && buttonProps && (
-          <ButtonView
-            variant={buttonProps.variant}
-            type={buttonProps.type}
-            onClick={handleButtonClick}
-            className="mt-auto"
-          >
-            {buttonProps.text}
-          </ButtonView>
-        )}
+        {renderButtons()}
       </div>
     </div>
   )

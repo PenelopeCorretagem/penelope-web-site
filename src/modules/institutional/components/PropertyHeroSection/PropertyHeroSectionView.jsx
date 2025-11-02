@@ -1,4 +1,4 @@
-import { PropertyDetailsCardView } from '@institutional/components/PropertyDetailsCard/PropertyDetailsCardView'
+import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
 import { PropertyHeroSectionModel } from './PropertyHeroSectionModel'
 import { usePropertyHeroSectionViewModel } from './usePropertyHeroSectionViewModel'
 
@@ -11,7 +11,7 @@ export function PropertyHeroSectionView(props) {
       <div className="mx-auto flex flex-col md:flex-row items-stretch min-h-[440px]">
         {/* Card de Informações */}
         <div className="flex items-center justify-center md:w-7/20 w-full p-6">
-          <PropertyDetailsCardView
+          <PropertyCardView
             hasLabel={true}
             category={category}
             title={title}

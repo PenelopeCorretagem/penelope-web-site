@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { EPropertyCardCategory } from '@domains/property/PropertyCard/EPropertyCardCategory'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
-import { SearchFilterView } from '@institutional/components/SearchFilter/SearchFilterView'
+import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 import { ResultTitleView } from '@institutional/components/ResultTitle/ResultTitleView'
 
 export function PropertiesView() {
+  const [headerHeight, setHeaderHeight] = useState(0)
 
   const [pendingFilters, setPendingFilters] = useState({
     city: '',
@@ -30,7 +30,7 @@ export function PropertiesView() {
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
       bedrooms: 2,
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: 'lancamento',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -39,7 +39,7 @@ export function PropertiesView() {
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
       bedrooms: 3,
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: 'lancamento',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -48,7 +48,7 @@ export function PropertiesView() {
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
       bedrooms: 1,
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: 'lancamento',
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -57,7 +57,7 @@ export function PropertiesView() {
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
       bedrooms: 2,
-      category: EPropertyCardCategory.LANCAMENTO,
+      category: 'lancamento',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     }
@@ -68,7 +68,7 @@ export function PropertiesView() {
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
       bedrooms: 3,
-      category: EPropertyCardCategory.DISPONIVEL,
+      category: 'disponivel',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -77,7 +77,7 @@ export function PropertiesView() {
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
       bedrooms: 1,
-      category: EPropertyCardCategory.DISPONIVEL,
+      category: 'disponivel',
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -86,7 +86,7 @@ export function PropertiesView() {
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
       bedrooms: 2,
-      category: EPropertyCardCategory.DISPONIVEL,
+      category: 'disponivel',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -95,7 +95,7 @@ export function PropertiesView() {
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
       bedrooms: 3,
-      category: EPropertyCardCategory.DISPONIVEL,
+      category: 'disponivel',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     }
@@ -106,7 +106,7 @@ export function PropertiesView() {
       subtitle: 'Copacabana',
       description: '1 dormitório com vista para o mar',
       bedrooms: 1,
-      category: EPropertyCardCategory.EM_OBRAS,
+      category: 'em_obras',
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -115,7 +115,7 @@ export function PropertiesView() {
       subtitle: 'Interlagos',
       description: '2 dormitórios com opção de terraço',
       bedrooms: 2,
-      category: EPropertyCardCategory.EM_OBRAS,
+      category: 'em_obras',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -124,7 +124,7 @@ export function PropertiesView() {
       subtitle: 'Vila Mariana',
       description: '3 dormitórios com varanda gourmet',
       bedrooms: 3,
-      category: EPropertyCardCategory.EM_OBRAS,
+      category: 'em_obras',
       differences: ['2 vagas', '1 suíte', '48m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -133,7 +133,7 @@ export function PropertiesView() {
       subtitle: 'Copacabana',
       bedrooms: 1,
       description: '1 dormitório com vista para o mar',
-      category: EPropertyCardCategory.EM_OBRAS,
+      category: 'em_obras',
       differences: ['1 vaga', '1 suíte', '38m²'],
       imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
     },
@@ -214,15 +214,34 @@ export function PropertiesView() {
 
   const totalResults = filtered1.length + filtered2.length + filtered3.length
 
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header')
+      if (header) {
+        setHeaderHeight(header.offsetHeight - 1)
+      }
+    }
+
+    updateHeaderHeight()
+    window.addEventListener('resize', updateHeaderHeight)
+
+    return () => window.removeEventListener('resize', updateHeaderHeight)
+  }, [])
+
   return (
     <>
-      <SearchFilterView
-        filters={pendingFilters}
-        updateFilter={updatePendingFilter}
-        handleSearch={() => { /* opcional: acionar busca global */ }}
-        onApply={applyFilters}
-        options={optionsWithPlaceholders}
-      />
+      <div
+        className="sticky z-40 bg-default-light shadow-md"
+        style={{ top: `${headerHeight}px` }}
+      >
+        <SearchFilterView
+          filters={pendingFilters}
+          updateFilter={updatePendingFilter}
+          handleSearch={() => { /* opcional: acionar busca global */ }}
+          onApply={applyFilters}
+          options={optionsWithPlaceholders}
+        />
+      </div>
       <ResultTitleView
         results={totalResults}
         filters={appliedFilters}

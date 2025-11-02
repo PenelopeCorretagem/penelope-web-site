@@ -44,7 +44,7 @@ export function HeadingView({
 
   return (
     <Component
-      className={finalClassName}
+      className={`${finalClassName} ${className}`}
       style={style}
       role="heading"
       aria-level={level}

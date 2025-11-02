@@ -1,10 +1,8 @@
-import { useSelectFilterViewModel } from './useSelectFilterViewModel'
-
-export function SelectFilterView({
+export function SelectView({
   value,
   onChange,
-  name,
-  id,
+  name = 'filtro',
+  id = 'select_filter',
   options = [],
   width = 'fit',
   className = '',
@@ -12,25 +10,35 @@ export function SelectFilterView({
   shape = 'square',
   disabled = false,
 }) {
-  const { options: formattedOptions, name: modelName, id: modelId } =
-    useSelectFilterViewModel({ options, name, id })
+  const formattedOptions = options.map(option => {
+    if (option && typeof option === 'object' && 'value' in option) {
+      return {
+        label: option.label,
+        value: option.value,
+      }
+    }
+
+    return {
+      label: String(option).toUpperCase(),
+      value: option,
+    }
+  })
 
   const baseClasses = [
     'appearance-none',
     'font-semibold uppercase',
     'text-text-primary',
-    'bg-surface-secondary',
-    'border border-gray-300',
-    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+    'focus:outline-none focus:ring-2 focus:ring-distac-primary focus:border-distac-primary',
     'cursor-pointer',
-    'px-6 py-4',
+    'p-button-x',
+    'pr-10',
     'text-left',
     'transition-colors duration-200',
   ]
 
   const variants = {
-    default: 'bg-default-light-secondary',
-    destac: 'bg-brand-primary text-surface-primary',
+    default: 'bg-default-light',
+    destac: 'bg-distac-primary text-default-light',
   }
 
   const shapes = {
@@ -46,8 +54,8 @@ export function SelectFilterView({
   return (
     <div className={`relative ${widths[width]}`}>
       <select
-        name={modelName}
-        id={modelId}
+        name={name}
+        id={id}
         value={value}
         disabled={disabled}
         onChange={onChange}
@@ -57,7 +65,6 @@ export function SelectFilterView({
           shapes[shape],
           widths[width],
           className,
-          'pr-10',
         ]
           .filter(Boolean)
           .join(' ')}
@@ -71,7 +78,7 @@ export function SelectFilterView({
 
       <div className='pointer-events-none absolute inset-y-0 right-3 flex items-center'>
         <svg
-          className='h-4 w-4 text-gray-500'
+          className='h-4 w-4 text-current'
           fill='none'
           stroke='currentColor'
           strokeWidth='2'

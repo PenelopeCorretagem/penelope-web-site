@@ -128,7 +128,8 @@ export function usePropertiesCarouselViewModel(properties = []) {
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const [dragDistance, setDragDistance] = useState(0) // Para detectar se realmente arrastou
+  const [dragDistance, setDragDistance] = useState(0)
+  const [isScrollable, setIsScrollable] = useState(false) // Novo estado
 
   const refresh = useCallback(() => {
     forceUpdate(prev => prev + 1)
@@ -330,6 +331,15 @@ export function usePropertiesCarouselViewModel(properties = []) {
     setTimeout(() => setDragDistance(0), 100)
   }, [])
 
+  // Nova função para verificar se o container tem scroll
+  const checkIfScrollable = useCallback(() => {
+    if (!containerRef.current) return
+
+    const { scrollWidth, clientWidth } = containerRef.current
+    const hasScroll = scrollWidth > clientWidth
+    setIsScrollable(hasScroll)
+  }, [])
+
   // Effect para detectar mudanças no scroll
   useEffect(() => {
     const container = containerRef.current
@@ -340,9 +350,28 @@ export function usePropertiesCarouselViewModel(properties = []) {
 
     // Check inicial
     checkScrollProgress()
+    checkIfScrollable() // Verifica se é scrollable
 
     return () => container.removeEventListener('scroll', handleScroll)
-  }, [checkScrollProgress])
+  }, [checkScrollProgress, checkIfScrollable])
+
+  // Novo effect para detectar mudanças no tamanho da janela
+  useEffect(() => {
+    const handleResize = () => {
+      checkIfScrollable()
+      checkScrollProgress()
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    // Check inicial após um pequeno delay para garantir que o DOM foi renderizado
+    const timeoutId = setTimeout(checkIfScrollable, 100)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(timeoutId)
+    }
+  }, [checkIfScrollable, checkScrollProgress, properties.length])
 
   const commands = {
     next: () => viewModel.next(),
@@ -359,7 +388,8 @@ export function usePropertiesCarouselViewModel(properties = []) {
     // Estado
     isDragging,
     scrollProgress,
-    dragDistance, // Útil para prevenir cliques após arraste
+    dragDistance,
+    isScrollable, // Novo retorno
 
     // Dados
     properties: viewModel.getOriginalItems(),

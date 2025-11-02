@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
 import { HomeView } from '@institutional/pages/Home/HomeView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
@@ -69,11 +70,12 @@ const ProtectedRoute = ({ isAuthenticated, children }) => {
 export function RouterView({ isAuthenticated = false }) {
   return (
     <main className='router-view bg-default-light w-full flex-1'>
+      <ScrollToTop />
       <Routes>
         {/* Public Routes */}
         <Route path='/' element={<HomeView />} />
         <Route path='/imoveis' element={<PropertiesView />} />
-        <Route path='/imoveis/:id' element={<PropertyDetailsView />} />
+        <Route path='/imovel/1' element={<PropertyDetailsView />} />
         <Route path='/sobre' element={<AboutView />} />
         <Route path='/contatos' element={<ContactsView />} />
         <Route path='/login' element={<AuthView />} />

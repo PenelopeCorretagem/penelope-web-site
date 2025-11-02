@@ -78,6 +78,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
 
   /**
    * Fecha o menu mobile e força atualização.
+   * O scroll para o topo é gerenciado pelo componente ScrollToTop.
    *
    * @function
    * @example
@@ -90,6 +91,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
 
   /**
    * Executa o processo de logout.
+   * - Reseta scroll para o topo;
    * - Remove token JWT do `localStorage`;
    * - Atualiza estado de autenticação;
    * - Fecha o menu mobile;
@@ -100,6 +102,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    * handleLogout()
    */
   const handleLogout = useCallback(() => {
+    window.scrollTo(0, 0)
     localStorage.removeItem('jwtToken')
     model.setAuthenticationStatus(false)
     model.closeMobileMenu()

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { SearchFilterModel } from '@institutional/components/SearchFilter/SearchFilterModel'
+import { SearchFilterModel } from '@shared/components/ui/SearchFilter/SearchFilterModel'
 
 export function useSearchFilterViewModel() {
   const [model] = useState(() => new SearchFilterModel())

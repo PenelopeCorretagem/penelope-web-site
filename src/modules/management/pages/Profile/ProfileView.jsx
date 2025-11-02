@@ -9,6 +9,7 @@ export function ProfileView() {
   const [isEditing, setIsEditing] = useState(false)
 
   const handleMenuChange = (newMenu) => {
+    console.log('handleMenuChange called with:', newMenu)
     setActiveMenu(newMenu)
     setIsEditing(false)
   }
@@ -136,13 +137,14 @@ export function ProfileView() {
   }
 
   return (
-    <SectionView className='flex flex-col h-screen gap-0subsection md:gap-subsection-md'>
+    <SectionView className='flex flex-col h-screen gap-0 subsection md:gap-subsection-md'>
       <ManagementMenuView
         variant="perfil"
         activeMenu={activeMenu}
         setActiveMenu={handleMenuChange}
       />
       <ManagementFormView
+        key={activeMenu}
         title={currentConfig.title}
         fields={currentConfig.fields}
         onSubmit={handleSubmit}

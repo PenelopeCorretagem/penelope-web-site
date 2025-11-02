@@ -9,6 +9,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
   const {
     containerRef,
     scrollProgress,
+    isScrollable, // Novo estado
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -27,7 +28,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
   return (
     <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
       <div className='flex flex-row justify-between items-start'>
-        <HeadingView level={2} color='pink' className="text-center">
+        <HeadingView level={2} className="text-center text-distac-primary">
           {titleCarousel}
         </HeadingView>
 
@@ -44,30 +45,32 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
       </div>
 
       <div className="relative">
-        {/* Botões de navegação - nos cantos do carrossel */}
-        <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
-          <ButtonView
-            color="brown"
-            type="button"
-            width='fit'
-            onClick={scrollToLeft}
-            className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
-            aria-label="Slide anterior"
-          >
-            <ChevronLeft size={24} />
-          </ButtonView>
+        {/* Botões de navegação - apenas se houver scroll */}
+        {isScrollable && (
+          <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
+            <ButtonView
+              color="brown"
+              type="button"
+              width='fit'
+              onClick={scrollToLeft}
+              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              aria-label="Slide anterior"
+            >
+              <ChevronLeft size={24} />
+            </ButtonView>
 
-          <ButtonView
-            color="brown"
-            type="button"
-            width='fit'
-            onClick={scrollToRight}
-            className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
-            aria-label="Próximo slide"
-          >
-            <ChevronRight size={24} />
-          </ButtonView>
-        </div>
+            <ButtonView
+              color="brown"
+              type="button"
+              width='fit'
+              onClick={scrollToRight}
+              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              aria-label="Próximo slide"
+            >
+              <ChevronRight size={24} />
+            </ButtonView>
+          </div>
+        )}
 
         <div
           ref={containerRef}
@@ -131,17 +134,20 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         </div>
       </div>
 
-      <div className="w-full">
-        <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
-          <div
-            className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
-            style={{
-              width: `${scrollProgress}%`,
-              transform: `translateX(0%)`,
-            }}
-          />
+      {/* Barra de progresso - apenas se houver scroll */}
+      {isScrollable && (
+        <div className="w-full">
+          <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: `${scrollProgress}%`,
+                transform: `translateX(0%)`,
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 })

@@ -1,46 +1,52 @@
-import React from "react";
-import { usePropertyTabsViewModel } from "./usePropertyTabsViewModel.js";
-import { HeadingView } from "@shared/components/ui/Heading/HeadingView.jsx";
-import { Heading } from "lucide-react";
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
+import { usePropertyTabsViewModel } from './usePropertyTabsViewModel'
 
 export function PropertyTabsView({ tabs, anchors }) {
-  const { activeTab, handleTabClick } = usePropertyTabsViewModel(anchors);
+  const {
+    handleTabClick,
+    getTabsData,
+    hasValidData
+  } = usePropertyTabsViewModel(anchors, tabs)
 
-  const handleSmoothScroll = (anchor) => {
-    const element = document.getElementById(anchor);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      handleTabClick(anchor);
-    }
-  };
+  if (!hasValidData) {
+    console.warn('PropertyTabsView: Invalid props provided')
+    return null
+  }
+
+  const tabsData = getTabsData()
 
   return (
-    <nav className="border-b border-gray-200 bg-default-light-secondary">
-      <div className="mx-auto px-22">
-        <ul className="flex justify-start gap-8 py-6 text-lg font-medium min-h-[72px] pl-2">
-          {tabs.map((tab, idx) => (
-            <li
-              key={tab}
-              className={`uppercase ${
-                activeTab === anchors[idx] ? 'text-distac-primary' : 'text-default-dark'
+    <nav
+      className="bg-default-light-alt px-section-x md:px-section-x-md py-4 md:py-6"
+      data-tabs-component
+      role="tablist"
+      aria-label="Property sections navigation"
+    >
+      <ul className="flex items-center justify-start gap-subsection md:gap-subsection-md">
+        {tabsData.map(({ tab, anchor, isActive }) => (
+          <li key={anchor} role="none">
+            <button
+              className={`uppercase font-medium transition-colors duration-200 focus:outline-none cursor-pointer ${
+                isActive
+                  ? 'text-distac-primary'
+                  : 'text-default-dark hover:text-distac-primary'
               }`}
+              onClick={() => handleTabClick(anchor)}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={anchor}
+              id={`tab-${anchor}`}
             >
-              <a
-                href={`#${anchors[idx]}`}
-                className="hover:text-distac-primary focus:text-distac-primary transition-colors cursor-pointer font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSmoothScroll(anchors[idx]);
-                }}
+              <HeadingView
+                level={5}
+                className="transition-colors duration-200 !text-current"
               >
-                <HeadingView level={4}>
-                  {tab}
-                </HeadingView>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+                {tab}
+              </HeadingView>
+            </button>
+          </li>
+        ))}
+      </ul>
     </nav>
-  );
+  )
 }

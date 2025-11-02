@@ -9,7 +9,6 @@ export function SignUpPanel({
   isLoading,
   isForgotPassword,
   forgotPasswordFormConfig,
-  onForgotPassword,
   onBackToLogin,
   onRegisterSubmit,
   onForgotPasswordSubmit

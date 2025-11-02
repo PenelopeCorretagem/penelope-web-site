@@ -15,6 +15,11 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [react(), tailwindcss()],
 
+    define: {
+      'import.meta.env.DEV': mode === 'development',
+      'import.meta.env.MODE': JSON.stringify(mode),
+    },
+
     resolve: {
       alias: {
         '@shared': path.resolve(__dirname, './src/shared'),

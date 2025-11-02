@@ -129,12 +129,12 @@ export const theme = {
       ].join(' '),
       state: {
         active: 'bg-distac-primary-light focus:bg-default-light focus:ring-2 focus:ring-distac-primary focus:outline-none',
-        inactive: 'bg-default-light-terciary',
-        disabled: 'bg-default-light-tertiary text-gray-500 cursor-not-allowed opacity-75',
+        inactive: 'bg-default-light-muted',
+        disabled: 'bg-default-light-muted text-default-dark-light cursor-not-allowed opacity-75',
         enabled: 'hover:bg-opacity-80',
         error: 'border-2 border-distac-primary focus:ring-distac-primary',
         normal: '',
-        readOnly: 'bg-default-light-tertiary text-gray-600 cursor-text select-text',
+        readOnly: 'bg-default-light-muted text-default-dark-light cursor-text select-text',
       }
     },
     label: {
@@ -430,10 +430,16 @@ export function getHeadingThemeClasses({
   const t = theme.heading
   const levelClasses = t.levels[level] || t.levels[1]
 
+  // Se className contém classes de cor, não aplicar a cor padrão do tema
+  const hasColorClass = className.includes('text-')
+  const baseClasses = hasColorClass
+    ? t.base.replace('text-default-dark', '') // Remove cor padrão se há classe de cor customizada
+    : t.base
+
   return [
-    t.base,
+    baseClasses,
     levelClasses,
-    className
+    className // className por último para sobrescrever
   ].filter(Boolean).join(' ')
 }
 

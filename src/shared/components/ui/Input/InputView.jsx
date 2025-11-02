@@ -52,8 +52,16 @@ export function InputView({
 
   const handleInputChange = (event) => {
     if (onChange) {
+      // Suporta tanto onChange(value) quanto onChange(value, event)
       onChange(event.target.value, event)
     }
+  }
+
+  // Estilos inline para sobrescrever autofill
+  const autofillStyles = {
+    WebkitBoxShadow: '0 0 0 1000px rgb(254, 242, 242) inset !important',
+    WebkitTextFillColor: 'rgb(51, 51, 51) !important',
+    transition: 'background-color 5000s ease-in-out 0s',
   }
 
   return (
@@ -67,6 +75,7 @@ export function InputView({
       <div className="relative">
         <input
           className={inputClasses}
+          style={autofillStyles}
           type={actualType}
           id={inputId}
           name={inputName}

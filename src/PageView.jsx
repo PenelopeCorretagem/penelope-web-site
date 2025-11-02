@@ -47,7 +47,7 @@ export function PageView() {
       {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
 
       {/* Botões de teste */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.DEV && import.meta.env.MODE === 'development' && (
         <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 z-50 backdrop-blur-sm'>
           <div className='flex gap-2'>
             {!isAuthenticated ? (

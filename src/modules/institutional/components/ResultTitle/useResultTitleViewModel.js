@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { ResultTitleModel } from './ResultTitleModel'
-import { useSearchFilterViewModel } from '../SearchFilter/useSearchViewModel'
+import { useSearchFilterViewModel } from '@shared/components/ui/SearchFilter/useSearchViewModel'
 
 export function useResultTitleViewModel(results, externalFilters = null) {
 

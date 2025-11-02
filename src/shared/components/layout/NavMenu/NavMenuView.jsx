@@ -120,16 +120,22 @@ export function NavMenuView({
         {getSectionTitle(sectionName)}
       </HeadingView>
       {items.map(item => (
-        <a
+        <Link
           key={item.id}
-          href={item.disabled ? undefined : item.to}
-          onClick={item.disabled ? undefined : item.onClick}
+          to={item.disabled ? '#' : item.to}
+          onClick={(e) => {
+            if (item.disabled) {
+              e.preventDefault()
+              return
+            }
+            item.onClick?.()
+          }}
           className={viewModel.getFooterLinkClasses(item.disabled)}
         >
           <HeadingView level={6}>
             {item.text}
           </HeadingView>
-        </a>
+        </Link>
       ))}
     </div>
   )
@@ -172,7 +178,10 @@ export function NavMenuView({
       >
         {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
       </button>
-      <Link  to='/' className={`inline-block transform transition-transform duration-300 hover:scale-110`}>
+      <Link
+        to='/'
+        className={`inline-block transform transition-transform duration-300 hover:scale-110`}
+      >
         <LogoView height={'40'} className='text-distac-primary fill-current' />
       </Link>
 

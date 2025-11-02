@@ -63,6 +63,7 @@ export function ImageView({ src, alt = '', description, mode = 'auto', className
         src={src}
         alt={alt}
         className={getImageThemeClasses({ mode: 'image', className })}
+        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
       />
       {hasDescription && (
         <TextView className={getImageDescriptionThemeClasses()}>

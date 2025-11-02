@@ -1,14 +1,22 @@
 import { useState, useCallback } from 'react'
-import { X, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react'
+import { AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { TextView } from '@shared/components/ui/Text/TextView'
 
 // Mapeamento de ícones por tipo de alerta
 const alertIcons = {
-  warning: <AlertTriangle size={28} className="text-default-light" />,
-  info: <Info size={28} className="text-default-light" />,
-  error: <XCircle size={28} className="text-default-light" />,
-  success: <CheckCircle size={28} className="text-default-light" />,
+  warning: <AlertTriangle size={64} className="text-default-light" />,
+  info: <Info size={64} className="text-default-light" />,
+  error: <XCircle size={64} className="text-default-light" />,
+  success: <CheckCircle size={64} className="text-default-light" />,
+}
+
+const alertHeading = {
+  warning: 'Aviso',
+  info: 'Informação',
+  error: 'Erro',
+  success: 'Sucesso',
 }
 
 /**
@@ -29,6 +37,7 @@ export function useAlert(initialVisible = false) {
  */
 export function AlertView({
   isVisible = false,
+  hasCloseButton = true,
   type = 'info',
   message = '',
   children = null,
@@ -74,29 +83,35 @@ export function AlertView({
         `}
       >
         {/* Header: ícone + botão fechar */}
-        <div className="flex items-center justify-between w-full p-card-md md:p-card-md bg-distac-primary">
-          <div className="flex items-center">
-            {alertIcons[type] || alertIcons.info}
-          </div>
-          <ButtonView
-            width="fit"
-            variant="transparent"
-            onClick={handleClose}
-            className="p-0"
-            aria-label="Fechar"
-          >
-            <X size={28} />
-          </ButtonView>
+        <div className="flex items-center justify-center w-full p-card-md md:p-card-md bg-distac-primary">
+          {alertIcons[type] || alertIcons.info}
         </div>
 
         {/* Conteúdo: mensagem + children */}
-        <div className="flex flex-col justify-center items-center flex-1 w-full px-8 py-6 gap-4">
+        <div className="flex flex-col justify-center items-center flex-1 w-full p-card-md md:p-card-md gap-card md:gap-card-md">
           {message && (
-            <HeadingView level={3} className="text-center">
-              {message}
-            </HeadingView>
+            <>
+              <HeadingView level={3} className="text-center text-distac-primary">
+                {alertHeading[type] || alertHeading.info}
+              </HeadingView>
+              <TextView className="text-center">{message}</TextView>
+            </>
           )}
-          {children}
+          <div className="flex justify-between items-center w-full">
+            {children}
+            {hasCloseButton ? (
+              <ButtonView
+                type="button"
+                shape="square"
+                color="border-distac-primary"
+                onClick={handleClose}
+                aria-label="Fechar alerta"
+                width="fit"
+              >
+                Fechar
+              </ButtonView>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

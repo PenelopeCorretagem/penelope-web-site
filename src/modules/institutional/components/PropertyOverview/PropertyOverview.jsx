@@ -3,11 +3,13 @@ import { TextView } from '@shared/components/ui/Text/TextView.jsx'
 
 export function PropertyOverview({ overview }) {
   return (
-    <div className="md:w-4/5 min-h-[340px]">
-      <HeadingView level={3} className="mb-8 uppercase text-distac-primary">
+    <div className="">
+      <HeadingView level={2} className="mb-8 text-distac-primary">
         Sobre o Imóvel
       </HeadingView>
-      <TextView className="text-default-dark-muted leading-relaxed">{overview}</TextView>
+      <TextView className="text-default-dark-muted leading-relaxed">
+        {overview}
+      </TextView>
     </div>
   )
 }
