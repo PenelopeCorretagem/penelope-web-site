@@ -7,6 +7,7 @@ import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
   const [_forceUpdate, setForceUpdate] = useState(0)
   const { currentRoute } = useRouter()
 
@@ -33,6 +34,8 @@ export function PageView() {
 
     checkAuth()
 
+    setAuthReady(true)
+
     const onStorage = (event) => {
       if (event.key === 'jwtToken') {
         checkAuth()
@@ -51,9 +54,9 @@ export function PageView() {
 
   return (
     <div className='flex min-h-screen w-full flex-col'>
-      {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
-      <RouterView isAuthenticated={isAuthenticated} />
-      {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
+  {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
+  <RouterView isAuthenticated={isAuthenticated} authReady={authReady} />
+  {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
 
       {/* Botões de teste */}
       {import.meta.env.DEV && import.meta.env.MODE === 'development' && (

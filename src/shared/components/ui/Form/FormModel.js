@@ -89,12 +89,15 @@ export class FormModel {
       return emailRegex.test(value)
     }
 
-    // Validação customizada
+    // Validação customizada: aceita retornos boolean (true valid, false invalid)
+    // ou string (mensagem de erro). Em caso de string, considera inválido.
     if (field.validate && typeof field.validate === 'function') {
       try {
-        return field.validate(value, this.formData)
+        const res = field.validate(value, this.formData)
+        if (typeof res === 'string') return false
+        return Boolean(res)
       } catch (error) {
-        return error.message
+        return false
       }
     }
 
@@ -129,7 +132,9 @@ export class FormModel {
 
     if (field.validate && typeof field.validate === 'function') {
       try {
-        field.validate(value, this.formData)
+        const res = field.validate(value, this.formData)
+        if (typeof res === 'string') return res
+        if (!res) return field.errorMessage || 'Campo inválido'
       } catch (error) {
         return error.message
       }

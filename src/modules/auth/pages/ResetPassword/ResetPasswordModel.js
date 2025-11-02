@@ -39,6 +39,20 @@ export class ResetPasswordModel {
         placeholder: 'Nova senha:',
         required: true,
         showPasswordToggle: true,
+        // Mesma validação robusta do cadastro
+        validate: (value) => {
+          if (!value) return false
+          const rules = []
+          if (value.length < 8) rules.push('pelo menos 8 caracteres')
+          if (!/[A-Z]/.test(value)) rules.push('uma letra maiúscula')
+          if (!/[a-z]/.test(value)) rules.push('uma letra minúscula')
+          if (!/\d/.test(value)) rules.push('um número')
+          if (!/[!@#$%^&*(),.?"':{}|<>\[\]\\/`~\-_=+;]/.test(value)) rules.push('um caractere especial')
+          if (/\s/.test(value)) rules.push('sem espaços em branco')
+
+          if (rules.length === 0) return true
+          return `A senha deve conter ${rules.join(', ')}`
+        },
       },
       {
         name: 'confirmPassword',
@@ -46,6 +60,11 @@ export class ResetPasswordModel {
         placeholder: 'Confirmar senha:',
         required: true,
         showPasswordToggle: true,
+        validate: (value, formData) => {
+          if (!value) return false
+          if (value !== formData.newPassword) return 'As senhas não coincidem.'
+          return true
+        }
       }
     ]
   }
