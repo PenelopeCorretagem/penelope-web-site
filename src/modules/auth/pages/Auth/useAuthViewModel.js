@@ -89,7 +89,7 @@ export function useAuthViewModel() {
 
       setTimeout(() => {
         setAlertConfig(null)
-        navigate('/home')
+        navigate("/perfil")
       }, 2000)
     } catch (err) {
       console.error('Erro no login:', err)
