@@ -1,171 +1,147 @@
-import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { TextView } from '@shared/components/ui/Text/TextView'
-import { LabelView } from '@shared/components/ui/Label/LabelView'
+import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { memo } from 'react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { usePropertyCardViewModel } from './usePropertyCardViewModel'
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { usePropertiesCarouselViewModel } from '@domains/property/PropertiesCarousel/usePropertiesCarouselViewModel'
 
-export function PropertyCardView({
-  id,
-  category,
-  title,
-  subtitle,
-  description,
-  differences = [],
-  buttonState = 'simple',
-  hasLabel = true,
-  hasDifference = false,
-  hasButton = false,
-  hasShadow = false,
-  hasImage = false,
-  hasHoverEffect = false,
-  imageUrl,
-  onButtonClick,
-  className = '',
-}) {
+export const PropertiesCarouselView = memo(function PropertiesCarouselView({ properties = [], titleCarousel }) {
   const {
-    categoryLabel,
-    buttons,
-    formattedDifferences,
-    shouldRenderButtons,
-    shouldRenderImage,
-    shouldRenderLabel,
-    shouldRenderDifferences,
-    containerClasses,
-    cardClasses,
-    labelPosition,
-    buttonLayout,
-    handleButtonClick,
-    hasError,
-    model
-  } = usePropertyCardViewModel({
-    id,
-    category,
-    title,
-    subtitle,
-    description,
-    differences,
-    buttonState,
-    hasLabel,
-    hasButton,
-    hasShadow,
-    hasImage,
-    hasHoverEffect,
-    imageUrl,
-    onButtonClick,
-    className
-  })
+    containerRef,
+    scrollProgress,
+    isScrollable, // Novo estado
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    scrollToLeft,
+    scrollToRight,
+  } = usePropertiesCarouselViewModel(properties)
 
-  if (hasError) {
-    return (
-      <div className={`flex flex-col max-w-sm bg-default-light-alt p-card rounded-sm ${className}`}>
-        <TextView className="text-distac-primary">Erro ao carregar propriedade</TextView>
-      </div>
-    )
-  }
-
-  const renderButtons = () => {
-    if (!shouldRenderButtons) return null
-
-    if (buttonLayout === 'grid') {
-      const [gallery, floorplan, video] = buttons
-      return (
-        <div className="flex flex-col gap-3 w-full">
-          <div className="flex gap-2 w-full">
-            <ButtonView
-              variant={gallery.variant}
-              type={gallery.type}
-              onClick={() => handleButtonClick(gallery.action)}
-            >
-              {gallery.text}
-            </ButtonView>
-            <ButtonView
-              variant={floorplan.variant}
-              type={floorplan.type}
-              onClick={() => handleButtonClick(floorplan.action)}
-            >
-              {floorplan.text}
-            </ButtonView>
-          </div>
-          <ButtonView
-            variant={video.variant}
-            type={video.type}
-            onClick={() => handleButtonClick(video.action)}
-          >
-            {video.text}
-          </ButtonView>
-        </div>
-      )
-    }
-
-    if (buttonLayout === 'column') {
-      return (
-        <div className="flex flex-col gap-3 w-full">
-          {buttons.map((button, index) => (
-            <ButtonView
-              key={`button-${index}`}
-              variant={button.variant}
-              type={button.type}
-              onClick={() => handleButtonClick(button.action)}
-            >
-              {button.text}
-            </ButtonView>
-          ))}
-        </div>
-      )
-    }
-
-    return buttons.map((button, index) => (
-      <ButtonView
-        key={`button-${index}`}
-        variant={button.variant}
-        type={button.type}
-        onClick={() => handleButtonClick(button.action)}
-        className="mt-auto"
-      >
-        {button.text}
-      </ButtonView>
-    ))
+  if (properties.length === 0) {
+    return null
   }
 
   return (
-    <div className={`${containerClasses} ${className}`}>
-      {shouldRenderImage && (
-        <div
-          className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'
-          style={{ backgroundImage: `url(${model.imageUrl})` }}
-          role="img"
-          aria-label={`Imagem do imóvel ${model.title}`}
-        />
-      )}
+    <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
+      <div className='flex flex-row justify-between items-start'>
+        <HeadingView level={2} className="text-center text-distac-primary">
+          {titleCarousel}
+        </HeadingView>
 
-      <div className={cardClasses}>
-        {shouldRenderLabel && (
-          <LabelView model={categoryLabel} className={labelPosition} />
-        )}
+        <ButtonView
+          variant="brown"
+          size="medium"
+          type="link"
+          to='/imoveis'
+          width='fit'
+          aria-label="Ver mais propriedades"
+        >
+          Ver Mais
+        </ButtonView>
+      </div>
 
-        <div className='flex flex-col gap-2 w-full pt-2 md:pt-3'>
-          <HeadingView level={4} className="text-default-dark">
-            {model.title}
-          </HeadingView>
-          <HeadingView level={5} className={`text-distac-primary`}>
-            {model.subtitle}
-          </HeadingView>
-        </div>
+      <div className="relative">
+        {/* Botões de navegação - apenas se houver scroll */}
+        {isScrollable && (
+          <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
+            <ButtonView
+              color="brown"
+              type="button"
+              width='fit'
+              onClick={scrollToLeft}
+              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              aria-label="Slide anterior"
+            >
+              <ChevronLeft size={24} />
+            </ButtonView>
 
-        <TextView className='uppercase text-default-dark'>
-          {model.description}
-        </TextView>
-
-        {hasDifference && shouldRenderDifferences && (
-          <div className='gap-card md:gap-card-md grid w-full grid-cols-3'>
-            {formattedDifferences.map((labelModel, index) => (
-              <LabelView key={`difference-${index}`} model={labelModel} />
-            ))}
+            <ButtonView
+              color="brown"
+              type="button"
+              width='fit'
+              onClick={scrollToRight}
+              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              aria-label="Próximo slide"
+            >
+              <ChevronRight size={24} />
+            </ButtonView>
           </div>
         )}
 
-        {renderButtons()}
+        <div
+          ref={containerRef}
+          className="flex overflow-x-auto cursor-grab select-none mx-4
+                   scrollbar-hide touch-pan-x
+                   active:cursor-grabbing
+                   [&:not(:active)]:scroll-smooth
+                   [&_.flex-shrink-0>*]:transition-transform
+                   [&_.flex-shrink-0>*]:duration-300
+                   [&_.flex-shrink-0>*]:ease-out
+                   [&_.flex-shrink-0>*]:will-change-transform
+                   [&_.flex-shrink-0:hover>*]:scale-105
+                   [&_.flex-shrink-0:hover>*]:relative
+                   [&_.flex-shrink-0:hover>*]:z-1"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+            WebkitTapHighlightColor: 'transparent',
+            tapHighlightColor: 'transparent'
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          role="region"
+          aria-label="Carrossel de propriedades"
+          tabIndex={0}
+        >
+          {properties.map((property, index) => (
+            <div
+              key={`${property.id || index}-${property.title}`}
+              className="flex-shrink-0 w-[342px] p-4"
+            >
+              <PropertyCardView
+                id={property.id || index + 1}
+                hasLabel={true}
+                category={property.category}
+                title={property.title}
+                subtitle={property.subtitle}
+                description={property.description}
+                hasDifference={true}
+                differences={property.differences}
+                hasButton={true}
+                hasShadow={true}
+                hasImage={true}
+                hasHoverEffect={true}
+                imageUrl={property.imageLink}
+              />
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Barra de progresso - apenas se houver scroll */}
+      {isScrollable && (
+        <div className="w-full">
+          <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: `${scrollProgress}%`,
+                transform: `translateX(0%)`,
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
-}
+})
