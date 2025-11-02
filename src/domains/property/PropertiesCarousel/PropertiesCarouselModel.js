@@ -1,180 +1,241 @@
-export const PROPERTY_CARD_CATEGORIES = {
-  LANCAMENTO: 'LANÇAMENTO',
-  DISPONIVEL: 'CONCLUÍDOS',
-  EM_OBRAS: 'EM OBRAS',
-}
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  PropertyCardModel,
+  PROPERTY_CARD_CATEGORY_CONFIG,
+  BUTTON_STATE_CONFIG,
+  BUTTON_STATES
+} from './PropertyCardModel'
+import { LabelModel } from '@shared/components/ui/Label/LabelModel'
+import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
+import { RouterModel } from '@app/routes/RouterModel'
 
-export const PROPERTY_CARD_CATEGORY_CONFIG = {
-  [PROPERTY_CARD_CATEGORIES.LANCAMENTO]: {
-    label: 'Lançamento',
-    variant: 'pink',
-    priority: 1
-  },
-  [PROPERTY_CARD_CATEGORIES.DISPONIVEL]: {
-    label: 'Concluído',
-    variant: 'brown',
-    priority: 2
-  },
-  [PROPERTY_CARD_CATEGORIES.EM_OBRAS]: {
-    label: 'Em Obras',
-    variant: 'softBrown',
-    priority: 3
-  }
-}
-
-export const BUTTON_STATES = {
-  CONTATO: 'contato',
-  GERAL: 'geral',
-  SIMPLE: 'simple'
-}
-
-export const BUTTON_STATE_CONFIG = {
-  [BUTTON_STATES.CONTATO]: {
-    buttons: [
-      { text: 'Conversar pelo WhatsApp', action: 'whatsapp', variant: 'primary' },
-      { text: 'Agendar Visita', action: 'visit', variant: 'brown' }
-    ]
-  },
-  [BUTTON_STATES.GERAL]: {
-    buttons: [
-      { text: 'Ver Galeria', action: 'gallery', variant: 'primary' },
-      { text: 'Ver Planta', action: 'floorplan', variant: 'primary' },
-      { text: 'Assistir Vídeo', action: 'video', variant: 'primary', fullWidth: true }
-    ]
-  },
-  [BUTTON_STATES.SIMPLE]: {
-    buttons: [
-      { text: 'SABER MAIS', action: 'default', variant: 'primary' }
-    ]
-  }
-}
-
-export class PropertyCardModel {
-  constructor({
-    id,
-    category,
-    title,
-    subtitle,
-    description,
-    differences = [],
-    buttonState = 'simple',
-    hasLabel = true,
-    hasButton = false,
-    hasShadow = false,
-    hasImage = false,
-    hasHoverEffect = false,
-    imageUrl = ''
-  }) {
-    this.validateInputs(category, title, subtitle, description)
-
-    this.id = id || 1 // Default ID for backward compatibility
-    this.category = this.normalizeCategory(category)
-    this.title = String(title).trim()
-    this.subtitle = String(subtitle).trim()
-    this.description = String(description).trim()
-    this.differences = this.validateDifferences(differences)
-    this.buttonState = this.normalizeButtonState(buttonState)
-    this.hasLabel = Boolean(hasLabel)
-    this.hasButton = Boolean(hasButton)
-    this.hasShadow = Boolean(hasShadow)
-    this.hasImage = Boolean(hasImage)
-    this.hasHoverEffect = Boolean(hasHoverEffect)
-    this.imageUrl = String(imageUrl).trim()
+/**
+ * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard
+ * Centraliza a lógica de negócio e comportamento
+ */
+class PropertyCardViewModel {
+  constructor(model, navigate) {
+    this.model = model
+    this._categoryLabel = null
+    this._buttons = null
+    this._differenceLabels = null
+    this.router = RouterModel.getInstance()
+    this.navigate = navigate
   }
 
-  validateInputs(category, title, subtitle, description) {
-    if (!category) throw new Error('Category é obrigatório')
-    if (!title) throw new Error('Title é obrigatório')
-    if (!subtitle) throw new Error('Subtitle é obrigatório')
-    if (!description) throw new Error('Description é obrigatório')
-  }
-
-  normalizeCategory(category) {
-    const categoryMap = {
-      'lancamento': PROPERTY_CARD_CATEGORIES.LANCAMENTO,
-      'lançamento': PROPERTY_CARD_CATEGORIES.LANCAMENTO,
-      'disponivel': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'disponível': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'concluido': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'concluído': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'concluidos': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'concluídos': PROPERTY_CARD_CATEGORIES.DISPONIVEL,
-      'em_obras': PROPERTY_CARD_CATEGORIES.EM_OBRAS,
-      'em obras': PROPERTY_CARD_CATEGORIES.EM_OBRAS,
-      'obras': PROPERTY_CARD_CATEGORIES.EM_OBRAS
+  get categoryLabel() {
+    if (!this._categoryLabel) {
+      const config = PROPERTY_CARD_CATEGORY_CONFIG[this.model.category]
+      this._categoryLabel = new LabelModel(config.label, config.variant, 'medium')
     }
+    return this._categoryLabel
+  }
 
-    const normalizedInput = String(category).toLowerCase().trim()
-    const mappedCategory = categoryMap[normalizedInput]
+  get buttons() {
+    if (!this._buttons) {
+      const config = BUTTON_STATE_CONFIG[this.model.buttonState]
+      const categoryConfig = PROPERTY_CARD_CATEGORY_CONFIG[this.model.category]
 
-    if (mappedCategory) {
-      return mappedCategory
+      this._buttons = config.buttons.map(buttonConfig => {
+        const variant = buttonConfig.variant === 'primary'
+          ? categoryConfig.variant
+          : buttonConfig.variant
+
+        return new ButtonModel(buttonConfig.text, variant, 'button', {
+          action: buttonConfig.action,
+          fullWidth: buttonConfig.fullWidth || false
+        })
+      })
     }
+    return this._buttons
+  }
 
-    // Try direct match with constants
-    const directMatch = Object.values(PROPERTY_CARD_CATEGORIES).find(
-      cat => cat.toLowerCase() === normalizedInput
-    )
-
-    if (directMatch) {
-      return directMatch
+  get formattedDifferences() {
+    if (!this._differenceLabels) {
+      this._differenceLabels = this.model.differences.map(diff =>
+        new LabelModel(diff, 'gray', 'small')
+      )
     }
-
-    throw new Error(`Categoria inválida: ${category}. Categorias válidas: lancamento, disponivel, em_obras`)
-  }
-
-  normalizeButtonState(buttonState) {
-    const stateMap = {
-      'contato': BUTTON_STATES.CONTATO,
-      'geral': BUTTON_STATES.GERAL,
-      'simple': BUTTON_STATES.SIMPLE,
-      'simples': BUTTON_STATES.SIMPLE
-    }
-
-    const normalizedInput = String(buttonState).toLowerCase().trim()
-    const mappedState = stateMap[normalizedInput]
-
-    if (mappedState) {
-      return mappedState
-    }
-
-    // Try direct match with constants
-    const directMatch = Object.values(BUTTON_STATES).find(
-      state => state.toLowerCase() === normalizedInput
-    )
-
-    return directMatch || BUTTON_STATES.SIMPLE
-  }
-
-  validateButtonState(buttonState) {
-    return this.normalizeButtonState(buttonState)
-  }
-
-  validateDifferences(differences) {
-    if (!Array.isArray(differences)) {
-      throw new Error('Differences deve ser um array')
-    }
-
-    return differences
-      .filter(diff => diff && String(diff).trim())
-      .map(diff => String(diff).trim())
-  }
-
-  get isValid() {
-    return this.title.trim().length > 0 &&
-           this.subtitle.trim().length > 0 &&
-           this.description.trim().length > 0
-  }
-
-  get hasValidImage() {
-    return this.hasImage && this.imageUrl.trim().length > 0
-  }
-
-  get hasValidCategory() {
-    return Object.values(PROPERTY_CARD_CATEGORIES).includes(this.category)
+    return this._differenceLabels
   }
 
   get hasDifferences() {
-    return this.differences.length > 0
+    return this.model.hasDifferences
+  }
+
+  get hasValidImage() {
+    return this.model.hasValidImage
+  }
+
+  get labelPosition() {
+    return this.model.hasImage
+      ? 'absolute top-0 -translate-y-1/2 left-[1.5rem]'
+      : ''
+  }
+
+  get containerClasses() {
+    const baseClasses = ['flex', 'flex-col', 'max-w-sm']
+
+    if (this.model.hasHoverEffect) {
+      baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
+    }
+
+    return baseClasses.join(' ')
+  }
+
+  get cardClasses() {
+    const baseClasses = [
+      'bg-default-light', 'p-card', 'md:p-card-md', 'gap-card', 'md:gap-card-md',
+      'flex', 'w-full', 'flex-col', 'items-start', 'relative'
+    ]
+
+    if (this.model.hasImage) {
+      baseClasses.push('rounded-b-sm')
+    } else {
+      baseClasses.push('rounded-sm')
+    }
+
+    if (this.model.hasShadow) {
+      baseClasses.push('drop-shadow-md')
+    }
+
+    return baseClasses.join(' ')
+  }
+
+  get shouldRenderButtons() {
+    return this.model.hasButton && this.buttons.length > 0
+  }
+
+  get shouldRenderImage() {
+    return this.model.hasImage && this.hasValidImage
+  }
+
+  get shouldRenderLabel() {
+    return this.model.hasLabel && this.categoryLabel
+  }
+
+  get shouldRenderDifferences() {
+    return this.hasDifferences
+  }
+
+  getButtonLayoutForState(buttonState) {
+    switch (buttonState) {
+      case BUTTON_STATES.GERAL:
+        return 'grid'
+      case BUTTON_STATES.CONTATO:
+        return 'column'
+      default:
+        return 'single'
+    }
+  }
+
+  handleButtonClick(action, onButtonClick) {
+    if (typeof onButtonClick === 'function') {
+      onButtonClick({
+        action,
+        category: this.model.category,
+        title: this.model.title,
+        subtitle: this.model.subtitle,
+        buttonState: this.model.buttonState
+      })
+    }
+
+    this._executeDefaultAction(action)
+  }
+
+  _executeDefaultAction(action) {
+    console.log('Executing action:', action)
+    const actions = {
+      whatsapp: () => console.log('Iniciando contato via WhatsApp'),
+      visit: () => console.log('Agendando visita'),
+      gallery: () => console.log('Visualizando galeria'),
+      floorplan: () => console.log('Visualizando planta'),
+      video: () => console.log('Assistindo vídeo'),
+      default: () => {
+        console.log('Navigating to property detail')
+        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: 1 })
+        console.log('Generated route:', route)
+        console.log('Navigate function:', this.navigate)
+        if (this.navigate) {
+          console.log('Using navigate')
+          this.navigate(route)
+        } else {
+          console.log('Using window.location')
+          window.location.href = route
+        }
+      }
+    }
+
+    const actionHandler = actions[action] || actions.default
+    actionHandler()
   }
 }
+
+export function usePropertyCardViewModel(props) {
+  const navigate = useNavigate()
+
+  const [viewModel, setViewModel] = useState(() => {
+    try {
+      const model = new PropertyCardModel(props)
+      return new PropertyCardViewModel(model, null)
+    } catch (error) {
+      console.error('Erro ao criar PropertyCardModel:', error)
+      return null
+    }
+  })
+
+  // Atualiza o navigate no viewModel após a criação
+  if (viewModel && !viewModel.navigate) {
+    viewModel.navigate = navigate
+  }
+
+  const handleButtonClick = useCallback((action) => {
+    if (!viewModel) return
+    console.log('Button clicked with action:', action)
+    viewModel.handleButtonClick(action, props.onButtonClick)
+  }, [viewModel, props.onButtonClick, navigate])
+
+  if (!viewModel) {
+    return {
+      categoryLabel: null,
+      buttons: [],
+      formattedDifferences: [],
+      hasDifferences: false,
+      hasValidImage: false,
+      labelPosition: '',
+      containerClasses: 'flex flex-col max-w-sm',
+      cardClasses: 'bg-default-light p-card rounded-sm',
+      shouldRenderButtons: false,
+      shouldRenderImage: false,
+      shouldRenderLabel: false,
+      shouldRenderDifferences: false,
+      buttonLayout: 'single',
+      handleButtonClick: () => {},
+      hasError: true,
+      model: null
+    }
+  }
+
+  return {
+    categoryLabel: viewModel.categoryLabel,
+    buttons: viewModel.buttons,
+    formattedDifferences: viewModel.formattedDifferences,
+    hasDifferences: viewModel.hasDifferences,
+    hasValidImage: viewModel.hasValidImage,
+    labelPosition: viewModel.labelPosition,
+    containerClasses: viewModel.containerClasses,
+    cardClasses: viewModel.cardClasses,
+    shouldRenderButtons: viewModel.shouldRenderButtons,
+    shouldRenderImage: viewModel.shouldRenderImage,
+    shouldRenderLabel: viewModel.shouldRenderLabel,
+    shouldRenderDifferences: viewModel.shouldRenderDifferences,
+    buttonLayout: viewModel.getButtonLayoutForState(viewModel.model.buttonState),
+    handleButtonClick,
+    hasError: false,
+    model: viewModel.model,
+    setViewModel
+  }
+}
+
+export { PropertyCardViewModel }
