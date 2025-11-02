@@ -233,65 +233,71 @@ export function usePropertiesCarouselViewModel(properties = []) {
     container.scrollTo({ left: cardLeft, behavior: 'smooth' })
   }, [])  // Handlers de drag - versão melhorada
   const handleMouseDown = useCallback((e) => {
+    // Ignora se clicou em um botão ou link
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return
+    }
+
     if (!containerRef.current) return
 
     setIsDragging(true)
     setStartX(e.pageX)
     setScrollLeft(containerRef.current.scrollLeft)
-    setDragDistance(0) // Reset da distância de arraste
+    setDragDistance(0)
 
-    // Adiciona classes CSS para indicar que está arrastando
     containerRef.current.style.cursor = 'grabbing'
     containerRef.current.style.scrollBehavior = 'auto'
-
-    // Previne seleção de texto durante o arraste
-    e.preventDefault()
   }, [])
 
   const handleMouseMove = useCallback((e) => {
     if (!isDragging || !containerRef.current) return
 
-    e.preventDefault()
-
-    // Calcula o quanto foi arrastado
     const x = e.pageX
-    const walk = (x - startX) * 1.5 // Multiplicador para sensibilidade
-    const currentDragDistance = Math.abs(x - startX)
+    const distance = Math.abs(x - startX)
 
-    setDragDistance(currentDragDistance)
-
-    // Aplica o scroll de forma suave
-    containerRef.current.scrollLeft = scrollLeft - walk
+    // Só começa a arrastar se moveu mais de 5px
+    if (distance > 5) {
+      e.preventDefault()
+      const walk = (x - startX) * 1.5
+      setDragDistance(distance)
+      containerRef.current.scrollLeft = scrollLeft - walk
+    }
   }, [isDragging, startX, scrollLeft])
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e) => {
     if (!containerRef.current) return
 
-    setIsDragging(false)
+    // Se arrastou menos de 5px, considera como clique
+    if (dragDistance < 5) {
+      setIsDragging(false)
+      setDragDistance(0)
+      containerRef.current.style.cursor = 'grab'
+      containerRef.current.style.scrollBehavior = 'smooth'
+      return
+    }
 
-    // Restaura o cursor e comportamento normal
+    setIsDragging(false)
     containerRef.current.style.cursor = 'grab'
     containerRef.current.style.scrollBehavior = 'smooth'
-
-    // Reset da distância após um pequeno delay para permitir que outros handlers vejam o valor
     setTimeout(() => setDragDistance(0), 100)
-  }, [])
+  }, [dragDistance])
 
   const handleMouseLeave = useCallback(() => {
     if (!containerRef.current) return
 
     setIsDragging(false)
-
-    // Restaura o cursor e comportamento normal
     containerRef.current.style.cursor = 'grab'
     containerRef.current.style.scrollBehavior = 'smooth'
-
-    // Reset da distância
     setTimeout(() => setDragDistance(0), 100)
   }, [])
 
   // Touch handlers para mobile - versão melhorada
   const handleTouchStart = useCallback((e) => {
+    // Ignora se tocou em um botão ou link
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return
+    }
+
     if (!containerRef.current) return
 
     const touch = e.touches[0]
@@ -300,7 +306,6 @@ export function usePropertiesCarouselViewModel(properties = []) {
     setScrollLeft(containerRef.current.scrollLeft)
     setDragDistance(0)
 
-    // Desabilita o scroll behavior para o touch
     containerRef.current.style.scrollBehavior = 'auto'
   }, [])
 
@@ -309,25 +314,22 @@ export function usePropertiesCarouselViewModel(properties = []) {
 
     const touch = e.touches[0]
     const x = touch.pageX
-    const walk = (x - startX) * 1.2 // Sensibilidade para touch
-    const currentDragDistance = Math.abs(x - startX)
+    const distance = Math.abs(x - startX)
 
-    setDragDistance(currentDragDistance)
-    containerRef.current.scrollLeft = scrollLeft - walk
-
-    // Previne o scroll da página durante o arraste horizontal
-    e.preventDefault()
+    // Só começa a arrastar se moveu mais de 5px
+    if (distance > 5) {
+      const walk = (x - startX) * 1.2
+      setDragDistance(distance)
+      containerRef.current.scrollLeft = scrollLeft - walk
+      e.preventDefault()
+    }
   }, [isDragging, startX, scrollLeft])
 
   const handleTouchEnd = useCallback(() => {
     if (!containerRef.current) return
 
     setIsDragging(false)
-
-    // Restaura o comportamento suave do scroll
     containerRef.current.style.scrollBehavior = 'smooth'
-
-    // Reset da distância
     setTimeout(() => setDragDistance(0), 100)
   }, [])
 
