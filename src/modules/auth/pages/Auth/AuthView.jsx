@@ -103,6 +103,7 @@ export function AuthView() {
         type={alertConfig?.type}
         message={alertConfig?.message}
         onClose={alertConfig?.onClose || handleCloseAlert}
+        buttonsLayout='col'
       >
         <AlertContent
           alertConfig={alertConfig}
