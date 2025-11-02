@@ -78,20 +78,13 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
                    scrollbar-hide touch-pan-x
                    active:cursor-grabbing
                    [&:not(:active)]:scroll-smooth
-                   [&:active_*]:pointer-events-none
-                   [&_button]:pointer-events-auto
-                   [&_a]:pointer-events-auto
-                   [&_[role='button']]:pointer-events-auto
-                   [&:not(:active)_.flex-shrink-0]:pointer-events-auto
                    [&_.flex-shrink-0>*]:transition-transform
                    [&_.flex-shrink-0>*]:duration-300
                    [&_.flex-shrink-0>*]:ease-out
                    [&_.flex-shrink-0>*]:will-change-transform
                    [&_.flex-shrink-0:hover>*]:scale-105
                    [&_.flex-shrink-0:hover>*]:relative
-                   [&_.flex-shrink-0:hover>*]:z-1
-                   [&:active_.flex-shrink-0>*]:transition-none
-                   [&:active_.flex-shrink-0>*]:transform-none"
+                   [&_.flex-shrink-0:hover>*]:z-1"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -116,6 +109,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
               className="flex-shrink-0 w-[342px] p-4"
             >
               <PropertyCardView
+                id={property.id || index + 1}
                 hasLabel={true}
                 category={property.category}
                 title={property.title}

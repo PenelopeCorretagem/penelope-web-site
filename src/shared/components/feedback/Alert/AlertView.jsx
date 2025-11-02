@@ -43,6 +43,7 @@ export function AlertView({
   children = null,
   onClose = () => {},
   className = '',
+  buttonsLayout = 'row', // 'row' ou 'col'
 }) {
   const handleClose = useCallback(() => {
     onClose()
@@ -97,9 +98,12 @@ export function AlertView({
               <TextView className="text-center">{message}</TextView>
             </>
           )}
-          <div className="flex justify-between items-center w-full">
-            {children}
-            {hasCloseButton ? (
+          <div className={`flex items-center gap-card md:gap-card-md w-full ${
+            buttonsLayout === 'row' ? 'justify-between' : 'flex-col justify-center'
+          }`}
+          >
+            {children && <div className={buttonsLayout === 'row' ? '' : 'text-center w-full'}>{children}</div>}
+            {hasCloseButton && (
               <ButtonView
                 type="button"
                 shape="square"
@@ -110,7 +114,7 @@ export function AlertView({
               >
                 Fechar
               </ButtonView>
-            ) : null}
+            )}
           </div>
         </div>
       </div>

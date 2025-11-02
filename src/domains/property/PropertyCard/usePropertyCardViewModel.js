@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   PropertyCardModel,
   PROPERTY_CARD_CATEGORY_CONFIG,
@@ -7,17 +8,20 @@ import {
 } from './PropertyCardModel'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
+import { RouterModel } from '@app/routes/RouterModel'
 
 /**
  * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard
  * Centraliza a lógica de negócio e comportamento
  */
 class PropertyCardViewModel {
-  constructor(model) {
+  constructor(model, navigate) {
     this.model = model
     this._categoryLabel = null
     this._buttons = null
     this._differenceLabels = null
+    this.router = RouterModel.getInstance()
+    this.navigate = navigate
   }
 
   get categoryLabel() {
@@ -141,13 +145,26 @@ class PropertyCardViewModel {
   }
 
   _executeDefaultAction(action) {
+    console.log('Executing action:', action)
     const actions = {
       whatsapp: () => console.log('Iniciando contato via WhatsApp'),
       visit: () => console.log('Agendando visita'),
       gallery: () => console.log('Visualizando galeria'),
       floorplan: () => console.log('Visualizando planta'),
       video: () => console.log('Assistindo vídeo'),
-      default: () => console.log('Ação padrão do card')
+      default: () => {
+        console.log('Navigating to property detail')
+        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: 1 })
+        console.log('Generated route:', route)
+        console.log('Navigate function:', this.navigate)
+        if (this.navigate) {
+          console.log('Using navigate')
+          this.navigate(route)
+        } else {
+          console.log('Using window.location')
+          window.location.href = route
+        }
+      }
     }
 
     const actionHandler = actions[action] || actions.default
@@ -156,20 +173,28 @@ class PropertyCardViewModel {
 }
 
 export function usePropertyCardViewModel(props) {
+  const navigate = useNavigate()
+
   const [viewModel, setViewModel] = useState(() => {
     try {
       const model = new PropertyCardModel(props)
-      return new PropertyCardViewModel(model)
+      return new PropertyCardViewModel(model, null)
     } catch (error) {
       console.error('Erro ao criar PropertyCardModel:', error)
       return null
     }
   })
 
+  // Atualiza o navigate no viewModel após a criação
+  if (viewModel && !viewModel.navigate) {
+    viewModel.navigate = navigate
+  }
+
   const handleButtonClick = useCallback((action) => {
     if (!viewModel) return
+    console.log('Button clicked with action:', action)
     viewModel.handleButtonClick(action, props.onButtonClick)
-  }, [viewModel, props.onButtonClick])
+  }, [viewModel, props.onButtonClick, navigate])
 
   if (!viewModel) {
     return {

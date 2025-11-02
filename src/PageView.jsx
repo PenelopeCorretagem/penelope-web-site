@@ -4,6 +4,8 @@ import { RouterView } from '@routes/RouterView'
 import { useRouter } from '@routes/useRouterViewModel'
 import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { TextView } from '@shared/components/ui/Text/TextView'
+import { getAuthLinkContainerThemeClasses, getAuthLinkButtonThemeClasses } from '@shared/styles/theme'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -87,15 +89,13 @@ export function PageView() {
         isVisible={showFeedback}
         message="Este é um feedback flutuante de exemplo!"
         onClose={() => setShowFeedback(false)}
+        buttonsLayout='col'
       >
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => setShowFeedback(false)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            OK, Entendi
+        <TextView className={getAuthLinkContainerThemeClasses()}>
+          <button className={getAuthLinkButtonThemeClasses()}>
+            Recuperar senha
           </button>
-        </div>
+        </TextView>
       </AlertView>
     </div>
   )

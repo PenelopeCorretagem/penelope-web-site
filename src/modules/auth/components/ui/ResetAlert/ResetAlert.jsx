@@ -7,6 +7,7 @@ export function ResetAlert({ alertConfig, onClose }) {
       type={alertConfig?.type}
       message={alertConfig?.message}
       onClose={alertConfig?.onClose || onClose}
+      buttonsLayout='col'
     >
       {alertConfig?.children}
     </AlertView>

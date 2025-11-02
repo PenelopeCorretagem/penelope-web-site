@@ -1,6 +1,6 @@
 # 🏢 Corretora Penelope - Frontend
 
-Sistema de gerenciamento de anúncios de imóveis e agendamento de visitas com React 19 + Tailwind CSS v4 + Vite. **Arquitetura MVVM frontend** separando funcionalidades por domínio de negócio (autenticação, institucional, compartilhado e gerenciamento).
+Sistema de gerenciamento de anúncios de imóveis e agendamento de visitas com React 19 + Tailwind CSS v4 + Vite. **Arquitetura MVVM** para componentes reutilizáveis.
 
 ## 🚀 Tecnologias
 
@@ -9,9 +9,8 @@ Sistema de gerenciamento de anúncios de imóveis e agendamento de visitas com R
 - **Vite 7.1.2** - Build tool e servidor de desenvolvimento ultra-rápido
 - **ESLint 9** - Linter com configuração flat config para qualidade de código
 - **Prettier 3** - Formatador de código com plugin Tailwind
-- **Arquitetura MVVM** - Model-View-ViewModel para frontend React
 
-## 🏗️ Arquitetura MVVM do Projeto
+## 🏗️ Estrutura do Projeto
 
 ```
 penelope-web-site/
@@ -21,58 +20,47 @@ penelope-web-site/
 ├── node_modules/               # 📦 Dependências
 ├── public/                     # 🌐 Assets estáticos
 └── src/
-    ├── management/                 # 🏠 Área Privada Pós-Login (Clientes + Corretores)
-    │   ├── 📁 assets/              #     Assets específicos
-    │   ├── 📊 model/               #     Models do management (User, Property, etc.)
-    │   │   ├── 🧩 components/      #     Componentes específicos do management model
-    │   │   └── 📄 pages/           #     Pages relacionadas ao management model
-    │   ├── 🔧 service/             #     Serviços e APIs do management
-    │   ├── 👁️ view/                #     Views e layouts do management
-    │   │   ├── 🧩 components/      #     Componentes do management
-    │   │   └── 📄 pages/           #     Pages do management
-    │   └── 🎯 viewmodel/           #     ViewModels do management
-    │       ├── 🧩 components/      #     Componentes específicos do management viewmodel
-    │       └── 📄 pages/           #     Pages relacionadas ao management viewmodel
-    ├── auth/                   # 🔐 Módulo de Autenticação (MVVM)
-    │   ├── 📁 assets/          #     Assets específicos de auth
-    │   ├── 📊 model/           #     Models de usuário, login, etc.
-    │   │   ├── 🧩 components/  #     Componentes específicos do auth model
-    │   │   └── 📄 pages/       #     Pages relacionadas ao auth model
-    │   ├── 🔧 service/         #     APIs de autenticação
-    │   ├── 👁️ view/            #     Views de autenticação
-    │   │   ├── 🧩 components/  #     Componentes de view (LoginForm, etc.)
-    │   │   └── 📄 pages/       #     Pages de view (Login, Cadastro, etc.)
-    │   └── 🎯 viewmodel/       #     ViewModels de auth (lógica de login)
-    │       ├── 🧩 components/  #     Componentes específicos do auth viewmodel
-    │       └── 📄 pages/       #     Pages relacionadas ao auth viewmodel
-    ├── institutional/          # 🏛️ Módulo Institucional (MVVM)
-    │   ├── 📁 assets/          #     Assets específicos institucionais
-    │   ├── 📊 model/           #     Models institucionais (empresa, etc.)
-    │   │   ├── 🧩 components/  #     Componentes específicos do institutional model
-    │   │   └── 📄 pages/       #     Pages relacionadas ao institutional model
-    │   ├── 🔧 service/         #     APIs institucionais
-    │   ├── 👁️ view/            #     Views institucionais
-    │   │   ├── 🧩 components/  #     Componentes institucionais
-    │   │   └── 📄 pages/       #     Pages (Home, Sobre, Contato, etc.)
-    │   └── 🎯 viewmodel/       #     ViewModels institucionais
-    │       ├── 🧩 components/  #     Componentes específicos do institutional viewmodel
-    │       └── 📄 pages/       #     Pages relacionadas ao institutional viewmodel
-    ├── shared/                 # 🔧 Recursos compartilhados (MVVM)
-    │   ├── 📁 assets/          #     Assets globais
-    │   ├── 📊 model/           #     Models compartilhados
-    │   │   ├── 🧩 components/  #     Componentes específicos do shared model
-    │   │   └── 📄 pages/       #     Pages relacionadas ao shared model
-    │   ├── 🔧 service/         #     APIs e serviços globais
-    │   ├── 👁️ view/            #     Views e layouts globais
-    │   │   ├── 🧩 components/  #     Componentes reutilizáveis globais
-    │   │   └── 📄 pages/       #     Pages compartilhadas (404, etc.)
-    │   ├── 🎯 viewmodel/       #     ViewModels compartilhados
-    │   │   ├── 🧩 components/  #     Componentes específicos do shared viewmodel
-    │   │   └── 📄 pages/       #     Pages relacionadas ao shared viewmodel
-    │   └── utils/              #     Funções auxiliares
-    ├── App.jsx                 # ⚛️ Componente raiz
-    ├── index.css               # 🎨 Configuração base Tailwind
-    └── main.jsx                # 🚀 Entry point da aplicação
+    ├── modules/                    # 📁 Módulos da aplicação
+    │   ├── auth/                   # 🔐 Módulo de Autenticação
+    │   │   ├── components/         #     Componentes de autenticação
+    │   │   └── pages/              #     Páginas (Login, Cadastro, etc.)
+    │   ├── institutional/          # 🏛️ Módulo Institucional
+    │   │   ├── components/         #     Componentes institucionais
+    │   │   └── pages/              #     Páginas (Home, Sobre, Contato, etc.)
+    │   └── management/             # 🏠 Área Privada (Clientes + Corretores)
+    │       ├── components/         #     Componentes do painel
+    │       │   └── ui/             #     Componentes de UI específicos
+    │       │       └── ManagementMenu/  # Menu de gerenciamento
+    │       └── pages/              #     Páginas do painel
+    │           └── Profile/        #     Perfil do usuário
+    │               └── ProfileView.jsx
+    └── shared/                     # 🔧 Recursos compartilhados
+        ├── assets/                 #     Assets globais (imagens, ícones, etc.)
+        ├── components/             #     Componentes reutilizáveis
+        │   ├── feedback/           #     Componentes de feedback (erros, etc.)
+        │   │   └── ErrorDisplay/
+        │   ├── layout/             #     Componentes de layout (Section, etc.)
+        │   │   └── Section/
+        │   └── ui/                 #     Componentes de UI (MVVM)
+        │       ├── Button/         #     Botões
+        │       │   └── ButtonView.jsx
+        │       ├── Heading/        #     Títulos
+        │       │   └── HeadingView.jsx
+        │       ├── Input/          #     Campos de entrada (MVVM)
+        │       │   ├── InputModel.js           # 📊 Model
+        │       │   ├── InputView.jsx           # 👁️ View
+        │       │   └── useInputViewModel.js    # 🎯 ViewModel
+        │       ├── ManagementForm/ #     Formulários de gerenciamento (MVVM)
+        │       │   ├── ManagementFormModel.js
+        │       │   ├── ManagementFormView.jsx
+        │       │   └── useManagementFormViewModel.js
+        │       └── Text/           #     Textos
+        │           └── TextView.jsx
+        ├── hooks/                  #     Hooks customizados
+        ├── services/               #     Serviços e APIs
+        ├── styles/                 #     Estilos e temas
+        │   └── theme.js            #     Funções de tema Tailwind
+        └── utils/                  #     Funções auxiliares
 ├── .env.development            # 🔧 Variáveis de ambiente - Desenvolvimento
 ├── .env.homologation           # 🏗️ Variáveis de ambiente - Homologação
 ├── .env.production             # 🚀 Variáveis de ambiente - Produção
@@ -86,26 +74,201 @@ penelope-web-site/
 └── vite.config.js              # ⚡ Configuração Vite
 ```
 
-## 🏛️ Padrão MVVM por Módulo
+## 🎯 Arquitetura MVVM
 
-### **📁 Estrutura Padrão de Cada Módulo**
+Este projeto utiliza o padrão **MVVM (Model-View-ViewModel)** para componentes complexos e reutilizáveis, proporcionando separação clara de responsabilidades e facilidade de manutenção.
 
-Todos os módulos (`management/`, `auth/`, `institutional/`, `shared/`) seguem rigorosamente o padrão MVVM com organização granular:
+### 📐 Estrutura MVVM de um Componente
+
+Cada componente MVVM é composto por três arquivos principais:
 
 ```
-modulo/
-├── 📁 assets/          # Recursos estáticos do módulo
-├── 📊 model/           # 🎯 MODEL - Entidades e dados
-│   ├── 🧩 components/  #     Componentes específicos do model
-│   └── 📄 pages/       #     Pages relacionadas ao model
-├── 🔧 service/         # 🎯 Camada de serviços e APIs
-├── 👁️ view/            # 🎯 VIEW - Apresentação pura
-│   ├── 🧩 components/  #     Componentes de view
-│   └── 📄 pages/       #     Pages de view
-└── 🎯 viewmodel/       # 🎯 VIEWMODEL - Lógica de apresentação
-    ├── 🧩 components/  #     Componentes específicos do viewmodel
-    └── 📄 pages/       #     Pages relacionadas ao viewmodel
+ComponentName/
+├── ComponentNameModel.js          # 📊 MODEL - Dados e regras de negócio
+├── ComponentNameView.jsx          # 👁️ VIEW - Apresentação (UI pura)
+└── useComponentNameViewModel.js   # 🎯 VIEWMODEL - Lógica de apresentação
 ```
+
+### 🔍 Exemplo Real: Input Component
+
+#### 1️⃣ **Model** (`InputModel.js`)
+Gerencia **dados e validações**:
+
+```javascript
+export class InputModel {
+  constructor({ value = '', type = 'text', required = false, ... }) {
+    this.value = value
+    this.type = type
+    this.required = required
+  }
+
+  // Getters computados
+  get hasValue() {
+    return Boolean(this.value.trim())
+  }
+
+  get isEmpty() {
+    return !this.hasValue
+  }
+
+  // Métodos de atualização
+  updateValue(newValue) {
+    this.value = String(newValue || '')
+    return true
+  }
+
+  // Validação
+  validateType(type) {
+    const VALID_TYPES = ['text', 'email', 'password', 'number']
+    return VALID_TYPES.includes(type) ? type : 'text'
+  }
+}
+```
+
+#### 2️⃣ **ViewModel** (`useInputViewModel.js`)
+Gerencia **lógica de apresentação e estado**:
+
+```javascript
+export function useInputViewModel(initialProps = {}) {
+  const [viewModel] = useState(() => {
+    const model = new InputModel(initialProps)
+    return new InputViewModel(model)
+  })
+
+  const [, forceUpdate] = useState(0)
+
+  // Commands que atualizam o model e refresh a view
+  const commands = {
+    updateValue: (value) => {
+      viewModel.updateValue(value)
+      forceUpdate(prev => prev + 1)
+    },
+    validateInput: () => {
+      return viewModel.validateInput()
+    }
+  }
+
+  // Event handlers
+  const handleChange = (event) => {
+    viewModel.handleChange(event)
+    forceUpdate(prev => prev + 1)
+  }
+
+  return {
+    // Data do Model
+    value: viewModel.value,
+    hasErrors: viewModel.hasErrors,
+
+    // CSS Classes (lógica de apresentação)
+    inputClasses: viewModel.inputClasses,
+    labelClasses: viewModel.labelClasses,
+
+    // Event Handlers
+    handleChange,
+
+    // Commands
+    ...commands
+  }
+}
+```
+
+#### 3️⃣ **View** (`InputView.jsx`)
+**UI pura** - apenas renderiza:
+
+```jsx
+export function InputView({
+  children,
+  value = '',
+  type = 'text',
+  onChange,
+  ...props
+}) {
+  const [showPassword, setShowPassword] = useState(false)
+
+  // Lógica visual específica (toggle senha)
+  const actualType = (type === 'password' && showPassword) ? 'text' : type
+
+  return (
+    <div>
+      <label>{children}</label>
+      <input
+        type={actualType}
+        value={value}
+        onChange={onChange}
+        {...props}
+      />
+      {type === 'password' && (
+        <button onClick={() => setShowPassword(!showPassword)}>
+          {showPassword ? <EyeOff /> : <Eye />}
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+### 🔄 Fluxo de Dados MVVM
+
+```
+User Interaction (View)
+        ↓
+Event Handler (ViewModel)
+        ↓
+Update Model (Model)
+        ↓
+Compute Properties (ViewModel)
+        ↓
+Re-render (View)
+```
+
+### ✅ Vantagens do MVVM
+
+- **📦 Separação de Responsabilidades**: Cada camada tem uma função clara
+- **🧪 Testabilidade**: Model e ViewModel podem ser testados isoladamente
+- **♻️ Reusabilidade**: Models e ViewModels podem ser compartilhados
+- **🔧 Manutenibilidade**: Mudanças em uma camada não afetam as outras
+- **📱 Escalabilidade**: Fácil adicionar novos recursos sem quebrar código existente
+
+### 🎨 Quando Usar MVVM?
+
+#### ✅ Use MVVM para:
+- Componentes **complexos e reutilizáveis** (Input, Form, Table, Modal)
+- Componentes com **lógica de negócio** ou **validações**
+- Componentes com **estado complexo**
+- Componentes usados em **múltiplos contextos**
+
+#### ❌ Não use MVVM para:
+- Componentes **puramente visuais** (Button, Text, Heading)
+- Componentes **simples e específicos** de uma página
+- Wrappers de componentes de terceiros
+
+### 📚 Componentes MVVM no Projeto
+
+Atualmente implementados:
+
+1. **Input** (`shared/components/ui/Input/`)
+   - Gerencia entrada de dados com validação
+   - Suporta múltiplos tipos (text, email, password, number)
+   - Toggle de visualização de senha
+
+2. **ManagementForm** (`shared/components/ui/ManagementForm/`)
+   - Formulários dinâmicos de gerenciamento
+   - Estados: visualização e edição
+   - Validação e feedback de erros
+
+## 📂 Organização por Módulos
+
+### **🔐 auth/** - Autenticação
+Contém todas as funcionalidades relacionadas a login, cadastro e recuperação de senha.
+
+### **🏛️ institutional/** - Institucional
+Páginas públicas do site (Home, Sobre, Contato, etc.).
+
+### **🏠 management/** - Gerenciamento
+Área privada pós-login para clientes e corretores gerenciarem seus perfis e propriedades.
+
+### **🔧 shared/** - Compartilhado
+Recursos utilizados por todos os módulos (componentes, hooks, serviços, utils).
 
 ## 🌍 Configuração de Múltiplos Ambientes
 
@@ -175,6 +338,8 @@ npm run preview          # Preview da build de produção
 # 🔍 Utilitários
 npm run env:check        # Mostra variáveis de ambiente ativas
 npm run clean:envs       # Limpa cache de variáveis
+npm run lint             # Verifica problemas no código
+npm run lint:fix         # Corrige problemas automaticamente
 ```
 
 ### **🚦 Fluxo de Deploy por Ambiente**
@@ -224,10 +389,6 @@ cd penelope-web-site
 
 # Instale as dependências
 npm install
-
-# Configure as variáveis de ambiente
-cp .env.example .env
-# Edite o arquivo .env com suas configurações
 ```
 
 ### 3. VS Code (Altamente Recomendado)
@@ -240,7 +401,7 @@ O VS Code sugerirá automaticamente as extensões ao abrir o projeto. **Instale 
 
 - **Prettier - Code formatter** - Formatação automática de código
 - **ESLint** - Linting e correção automática de problemas
-- **TypeScript and JavaScript Language Features** - IntelliSense melhorado
+- **Tailwind CSS IntelliSense** - Autocomplete para classes Tailwind
 
 #### ⚙️ Configurações Automáticas Incluídas
 
@@ -266,6 +427,51 @@ npm run build
 # Preview da build de produção
 npm run preview
 ```
+
+## 📝 Convenções de Código
+
+### Estrutura de Componentes
+
+```jsx
+// Componente simples (sem MVVM)
+export function ComponentName({ prop1, prop2 }) {
+  return <div>...</div>
+}
+
+// Componente com lógica (sem MVVM)
+export function ComponentName(props) {
+  const [state, setState] = useState()
+
+  const handleAction = () => {
+    // lógica
+  }
+
+  return <div>...</div>
+}
+
+// Componente MVVM (usa hook ViewModel)
+export function ComponentView(props) {
+  const vm = useComponentViewModel(props)
+
+  return (
+    <div className={vm.containerClasses}>
+      <input
+        value={vm.value}
+        onChange={vm.handleChange}
+        className={vm.inputClasses}
+      />
+    </div>
+  )
+}
+```
+
+### Nomenclatura
+
+- **Componentes**: PascalCase (ex: `ButtonView.jsx`, `InputView.jsx`)
+- **Hooks**: camelCase com prefixo `use` (ex: `useInputViewModel.js`)
+- **Models**: PascalCase com sufixo `Model` (ex: `InputModel.js`)
+- **ViewModels**: PascalCase com sufixo `ViewModel` (ex: `InputViewModel`)
+- **Pastas**: PascalCase para componentes (ex: `Input/`, `ManagementForm/`)
 
 ## 📄 Licença
 
