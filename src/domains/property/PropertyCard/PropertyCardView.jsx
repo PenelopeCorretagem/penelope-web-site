@@ -5,6 +5,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 
 export function PropertyCardView({
+  id,
   category,
   title,
   subtitle,
@@ -37,6 +38,7 @@ export function PropertyCardView({
     hasError,
     model
   } = usePropertyCardViewModel({
+    id,
     category,
     title,
     subtitle,
