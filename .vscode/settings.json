@@ -1,0 +1,365 @@
+{
+  // === CONFIGURAÇÕES DE FORMATAÇÃO AUTOMÁTICA ===
+
+  // Formata arquivo ao salvar (Ctrl+S)
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+
+  // Define formatador específico por linguagem
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // Ações automáticas ao salvar arquivo
+  "editor.codeActionsOnSave": {
+    // Corrige todos os problemas do ESLint automaticamente
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Força respeito às regras do ESLint mesmo usando Prettier
+  "prettier.eslintIntegration": true,
+
+  // === CONFIGURAÇÕES VISUAIS DO EDITOR ===
+
+  // Linha vertical aos 100 caracteres (guia de largura)
+  "editor.rulers": [100],
+
+  // Tamanho da indentação (deve corresponder ao Prettier)
+  "editor.tabSize": 2,
+
+  // Usar espaços em vez de tabs
+  "editor.insertSpaces": true,
+
+  // Quebra automática de linhas visuais (não adiciona \n)
+  "editor.wordWrap": "on",
+
+  // Mostra espaços em branco como pontos pequenos
+  "editor.renderWhitespace": "boundary",
+
+  // === CONFIGURAÇÕES DE ARQUIVOS ===
+
+  // Tipo de quebra de linha (importante para consistência entre OS)
+  "files.eol": "\n",
+
+  // Remove espaços em branco no final das linhas
+  "files.trimTrailingWhitespace": true,
+
+  // Adiciona linha vazia no final do arquivo
+  "files.insertFinalNewline": true,
+
+  // Remove múltiplas linhas vazias consecutivas
+  "files.trimFinalNewlines": true,
+
+  // Salva automaticamente após delay
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // === CONFIGURAÇÕES DE JAVASCRIPT/REACT ===
+
+  // Preferência por imports relativos em vez de absolutos
+  "javascript.preferences.importModuleSpecifier": "relative",
+
+  // Sugere imports automáticos
+  "javascript.suggest.autoImports": true,
+
+  // Atualiza imports automaticamente ao mover arquivos
+  "javascript.updateImportsOnFileMove.enabled": "always",
+
+  // Validação ativada
+  "javascript.validate.enable": true,
+
+  // === CONFIGURAÇÕES DO EMMET ===
+
+  // Habilita Emmet em arquivos JavaScript (para JSX)
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+
+  // Trigger do Emmet em JSX
+  "emmet.triggerExpansionOnTab": true,
+
+  // === CONFIGURAÇÕES PARA TAILWIND CSS v4 ===
+
+  // Configurações do CSS IntelliSense
+  "css.validate": true,
+  "css.lint.unknownAtRules": "ignore",
+  "scss.validate": true,
+  "scss.lint.unknownAtRules": "ignore",
+  "less.validate": true,
+  "less.lint.unknownAtRules": "ignore",
+
+  // Configuração para Tailwind CSS v4 (sem arquivo de config)
+  "tailwindCSS.experimental.configFile": null,
+
+  // Regex patterns para detectar classes Tailwind em funções como cn(), clsx(), cva()
+  "tailwindCSS.experimental.classRegex": [
+    // === FUNÇÕES DE UTILITY CLASSES ===
+
+    // cn() - class names utility
+    ["cn\\(([^)]*)\\)", "'([^']*)'"],
+    ["cn\\(([^)]*)\\)", "\"([^\"]*)\""],
+    ["cn\\(([^)]*)\\)", "`([^`]*)`"],
+
+    // clsx() - classnames library
+    ["clsx\\(([^)]*)\\)", "'([^']*)'"],
+    ["clsx\\(([^)]*)\\)", "\"([^\"]*)\""],
+    ["clsx\\(([^)]*)\\)", "`([^`]*)`"],
+
+    // classnames() - original classnames package
+    ["classnames\\(([^)]*)\\)", "'([^']*)'"],
+    ["classnames\\(([^)]*)\\)", "\"([^\"]*)\""],
+
+    // cx() - shorthand comum
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+
+    // classList() - utility personalizada
+    ["classList\\(([^)]*)\\)", "'([^']*)'"],
+    ["classList\\(([^)]*)\\)", "\"([^\"]*)\""],
+
+    // === CLASS VARIANCE AUTHORITY (CVA) ===
+
+    // cva() - definições de variantes
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cva\\(\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // Variantes dentro de objetos cva
+    ["variants\\s*:\\s*\\{[^}]*\\}"],
+    ["compoundVariants\\s*:\\s*\\[[^\\]]*\\]"],
+
+    // === TEMPLATE LITERALS E STYLED COMPONENTS ===
+
+    // tw`` - template literals
+    ["tw`([^`]*)`"],
+    ["tw\\.[^`]+`([^`]*)`"],
+
+    // styled-components com tailwind
+    ["styled\\.[^`]+`([^`]*)`"],
+    ["css`([^`]*)`"],
+
+    // === JSX ATTRIBUTES ===
+
+    // className prop
+    ["className\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // className com template literals
+    ["className\\s*=\\s*{\\s*`([^`]*)`"],
+    ["className\\s*=\\s*{\\s*'([^']*)'"],
+    ["className\\s*=\\s*{\\s*\"([^\"]*)\""],
+
+    // className com expressões condicionais
+    ["className\\s*=\\s*{[^}]*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // === OBJETOS E ARRAYS DE CLASSES ===
+
+    // Arrays de classes
+    ["\\[[^\\]]*[\"'`]([^\"'`]*)[\"'`][^\\]]*\\]"],
+
+    // Objetos com classes condicionais
+    ["{[^}]*[\"'`]([^\"'`]*)[\"'`]\\s*:", "\\1"],
+
+    // === FRAMEWORKS ESPECÍFICOS ===
+
+    // Next.js - styled-jsx
+    ["jsx`([^`]*)`"],
+
+    // Emotion
+    ["@emotion/styled.*`([^`]*)`"],
+
+    // === FUNÇÕES CUSTOMIZADAS COMUNS ===
+
+    // twMerge() - tailwind-merge
+    ["twMerge\\(([^)]*)\\)", "'([^']*)'"],
+    ["twMerge\\(([^)]*)\\)", "\"([^\"]*)\""],
+
+    // twJoin() - tailwind-merge
+    ["twJoin\\(([^)]*)\\)", "'([^']*)'"],
+
+    // merge() - função genérica de merge
+    ["merge\\(([^)]*)\\)", "'([^']*)'"],
+
+    // === VARIÁVEIS E CONSTANTES ===
+
+    // Declarações de variáveis com classes
+    ["const\\s+\\w+\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"],
+    ["let\\s+\\w+\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"],
+    ["var\\s+\\w+\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // === HOOKS E COMPOSABLES ===
+
+    // useClassName() - hook customizado
+    ["useClassName\\([^)]*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // useStyles() - hook customizado
+    ["useStyles\\([^)]*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // === CONFIGURAÇÕES DE COMPONENTES ===
+
+    // defaultProps
+    ["defaultProps\\s*=\\s*{[^}]*className\\s*:\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // Props interfaces (TypeScript)
+    ["className\\?\\s*:\\s*string"],
+
+    // === COMENTÁRIOS E ANOTAÇÕES ===
+
+    // Classes em comentários (para referência)
+    ["//\\s*@tw\\s+([^\\n\\r]*)"],
+    ["/\\*\\s*@tw\\s+([^*]*)\\*/"],
+
+    // === CASOS ESPECIAIS ===
+
+    // String interpolation dentro de funções
+    ["\\$\\{[^}]*[\"'`]([^\"'`]*)[\"'`][^}]*\\}"],
+
+    // Ternary operators com classes
+    ["\\?\\s*[\"'`]([^\"'`]*)[\"'`]\\s*:"],
+    [":\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // Classes em arrays de objetos (para mapeamento)
+    ["\\{[^}]*class(?:Name)?\\s*:\\s*[\"'`]([^\"'`]*)[\"'`]"],
+
+    // Spread de classes
+    ["\\.\\.\\.[^,}]*[\"'`]([^\"'`]*)[\"'`]"]
+  ],
+
+  // === CONFIGURAÇÕES ADICIONAIS PARA MELHOR DETECÇÃO ===
+
+  // Inclui mais tipos de arquivo para análise
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "javascriptreact": "javascript",
+    "typescript": "javascript",
+    "typescriptreact": "javascript",
+    "html": "html",
+    "vue": "vue",
+    "svelte": "svelte",
+    "astro": "html",
+    "solid": "javascript",
+    "qwik": "javascript"
+  },
+
+  // Habilita validação em todos os contextos
+  "tailwindCSS.validate": true,
+
+  // Melhora sugestões em strings
+  "tailwindCSS.suggestions": true,
+
+  // Habilita lint para classes desconhecidas
+  "tailwindCSS.lint.invalidApply": "error",
+  "tailwindCSS.lint.invalidScreen": "error",
+  "tailwindCSS.lint.invalidVariant": "error",
+  "tailwindCSS.lint.invalidConfigPath": "error",
+  "tailwindCSS.lint.invalidTailwindDirective": "error",
+
+  // === CONFIGURAÇÕES PARA MELHOR PERFORMANCE ===
+
+  // Limita a busca apenas aos arquivos relevantes
+  "tailwindCSS.files.exclude": ["**/.git/**", "**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.nuxt/**"],
+
+  // Habilita hover info e autocomplete do Tailwind
+  "tailwindCSS.emmetCompletions": true,
+
+  // === CONFIGURAÇÕES DO ESLINT ===
+
+  // Executa ESLint em arquivos JavaScript e JSX
+  "eslint.validate": ["javascript", "javascriptreact"],
+
+  // === CONFIGURAÇÕES DE BRACKETPAIR COLORIZATION ===
+
+  // Colore pares de parênteses/chaves para facilitar leitura
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+
+  // === CONFIGURAÇÕES DE SUGESTÕES ===
+
+  // Mostra sugestões rapidamente
+  "editor.quickSuggestionsDelay": 0,
+
+  // Habilita sugestões em strings (útil para classes CSS)
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+
+  // === CONFIGURAÇÕES DE GIT ===
+
+  // Mostra mudanças inline no editor
+  "diffEditor.ignoreTrimWhitespace": false,
+
+  // Auto fetch do git
+  "git.autofetch": true,
+
+  // Confirma sync automaticamente
+  "git.confirmSync": false,
+
+  // === CONFIGURAÇÕES ESPECÍFICAS POR LINGUAGEM ===
+
+  // Configurações específicas para JavaScript
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+
+  // Configurações específicas para JSX
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+
+  // Configurações para JSON
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.quickSuggestions": {
+      "strings": true
+    }
+  },
+
+  // Configurações para CSS
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.suggest.insertMode": "replace",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    }
+  },
+
+  // === CONFIGURAÇÕES DE PERFORMANCE ===
+
+  // Exclui pastas da busca para melhorar performance
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/.nuxt": true,
+    "**/coverage": true
+  },
+
+  // Exclui pastas do file watcher para melhorar performance
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+
+  // Oculta arquivos desnecessários no explorer
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  }
+}
