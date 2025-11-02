@@ -51,6 +51,7 @@ export const BUTTON_STATE_CONFIG = {
 
 export class PropertyCardModel {
   constructor({
+    id,
     category,
     title,
     subtitle,
@@ -66,6 +67,7 @@ export class PropertyCardModel {
   }) {
     this.validateInputs(category, title, subtitle, description)
 
+    this.id = id || 1 // Default ID for backward compatibility
     this.category = this.normalizeCategory(category)
     this.title = String(title).trim()
     this.subtitle = String(subtitle).trim()
