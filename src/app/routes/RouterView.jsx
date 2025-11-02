@@ -94,27 +94,27 @@ export function RouterView({ isAuthenticated = false, authReady = false }) {
         {/* Protected Routes */}
         <Route
           path='/agenda'
-          element={
+          element={(
             <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <ScheduleView />
             </ProtectedRoute>
-          }
+          )}
         />
         <Route
           path='/perfil'
-          element={
+          element={(
             <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <ProfileView />
             </ProtectedRoute>
-          }
+          )}
         />
         <Route
           path='/configuracoes'
-          element={
+          element={(
             <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <SettingsView />
             </ProtectedRoute>
-          }
+          )}
         />
 
         {/* Error Routes */}
