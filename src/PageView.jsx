@@ -54,6 +54,22 @@ export function PageView() {
     window.location.href = '/'
   }
 
+  const handleDevLogin = () => {
+    // Simula um token JWT fake apenas para desenvolvimento
+    localStorage.setItem('jwtToken', `dev-fake-token-${  Date.now()}`)
+    setIsAuthenticated(true)
+  }
+
+  // Debug logs
+  useEffect(() => {
+    console.log('DEV MODE DEBUG:', {
+      isDev: import.meta.env.DEV,
+      mode: import.meta.env.MODE,
+      isAuthenticated,
+      shouldShowDevButtons: import.meta.env.DEV && import.meta.env.MODE === 'development'
+    })
+  }, [isAuthenticated])
+
   return (
     <div className='flex min-h-screen w-full flex-col'>
       {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} />}
@@ -61,8 +77,8 @@ export function PageView() {
       {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
 
       {/* Botões de teste */}
-      {import.meta.env.DEV && import.meta.env.MODE === 'development' && (
-        <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 z-50 backdrop-blur-sm'>
+      {import.meta.env.DEV && (
+        <div className='fixed right-4 bottom-4 flex gap-2 rounded bg-gray-800/90 p-4 z-[9999] backdrop-blur-sm shadow-lg'>
           <div className='flex gap-2'>
             {/* Only keep logout for convenience in dev; login must be done via the real form */}
             {isAuthenticated ? (
@@ -72,7 +88,14 @@ export function PageView() {
               >
                 Logout (DEV)
               </button>
-            ) : null}
+            ) : (
+              <button
+                onClick={handleDevLogin}
+                className='rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600'
+              >
+                Login (DEV)
+              </button>
+            )}
             {/* Botão para mostrar feedback */}
             <button
               onClick={() => setShowFeedback(true)}

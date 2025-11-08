@@ -71,45 +71,59 @@ export function NavMenuView({
 
   const renderMenuItem = (item) => {
     const isActive = viewModel.isItemActive(item.route)
+    const isDisabled = item.requiresAuth && !viewModel.isAuthenticated
+
+    if (isDisabled) {
+      return (
+        <span
+          key={item.id}
+          className="px-4 py-2 text-default-dark cursor-not-allowed opacity-50 flex items-center gap-2"
+        >
+          {renderIcon(item.icon)}
+          <span className="hidden lg:inline">{item.label}</span>
+        </span>
+      )
+    }
 
     return (
-      <ButtonView
+      <Link
         key={item.id}
-        color={item.variant === 'destac' ? 'brown' : 'white'}
-        type={item.route ? 'link' : 'button'}
         to={item.route}
-        width='fit'
-        shape='square'
-        disabled={item.requiresAuth && !viewModel.isAuthenticated}
-        active={isActive}
         onClick={viewModel.handleItemClick}
-        className={viewModel.getItemClasses(item, isActive)}
       >
-        {renderIcon(item.icon)}
-        {!item.iconOnly && item.label}
-      </ButtonView>
+
+        <HeadingView
+          level={5}
+          className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase ${
+            isActive
+              ? 'text-distac-primary underline underline-offset-4 decoration-2'
+              : 'text-default-dark hover:text-distac-primary'
+          }`}
+        >
+          {renderIcon(item.icon)}
+          {item.label}
+        </HeadingView>
+      </Link>
     )
   }
 
   const renderUserAction = (action) => {
-    // Logout não deve usar estado ativo baseado em rota
     const isActive = action.isLogoutAction ? false : viewModel.isItemActive(action.route)
 
     return (
       <ButtonView
         key={action.id}
-        color={action.variant === 'destac' ? 'brown' : 'white'}
-        type={action.isLogoutAction ? 'button' : (action.route ? 'link' : 'button')}
+        color='brown'
+        type={action.isLogoutAction ? 'button' : 'link'}
         to={action.isLogoutAction ? undefined : action.route}
         width='fit'
-        shape={action.shape || 'square'}
+        shape='circle'
         disabled={action.requiresAuth && !viewModel.isAuthenticated}
         active={isActive}
         onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
         title={action.label}
       >
         {renderIcon(action.icon)}
-        {!action.iconOnly && action.label}
       </ButtonView>
     )
   }

@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
-import { getLabelThemeClasses } from '@shared/styles/theme'
 
 /**
  * LabelViewModel - Gerencia apresentação e tema do label
@@ -20,12 +19,6 @@ class LabelViewModel {
 
   get hasText() {
     return this.model.hasText()
-  }
-
-  get finalClassName() {
-    return getLabelThemeClasses({
-      variant: this.variant,
-    })
   }
 
   updateText = newText => {
@@ -68,7 +61,6 @@ export function useLabelViewModel(initialModel) {
     displayText: viewModel.displayText,
     variant: viewModel.variant,
     hasText: viewModel.hasText,
-    finalClassName: viewModel.finalClassName,
     ...commands,
   }
 }

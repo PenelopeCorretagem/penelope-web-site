@@ -63,6 +63,15 @@ export function PropertyCardView({
     )
   }
 
+  const handleCardClick = (e) => {
+    // Ignora clique se foi em um botão ou link
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return
+    }
+
+    handleButtonClick('default')
+  }
+
   const renderButtons = () => {
     if (!shouldRenderButtons) return null
 
@@ -74,14 +83,20 @@ export function PropertyCardView({
             <ButtonView
               variant={gallery.variant}
               type={gallery.type}
-              onClick={() => handleButtonClick(gallery.action)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleButtonClick(gallery.action)
+              }}
             >
               {gallery.text}
             </ButtonView>
             <ButtonView
               variant={floorplan.variant}
               type={floorplan.type}
-              onClick={() => handleButtonClick(floorplan.action)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleButtonClick(floorplan.action)
+              }}
             >
               {floorplan.text}
             </ButtonView>
@@ -89,7 +104,10 @@ export function PropertyCardView({
           <ButtonView
             variant={video.variant}
             type={video.type}
-            onClick={() => handleButtonClick(video.action)}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleButtonClick(video.action)
+            }}
           >
             {video.text}
           </ButtonView>
@@ -105,7 +123,10 @@ export function PropertyCardView({
               key={`button-${index}`}
               variant={button.variant}
               type={button.type}
-              onClick={() => handleButtonClick(button.action)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleButtonClick(button.action)
+              }}
             >
               {button.text}
             </ButtonView>
@@ -119,7 +140,10 @@ export function PropertyCardView({
         key={`button-${index}`}
         variant={button.variant}
         type={button.type}
-        onClick={() => handleButtonClick(button.action)}
+        onClick={(e) => {
+          e.stopPropagation()
+          handleButtonClick(button.action)
+        }}
         className="mt-auto"
       >
         {button.text}
@@ -128,7 +152,10 @@ export function PropertyCardView({
   }
 
   return (
-    <div className={`${containerClasses} ${className}`}>
+    <div
+      className={`${containerClasses} ${className} cursor-pointer`}
+      onClick={handleCardClick}
+    >
       {shouldRenderImage && (
         <div
           className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'

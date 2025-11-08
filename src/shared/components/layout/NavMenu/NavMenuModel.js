@@ -29,7 +29,6 @@ export class NavMenuModel {
   #createMenuItem(config) {
     return {
       requiresAuth: false,
-      variant: 'default',
       ...config
     }
   }
@@ -37,7 +36,6 @@ export class NavMenuModel {
   #createUserAction(config) {
     return {
       requiresAuth: false,
-      variant: 'default',
       shape: 'circle',
       iconOnly: true,
       ...config
@@ -59,7 +57,6 @@ export class NavMenuModel {
         id: 'properties',
         label: 'Imóveis',
         icon: 'Search',
-        variant: 'destac',
         route: routes.PROPERTIES,
       }),
       this.#createMenuItem({
@@ -96,7 +93,6 @@ export class NavMenuModel {
         id: 'login',
         label: 'Login',
         icon: 'User',
-        variant: 'destac',
         route: authRoutes.LOGIN,
       }),
     ]
@@ -110,7 +106,6 @@ export class NavMenuModel {
         id: 'profile',
         label: 'Perfil',
         icon: 'User',
-        variant: 'destac',
         route: userRoutes.PROFILE,
         requiresAuth: true,
       }),
@@ -118,7 +113,6 @@ export class NavMenuModel {
         id: 'settings',
         label: 'Configurações',
         icon: 'Settings',
-        variant: 'destac',
         route: userRoutes.SETTINGS,
         requiresAuth: true,
       }),
@@ -126,7 +120,6 @@ export class NavMenuModel {
         id: 'logout',
         label: 'Logout',
         icon: 'LogOut',
-        variant: 'default',
         route: '/',
         requiresAuth: true,
         isLogoutAction: true,

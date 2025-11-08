@@ -9,14 +9,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
   const {
     containerRef,
     scrollProgress,
-    isScrollable, // Novo estado
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleMouseLeave,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
+    isScrollable,
     scrollToLeft,
     scrollToRight,
   } = usePropertiesCarouselViewModel(properties)
@@ -45,7 +38,6 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
       </div>
 
       <div className="relative">
-        {/* Botões de navegação - apenas se houver scroll */}
         {isScrollable && (
           <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
             <ButtonView
@@ -74,10 +66,9 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
 
         <div
           ref={containerRef}
-          className="flex overflow-x-auto cursor-grab select-none mx-4
-                   scrollbar-hide touch-pan-x
-                   active:cursor-grabbing
-                   [&:not(:active)]:scroll-smooth
+          className="flex overflow-x-auto select-none mx-4
+                   scrollbar-hide
+                   scroll-smooth
                    [&_.flex-shrink-0>*]:transition-transform
                    [&_.flex-shrink-0>*]:duration-300
                    [&_.flex-shrink-0>*]:ease-out
@@ -89,16 +80,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
-            WebkitTapHighlightColor: 'transparent',
-            tapHighlightColor: 'transparent'
           }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
           role="region"
           aria-label="Carrossel de propriedades"
           tabIndex={0}
@@ -128,7 +110,6 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         </div>
       </div>
 
-      {/* Barra de progresso - apenas se houver scroll */}
       {isScrollable && (
         <div className="w-full">
           <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">

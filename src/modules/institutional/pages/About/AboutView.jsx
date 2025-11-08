@@ -32,7 +32,7 @@ export function AboutView() {
           <img src={PenelopeImage} alt="Corretora Penélope" />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={3} className="text-left text-default-light font-tan-nimbus">
+          <HeadingView level={1} className="text-left text-default-light">
             Penélope ou Isabella?
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-default-light">

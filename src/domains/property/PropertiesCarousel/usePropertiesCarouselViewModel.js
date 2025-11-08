@@ -62,38 +62,6 @@ class PropertiesCarouselViewModel {
     return false
   }
 
-  startDrag(x) {
-    this.isDragging = true
-    this.startX = x
-    this.prevTranslate = this.currentTranslate
-  }
-
-  drag(x) {
-    if (!this.isDragging) return
-
-    const currentX = x
-    const diff = currentX - this.startX
-    this.currentTranslate = this.prevTranslate + diff
-  }
-
-  endDrag() {
-    if (!this.isDragging) return
-
-    this.isDragging = false
-    const movedBy = this.currentTranslate - this.prevTranslate
-
-    // Se moveu mais de 100px, navega
-    if (Math.abs(movedBy) > 100) {
-      if (movedBy > 0) {
-        this.previous()
-      } else {
-        this.next()
-      }
-    }
-
-    this.currentTranslate = this.prevTranslate
-  }
-
   setAnimating(isAnimating) {
     this.isAnimating = isAnimating
   }
@@ -124,11 +92,7 @@ class PropertiesCarouselViewModel {
 export function usePropertiesCarouselViewModel(properties = []) {
   const [, forceUpdate] = useState(0)
   const containerRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const [dragDistance, setDragDistance] = useState(0)
   const [isScrollable, setIsScrollable] = useState(false) // Novo estado
 
   const refresh = useCallback(() => {
@@ -231,106 +195,6 @@ export function usePropertiesCarouselViewModel(properties = []) {
     // Calcula a posição exata do card alvo
     const cardLeft = targetCard.offsetLeft
     container.scrollTo({ left: cardLeft, behavior: 'smooth' })
-  }, [])  // Handlers de drag - versão melhorada
-  const handleMouseDown = useCallback((e) => {
-    // Ignora se clicou em um botão ou link
-    if (e.target.closest('button') || e.target.closest('a')) {
-      return
-    }
-
-    if (!containerRef.current) return
-
-    setIsDragging(true)
-    setStartX(e.pageX)
-    setScrollLeft(containerRef.current.scrollLeft)
-    setDragDistance(0)
-
-    containerRef.current.style.cursor = 'grabbing'
-    containerRef.current.style.scrollBehavior = 'auto'
-  }, [])
-
-  const handleMouseMove = useCallback((e) => {
-    if (!isDragging || !containerRef.current) return
-
-    const x = e.pageX
-    const distance = Math.abs(x - startX)
-
-    // Só começa a arrastar se moveu mais de 5px
-    if (distance > 5) {
-      e.preventDefault()
-      const walk = (x - startX) * 1.5
-      setDragDistance(distance)
-      containerRef.current.scrollLeft = scrollLeft - walk
-    }
-  }, [isDragging, startX, scrollLeft])
-
-  const handleMouseUp = useCallback((e) => {
-    if (!containerRef.current) return
-
-    // Se arrastou menos de 5px, considera como clique
-    if (dragDistance < 5) {
-      setIsDragging(false)
-      setDragDistance(0)
-      containerRef.current.style.cursor = 'grab'
-      containerRef.current.style.scrollBehavior = 'smooth'
-      return
-    }
-
-    setIsDragging(false)
-    containerRef.current.style.cursor = 'grab'
-    containerRef.current.style.scrollBehavior = 'smooth'
-    setTimeout(() => setDragDistance(0), 100)
-  }, [dragDistance])
-
-  const handleMouseLeave = useCallback(() => {
-    if (!containerRef.current) return
-
-    setIsDragging(false)
-    containerRef.current.style.cursor = 'grab'
-    containerRef.current.style.scrollBehavior = 'smooth'
-    setTimeout(() => setDragDistance(0), 100)
-  }, [])
-
-  // Touch handlers para mobile - versão melhorada
-  const handleTouchStart = useCallback((e) => {
-    // Ignora se tocou em um botão ou link
-    if (e.target.closest('button') || e.target.closest('a')) {
-      return
-    }
-
-    if (!containerRef.current) return
-
-    const touch = e.touches[0]
-    setIsDragging(true)
-    setStartX(touch.pageX)
-    setScrollLeft(containerRef.current.scrollLeft)
-    setDragDistance(0)
-
-    containerRef.current.style.scrollBehavior = 'auto'
-  }, [])
-
-  const handleTouchMove = useCallback((e) => {
-    if (!isDragging || !containerRef.current) return
-
-    const touch = e.touches[0]
-    const x = touch.pageX
-    const distance = Math.abs(x - startX)
-
-    // Só começa a arrastar se moveu mais de 5px
-    if (distance > 5) {
-      const walk = (x - startX) * 1.2
-      setDragDistance(distance)
-      containerRef.current.scrollLeft = scrollLeft - walk
-      e.preventDefault()
-    }
-  }, [isDragging, startX, scrollLeft])
-
-  const handleTouchEnd = useCallback(() => {
-    if (!containerRef.current) return
-
-    setIsDragging(false)
-    containerRef.current.style.scrollBehavior = 'smooth'
-    setTimeout(() => setDragDistance(0), 100)
   }, [])
 
   // Nova função para verificar se o container tem scroll
@@ -388,24 +252,13 @@ export function usePropertiesCarouselViewModel(properties = []) {
     containerRef,
 
     // Estado
-    isDragging,
     scrollProgress,
-    dragDistance,
     isScrollable, // Novo retorno
 
     // Dados
     properties: viewModel.getOriginalItems(),
     currentRealIndex: viewModel.getCurrentRealIndex(),
     totalItems: viewModel.getTotalOriginalItems(),
-
-    // Handlers
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleMouseLeave,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
 
     // Commands
     ...commands,

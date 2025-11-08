@@ -1,5 +1,3 @@
-import { getInputThemeClasses, getInputLabelThemeClasses, getInputContainerThemeClasses } from '@shared/styles/theme'
-
 /**
  * TextAreaView - Componente de textarea com layout similar ao InputView
  */
@@ -23,19 +21,30 @@ export function TextAreaView({
   const textareaName = otherProps.name || textareaId
   const label = children || ''
 
-  // Classes CSS usando o theme
-  const containerClasses = getInputContainerThemeClasses()
-  const labelClasses = getInputLabelThemeClasses({
-    hasErrors: false,
-    required: required,
-  })
-  const textareaClasses = getInputThemeClasses({
-    isActive: isActive && !disabled,
-    disabled: disabled,
-    readOnly: readOnly,
-    hasErrors: false,
-    withToggle: false,
-  })
+  // Base classes
+  const containerClasses = 'w-full flex flex-col gap-2'
+
+  // Label classes
+  const baseLabelClasses = 'uppercase font-semibold font-default text-[12px] leading-none md:text-[16px]'
+  const labelStateClass = 'text-default-dark-muted'
+  const requiredClass = required ? 'after:content-["*"] after:text-distac-primary after:ml-1' : ''
+  const labelClasses = `${baseLabelClasses} ${labelStateClass} ${requiredClass}`.trim()
+
+  // Textarea classes
+  const baseTextareaClasses = 'w-full px-4 py-2 rounded-sm transition-colors duration-200 placeholder:text-default-dark-muted placeholder:text-[12px] md:placeholder:text-[16px] placeholder:uppercase placeholder:font-default'
+
+  let stateClasses = ''
+  if (disabled) {
+    stateClasses = 'bg-default-light-muted text-default-dark-light cursor-not-allowed opacity-75'
+  } else if (readOnly) {
+    stateClasses = 'bg-default-light-muted text-default-dark-light cursor-text select-text'
+  } else if (isActive) {
+    stateClasses = 'bg-distac-primary-light focus:bg-default-light focus:ring-2 focus:ring-distac-primary focus:outline-none'
+  } else {
+    stateClasses = 'bg-default-light-muted'
+  }
+
+  const textareaClasses = `${baseTextareaClasses} ${stateClasses}`.trim()
 
   const handleTextAreaChange = (event) => {
     if (onChange) {
