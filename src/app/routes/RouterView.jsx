@@ -12,6 +12,7 @@ import { SettingsView } from '@management/pages/Settings/SettingsView'
 import ManagementView from '@management/pages/ManegementView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
 import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
+import { PropertyConfigView } from '@management/pages/PropertyConfig/PropertyConfigView'
 
 // Views de erro
 const NotFoundPage = () => {
@@ -201,10 +202,7 @@ export function RouterView({ isAuthenticated = false, isAdmin = false, authReady
               isAdmin={isAdmin}
               authReady={authReady}
             >
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Admin Properties Management</h1>
-                <p className="text-gray-600">Gerencie todos os imóveis do sistema aqui.</p>
-              </div>
+              <PropertyConfigView />
             </AdminProtectedRoute>
           )}
         />
