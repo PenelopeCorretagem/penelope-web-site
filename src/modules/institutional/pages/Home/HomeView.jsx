@@ -197,8 +197,7 @@ export function HomeView() {
           <ImageView
             src={fakeRequest.imageLink}
             alt="Imagem do imóvel"
-            mode="background"
-            className='flex-1 bg-cover bg-center bg-no-repeat'
+            className='flex-1 w-full h-full'
           />
         </SectionView>
 

@@ -75,7 +75,7 @@ class PropertyCardViewModel {
   }
 
   get containerClasses() {
-    const baseClasses = ['flex', 'flex-col', 'max-w-sm']
+    const baseClasses = ['flex', 'flex-col', 'w-[340px]']
 
     if (this.model.hasHoverEffect) {
       baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
@@ -204,7 +204,7 @@ export function usePropertyCardViewModel(props) {
       hasDifferences: false,
       hasValidImage: false,
       labelPosition: '',
-      containerClasses: 'flex flex-col max-w-sm',
+      containerClasses: 'flex flex-col w-36',
       cardClasses: 'bg-default-light p-card rounded-sm',
       shouldRenderButtons: false,
       shouldRenderImage: false,

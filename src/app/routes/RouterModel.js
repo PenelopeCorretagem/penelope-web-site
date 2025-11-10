@@ -40,7 +40,19 @@ export class RouterModel {
       SCHEDULE: '/agenda',
       MY_APPOINTMENTS: '/meus-agendamentos',
 
+      // Rotas de gerenciamento - usuário comum
+      MANAGEMENT: '/management',
+      MANAGEMENT_PROFILE: '/management/profile',
+      MANAGEMENT_ACCOUNT: '/management/account',
+      MANAGEMENT_USERS: '/management/users',
+      MANAGEMENT_PROPERTIES: '/management/properties',
+
       // Rotas autenticadas - admin/gestão
+      ADMIN_MANAGEMENT: '/admin/management',
+      ADMIN_MANAGEMENT_PROFILE: '/admin/management/profile',
+      ADMIN_MANAGEMENT_ACCOUNT: '/admin/management/account',
+      ADMIN_MANAGEMENT_USERS: '/admin/management/users',
+      ADMIN_MANAGEMENT_PROPERTIES: '/admin/management/properties',
       ADMIN_DASHBOARD: '/admin',
       ADMIN_PROPERTIES: '/admin/imoveis',
       ADMIN_USERS: '/admin/usuarios',
@@ -139,6 +151,11 @@ export class RouterModel {
 
   getAdminRoutes() {
     return {
+      ADMIN_MANAGEMENT: this.routes.ADMIN_MANAGEMENT,
+      ADMIN_MANAGEMENT_PROFILE: this.routes.ADMIN_MANAGEMENT_PROFILE,
+      ADMIN_MANAGEMENT_ACCOUNT: this.routes.ADMIN_MANAGEMENT_ACCOUNT,
+      ADMIN_MANAGEMENT_USERS: this.routes.ADMIN_MANAGEMENT_USERS,
+      ADMIN_MANAGEMENT_PROPERTIES: this.routes.ADMIN_MANAGEMENT_PROPERTIES,
       ADMIN_DASHBOARD: this.routes.ADMIN_DASHBOARD,
       ADMIN_PROPERTIES: this.routes.ADMIN_PROPERTIES,
       ADMIN_USERS: this.routes.ADMIN_USERS,

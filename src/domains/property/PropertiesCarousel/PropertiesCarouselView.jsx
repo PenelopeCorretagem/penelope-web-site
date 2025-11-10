@@ -37,7 +37,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
         </ButtonView>
       </div>
 
-      <div className="relative">
+      <div className="relative w-full">
         {isScrollable && (
           <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
             <ButtonView
@@ -66,46 +66,29 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
 
         <div
           ref={containerRef}
-          className="flex overflow-x-auto select-none mx-4
-                   scrollbar-hide
-                   scroll-smooth
-                   [&_.flex-shrink-0>*]:transition-transform
-                   [&_.flex-shrink-0>*]:duration-300
-                   [&_.flex-shrink-0>*]:ease-out
-                   [&_.flex-shrink-0>*]:will-change-transform
-                   [&_.flex-shrink-0:hover>*]:scale-105
-                   [&_.flex-shrink-0:hover>*]:relative
-                   [&_.flex-shrink-0:hover>*]:z-1"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
+          className="flex overflow-x-auto select-none scrollbar-hide scroll-smooth gap-8 p-8 w-full"
           role="region"
           aria-label="Carrossel de propriedades"
           tabIndex={0}
         >
           {properties.map((property, index) => (
-            <div
+            <PropertyCardView
               key={`${property.id || index}-${property.title}`}
-              className="flex-shrink-0 w-[342px] p-4"
-            >
-              <PropertyCardView
-                id={property.id || index + 1}
-                hasLabel={true}
-                category={property.category}
-                title={property.title}
-                subtitle={property.subtitle}
-                description={property.description}
-                hasDifference={true}
-                differences={property.differences}
-                hasButton={true}
-                hasShadow={true}
-                hasImage={true}
-                hasHoverEffect={true}
-                imageUrl={property.imageLink}
-              />
-            </div>
+              id={property.id || index + 1}
+              hasLabel={true}
+              category={property.category}
+              title={property.title}
+              subtitle={property.subtitle}
+              description={property.description}
+              hasDifference={true}
+              differences={property.differences}
+              hasButton={true}
+              hasShadow={true}
+              hasImage={true}
+              hasHoverEffect={true}
+              imageUrl={property.imageLink}
+              className="flex-shrink-0"
+            />
           ))}
         </div>
       </div>

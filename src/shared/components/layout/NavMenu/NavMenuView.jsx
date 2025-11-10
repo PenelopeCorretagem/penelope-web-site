@@ -59,6 +59,7 @@ export function NavMenuView({
   isAuthenticated = false,
   className = '',
   variant = 'navigation',
+  hideLogo = false,
 }) {
   const viewModel = useNavMenuViewModel(isAuthenticated)
 
@@ -90,19 +91,14 @@ export function NavMenuView({
         key={item.id}
         to={item.route}
         onClick={viewModel.handleItemClick}
+        className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg ${
+          isActive
+            ? 'text-distac-primary underline underline-offset-4 decoration-2'
+            : 'text-default-dark hover:text-distac-primary'
+        }`}
       >
-
-        <HeadingView
-          level={5}
-          className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase ${
-            isActive
-              ? 'text-distac-primary underline underline-offset-4 decoration-2'
-              : 'text-default-dark hover:text-distac-primary'
-          }`}
-        >
-          {renderIcon(item.icon)}
-          {item.label}
-        </HeadingView>
+        {renderIcon(item.icon)}
+        {item.label}
       </Link>
     )
   }
@@ -192,20 +188,29 @@ export function NavMenuView({
       >
         {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
       </button>
-      <Link
-        to='/'
-        className={`inline-block transform transition-transform duration-300 hover:scale-110`}
-      >
-        <LogoView height={'40'} className='text-distac-primary fill-current' />
-      </Link>
+      {!hideLogo && (
+        <Link
+          to='/'
+          className={`inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
+            hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+          }`}
+        >
+          <LogoView height={'40'} className='text-distac-primary fill-current' />
+        </Link>
+      )}
 
       <div className={viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen)}>
         {viewModel.menuItems.map(renderMenuItem)}
       </div>
 
-      <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
-        {viewModel.userActions.map(renderUserAction)}
-      </div>
+      {!isAuthenticated && (
+        <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
+          {viewModel.userActions
+            .filter(action => action.id === 'login' || action.route === '/login')
+            .map(renderUserAction)
+          }
+        </div>
+      )}
 
       <ErrorDisplayView
         messages={[]}

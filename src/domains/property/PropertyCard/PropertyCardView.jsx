@@ -57,7 +57,7 @@ export function PropertyCardView({
 
   if (hasError) {
     return (
-      <div className={`flex flex-col max-w-sm bg-default-light-alt p-card rounded-sm ${className}`}>
+      <div className={`flex flex-col w-full bg-default-light-alt p-card rounded-sm ${className}`}>
         <TextView className="text-distac-primary">Erro ao carregar propriedade</TextView>
       </div>
     )
@@ -70,6 +70,20 @@ export function PropertyCardView({
     }
 
     handleButtonClick('default')
+  }
+
+  const handleCardKeyDown = (e) => {
+    // Enter ou Space ativam o card
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+
+      // Ignora se o foco está em um botão ou link
+      if (e.target.closest('button') || e.target.closest('a')) {
+        return
+      }
+
+      handleButtonClick('default')
+    }
   }
 
   const renderButtons = () => {
@@ -155,6 +169,10 @@ export function PropertyCardView({
     <div
       className={`${containerClasses} ${className} cursor-pointer`}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`Ver detalhes do imóvel ${model.title}`}
     >
       {shouldRenderImage && (
         <div

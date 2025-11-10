@@ -292,15 +292,6 @@ export const theme = {
       disabledLink: 'cursor-not-allowed opacity-50 text-gray-500'
     }
   },
-  section: {
-    base: 'section flex w-full h-fit bg-default-light',
-    padding: {
-      default: 'p-section md:p-section-md',
-    },
-    gap: {
-      default: 'gap-section md:gap-section-md',
-    }
-  },
   auth: {
     container: {
       base: 'relative w-full h-full bg-default-light overflow-hidden transition-all duration-700 ease-in-out',
@@ -912,15 +903,6 @@ export function getNavMenuActionThemeClasses({
     ...stateClasses,
     ...variantClasses,
     className
-  ].filter(Boolean).join(' ')
-}
-
-// Helper para montar classes do Section
-export function getSectionThemeClasses() {
-  const t = theme.section
-  return [t.base
-    , t.padding.default
-    , t.gap.default
   ].filter(Boolean).join(' ')
 }
 

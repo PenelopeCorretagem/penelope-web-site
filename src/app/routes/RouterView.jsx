@@ -9,6 +9,7 @@ import { ContactsView } from '@institutional/pages/Contacts/ContactsView'
 import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
 import { ProfileView } from '@management/pages/Profile/ProfileView'
 import { SettingsView } from '@management/pages/Settings/SettingsView'
+import ManagementView from '@management/pages/ManegementView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
 import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
 
@@ -61,7 +62,6 @@ const UnauthorizedPage = () => {
 
 // Protected Route component
 const ProtectedRoute = ({ isAuthenticated, authReady, children }) => {
-
   if (!authReady) {
     return null
   }
@@ -73,9 +73,26 @@ const ProtectedRoute = ({ isAuthenticated, authReady, children }) => {
   return children
 }
 
-export function RouterView({ isAuthenticated = false, authReady = false }) {
+// Admin Protected Route component
+const AdminProtectedRoute = ({ isAuthenticated, isAdmin, authReady, children }) => {
+  if (!authReady) {
+    return null
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to='/login' replace />
+  }
+
+  if (!isAdmin) {
+    return <Navigate to='/401' replace />
+  }
+
+  return children
+}
+
+export function RouterView({ isAuthenticated = false, isAdmin = false, authReady = false }) {
   return (
-    <main className='router-view bg-default-light w-full flex-1'>
+    <main className='router-view bg-default-light w-full flex-1 overflow-x-hidden overflow-y-auto'>
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
@@ -114,6 +131,81 @@ export function RouterView({ isAuthenticated = false, authReady = false }) {
             <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
               <SettingsView />
             </ProtectedRoute>
+          )}
+        />
+
+        {/* Management Routes - User (com sidebar próprio) */}
+        <Route
+          path='/management'
+          element={(
+            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
+              <ManagementView />
+            </ProtectedRoute>
+          )}
+        >
+          <Route path='profile' element={<ProfileView />} />
+          <Route path='account' element={<SettingsView />} />
+          <Route path='users' element={<div className="p-6"><h1 className="text-2xl font-bold">Users Management</h1></div>} />
+          <Route path='properties' element={<div className="p-6"><h1 className="text-2xl font-bold">Properties Management</h1></div>} />
+        </Route>
+
+        {/* Admin Routes - Renderizados diretamente (sidebar vem do PageView) */}
+        <Route
+          path='/admin/management/profile'
+          element={(
+            <AdminProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isAdmin={isAdmin}
+              authReady={authReady}
+            >
+              <div className="p-6">
+                <ProfileView />
+              </div>
+            </AdminProtectedRoute>
+          )}
+        />
+        <Route
+          path='/admin/management/account'
+          element={(
+            <AdminProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isAdmin={isAdmin}
+              authReady={authReady}
+            >
+              <div className="p-6">
+                <SettingsView />
+              </div>
+            </AdminProtectedRoute>
+          )}
+        />
+        <Route
+          path='/admin/management/users'
+          element={(
+            <AdminProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isAdmin={isAdmin}
+              authReady={authReady}
+            >
+              <div className="p-6">
+                <h1 className="text-2xl font-bold mb-4">Admin Users Management</h1>
+                <p className="text-gray-600">Gerencie todos os usuários do sistema aqui.</p>
+              </div>
+            </AdminProtectedRoute>
+          )}
+        />
+        <Route
+          path='/admin/management/properties'
+          element={(
+            <AdminProtectedRoute
+              isAuthenticated={isAuthenticated}
+              isAdmin={isAdmin}
+              authReady={authReady}
+            >
+              <div className="p-6">
+                <h1 className="text-2xl font-bold mb-4">Admin Properties Management</h1>
+                <p className="text-gray-600">Gerencie todos os imóveis do sistema aqui.</p>
+              </div>
+            </AdminProtectedRoute>
           )}
         />
 
