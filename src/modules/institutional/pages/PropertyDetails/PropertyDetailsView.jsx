@@ -8,10 +8,11 @@ import { PropertyLocation } from '@institutional/components/PropertyLocation/Pro
 import { PropertyRegion } from '@institutional/components/PropertyRegion/PropertyRegion.jsx'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView.jsx'
 import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView.jsx'
-import { fakeRequest2, titles, addresses, propertyFeatures } from './PropertyDetailsModel'
+ 
+import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
-  const property = fakeRequest2[0]
+  const { property, isLoading } = usePropertyDetailsViewModel()
   const [headerHeight, setHeaderHeight] = useState(80) // valor padrão
   const [tabsHeight, setTabsHeight] = useState(60) // valor padrão para PropertyTabsView
   const [sectionPadding, setSectionPadding] = useState(20) // valor padrão
@@ -80,6 +81,14 @@ export function PropertyDetailsView() {
     }
   }
 
+  if (isLoading || !property) {
+    return (
+      <div className="p-section-y md:p-section-y-md">
+        <h3 className="text-center">{isLoading ? 'Carregando propriedade...' : 'Imóvel não encontrado'}</h3>
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-fit">
       {/* Hero */}
@@ -112,20 +121,27 @@ export function PropertyDetailsView() {
           </SectionView>
 
           <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <PropertyFeatures features={propertyFeatures} />
+            <PropertyFeatures features={property.amenitiesFeatures || []} />
           </SectionView>
 
           <SectionView id="localizacao" className="bg-distac-gradient !pr-[544px]">
             <PropertyLocation
-              locations={fakeRequest2}
-              addresses={addresses}
-              titles={titles}
+              locations={[
+                { title: property.title, subtitle: property.subtitle },
+                { title: property.title, subtitle: property.subtitle }
+              ]}
+              addresses={property.locationAddresses || []}
+              titles={property.locationTitles || []}
             />
           </SectionView>
 
           <SectionView id="sobre-regiao" className="bg-default-light-alt !pr-[544px]">
             <PropertyRegion
-              regionDescription={property.regionDescription}
+              regionDescription={(() => {
+                const list = property.regionList ? `Regiões de SP: ${property.regionList.join(', ')}` : ''
+                const selected = property.regionDescription || ''
+                return `${list}\n\n${selected}`
+              })()}
               image={property.imageLink}
             />
           </SectionView>
@@ -180,7 +196,7 @@ export function PropertyDetailsView() {
       <SectionView className="">
         <PropertiesCarouselView
           titleCarousel="Imóveis Relacionados"
-          properties={fakeRequest2}
+          properties={property.relatedProperties || []}
         />
       </SectionView>
     </div>

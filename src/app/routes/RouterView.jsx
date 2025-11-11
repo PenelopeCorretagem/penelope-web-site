@@ -81,7 +81,7 @@ export function RouterView({ isAuthenticated = false, authReady = false }) {
         {/* Public Routes */}
         <Route path='/' element={<HomeView />} />
         <Route path='/imoveis' element={<PropertiesView />} />
-        <Route path='/imovel/1' element={<PropertyDetailsView />} />
+  <Route path='/imovel/:id' element={<PropertyDetailsView />} />
         <Route path='/sobre' element={<AboutView />} />
         <Route path='/contatos' element={<ContactsView />} />
         <Route path='/login' element={<AuthView />} />
