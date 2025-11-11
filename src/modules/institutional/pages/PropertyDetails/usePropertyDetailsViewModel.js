@@ -89,6 +89,61 @@ export function usePropertyDetailsViewModel() {
         }
 
         if (mounted) setProperty(mapped)
+
+        const fetchRelated = async () => {
+          try {
+            const allResp = await getAnuncios()
+            const allData = allResp?.data || []
+
+            const city = p.address?.city?.toLowerCase() || null
+            const region = (p.address?.region || p.address?.uf || '').toLowerCase()
+
+            const related = allData
+              .filter(item => {
+                if (!item) return false
+                // excluir o próprio anúncio
+                if (String(item.id) === String(data.id) || String(item.property?.id) === String(data.id)) return false
+
+                const ip = item.property || {}
+                const itemCity = (ip.address?.city || '').toLowerCase()
+                const itemRegion = (ip.address?.region || ip.address?.uf || '').toLowerCase()
+
+                // Prioriza mesma cidade, senão mesma região
+                if (city && itemCity === city) return true
+                if (region && itemRegion === region) return true
+                return false
+              })
+              .slice(0, 6)
+              .map((anuncio) => {
+                const ap = anuncio.property || {}
+                const imageLink = (ap.images && ap.images.length > 0)
+                  ? (ap.images.find(img => String(img.type).toLowerCase() === 'capa')?.url || ap.images[0].url)
+                  : ''
+
+                const differences = (ap.amenities && ap.amenities.length > 0)
+                  ? ap.amenities.map(a => a.description)
+                  : []
+
+                return {
+                  id: anuncio.id ?? ap.id,
+                  category: ap.type ?? '',
+                  title: ap.title ?? `${ap.address?.city ?? ''}`,
+                  subtitle: ap.address?.neighborhood ?? ap.address?.city ?? '',
+                  description: ap.description ?? '',
+                  differences,
+                  imageLink,
+                  raw: anuncio,
+                  emphasis: anuncio.emphasis ?? false,
+                }
+              })
+
+            if (mounted) setProperty(prev => ({ ...prev, relatedProperties: related }))
+          } catch (err) {
+            console.warn('[PropertyDetails] erro ao buscar propriedades relacionadas:', err)
+          }
+        }
+
+        fetchRelated()
       } catch (err) {
         console.error('[PropertyDetails] Erro ao carregar detalhe do anúncio (getAnuncioById):', err)
 
