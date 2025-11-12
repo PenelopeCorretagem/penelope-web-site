@@ -44,7 +44,7 @@ export function usePropertyDetailsViewModel() {
 
         // Map amenities to features expected by PropertyFeatures
         const amenitiesFeatures = (p.amenities || []).map(a => ({
-          icon: 'BRINDE', // default icon
+           // default icon
           label: a.description || ''
         }))
 
@@ -61,11 +61,11 @@ export function usePropertyDetailsViewModel() {
         // Regions list and selected region text
         const regionsList = ['sul', 'leste', 'norte', 'oeste', 'centro']
         const regionTexts = {
-          sul: 'Texto pronto para região Sul: descrição, pontos de interesse e diferenciais locais.',
-          leste: 'Texto pronto para região Leste: descrição, pontos de interesse e diferenciais locais.',
-          norte: 'Texto pronto para região Norte: descrição, pontos de interesse e diferenciais locais.',
-          oeste: 'Texto pronto para região Oeste: descrição, pontos de interesse e diferenciais locais.',
-          centro: 'Texto pronto para região Centro: descrição, pontos de interesse e diferenciais locais.',
+          sul: 'A região Sul é referência em qualidade de vida e áreas verdes, com bairros como Moema, Santo Amaro e Campo Belo. Oferece fácil acesso a shoppings, escolas renomadas e parques, sendo ideal para famílias. O Sul também possui uma diversidade de empreendimentos, desde apartamentos compactos até residenciais de alto padrão. Morar aqui significa conforto, segurança e proximidade com importantes vias e centros comerciais.',
+          leste: 'A região Leste de São Paulo é ideal para quem busca conveniência e diversidade. Com bairros como Tatuapé, Penha e São Mateus, a área oferece boa infraestrutura, comércios variados e transporte público eficiente. É perfeita para famílias que valorizam escolas, hospitais e áreas de lazer próximas. A Leste combina tranquilidade residencial com fácil acesso ao centro da cidade, tornando-se uma escolha estratégica para morar ou investir em imóveis.',
+          norte: 'A região Norte de São Paulo oferece um equilíbrio entre áreas residenciais e comércio local, com bairros como Santana, Casa Verde e Tucuruvi. É perfeita para quem busca tranquilidade sem abrir mão de serviços essenciais, como escolas, hospitais e mercados. O Norte se destaca pela boa oferta de transporte público, incluindo metrô e terminais de ônibus, facilitando o acesso a outras regiões. É uma escolha prática e estratégica para morar ou investir.',
+          oeste: 'A região Oeste é conhecida por seu alto padrão e modernidade, abrigando bairros como Pinheiros, Vila Madalena e Butantã. Aqui, os moradores desfrutam de opções culturais, bares, restaurantes e shoppings de primeira linha. É uma área valorizada para quem busca qualidade de vida e mobilidade, próxima a importantes avenidas e centros empresariais. Imóveis no Oeste atraem aqueles que desejam vivência urbana sofisticada, aliando conforto e conveniência.',
+          centro: 'A região Centro é o coração pulsante da cidade, reunindo história, cultura e comércio. Com bairros como Sé, República e Bela Vista, oferece fácil acesso a transporte público, teatros, museus e uma variedade de restaurantes. O Centro é ideal para quem valoriza a vida urbana dinâmica, com opções de lazer e trabalho próximas. Morar aqui significa estar no epicentro das atividades culturais e econômicas da cidade.',
         }
 
         const candidateRegion = String(p.address?.region || '').toLowerCase()
