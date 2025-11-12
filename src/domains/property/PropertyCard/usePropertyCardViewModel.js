@@ -42,14 +42,19 @@ class PropertyCardViewModel {
           ? categoryConfig.variant
           : buttonConfig.variant
 
-        return new ButtonModel(buttonConfig.text, variant, 'button', {
-          action: buttonConfig.action,
-          fullWidth: buttonConfig.fullWidth || false
-        })
+        return new ButtonModel(
+          buttonConfig.text,
+          variant,
+          'button',
+          null, // rota (não usada aqui)
+          buttonConfig.action, // ✅ ação passada corretamente
+          buttonConfig.fullWidth || false // ✅ fullWidth tratado separadamente
+        )
       })
     }
     return this._buttons
   }
+
 
   get formattedDifferences() {
     if (!this._differenceLabels) {

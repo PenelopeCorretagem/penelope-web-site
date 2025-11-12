@@ -14,14 +14,17 @@ export class ButtonModel {
    * @param {string} [type='button'] - Tipo do botão (button, submit, reset, link).
    * @param {string|null} [to=null] - Rota interna, usada se o tipo for 'link'.
    */
-  constructor(text = '', color = 'pink', type = 'button', to = null) {
+  constructor(text = '', color = 'pink', type = 'button', to = null, action = null, fullWidth = false) {
     this.text = text
     this.color = color
     this.type = type
     this.to = to
+    this.action = action     // ✅ adiciona a ação
+    this.fullWidth = fullWidth // ✅ adiciona fullWidth
     this.active = false
     this.disabled = false
   }
+
 
   /** @static {string[]} Lista de cores válidas do botão. */
   static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'transparent']
