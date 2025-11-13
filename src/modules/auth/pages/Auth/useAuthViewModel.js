@@ -78,9 +78,9 @@ export function useAuthViewModel() {
     setAlertConfig(null)
     try {
       const response = await loginUser(formData)
-      const { token } = response.data
+      const { token, id } = response.data
       localStorage.setItem('jwtToken', token)
-      console.log('Login bem-sucedido, token:', token)
+      localStorage.setItem('userId', id)
 
       setAlertConfig({
         type: 'success',

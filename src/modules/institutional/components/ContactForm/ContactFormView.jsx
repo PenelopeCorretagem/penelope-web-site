@@ -1,4 +1,5 @@
 import { FormView } from '@shared/components/ui/Form/FormView'
+import { contactUs } from '@app/services/apiService'
 
 export function ContactFormView() {
   const fields = [
@@ -44,30 +45,16 @@ export function ContactFormView() {
 
   const handleSubmit = async (formData) => {
     try {
-      const response = await fetch('https://sua-api.com/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: 'contato@penelope.com.br',
-          subject: `Novo contato: ${formData.subject}`,
-          message: `
-          Nome: ${formData.name}
-          E-mail: ${formData.email}
-          Mensagem: ${formData.message}
-        `,
-        }),
-      })
-
-      if (!response.ok) throw new Error('Falha ao enviar o e-mail')
+      await contactUs(formData.name, formData.email, formData.subject, formData.message)
 
       return {
         success: true,
-        message: 'Mensagem enviada com sucesso! Verifique seu e-mail em breve.',
+        message: 'Mensagem enviada com sucesso!',
         reset: true,
       }
     } catch (error) {
-      console.error('Erro ao enviar e-mail:', error)
-      return { success: false, error: 'Ocorreu um erro ao enviar sua mensagem. Tente novamente.' }
+      const errorMessage = error.response?.data?.message || 'Ocorreu um erro ao enviar sua mensagem. Tente novamente.'
+      return { success: false, error: errorMessage }
     }
   }
 
