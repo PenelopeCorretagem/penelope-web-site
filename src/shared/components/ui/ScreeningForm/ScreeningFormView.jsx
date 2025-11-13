@@ -1,139 +1,98 @@
+import ReactDOM from 'react-dom'
 import { useState } from 'react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 
 export function ScreeningFormView({ onClose }) {
   const [formData, setFormData] = useState({
     nome: '',
-    sobrenome: '',
-    cpf: '',
     email: '',
-    celular: '',
-    renda: ''
+    telefone: '',
+    mensagem: '',
   })
 
   const handleChange = (e) => {
-    const { id, value } = e.target
-    setFormData({ ...formData, [id]: value })
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log('Dados enviados:', formData)
-    // Aqui você pode integrar com API, WhatsApp, etc.
-    onClose?.()
+    // Aqui você pode integrar com API, WhatsApp etc.
+    onClose?.() // Fecha o modal ao enviar
   }
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
-      <div className="max-h-screen bg-pink-50 border border-pink-600 rounded-2xl flex flex-col justify-center items-center p-10 relative w-full max-w-6xl shadow-xl">
-
+  // Renderiza como portal para garantir sobreposição total
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+      <div className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-7xl mx-4 border-4 border-distac-primary">
         {/* Botão de fechar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-pink-700 hover:text-pink-900 text-2xl"
+          className="absolute top-4 left-4 text-black hover:text-gray-600 text-6xl"
           aria-label="Fechar formulário"
         >
-          ✕
+          &larr;
         </button>
 
-        {/* Cabeçalho */}
-        <div className="w-full flex justify-between items-center mb-10">
-          <HeadingView level={2} className="text-3xl font-semibold text-pink-700 text-center flex-1">
-            FORMULÁRIO DE TRIAGEM
-          </HeadingView>
-          <img
-            src="/logo.png"
-            alt="Logo consultoria"
-            className="w-24 h-auto object-contain"
-          />
-        </div>
-
-        {/* Formulário */}
-        <form
-          onSubmit={handleSubmit}
-          className="w-full grid grid-cols-2 gap-6 max-w-6xl"
+        <HeadingView
+          level={3}
+          className="text-center mb-4 text-distac-primary font-semibold"
         >
-          {/* Linha 1 */}
-          <div className="flex flex-col">
-            <input
-              id="nome"
-              type="text"
-              placeholder="NOME"
-              value={formData.nome}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-              required
-            />
-          </div>
-          <div className="flex flex-col">
-            <input
-              id="sobrenome"
-              type="text"
-              placeholder="SOBRENOME:"
-              value={formData.sobrenome}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-            />
-          </div>
+          Formulário de Triagem
+        </HeadingView>
 
-          {/* Linha 2 */}
-          <div className="flex flex-col">
-            <input
-              id="cpf"
-              type="text"
-              placeholder="CPF:"
-              value={formData.cpf}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-            />
-          </div>
-          <div className="flex flex-col">
-            <input
-              id="email"
-              type="email"
-              placeholder="E-MAIL:"
-              value={formData.email}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-            />
-          </div>
+        <TextView className="text-center mb-6 text-default-dark">
+          Formulário de Triagem
+        </TextView>
 
-          {/* Linha 3 */}
-          <div className="flex flex-col">
-            <input
-              id="celular"
-              type="tel"
-              placeholder="CELULAR:"
-              value={formData.celular}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-            />
-          </div>
-          <div className="flex flex-col">
-            <input
-              id="renda"
-              type="text"
-              placeholder="RENDA MÉDIA MENSAL:"
-              value={formData.renda}
-              onChange={handleChange}
-              className="bg-pink-200 rounded-md px-4 py-3 outline-none"
-            />
-          </div>
-        </form>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            name="nome"
+            placeholder="Seu nome"
+            value={formData.nome}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-distac-primary outline-none"
+            required
+          />
 
-        {/* Botões */}
-        <div className="flex gap-4 mt-10">
-          <ButtonView
-            type="submit"
-            variant="primary"
-            className="bg-pink-600 hover:bg-pink-700 text-white font-medium px-6 py-3 rounded-md"
-            onClick={handleSubmit}
-          >
-            ENVIAR FORMULÁRIO
+          <input
+            type="email"
+            name="email"
+            placeholder="Seu e-mail"
+            value={formData.email}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-distac-primary outline-none"
+            required
+          />
+
+          <input
+            type="tel"
+            name="telefone"
+            placeholder="Seu telefone"
+            value={formData.telefone}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-distac-primary outline-none"
+          />
+
+          <textarea
+            name="mensagem"
+            placeholder="Escreva sua mensagem..."
+            rows="3"
+            value={formData.mensagem}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-distac-primary outline-none resize-none"
+          />
+
+          <ButtonView type="submit" variant="primary" className="w-full">
+            Enviar Formulário
           </ButtonView>
-        </div>
+        </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
