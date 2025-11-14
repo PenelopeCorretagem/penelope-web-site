@@ -1,16 +1,21 @@
 import ReactDOM from 'react-dom'
+import { useCallback } from 'react'
+
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { FaArrowLeft } from 'react-icons/fa'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { LogoView } from '@shared/components/ui/Logo/LogoView'
+
+import { FaArrowLeft } from 'react-icons/fa'
 
 export function ScreeningFormView({ onClose }) {
-
+  /* ----------------------------------------------
+   * Campos do formulário
+   * ---------------------------------------------- */
   const fields = [
-    // COLUNA 1
+    // Coluna 1
     {
       name: 'nome',
-      label: '',
       placeholder: 'NOME:',
       type: 'text',
       required: true,
@@ -19,7 +24,6 @@ export function ScreeningFormView({ onClose }) {
     },
     {
       name: 'email',
-      label: '',
       placeholder: 'Digite seu e-mail',
       type: 'email',
       required: true,
@@ -29,17 +33,15 @@ export function ScreeningFormView({ onClose }) {
     },
     {
       name: 'celular',
-      label: '',
       placeholder: 'CELULAR:',
       type: 'tel',
       hasLabel: true,
       column: 1,
     },
 
-    // COLUNA 2
+    // Coluna 2
     {
       name: 'sobrenome',
-      label: '',
       placeholder: 'SOBRENOME:',
       type: 'text',
       required: true,
@@ -48,7 +50,6 @@ export function ScreeningFormView({ onClose }) {
     },
     {
       name: 'emailConfirm',
-      label: '',
       placeholder: 'E-MAIL:',
       type: 'email',
       required: true,
@@ -63,15 +64,17 @@ export function ScreeningFormView({ onClose }) {
     },
     {
       name: 'rendaMed',
-      label: '',
       placeholder: 'RENDA MÉDIA MENSAL:',
-      type: 'renda',
+      type: 'text',
       hasLabel: true,
       column: 2,
     },
   ]
 
-  const handleSubmit = async (data) => {
+  /* ----------------------------------------------
+   * Submit final
+   * ---------------------------------------------- */
+  const handleSubmit = useCallback(async (data) => {
     console.log('Dados enviados:', data)
 
     return {
@@ -79,56 +82,60 @@ export function ScreeningFormView({ onClose }) {
       message: 'Formulário enviado com sucesso!',
       reset: true,
     }
-  }
+  }, [])
 
+  /* ----------------------------------------------
+   * Render
+   * ---------------------------------------------- */
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-      <div className="relative bg-default-light rounded-lg shadow-2xl p-8 w-full max-w-6xl mx-4 border-2 border-distac-primary h-auto flex flex-col space-y-6">
+      <div className="relative bg-default-light rounded-lg shadow-2xl p-16 pb-18 w-full max-w-6xl mx-4 border-2 border-distac-primary flex flex-col space-y-10">
 
-        {/* Voltar */}
-        <ButtonView
-          shape='square'
-          width='fit'
-          onClick={onClose}
-          className='!p-button-x'
-          color='transparent'
-          title='Voltar'
-        >
-          <FaArrowLeft className='text-distac-secondary text-3xl' aria-hidden='true' />
-          <span className='sr-only'>Buscar</span>
-        </ButtonView>
-
+        {/* Header */}
         <HeadingView
           level={4}
-          className="text-center mb-10 text-distac-primary font-semibold w-full"
+          className="flex justify-between items-center w-full text-distac-primary font-semibold"
         >
+          {/* Botão de voltar */}
+          <ButtonView
+            shape="square"
+            width="fit"
+            onClick={onClose}
+            color="transparent"
+            className="!p-button-x"
+            title="Voltar"
+          >
+            <FaArrowLeft className="text-distac-secondary text-3xl" aria-hidden="true" />
+            <span className="sr-only">Voltar</span>
+          </ButtonView>
+
           Formulário de Triagem
+
+          <LogoView className="text-distac-primary fill-current" />
         </HeadingView>
 
-        {/* 🔥 Grade com duas colunas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Formulários em duas colunas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
           {/* Coluna 1 */}
-          <div className="flex flex-col gap-6">
-            <FormView
-              fields={fields.filter(f => f.column === 1)}
-              submitText=""
-              onSubmit={() => {}}
-            />
-          </div>
+          <FormView
+            fields={fields.filter(f => f.column === 1)}
+            submitText=""
+            onSubmit={() => {}}
+          />
 
           {/* Coluna 2 */}
-          <div className="flex flex-col gap-6">
-            <FormView
-              fields={fields.filter(f => f.column === 2)}
-              submitText=""
-              onSubmit={() => {}}
-            />
-          </div>
+          <FormView
+            fields={fields.filter(f => f.column === 2)}
+            submitText=""
+            onSubmit={() => {}}
+          />
+
         </div>
 
         {/* Botão final */}
-        <div className='w-full flex justify-center'>
-          <div className="mt-6 w-1/4">
+        <div className="w-full flex justify-center">
+          <div className="mt-6 w-full md:w-1/3">
             <FormView
               fields={[]}
               submitText="Enviar formulário"
