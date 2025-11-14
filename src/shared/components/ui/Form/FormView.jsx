@@ -163,15 +163,18 @@ export function FormView({
         </div>
       )}
 
-      {/* Botão de submit - não desabilitar por campos vazios */}
+      {/* Botão de submit – só aparece se submitText for válido */}
+      {submitText?.trim() && (
       <ButtonView
         type="submit"
         width={submitWidth}
-        disabled={isLoading} // Só desabilita se estiver carregando
+        disabled={isLoading}
         className={submitButtonClasses}
       >
         {isLoading ? 'Carregando...' : submitText}
       </ButtonView>
+      )}
+
 
       {/* Rodapé */}
       {hasFooter && (
