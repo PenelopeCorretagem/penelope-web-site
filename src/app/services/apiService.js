@@ -74,7 +74,6 @@ export const getAnuncioById = (id) => {
  * @param {string} email - O e-mail do usuário.
  * @param {string} assunto - O assunto do email.
  * @param {string} mensagem - O conteúdo do email.
- * @returns {Promise<object>} A resposta da API.
  */
 export const contactUs = (nome, email, assunto, mensagem) => {
   return api.post(`/contact-us`, { nome, email, assunto, mensagem })
@@ -86,4 +85,13 @@ export const contactUs = (nome, email, assunto, mensagem) => {
  */
 export const getUserById = (id) => {
   return api.get(`/users/${id}`)
+}
+
+/**
+ * Recupera um usuário por id
+ * @param {number|string} id
+ * @param {object} userData - Dados do usuário para atualização
+ */
+export const updateUser = (id, userData) => {
+  return api.patch(`/users/${id}`, userData)
 }

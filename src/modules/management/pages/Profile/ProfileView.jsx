@@ -2,7 +2,7 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ManagementMenuView } from '@management/components/ui/ManagementMenu/ManagementMenuView'
 import { ManagementFormView } from '@shared/components/ui/ManagementForm/ManagementFormView.jsx'
 import { useEffect, useState } from 'react'
-import { getUserById } from '@app/services/apiService'
+import { getUserById, updateUser } from '@app/services/apiService'
 
 export function ProfileView() {
   const [activeMenu, setActiveMenu] = useState('perfil')
@@ -38,17 +38,17 @@ export function ProfileView() {
 
       setUserData({
         perfil: {
-          firstName: data.name || '',
-          lastName: data.lastName || '',
-          cpf: data.cpf || '',
-          birthDate: data.dateBirth || '',
-          monthlyIncome: data.monthlyIncome || '',
-          phone: data.phone || ''
+          firstName: data.name || null,
+          lastName: data.lastName || null,
+          cpf: data.cpf || null,
+          birthDate: data.dateBirth || null,
+          monthlyIncome: data.monthlyIncome || null,
+          phone: data.phone || null
         },
         acesso: {
-          email: data.email || '',
-          currentPassword: data.password || '',
-          newPassword: ''
+          email: data.email || null,
+          currentPassword: data.password || null,
+          newPassword: null
         }
       })
 
@@ -140,7 +140,9 @@ export function ProfileView() {
 
   const handleSubmit = async (_data) => {
     try {
-      const result = { success: true, message: 'Dados atualizados com sucesso!' }
+      const result = await updateUser(localStorage.getItem('userId'), _data)
+      result.success = true
+      result.message = 'Dados atualizados com sucesso!'
 
       if (result.success) {
         setIsEditing(false)
