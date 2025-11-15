@@ -44,3 +44,26 @@ export const validateResetToken = (token) => {
 export const resetPassword = ({ token, newPassword }) => {
   return api.post('/auth/reset-password', { token, newPassword })
 }
+
+/**
+ * Recupera a lista de anúncios.
+ * Retorna a promise do axios para permitir tratamento externo.
+ */
+export const getAnuncios = () => {
+  return api.get('/anuncios')
+}
+
+/**
+ * Recupera o último anúncio criado (destaque)
+ */
+export const getAnuncioLatest = () => {
+  return api.get('/anuncios/latest')
+}
+
+/**
+ * Recupera um anúncio por id
+ * @param {number|string} id
+ */
+export const getAnuncioById = (id) => {
+  return api.get(`/anuncios/${id}`)
+}
