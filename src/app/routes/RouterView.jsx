@@ -1,215 +1,156 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
 import { HomeView } from '@institutional/pages/Home/HomeView'
-import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
 import { PropertyDetailsView } from '@institutional/pages/PropertyDetails/PropertyDetailsView'
 import { AboutView } from '@institutional/pages/About/AboutView'
 import { ContactsView } from '@institutional/pages/Contacts/ContactsView'
 import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
 import { ProfileView } from '@management/pages/Profile/ProfileView'
-import { SettingsView } from '@management/pages/Settings/SettingsView'
-import ManagementView from '@management/pages/ManegementView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
 import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
 import { PropertyConfigView } from '@management/pages/PropertyConfig/PropertyConfigView'
+import { PropertiesConfigView } from '@management/pages/PropertiesConfig/PropertiesConfigView'
+import { UsersView } from '@management/pages/Users/UsersView'
+import { AccountView } from '@management/pages/Account/AccountView'
+import { NotFoundView } from '@shared/pages/NotFound/NotFoundView'
+import { UnauthorizedView } from '@shared/pages/Unauthorized/UnauthorizedView'
+import { LoadingView } from '@shared/pages/Loading/LoadingView'
+import { useRouter } from './useRouterViewModel'
 
-// Views de erro
-const NotFoundPage = () => {
-  const navigate = useNavigate()
-  return (
-    <div className='error-view flex min-h-[60vh] flex-col items-center justify-center p-8 text-center'>
-      <h1 className='mb-4 text-4xl font-bold text-gray-800'>
-        404 - Página Não Encontrada
-      </h1>
-      <ErrorDisplayView
-        messages={['A página que você está procurando não existe.']}
-        position='inline'
-        variant='prominent'
-        className='mb-6'
-      />
-      <button
-        onClick={() => navigate(-1)}
-        className='bg-distac-primary hover:bg-distac-secondary rounded px-6 py-2 text-white transition-colors'
-      >
-        Voltar
-      </button>
-    </div>
-  )
-}
+/**
+ * ProtectedRoute - Wrapper para rotas protegidas
+ */
+const ProtectedRoute = ({ protection, children }) => {
+  const { shouldRender, redirectTo } = protection
 
-const UnauthorizedPage = () => {
-  const navigate = useNavigate()
-  return (
-    <div className='error-view flex min-h-[60vh] flex-col items-center justify-center p-8 text-center'>
-      <h1 className='mb-4 text-4xl font-bold text-gray-800'>
-        401 - Acesso Não Autorizado
-      </h1>
-      <ErrorDisplayView
-        messages={['Você não tem permissão para acessar esta página.']}
-        position='inline'
-        variant='prominent'
-        className='mb-6'
-      />
-      <button
-        onClick={() => navigate('/')}
-        className='bg-distac-primary hover:bg-distac-secondary rounded px-6 py-2 text-white transition-colors'
-      >
-        Ir para Home
-      </button>
-    </div>
-  )
-}
-
-// Protected Route component
-const ProtectedRoute = ({ isAuthenticated, authReady, children }) => {
-  if (!authReady) {
-    return null
+  if (!shouldRender && !redirectTo) {
+    return <LoadingView />
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to='/login' replace />
+  if (!shouldRender && redirectTo) {
+    return <Navigate to={redirectTo} replace />
   }
 
   return children
 }
 
-// Admin Protected Route component
-const AdminProtectedRoute = ({ isAuthenticated, isAdmin, authReady, children }) => {
-  if (!authReady) {
-    return null
-  }
+/**
+ * RouterView - View de roteamento (Camada de Apresentação)
+ *
+ * RESPONSABILIDADES:
+ * - Renderizar rotas baseado nas props
+ * - Aplicar componentes de proteção
+ * - Estrutura visual consistente
+ **/
+export function RouterView({
+  isAuthenticated = false,
+  isAdmin = false,
+  authReady = false,
+}) {
+  const {
+    calculateProtectedRouteAccess,
+    calculateAdminRouteAccess,
+    getAllRoutes
+  } = useRouter()
 
-  if (!isAuthenticated) {
-    return <Navigate to='/login' replace />
-  }
+  const routes = getAllRoutes()
 
-  if (!isAdmin) {
-    return <Navigate to='/401' replace />
-  }
+  // Calcula proteções via ViewModel
+  const protectedAccess = calculateProtectedRouteAccess(isAuthenticated, authReady)
+  const adminAccess = calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady)
 
-  return children
-}
-
-export function RouterView({ isAuthenticated = false, isAdmin = false, authReady = false }) {
   return (
-    <main className='router-view bg-default-light w-full flex-1 overflow-x-hidden overflow-y-auto'>
+    <main className="router-view bg-default-light w-full flex-1 overflow-x-hidden overflow-y-auto">
       <ScrollToTop />
       <Routes>
-        {/* Public Routes */}
-        <Route path='/' element={<HomeView />} />
-        <Route path='/imoveis' element={<PropertiesView />} />
-        <Route path='/imovel/1' element={<PropertyDetailsView />} />
-        <Route path='/sobre' element={<AboutView />} />
-        <Route path='/contatos' element={<ContactsView />} />
-        <Route path='/login' element={<AuthView />} />
-        <Route path='/registro' element={<AuthView />} />
-        <Route path='/esqueci-senha' element={<AuthView />} />
-        <Route path='/verificacao' element={<ResetPasswordView />} />
-        <Route path='/verificacao-:token' element={<ResetPasswordView />} />
-        <Route path='/redefinir-senha' element={<ResetPasswordView />} />
+        {/* ===== ROTAS PÚBLICAS ===== */}
+        <Route path={routes.HOME} element={<HomeView />} />
+        <Route path={routes.PROPERTIES} element={<PropertiesView />} />
+        <Route path={routes.PROPERTY_DETAIL} element={<PropertyDetailsView />} />
+        <Route path={routes.ABOUT} element={<AboutView />} />
+        <Route path={routes.CONTACTS} element={<ContactsView />} />
 
-        {/* Protected Routes */}
+        {/* ===== AUTENTICAÇÃO ===== */}
+        <Route path={routes.LOGIN} element={<AuthView />} />
+        <Route path={routes.REGISTER} element={<AuthView />} />
+        <Route path={routes.FORGOT_PASSWORD} element={<AuthView />} />
+        <Route path={routes.VERIFICATION_CODE} element={<ResetPasswordView />} />
+        <Route path="/verificacao-:token" element={<ResetPasswordView />} />
+        <Route path={routes.RESET_PASSWORD} element={<ResetPasswordView />} />
+
+        {/* ===== ROTAS PROTEGIDAS ===== */}
         <Route
-          path='/agenda'
+          path={routes.SCHEDULE}
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
+            <ProtectedRoute protection={protectedAccess}>
               <ScheduleView />
             </ProtectedRoute>
           )}
         />
         <Route
-          path='/perfil'
+          path={routes.PROFILE}
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
+            <ProtectedRoute protection={protectedAccess}>
+              <ProfileView />
+            </ProtectedRoute>
+          )}
+        />
+
+        {/* ===== ROTAS ADMIN ===== */}
+        <Route
+          path={routes.ADMIN}
+          element={(
+            <ProtectedRoute protection={adminAccess}>
+              <Navigate to={routes.ADMIN_PROPERTIES} replace />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path={routes.ADMIN_PROFILE}
+          element={(
+            <ProtectedRoute protection={adminAccess}>
               <ProfileView />
             </ProtectedRoute>
           )}
         />
         <Route
-          path='/configuracoes'
+          path={routes.ADMIN_ACCOUNT}
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-              <SettingsView />
+            <ProtectedRoute protection={adminAccess}>
+              <AccountView />
             </ProtectedRoute>
           )}
         />
-
-        {/* Management Routes - User (com sidebar próprio) */}
         <Route
-          path='/management'
+          path={routes.ADMIN_USERS}
           element={(
-            <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-              <ManagementView />
+            <ProtectedRoute protection={adminAccess}>
+              <UsersView />
             </ProtectedRoute>
           )}
-        >
-          <Route path='profile' element={<ProfileView />} />
-          <Route path='account' element={<SettingsView />} />
-          <Route path='users' element={<div className="p-6"><h1 className="text-2xl font-bold">Users Management</h1></div>} />
-          <Route path='properties' element={<div className="p-6"><h1 className="text-2xl font-bold">Properties Management</h1></div>} />
-        </Route>
-
-        {/* Admin Routes - Renderizados diretamente (sidebar vem do PageView) */}
+        />
         <Route
-          path='/admin/management/profile'
+          path={routes.ADMIN_PROPERTIES}
           element={(
-            <AdminProtectedRoute
-              isAuthenticated={isAuthenticated}
-              isAdmin={isAdmin}
-              authReady={authReady}
-            >
-              <div className="p-6">
-                <ProfileView />
-              </div>
-            </AdminProtectedRoute>
+            <ProtectedRoute protection={adminAccess}>
+              <PropertiesConfigView />
+            </ProtectedRoute>
           )}
         />
         <Route
-          path='/admin/management/account'
+          path={routes.ADMIN_PROPERTIES_CONFIG}
           element={(
-            <AdminProtectedRoute
-              isAuthenticated={isAuthenticated}
-              isAdmin={isAdmin}
-              authReady={authReady}
-            >
-              <div className="p-6">
-                <SettingsView />
-              </div>
-            </AdminProtectedRoute>
-          )}
-        />
-        <Route
-          path='/admin/management/users'
-          element={(
-            <AdminProtectedRoute
-              isAuthenticated={isAuthenticated}
-              isAdmin={isAdmin}
-              authReady={authReady}
-            >
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Admin Users Management</h1>
-                <p className="text-gray-600">Gerencie todos os usuários do sistema aqui.</p>
-              </div>
-            </AdminProtectedRoute>
-          )}
-        />
-        <Route
-          path='/admin/management/properties'
-          element={(
-            <AdminProtectedRoute
-              isAuthenticated={isAuthenticated}
-              isAdmin={isAdmin}
-              authReady={authReady}
-            >
+            <ProtectedRoute protection={adminAccess}>
               <PropertyConfigView />
-            </AdminProtectedRoute>
+            </ProtectedRoute>
           )}
         />
 
-        {/* Error Routes */}
-        <Route path='/401' element={<UnauthorizedPage />} />
-        <Route path='*' element={<NotFoundPage />} />
+        {/* ===== PÁGINAS DE ERRO ===== */}
+        <Route path={routes.UNAUTHORIZED} element={<UnauthorizedView />} />
+        <Route path={routes.NOT_FOUND} element={<NotFoundView />} />
+        <Route path="*" element={<NotFoundView />} />
       </Routes>
     </main>
   )

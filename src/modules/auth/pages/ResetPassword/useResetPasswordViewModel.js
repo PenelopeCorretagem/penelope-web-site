@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { ResetPasswordModel } from './ResetPasswordModel'
-import { validateResetToken, resetPassword } from '@app/services/apiService'
+import { validateResetToken, resetPassword } from '@app/services/api/authApi'
 
 export function useResetPasswordViewModel() {
   const navigate = useNavigate()
@@ -38,7 +38,8 @@ export function useResetPasswordViewModel() {
         setError('')
         try {
           const trimmed = (tokenFromUrl || '').trim()
-          await validateResetToken(trimmed)
+          const response = await validateResetToken(trimmed)
+          console.log('Token validation response:', response)
           setValidToken(trimmed)
 
           try { sessionStorage.setItem('resetToken', trimmed) } catch (e) { /* ignore */ }
@@ -65,7 +66,8 @@ export function useResetPasswordViewModel() {
     setError('')
     try {
       const trimmed = (formData.token || '').trim()
-      await validateResetToken(trimmed)
+      const response = await validateResetToken(trimmed)
+      console.log('Token validation response:', response)
       setValidToken(trimmed)
       try { sessionStorage.setItem('resetToken', trimmed) } catch (e) { }
       const resetRoute = resetPasswordModel.getResetPasswordRoute()
@@ -102,7 +104,8 @@ export function useResetPasswordViewModel() {
     setAlertConfig(null)
 
     try {
-      await resetPassword({ token, newPassword: formData.newPassword })
+      const response = await resetPassword({ token, newPassword: formData.newPassword })
+      console.log('Password reset response:', response)
       setAlertConfig({
         type: 'success',
         message: 'Senha redefinida com sucesso!',

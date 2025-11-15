@@ -63,7 +63,10 @@ export class PropertyCardModel {
     hasShadow = false,
     hasImage = false,
     hasHoverEffect = false,
-    imageUrl = ''
+    imageUrl = '',
+    supportMode = false,
+    onEdit,
+    onDelete
   }) {
     this.validateInputs(category, title, subtitle, description)
 
@@ -80,6 +83,9 @@ export class PropertyCardModel {
     this.hasImage = Boolean(hasImage)
     this.hasHoverEffect = Boolean(hasHoverEffect)
     this.imageUrl = String(imageUrl).trim()
+    this.supportMode = Boolean(supportMode)
+    this.onEdit = onEdit
+    this.onDelete = onDelete
   }
 
   validateInputs(category, title, subtitle, description) {

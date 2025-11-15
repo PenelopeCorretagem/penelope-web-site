@@ -1,39 +1,34 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { RouterModel } from '@routes/RouterModel'
 
 /**
- * RouterViewModel - Gerencia a lógica e apresentação do Router
- * Implementa Singleton e centraliza navegação e estado das rotas
+ * RouterViewModel - Lógica de apresentação do Router (Camada de Apresentação/Lógica)
+ *
+ * RESPONSABILIDADES:
+ * - Gerenciar navegação (integração com React Router)
+ * - Validar permissões de rotas
+ * - Calcular proteções (auth, admin)
+ * - Validar rotas antes de navegar
+ * - Extrair parâmetros de rotas
+ * - Expor API para Views
+ *
+ * INTEGRAÇÕES:
+ * - React Router (useNavigate, useLocation)
+ * - RouterModel (dados)
  */
 class RouterViewModel {
   static instance = null
 
   constructor() {
-    // Impede criação de nova instância se já existir
     if (RouterViewModel.instance) {
       return RouterViewModel.instance
     }
 
-    // Inicializa o routerModel antes de qualquer outra coisa
     this.routerModel = RouterModel.getInstance()
+    this.navigate = null
 
-    // Define a instância antes dos binds
     RouterViewModel.instance = this
-
-    // Bind de TODOS os métodos que acessam this.routerModel
-    this.navigateTo = this.navigateTo.bind(this)
-    this.goBack = this.goBack.bind(this)
-    this.requiresAuth = this.requiresAuth.bind(this)
-    this.requiresAdmin = this.requiresAdmin.bind(this)
-    this.generateRoute = this.generateRoute.bind(this)
-    this.extractParams = this.extractParams.bind(this)
-    this.getAllRoutes = this.getAllRoutes.bind(this)
-    this.getMenuRoutes = this.getMenuRoutes.bind(this)
-    this.getUserActionRoutes = this.getUserActionRoutes.bind(this)
-    this.getAuthRoutes = this.getAuthRoutes.bind(this)
-    this.getAdminRoutes = this.getAdminRoutes.bind(this)
-    this.addRouteChangeListener = this.addRouteChangeListener.bind(this)
-    this.removeRouteChangeListener = this.removeRouteChangeListener.bind(this)
   }
 
   static getInstance() {
@@ -43,40 +38,166 @@ class RouterViewModel {
     return RouterViewModel.instance
   }
 
-  get route() {
-    return this.routerModel.getCurrentRoute()
+  // ===== Injeção de Dependências =====
+  setNavigate(navigateFn) {
+    this.navigate = navigateFn
   }
 
+  // ===== Lógica de Navegação =====
   navigateTo(route) {
-    // Valida se a rota existe
+    if (!this.navigate) {
+      console.error('Navigate not initialized')
+      return
+    }
+
+    if (!this.isValidRoute(route)) {
+      this.navigate(this.routerModel.getRoute('NOT_FOUND'), { replace: true })
+      this.routerModel.setCurrentRoute(this.routerModel.getRoute('NOT_FOUND'))
+      return
+    }
+
+    this.navigate(route)
+    this.routerModel.setCurrentRoute(route)
+  }
+
+  goBack() {
+    if (!this.navigate) {
+      console.error('Navigate not initialized')
+      return
+    }
+    this.navigate(-1)
+  }
+
+  // ===== Validações de Rota =====
+  isValidRoute(route) {
     const allRoutes = Object.values(this.routerModel.getAllRoutes())
-    const routeExists = allRoutes.some(r => {
+
+    // Caso especial: verificação dinâmica (tokens)
+    if (route.startsWith('/verificacao-')) {
+      return true
+    }
+
+    // Verifica rota exata
+    if (allRoutes.includes(route)) {
+      return true
+    }
+
+    // Verifica rotas com parâmetros
+    return allRoutes.some(r => {
       if (r.includes(':')) {
         const pattern = r.replace(/:[^/]+/g, '[^/]+')
         const regex = new RegExp(`^${pattern}$`)
         return regex.test(route)
       }
-      return r === route
+      return false
+    })
+  }
+
+  isRouteActive(route, currentRoute) {
+    if (route === '/' && currentRoute === '/') return true
+    if (route === currentRoute) return true
+    if (route !== '/' && currentRoute.startsWith(`${route}/`)) return true
+    return false
+  }
+
+  // ===== Lógica de Permissões =====
+  requiresAuth(route) {
+    const publicRoutes = this.routerModel.getPublicRoutes()
+
+    // Verifica rota exata
+    if (publicRoutes.includes(route)) {
+      return false
+    }
+
+    // Verifica padrões dinâmicos
+    if (route.startsWith('/verificacao-')) {
+      return false
+    }
+
+    return true
+  }
+
+  requiresAdmin(route) {
+    const adminRoutes = this.routerModel.getAdminRequiredRoutes()
+
+    // Verifica rota exata
+    if (adminRoutes.includes(route)) {
+      return true
+    }
+
+    // Verifica se começa com /admin/
+    if (route.startsWith('/admin/')) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Calcula proteção de rota autenticada
+   */
+  calculateProtectedRouteAccess(isAuthenticated, authReady) {
+    if (!authReady) {
+      return { shouldRender: false, redirectTo: null }
+    }
+
+    if (!isAuthenticated) {
+      return { shouldRender: false, redirectTo: this.routerModel.getRoute('LOGIN') }
+    }
+
+    return { shouldRender: true, redirectTo: null }
+  }
+
+  /**
+   * Calcula proteção de rota admin
+   */
+  calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady) {
+    if (!authReady) {
+      return { shouldRender: false, redirectTo: null }
+    }
+
+    if (!isAuthenticated) {
+      return { shouldRender: false, redirectTo: this.routerModel.getRoute('LOGIN') }
+    }
+
+    if (!isAdmin) {
+      return { shouldRender: false, redirectTo: this.routerModel.getRoute('UNAUTHORIZED') }
+    }
+
+    return { shouldRender: true, redirectTo: null }
+  }
+
+  // ===== Utilitários de Rotas =====
+  generateRoute(routeName, params = {}) {
+    let route = this.routerModel.getRoute(routeName)
+
+    if (!route) {
+      throw new Error(`Rota ${routeName} não encontrada`)
+    }
+
+    Object.keys(params).forEach(param => {
+      route = route.replace(`:${param}`, params[param])
     })
 
-    if (!routeExists && route !== '/404') {
-      this.navigateTo('/404')
-      return
-    }
-
-    // Usa o React Router para navegação
-    this.routerModel.setCurrentRoute(route)
+    return route
   }
 
-  goBack() {
-    if (this.routerModel.canGoBack()) {
-      window.history.back()
-      const history = this.routerModel.getHistory()
-      const previousRoute = history[history.length - 2]
-      this.routerModel.setCurrentRoute(previousRoute)
-    }
+  extractParams(routePattern, actualRoute) {
+    const patternParts = routePattern.split('/')
+    const routeParts = actualRoute.split('/')
+    const params = {}
+
+    patternParts.forEach((part, index) => {
+      if (part.startsWith(':')) {
+        const paramName = part.slice(1)
+        params[paramName] = routeParts[index]
+      }
+    })
+
+    return params
   }
 
+  // ===== Listeners =====
   addRouteChangeListener(callback) {
     this.routerModel.addListener(callback)
   }
@@ -85,31 +206,7 @@ class RouterViewModel {
     this.routerModel.removeListener(callback)
   }
 
-  isRouteActive(route) {
-    return this.route === route
-  }
-
-  // Delega métodos do modelo
-  requiresAuth(route) {
-    return this.routerModel.requiresAuth(route)
-  }
-
-  requiresAdmin(route) {
-    return this.routerModel.requiresAdmin(route)
-  }
-
-  generateRoute(routeName, params = {}) {
-    return this.routerModel.generateRoute(routeName, params)
-  }
-
-  extractParams(routePattern, actualRoute) {
-    return this.routerModel.extractParams(routePattern, actualRoute)
-  }
-
-  get(routeName) {
-    return this.routerModel.get(routeName)
-  }
-
+  // ===== Getters =====
   getAllRoutes() {
     return this.routerModel.getAllRoutes()
   }
@@ -131,123 +228,107 @@ class RouterViewModel {
   }
 }
 
-// Função para obter a instância singleton
 /**
- * Obtém instância singleton do RouterViewModel
- * @returns {RouterViewModel} Instância única do RouterViewModel
- */
-function getRouterViewModel() {
-  const routerViewModel = RouterViewModel.getInstance()
-
-  // Configura listener do browser apenas uma vez
-  if (!window.__routerListenerConfigured) {
-    window.addEventListener('popstate', () => {
-      routerViewModel.routerModel.setCurrentRoute(window.location.pathname)
-    })
-
-    window.__routerListenerConfigured = true
-  }
-
-  return routerViewModel
-}
-
-/**
- * Hook para gerenciar navegação e estado das rotas
- * Implementa Factory Pattern - usa o ViewModel singleton internamente
- * @returns {Object} APIs de navegação e estado atual
+ * useRouter - Hook principal para componentes React
  */
 export function useRouter() {
-  const [routerViewModel] = useState(() => getRouterViewModel())
-  const [currentRoute, setCurrentRoute] = useState(routerViewModel.route)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [routerViewModel] = useState(() => RouterViewModel.getInstance())
 
   useEffect(() => {
-    // Sincroniza com o React Router
-    const handleRouteChange = () => {
-      const currentPath = window.location.pathname
-      console.log('🔄 Route change detected:', currentPath, 'from:', routerViewModel.route)
-      if (currentPath !== routerViewModel.route) {
-        routerViewModel.routerModel.setCurrentRoute(currentPath)
-        setCurrentRoute(currentPath)
-      }
-    }
+    routerViewModel.setNavigate(navigate)
+  }, [navigate, routerViewModel])
 
-    // Handler específico para popstate (botão voltar/avançar)
-    const handlePopState = (_event) => {
-      const currentPath = window.location.pathname
+  useEffect(() => {
+    const currentPath = location.pathname
+    const modelRoute = routerViewModel.routerModel.getCurrentRoute()
+
+    if (currentPath !== modelRoute) {
       routerViewModel.routerModel.setCurrentRoute(currentPath)
-      setCurrentRoute(currentPath)
     }
+  }, [location.pathname, routerViewModel])
 
-    // Escuta mudanças de rota do navegador (botão voltar/avançar)
-    window.addEventListener('popstate', handlePopState)
-
-    // Escuta mudanças programáticas de rota (pushState/replaceState)
-    const originalPushState = window.history.pushState
-    const originalReplaceState = window.history.replaceState
-
-    window.history.pushState = function(...args) {
-      originalPushState.apply(this, args)
-      handleRouteChange()
-    }
-
-    window.history.replaceState = function(...args) {
-      originalReplaceState.apply(this, args)
-      handleRouteChange()
-    }
-
-    // Configura estado inicial
-    handleRouteChange()
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState)
-      window.history.pushState = originalPushState
-      window.history.replaceState = originalReplaceState
-    }
+  const navigateTo = useCallback((route) => {
+    routerViewModel.navigateTo(route)
   }, [routerViewModel])
 
-  // Retorna os métodos já com bind
+  const goBack = useCallback(() => {
+    routerViewModel.goBack()
+  }, [routerViewModel])
+
+  const isRouteActive = useCallback((route) => {
+    return routerViewModel.isRouteActive(route, location.pathname)
+  }, [routerViewModel, location.pathname])
+
+  const requiresAuth = useCallback((route) => {
+    return routerViewModel.requiresAuth(route)
+  }, [routerViewModel])
+
+  const requiresAdmin = useCallback((route) => {
+    return routerViewModel.requiresAdmin(route)
+  }, [routerViewModel])
+
+  const calculateProtectedRouteAccess = useCallback((isAuth, authReady) => {
+    return routerViewModel.calculateProtectedRouteAccess(isAuth, authReady)
+  }, [routerViewModel])
+
+  const calculateAdminRouteAccess = useCallback((isAuth, isAdmin, authReady) => {
+    return routerViewModel.calculateAdminRouteAccess(isAuth, isAdmin, authReady)
+  }, [routerViewModel])
+
+  const generateRoute = useCallback((name, params) => {
+    return routerViewModel.generateRoute(name, params)
+  }, [routerViewModel])
+
+  const extractParams = useCallback((pattern, route) => {
+    return routerViewModel.extractParams(pattern, route)
+  }, [routerViewModel])
+
   return {
-    currentRoute,
-    navigateTo: routerViewModel.navigateTo,
-    goBack: routerViewModel.goBack,
-    isRouteActive: route => routerViewModel.isRouteActive(route),
-    requiresAuth: route => routerViewModel.requiresAuth(route),
-    requiresAdmin: route => routerViewModel.requiresAdmin(route),
-    generateRoute: (name, params) =>
-      routerViewModel.generateRoute(name, params),
-    extractParams: (pattern, route) =>
-      routerViewModel.extractParams(pattern, route),
-    getAllRoutes: () => routerViewModel.getAllRoutes(),
-    getMenuRoutes: () => routerViewModel.getMenuRoutes(),
-    getUserActionRoutes: () => routerViewModel.getUserActionRoutes(),
-    getAuthRoutes: () => routerViewModel.getAuthRoutes(),
-    getAdminRoutes: () => routerViewModel.getAdminRoutes(),
+    currentRoute: location.pathname,
+    navigateTo,
+    goBack,
+    isRouteActive,
+    requiresAuth,
+    requiresAdmin,
+    calculateProtectedRouteAccess,
+    calculateAdminRouteAccess,
+    generateRoute,
+    extractParams,
+    getAllRoutes: useCallback(() => routerViewModel.getAllRoutes(), [routerViewModel]),
+    getMenuRoutes: useCallback(() => routerViewModel.getMenuRoutes(), [routerViewModel]),
+    getUserActionRoutes: useCallback(() => routerViewModel.getUserActionRoutes(), [routerViewModel]),
+    getAuthRoutes: useCallback(() => routerViewModel.getAuthRoutes(), [routerViewModel]),
+    getAdminRoutes: useCallback(() => routerViewModel.getAdminRoutes(), [routerViewModel]),
   }
 }
 
-// Hook para parâmetros da rota
 /**
- * Hook para extrair parâmetros da rota atual
- * @returns {Object} Parâmetros da rota
+ * useRouteParams - Extrai parâmetros da rota atual
  */
 export function useRouteParams() {
-  const { currentRoute, extractParams, getAllRoutes } = useRouter()
+  const location = useLocation()
+  const { extractParams, getAllRoutes } = useRouter()
 
-  const findRoutePattern = () => {
+  const findRoutePattern = useCallback(() => {
     const allRoutes = getAllRoutes()
-    for (const [pattern] of Object.entries(allRoutes)) {
-      if (pattern.includes(':')) {
-        const regex = new RegExp(`^${pattern.replace(/:[^/]+/g, '[^/]+')}$`)
+    const currentRoute = location.pathname
+
+    for (const routePattern of Object.values(allRoutes)) {
+      if (routePattern.includes(':')) {
+        const pattern = routePattern.replace(/:[^/]+/g, '[^/]+')
+        const regex = new RegExp(`^${pattern}$`)
         if (regex.test(currentRoute)) {
-          return pattern
+          return routePattern
         }
       }
     }
     return currentRoute
-  }
+  }, [location.pathname, getAllRoutes])
 
   const routePattern = findRoutePattern()
-  const params = extractParams(routePattern, currentRoute)
+  const params = extractParams(routePattern, location.pathname)
 
   return params
 }

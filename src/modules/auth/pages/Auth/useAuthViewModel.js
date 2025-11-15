@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { registerUser, loginUser, forgotPassword } from '@app/services/apiService'
+import { registerUser } from '@app/services/api/userApi'
+import { loginUser, forgotPassword } from '@app/services/api/authApi'
 
 /**
  * useAuthViewModel - ViewModel para gerenciar a lógica de autenticação
@@ -78,7 +79,7 @@ export function useAuthViewModel() {
     setAlertConfig(null)
     try {
       const response = await loginUser(formData)
-      const { token } = response.data
+      const token = response.token
       localStorage.setItem('jwtToken', token)
       console.log('Login bem-sucedido, token:', token)
 
@@ -111,8 +112,8 @@ export function useAuthViewModel() {
     try {
       const payload = { ...formData }
       if (payload.confirmSenha) delete payload.confirmSenha
-      const response = await registerUser(payload)
-      console.log('Cadastro bem-sucedido:', response.data)
+      const userEntity = await registerUser(payload)
+      console.log('Cadastro bem-sucedido:', userEntity)
 
       setAlertConfig({
         type: 'success',
@@ -149,11 +150,11 @@ export function useAuthViewModel() {
     setAlertConfig(null)
     try {
       const response = await forgotPassword(formData.email)
-      console.log('Solicitação de recuperação de senha enviada:', response.data)
+      console.log('Solicitação de recuperação de senha enviada:', response)
 
       setAlertConfig({
         type: 'info',
-        message: response.data || 'Se o e-mail estiver cadastrado, as instruções de recuperação serão enviadas.',
+        message: response.message || 'Se o e-mail estiver cadastrado, as instruções de recuperação serão enviadas.',
         onClose: () => {
           setAlertConfig(null)
           handleBackToLogin()

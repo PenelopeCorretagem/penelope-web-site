@@ -1,9 +1,109 @@
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { getInputThemeClasses, getInputLabelThemeClasses, getInputContainerThemeClasses } from '@shared/styles/theme'
 
 /**
- * InputView - Componente de input simplificado
+ * Compõe as classes CSS do input baseado no estado.
+ * Responsabilidade da View: definir como o componente é exibido.
+ */
+function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle }) {
+  const classes = []
+
+  // Classes base
+  classes.push(
+    'w-full',
+    'px-4',
+    'py-2',
+    'rounded-sm',
+    'transition-colors',
+    'duration-200',
+    'text-[12px]',
+    'md:text-[16px]',
+    'leading-normal'
+  )
+
+  // Placeholder
+  classes.push(
+    'placeholder:text-default-dark-muted',
+    'placeholder:text-[12px]',
+    'md:placeholder:text-[16px]',
+    'placeholder:uppercase',
+    'placeholder:font-default'
+  )
+
+  // Estados
+  if (disabled) {
+    classes.push(
+      'bg-default-light-muted',
+      'text-default-dark-light',
+      'cursor-not-allowed',
+      'opacity-75'
+    )
+  } else if (readOnly) {
+    classes.push(
+      'bg-default-light-muted',
+      'text-default-dark-light',
+      'cursor-text',
+      'select-text'
+    )
+  } else if (isActive) {
+    classes.push(
+      'bg-distac-primary-light',
+      'focus:bg-default-light',
+      'focus:ring-2',
+      'focus:ring-distac-primary',
+      'focus:outline-none'
+    )
+  } else {
+    classes.push('bg-default-light-muted')
+  }
+
+  // Erro
+  if (hasErrors) {
+    classes.push('border-2', 'border-distac-primary', 'focus:ring-distac-primary')
+  }
+
+  // Espaço para botão de toggle
+  if (withToggle) {
+    classes.push('pr-12')
+  }
+
+  return classes.join(' ')
+}
+
+/**
+ * Compõe as classes CSS do label baseado no estado.
+ */
+function getLabelClasses({ hasErrors, required }) {
+  const classes = []
+
+  // Classes base
+  classes.push(
+    'uppercase',
+    'font-semibold',
+    'font-default',
+    'text-[12px]',
+    'leading-none',
+    'md:text-[16px]'
+  )
+
+  // Estado de erro
+  if (hasErrors) {
+    classes.push('text-distac-primary')
+  } else {
+    classes.push('text-default-dark-muted')
+  }
+
+  // Indicador de obrigatório
+  if (required) {
+    classes.push('after:content-["*"]', 'after:text-distac-primary', 'after:ml-1')
+  }
+
+  return classes.join(' ')
+}
+
+/**
+ * InputView - Componente de input com estilos definidos na View.
+ * Toda a lógica de estilização visual está contida aqui.
  */
 export function InputView({
   children,
@@ -17,6 +117,8 @@ export function InputView({
   disabled = false,
   readOnly = false,
   showPasswordToggle = false,
+  hasErrors = false,
+  className = '',
   onChange,
   onClick,
   ...otherProps
@@ -32,19 +134,16 @@ export function InputView({
   const inputName = otherProps.name || inputId
   const label = children || ''
 
-  // Classes CSS usando o theme
-  const containerClasses = getInputContainerThemeClasses()
-  const labelClasses = getInputLabelThemeClasses({
-    hasErrors: false,
-    required: required,
-  })
-  const inputClasses = getInputThemeClasses({
+  // Classes CSS compostas na View
+  const containerClasses = 'w-full flex flex-col gap-2'
+  const labelClasses = getLabelClasses({ hasErrors, required })
+  const inputClasses = `${getInputClasses({
     isActive: isActive && !disabled,
-    disabled: disabled,
-    readOnly: readOnly,
-    hasErrors: false,
+    disabled,
+    readOnly,
+    hasErrors,
     withToggle: hasToggleButton,
-  })
+  })} ${className}`.trim()
 
   const togglePassword = () => {
     setShowPassword(prev => !prev)
@@ -52,16 +151,8 @@ export function InputView({
 
   const handleInputChange = (event) => {
     if (onChange) {
-      // Suporta tanto onChange(value) quanto onChange(value, event)
       onChange(event.target.value, event)
     }
-  }
-
-  // Estilos inline para sobrescrever autofill
-  const autofillStyles = {
-    WebkitBoxShadow: '0 0 0 1000px rgb(254, 242, 242) inset !important',
-    WebkitTextFillColor: 'rgb(51, 51, 51) !important',
-    transition: 'background-color 5000s ease-in-out 0s',
   }
 
   return (
@@ -75,7 +166,6 @@ export function InputView({
       <div className="relative">
         <input
           className={inputClasses}
-          style={autofillStyles}
           type={actualType}
           id={inputId}
           name={inputName}

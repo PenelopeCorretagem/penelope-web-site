@@ -65,6 +65,10 @@
   :where(*) {
     box-sizing: border-box;
   }
+
+  :where(button){
+    cursor: pointer;
+  }
 }
 
 /* Custom utilities */

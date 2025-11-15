@@ -3,6 +3,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
+import { Pencil, X } from 'lucide-react'
 
 export function PropertyCardView({
   id,
@@ -21,6 +22,9 @@ export function PropertyCardView({
   imageUrl,
   onButtonClick,
   className = '',
+  supportMode = false,
+  onEdit,
+  onDelete,
 }) {
   const {
     categoryLabel,
@@ -30,11 +34,15 @@ export function PropertyCardView({
     shouldRenderImage,
     shouldRenderLabel,
     shouldRenderDifferences,
+    shouldRenderEditButtons,
     containerClasses,
     cardClasses,
     labelPosition,
     buttonLayout,
     handleButtonClick,
+    handleEdit,
+    handleDelete,
+    imageOverlayClasses,
     hasError,
     model
   } = usePropertyCardViewModel({
@@ -52,7 +60,10 @@ export function PropertyCardView({
     hasHoverEffect,
     imageUrl,
     onButtonClick,
-    className
+    className,
+    supportMode,
+    onEdit,
+    onDelete
   })
 
   if (hasError) {
@@ -64,8 +75,8 @@ export function PropertyCardView({
   }
 
   const handleCardClick = (e) => {
-    // Ignora clique se foi em um botão ou link
-    if (e.target.closest('button') || e.target.closest('a')) {
+    // Ignora clique se foi em um botão ou link ou se está em modo de suporte
+    if (e.target.closest('button') || e.target.closest('a') || supportMode) {
       return
     }
 
@@ -77,8 +88,8 @@ export function PropertyCardView({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
 
-      // Ignora se o foco está em um botão ou link
-      if (e.target.closest('button') || e.target.closest('a')) {
+      // Ignora se o foco está em um botão ou link ou se está em modo de suporte
+      if (e.target.closest('button') || e.target.closest('a') || supportMode) {
         return
       }
 
@@ -95,8 +106,8 @@ export function PropertyCardView({
         <div className="flex flex-col gap-3 w-full">
           <div className="flex gap-2 w-full">
             <ButtonView
-              variant={gallery.variant}
-              type={gallery.type}
+              color={gallery.color}
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 handleButtonClick(gallery.action)
@@ -105,8 +116,8 @@ export function PropertyCardView({
               {gallery.text}
             </ButtonView>
             <ButtonView
-              variant={floorplan.variant}
-              type={floorplan.type}
+              color={floorplan.color}
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 handleButtonClick(floorplan.action)
@@ -116,8 +127,8 @@ export function PropertyCardView({
             </ButtonView>
           </div>
           <ButtonView
-            variant={video.variant}
-            type={video.type}
+            color={video.color}
+            type="button"
             onClick={(e) => {
               e.stopPropagation()
               handleButtonClick(video.action)
@@ -135,8 +146,8 @@ export function PropertyCardView({
           {buttons.map((button, index) => (
             <ButtonView
               key={`button-${index}`}
-              variant={button.variant}
-              type={button.type}
+              color={button.color}
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 handleButtonClick(button.action)
@@ -152,8 +163,8 @@ export function PropertyCardView({
     return buttons.map((button, index) => (
       <ButtonView
         key={`button-${index}`}
-        variant={button.variant}
-        type={button.type}
+        color={button.color}
+        type="button"
         onClick={(e) => {
           e.stopPropagation()
           handleButtonClick(button.action)
@@ -167,20 +178,55 @@ export function PropertyCardView({
 
   return (
     <div
-      className={`${containerClasses} ${className} cursor-pointer`}
+      className={`${containerClasses} ${className} ${!supportMode ? 'cursor-pointer' : ''}`}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`Ver detalhes do imóvel ${model.title}`}
+      role={!supportMode ? 'button' : undefined}
+      tabIndex={!supportMode ? 0 : undefined}
+      aria-label={!supportMode ? `Ver detalhes do imóvel ${model.title}` : undefined}
     >
+
+      {shouldRenderEditButtons && (
+      <div className="absolute top-4 right-4 z-10 flex gap-card md:gap-card-md">
+        <ButtonView
+          color={'soft-brown'}
+          type={'button'}
+          width={'fit'}
+          className='!p-button-y md:!p-button-y-md shadow-md shadow-gray/400'
+          onClick={(e) => {
+            e.stopPropagation()
+            handleDelete()
+          }}
+          aria-label="Excluir imóvel"
+        >
+          <X size={30} className='text-default-light' />
+        </ButtonView>
+
+        <ButtonView
+          color={'pink'}
+          type={'button'}
+          width={'fit'}
+          className='!p-button-y md:!p-button-y-md shadow-md shadow-gray/400'
+          onClick={(e) => {
+            e.stopPropagation()
+            handleEdit()
+          }}
+        >
+          <Pencil size={30} className='text-default-light' />
+        </ButtonView>
+      </div>
+      )}
+
       {shouldRenderImage && (
-        <div
-          className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'
-          style={{ backgroundImage: `url(${model.imageUrl})` }}
-          role="img"
-          aria-label={`Imagem do imóvel ${model.title}`}
-        />
+        <div className={`relative ${imageOverlayClasses}`}>
+          <div
+            className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'
+            style={{ backgroundImage: `url(${model.imageUrl})` }}
+            role="img"
+            aria-label={`Imagem do imóvel ${model.title}`}
+          />
+
+        </div>
       )}
 
       <div className={cardClasses}>

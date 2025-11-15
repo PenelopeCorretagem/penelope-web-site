@@ -6,7 +6,7 @@ import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { getAuthLinkContainerThemeClasses, getAuthLinkButtonThemeClasses } from '@shared/styles/theme'
-import Sidebar from '@management/components/Sidebar'
+import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -114,7 +114,7 @@ export function PageView() {
   return (
     <div className='flex h-screen w-full overflow-hidden'>
       {shouldShowSidebar && (
-        <Sidebar open={sidebarOpen} onToggle={toggleSidebar} isAdmin={isAdmin} />
+        <SidebarView open={sidebarOpen} onToggle={toggleSidebar} isAdmin={isAdmin} />
       )}
 
       <div className='flex flex-col w-full h-full overflow-hidden'>

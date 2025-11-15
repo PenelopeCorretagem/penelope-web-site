@@ -24,7 +24,7 @@ export class ButtonModel {
   }
 
   /** @static {string[]} Lista de cores válidas do botão. */
-  static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'transparent']
+  static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'soft-gray', 'transparent']
 
   /** @static {string[]} Lista de tipos válidos do botão. */
   static TYPES = ['button', 'submit', 'reset', 'link']

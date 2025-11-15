@@ -125,7 +125,9 @@ export const theme = {
         'transition-colors duration-200',
         'placeholder:text-default-dark-muted',
         'placeholder:text-[12px] md:placeholder:text-[16px]',
-        'placeholder:uppercase placeholder:font-default'
+        'placeholder:uppercase placeholder:font-default',
+        'text-[12px] md:text-[16px]',
+        'leading-normal'
       ].join(' '),
       state: {
         active: 'bg-distac-primary-light focus:bg-default-light focus:ring-2 focus:ring-distac-primary focus:outline-none',

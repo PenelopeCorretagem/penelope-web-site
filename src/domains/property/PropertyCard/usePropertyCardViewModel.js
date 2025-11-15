@@ -75,7 +75,11 @@ class PropertyCardViewModel {
   }
 
   get containerClasses() {
-    const baseClasses = ['flex', 'flex-col', 'w-[340px]']
+    const baseClasses = ['flex', 'flex-col', 'w-[340px]', 'relative', 'rounded-sm']
+
+    if (this.model.hasShadow) {
+      baseClasses.push('shadow-md shadow-gray-400')
+    }
 
     if (this.model.hasHoverEffect) {
       baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
@@ -96,10 +100,6 @@ class PropertyCardViewModel {
       baseClasses.push('rounded-sm')
     }
 
-    if (this.model.hasShadow) {
-      baseClasses.push('drop-shadow-md')
-    }
-
     return baseClasses.join(' ')
   }
 
@@ -117,6 +117,32 @@ class PropertyCardViewModel {
 
   get shouldRenderDifferences() {
     return this.hasDifferences
+  }
+
+  get shouldRenderEditButtons() {
+    return this.model.supportMode
+  }
+
+  handleEdit() {
+    if (typeof this.model.onEdit === 'function') {
+      this.model.onEdit(this.model.id)
+    } else {
+      // Navegação padrão para edição
+      const route = this.router.generateRoute('ADMIN_PROPERTIES_CONFIG', { id: this.model.id })
+      if (this.navigate) {
+        this.navigate(route)
+      } else {
+        window.location.href = route
+      }
+    }
+  }
+
+  handleDelete() {
+    if (typeof this.model.onDelete === 'function') {
+      this.model.onDelete(this.model.id)
+    } else {
+      console.log('Deleting property:', this.model.id)
+    }
   }
 
   getButtonLayoutForState(buttonState) {
@@ -196,6 +222,16 @@ export function usePropertyCardViewModel(props) {
     viewModel.handleButtonClick(action, props.onButtonClick)
   }, [viewModel, props.onButtonClick, navigate])
 
+  const handleEdit = useCallback(() => {
+    if (!viewModel) return
+    viewModel.handleEdit()
+  }, [viewModel])
+
+  const handleDelete = useCallback(() => {
+    if (!viewModel) return
+    viewModel.handleDelete()
+  }, [viewModel])
+
   if (!viewModel) {
     return {
       categoryLabel: null,
@@ -212,6 +248,8 @@ export function usePropertyCardViewModel(props) {
       shouldRenderDifferences: false,
       buttonLayout: 'single',
       handleButtonClick: () => {},
+      handleEdit: () => {},
+      handleDelete: () => {},
       hasError: true,
       model: null
     }
@@ -230,8 +268,11 @@ export function usePropertyCardViewModel(props) {
     shouldRenderImage: viewModel.shouldRenderImage,
     shouldRenderLabel: viewModel.shouldRenderLabel,
     shouldRenderDifferences: viewModel.shouldRenderDifferences,
+    shouldRenderEditButtons: viewModel.shouldRenderEditButtons,
     buttonLayout: viewModel.getButtonLayoutForState(viewModel.model.buttonState),
     handleButtonClick,
+    handleEdit,
+    handleDelete,
     hasError: false,
     model: viewModel.model,
     setViewModel

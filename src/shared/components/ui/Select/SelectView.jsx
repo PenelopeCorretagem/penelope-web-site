@@ -27,22 +27,23 @@ export function SelectView({
   const baseClasses = [
     'appearance-none',
     'font-semibold uppercase',
-    'text-text-primary',
-    'focus:outline-none focus:ring-2 focus:ring-distac-primary focus:border-distac-primary',
+    'focus:outline-none focus:ring-2 focus:ring-distac-primary',
     'cursor-pointer',
-    'p-button-x',
+    'px-4 py-2',
     'pr-10',
     'text-left',
     'transition-colors duration-200',
   ]
 
   const variants = {
-    default: 'bg-default-light',
+    default: 'bg-default-light text-default-dark',
+    pink: 'bg-distac-primary-light text-default-dark placeholder:text-default-dark-muted focus:bg-default-light',
     destac: 'bg-distac-primary text-default-light',
+    brown: 'bg-distac-secondary text-default-light focus:ring-2 focus:ring-distac-secondary focus:border-distac-secondary',
   }
 
   const shapes = {
-    square: 'rounded-md',
+    square: 'rounded-sm',
     circle: 'rounded-full',
   }
 
@@ -50,6 +51,10 @@ export function SelectView({
     full: 'w-full',
     fit: 'w-fit',
   }
+
+  const disabledClasses = disabled
+    ? 'opacity-50 cursor-not-allowed'
+    : ''
 
   return (
     <div className={`relative ${widths[width]}`}>
@@ -61,9 +66,10 @@ export function SelectView({
         onChange={onChange}
         className={[
           baseClasses.join(' '),
-          variants[variant],
+          variants[variant] || variants.default,
           shapes[shape],
           widths[width],
+          disabledClasses,
           className,
         ]
           .filter(Boolean)
@@ -76,9 +82,9 @@ export function SelectView({
         ))}
       </select>
 
-      <div className='pointer-events-none absolute inset-y-0 right-3 flex items-center'>
+      <div className={`pointer-events-none absolute inset-y-0 right-3 flex items-center ${variant === 'brown' || variant === 'destac' ? 'text-default-light' : 'text-current'}`}>
         <svg
-          className='h-4 w-4 text-current'
+          className='h-4 w-4'
           fill='none'
           stroke='currentColor'
           strokeWidth='2'
