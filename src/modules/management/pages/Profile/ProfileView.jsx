@@ -1,11 +1,16 @@
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ManagementMenuView } from '@management/components/ui/ManagementMenu/ManagementMenuView'
 import { ManagementFormView } from '@shared/components/ui/ManagementForm/ManagementFormView.jsx'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getUserById, updateUser } from '@app/services/apiService'
 
 export function ProfileView() {
   const [activeMenu, setActiveMenu] = useState('perfil')
   const [isEditing, setIsEditing] = useState(false)
+  const [userData, setUserData] = useState({
+    perfil: {},
+    acesso: {}
+  })
 
   // Placeholders para os campos do formulário
   const placeholders = {
@@ -21,27 +26,42 @@ export function ProfileView() {
   }
 
   const handleMenuChange = (newMenu) => {
-    console.log('handleMenuChange called with:', newMenu)
     setActiveMenu(newMenu)
     setIsEditing(false)
   }
 
-  // Dados iniciais simulados para teste
-  const initialData = {
-    perfil: {
-      firstName: 'João',
-      lastName: 'Silva',
-      cpf: '123.456.789-00',
-      birthDate: '1990-01-01',
-      monthlyIncome: '5000',
-      phone: '(11) 99999-9999'
-    },
-    acesso: {
-      email: 'joao@email.com',
-      currentPassword: '12345678',
-      newPassword: ''
+  const handleGetUser = async () => {
+    try {
+      const userId = localStorage.getItem('userId')
+      const response = await getUserById(userId)
+      const data = response.data
+
+      setUserData({
+        perfil: {
+          firstName: data.name || null,
+          lastName: data.lastName || null,
+          cpf: data.cpf || null,
+          birthDate: data.dateBirth || null,
+          monthlyIncome: data.monthlyIncome || null,
+          phone: data.phone || null
+        },
+        acesso: {
+          email: data.email || null,
+          currentPassword: data.password || null,
+          newPassword: null
+        }
+      })
+
+      return { success: true }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Ocorreu um erro ao carregar os dados do usuário.'
+      return { success: false, error: errorMessage }
     }
   }
+
+  useEffect(() => {
+    handleGetUser()
+  }, [])
 
   // Configurações dos campos por tipo de formulário
   const formConfigs = {
@@ -118,10 +138,11 @@ export function ProfileView() {
 
   const currentConfig = formConfigs[activeMenu]
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (_data) => {
     try {
-      console.log('Dados enviados:', data)
-      const result = { success: true, message: 'Dados atualizados com sucesso!' }
+      const result = await updateUser(localStorage.getItem('userId'), _data)
+      result.success = true
+      result.message = 'Dados atualizados com sucesso!'
 
       if (result.success) {
         setIsEditing(false)
@@ -137,7 +158,7 @@ export function ProfileView() {
   }
 
   const handleDelete = () => {
-    console.log('🗑️ Delete action')
+    // Delete action
   }
 
   const handleEdit = () => {
@@ -164,7 +185,7 @@ export function ProfileView() {
         onEdit={handleEdit}
         onCancel={handleCancel}
         isEditing={isEditing}
-        initialData={initialData[activeMenu]}
+        initialData={userData[activeMenu]}
         submitWidth="fit"
       />
     </SectionView>

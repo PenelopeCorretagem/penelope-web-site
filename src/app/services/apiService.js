@@ -67,3 +67,31 @@ export const getAnuncioLatest = () => {
 export const getAnuncioById = (id) => {
   return api.get(`/anuncios/${id}`)
 }
+
+/**
+ * Solicita o envio de uma mensagem de contato.
+ * @param {string} nome - O nome do usuário.
+ * @param {string} email - O e-mail do usuário.
+ * @param {string} assunto - O assunto do email.
+ * @param {string} mensagem - O conteúdo do email.
+ */
+export const contactUs = (nome, email, assunto, mensagem) => {
+  return api.post(`/contact-us`, { nome, email, assunto, mensagem })
+}
+
+/**
+ * Recupera um usuário por id
+ * @param {number|string} id
+ */
+export const getUserById = (id) => {
+  return api.get(`/users/${id}`)
+}
+
+/**
+ * Recupera um usuário por id
+ * @param {number|string} id
+ * @param {object} userData - Dados do usuário para atualização
+ */
+export const updateUser = (id, userData) => {
+  return api.patch(`/users/${id}`, userData)
+}
