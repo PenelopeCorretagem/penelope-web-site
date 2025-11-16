@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getUserById, updateUser, deleteUser } from '@app/services/api/userApi'
+import { AccountModel } from './AccountModel'
 
 export function useAccountViewModel() {
+  const [model, setModel] = useState(new AccountModel())
   const [formData, setFormData] = useState({
     email: '',
     currentPassword: '',
@@ -10,48 +12,27 @@ export function useAccountViewModel() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const accountFields = [
-    {
-      name: 'email',
-      type: 'email',
-      label: 'Email',
-      placeholder: 'Digite seu endereço de e-mail',
-      required: true,
-    },
-    {
-      name: 'currentPassword',
-      type: 'password',
-      label: 'Senha Atual',
-      placeholder: 'Digite sua senha atual',
-      required: true,
-      showPasswordToggle: true,
-    },
-    {
-      name: 'newPassword',
-      type: 'password',
-      label: 'Nova Senha',
-      placeholder: 'Crie uma nova senha (deixe em branco para manter a atual)',
-      required: false,
-      showPasswordToggle: true,
-    }
-  ]
+  // Usar os campos do model
+  const accountFields = AccountModel.getFormFields()
 
   const loadUserData = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
 
-      const userId = localStorage.getItem('userId')
+      const userId = sessionStorage.getItem('userId')
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
 
       const user = await getUserById(userId)
+      const accountModel = AccountModel.fromApiData(user)
 
+      setModel(accountModel)
       setFormData({
-        email: user.email || '',
-        currentPassword: '',
-        newPassword: ''
+        email: accountModel.email, // Só o email é preenchido
+        currentPassword: '', // Sempre vazio por segurança
+        newPassword: '' // Sempre vazio por segurança
       })
     } catch (err) {
       console.error('Erro ao carregar dados do usuário:', err)
@@ -67,27 +48,34 @@ export function useAccountViewModel() {
 
   const handleSubmit = async (data) => {
     try {
-      const userId = localStorage.getItem('userId')
+      const userId = sessionStorage.getItem('userId')
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
 
-      const updateData = {
-        email: data.email,
+      // Criar novo model com os dados atualizados
+      const updatedModel = new AccountModel(data)
+
+      // Validar dados
+      const validation = updatedModel.validate()
+      if (!validation.isValid) {
+        const errorMessages = Object.values(validation.errors).join(', ')
+        throw new Error(`Dados inválidos: ${errorMessages}`)
       }
 
-      if (data.newPassword && data.newPassword.trim() !== '') {
-        updateData.senha = data.newPassword
-      }
+      // Converter para formato da API
+      const updateData = updatedModel.toApiFormat()
 
       await updateUser(userId, updateData)
 
-      setFormData(prev => ({
-        ...prev,
-        email: data.email,
-        currentPassword: '',
+      // Atualizar model e limpar senhas por segurança
+      updatedModel.clearPasswords()
+      setModel(updatedModel)
+      setFormData({
+        email: data.email, // Manter email atualizado
+        currentPassword: '', // Sempre limpar senhas por segurança
         newPassword: ''
-      }))
+      })
 
       return {
         success: true,
@@ -104,7 +92,7 @@ export function useAccountViewModel() {
 
   const handleDelete = async () => {
     try {
-      const userId = localStorage.getItem('userId')
+      const userId = sessionStorage.getItem('userId')
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
@@ -114,8 +102,8 @@ export function useAccountViewModel() {
 
       await deleteUser(userId)
 
-      localStorage.removeItem('userId')
-      localStorage.removeItem('token')
+      sessionStorage.removeItem('userId')
+      sessionStorage.removeItem('token')
 
       window.location.href = '/'
     } catch (err) {
@@ -131,5 +119,6 @@ export function useAccountViewModel() {
     error,
     handleSubmit,
     handleDelete,
+    model,
   }
 }

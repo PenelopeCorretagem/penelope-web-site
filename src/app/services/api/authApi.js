@@ -48,14 +48,16 @@ export const login = async (credentials) => {
     const result = {
       token: response.data.token || response.data,
       user: response.data.user || response.data.usuario || null,
-      id: extractedId
+      id: extractedId,
+      accessLevel: response.data.accessLevel
     }
 
     console.log('✅ [AUTH API] Retornando:', {
       hasToken: !!result.token,
       hasUser: !!result.user,
       hasId: !!result.id,
-      id: result.id
+      id: result.id,
+      accessLevel: result.accessLevel
     })
 
     return result

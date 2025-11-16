@@ -1,79 +1,56 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getUserById, updateUser } from '@app/services/api/userApi'
+import { ProfileModel } from './ProfileModel'
 
-export function useProfileViewModel() {
+export function useProfileViewModel(targetUserId = null) {
+  const [model, setModel] = useState(new ProfileModel())
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     cpf: '',
     birthDate: '',
     monthlyIncome: '',
-    phone: ''
+    phone: '',
+    accessLevel: 'CLIENTE'
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
-  const profileFields = [
-    {
-      name: 'firstName',
-      label: 'Nome',
-      placeholder: 'Digite seu primeiro nome',
-      required: true,
-    },
-    {
-      name: 'lastName',
-      label: 'Sobrenome',
-      placeholder: 'Digite seu sobrenome',
-      required: true,
-    },
-    {
-      name: 'cpf',
-      label: 'CPF',
-      placeholder: 'Digite seu CPF (somente números)',
-      required: true,
-    },
-    {
-      name: 'birthDate',
-      label: 'Data de Nascimento',
-      type: 'date',
-      placeholder: 'DD/MM/AAAA',
-      required: true,
-    },
-    {
-      name: 'monthlyIncome',
-      label: 'Renda Média Mensal',
-      type: 'number',
-      placeholder: 'Informe sua renda mensal aproximada',
-      required: true,
-    },
-    {
-      name: 'phone',
-      label: 'Celular',
-      placeholder: 'Digite seu número de celular com DDD',
-      required: true,
-    }
-  ]
+  // Determinar se está editando próprio perfil e se o usuário atual é admin
+  const currentUserId = sessionStorage.getItem('userId')
+  const userIdToEdit = targetUserId || currentUserId
+  const isEditingOwnProfile = !targetUserId || targetUserId === currentUserId
+  const currentUserIsAdmin = currentUser?.accessLevel === 'ADMINISTRADOR'
+
+  // Usar os campos do model com configuração baseada no contexto
+  const profileFields = ProfileModel.getFormFields(isEditingOwnProfile, currentUserIsAdmin)
 
   const loadUserData = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
 
-      const userId = localStorage.getItem('userId')
-      if (!userId) {
+      if (!userIdToEdit) {
         throw new Error('Usuário não encontrado')
       }
 
-      const user = await getUserById(userId)
+      // Carregar dados do usuário atual para verificar permissões
+      const currentUserData = await getUserById(currentUserId)
+      setCurrentUser(currentUserData)
 
-      const nameParts = user.nomeCompleto?.split(' ') || []
+      // Carregar dados do usuário a ser editado
+      const user = await getUserById(userIdToEdit)
+      const profileModel = ProfileModel.fromApiData(user)
+
+      setModel(profileModel)
       setFormData({
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        cpf: user.cpf || '',
-        birthDate: user.dtNascimento || '',
-        monthlyIncome: user.rendaMensal?.toString() || '',
-        phone: user.phone || ''
+        fullName: profileModel.fullName,
+        cpf: profileModel.cpf,
+        birthDate: profileModel.birthDate,
+        monthlyIncome: profileModel.monthlyIncome,
+        phone: profileModel.phone,
+        // Para checkbox-group, converter string para array
+        accessLevel: [profileModel.accessLevel]
       })
     } catch (err) {
       console.error('Erro ao carregar dados do usuário:', err)
@@ -81,7 +58,7 @@ export function useProfileViewModel() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userIdToEdit, currentUserId])
 
   useEffect(() => {
     loadUserData()
@@ -89,22 +66,39 @@ export function useProfileViewModel() {
 
   const handleSubmit = async (data) => {
     try {
-      const userId = localStorage.getItem('userId')
-      if (!userId) {
+      if (!userIdToEdit) {
         throw new Error('Usuário não encontrado')
       }
 
-      const updateData = {
-        nomeCompleto: `${data.firstName} ${data.lastName}`.trim(),
-        cpf: data.cpf,
-        dtNascimento: data.birthDate,
-        rendaMensal: parseFloat(data.monthlyIncome),
-        phone: data.phone
+      // Converter o valor array do checkbox-group para string antes de criar o model
+      const processedData = {
+        ...data,
+        accessLevel: Array.isArray(data.accessLevel) && data.accessLevel.length > 0
+          ? data.accessLevel[0]
+          : 'CLIENTE'
       }
 
-      await updateUser(userId, updateData)
+      // Criar novo model com os dados atualizados
+      const updatedModel = new ProfileModel(processedData)
 
-      setFormData(data)
+      // Validar dados
+      const validation = updatedModel.validate(isEditingOwnProfile, currentUserIsAdmin)
+      if (!validation.isValid) {
+        const errorMessages = Object.values(validation.errors).join(', ')
+        throw new Error(`Dados inválidos: ${errorMessages}`)
+      }
+
+      // Converter para formato da API
+      const updateData = updatedModel.toApiFormat()
+
+      await updateUser(userIdToEdit, updateData)
+
+      setModel(updatedModel)
+      setFormData({
+        ...data,
+        // Manter accessLevel como array para o form
+        accessLevel: data.accessLevel
+      })
 
       return {
         success: true,
@@ -125,5 +119,8 @@ export function useProfileViewModel() {
     isLoading,
     error,
     handleSubmit,
+    model,
+    isEditingOwnProfile,
+    currentUserIsAdmin
   }
 }

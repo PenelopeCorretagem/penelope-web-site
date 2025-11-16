@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRouter } from '@app/routes/useRouterViewModel'
 import { listAllActiveAdvertisements } from '@app/services/api/advertisementApi'
 import { advertisementMapper } from '@app/services/mapper/advertisementMapper'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
-import { RouterModel } from '@app/routes/RouterModel'
 
 export const usePropertiesConfigViewModel = () => {
   const navigate = useNavigate()
-  const router = RouterModel.getInstance()
+  const { generateRoute } = useRouter()
   const [model] = useState(() => new PropertiesConfigModel())
   const [lancamentos, setLancamentos] = useState([])
   const [disponiveis, setDisponiveis] = useState([])
@@ -52,8 +52,14 @@ export const usePropertiesConfigViewModel = () => {
 
   const handleEdit = (id) => {
     console.log('Editing property:', id)
-    const route = router.generateRoute('ADMIN_PROPERTIES_CONFIG', { id })
-    navigate(route)
+    try {
+      const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id })
+      navigate(route)
+    } catch (error) {
+      console.error('Erro ao gerar rota:', error)
+      // Fallback direto
+      navigate(`/admin/imoveis/${id}`)
+    }
   }
 
   const handleDelete = async (id) => {

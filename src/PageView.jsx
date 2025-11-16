@@ -41,15 +41,15 @@ export function PageView() {
 
   useEffect(() => {
     setForceUpdate(prev => prev + 1)
-    const jwtToken = localStorage.getItem('jwtToken')
+    const jwtToken = sessionStorage.getItem('jwtToken')
     setIsAuthenticated(!!jwtToken)
   }, [currentRoute, isAuthPage])
 
   useEffect(() => {
     const checkAuth = () => {
-      const jwtToken = localStorage.getItem('jwtToken')
-      const userId = localStorage.getItem('userId')
-      const userRole = localStorage.getItem('userRole')
+      const jwtToken = sessionStorage.getItem('jwtToken')
+      const userId = sessionStorage.getItem('userId')
+      const userRole = sessionStorage.getItem('userRole')
 
       console.log('🔍 Auth check:', {
         hasToken: !!jwtToken,
@@ -57,41 +57,70 @@ export function PageView() {
         userRole
       })
 
-      setIsAuthenticated(!!jwtToken && !!userId)
-      setIsAdmin(userRole === 'admin')
+      const newIsAuthenticated = !!jwtToken && !!userId
+      const newIsAdmin = userRole === 'admin'
+
+      // Sempre atualiza o estado para garantir sincronização
+      setIsAuthenticated(newIsAuthenticated)
+      setIsAdmin(newIsAdmin)
     }
 
     checkAuth()
-
     setAuthReady(true)
 
+    // Escutar mudanças no sessionStorage
     const onStorage = (event) => {
-      if (event.key === 'jwtToken' || event.key === 'userRole' || event.key === 'userId') {
+      if (['jwtToken', 'userRole', 'userId'].includes(event.key)) {
+        console.log('📢 SessionStorage changed:', event.key, event.newValue)
         checkAuth()
       }
     }
 
+    // Escutar mudanças customizadas (para mudanças na mesma aba)
+    const onCustomAuth = () => {
+      console.log('📢 Custom auth event triggered')
+      checkAuth()
+    }
+
     window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
+    window.addEventListener('authChanged', onCustomAuth)
+
+    // Verificar auth a cada segundo para garantir sincronização (somente em dev)
+    let interval = null
+    if (import.meta.env.DEV) {
+      interval = setInterval(checkAuth, 1000)
+    }
+
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('authChanged', onCustomAuth)
+      if (interval) clearInterval(interval)
+    }
+  }, []) // Remove dependências circulares
+
+  // Disparar evento customizado quando rota muda
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('authChanged'))
+  }, [currentRoute])
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
-    localStorage.removeItem('userId')
-    localStorage.removeItem('userEmail')
-    localStorage.removeItem('userName')
+    sessionStorage.removeItem('jwtToken')
+    sessionStorage.removeItem('userRole')
+    sessionStorage.removeItem('userId')
+    sessionStorage.removeItem('userEmail')
+    sessionStorage.removeItem('userName')
+    sessionStorage.removeItem('token')
     setIsAuthenticated(false)
     setIsAdmin(false)
     window.location.href = '/'
   }
 
   const handleDevLogin = () => {
-    localStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
-    localStorage.setItem('userRole', 'user')
-    localStorage.setItem('userId', '1')
-    localStorage.setItem('userEmail', 'dev@test.com')
-    localStorage.setItem('userName', 'Dev User')
+    sessionStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
+    sessionStorage.setItem('userRole', 'user')
+    sessionStorage.setItem('userId', '1')
+    sessionStorage.setItem('userEmail', 'dev@test.com')
+    sessionStorage.setItem('userName', 'Dev User')
     setIsAuthenticated(true)
     setIsAdmin(false)
     // Redireciona para a home após login
@@ -99,11 +128,11 @@ export function PageView() {
   }
 
   const handleDevAdminLogin = () => {
-    localStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
-    localStorage.setItem('userRole', 'admin')
-    localStorage.setItem('userId', '1')
-    localStorage.setItem('userEmail', 'admin@test.com')
-    localStorage.setItem('userName', 'Admin User')
+    sessionStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
+    sessionStorage.setItem('userRole', 'admin')
+    sessionStorage.setItem('userId', '1')
+    sessionStorage.setItem('userEmail', 'admin@test.com')
+    sessionStorage.setItem('userName', 'Admin User')
     setIsAuthenticated(true)
     setIsAdmin(true)
     // Redireciona para a home após login
@@ -124,7 +153,13 @@ export function PageView() {
       shouldShowSidebar,
       currentRoute,
       isAuthPage,
-      shouldShowDevButtons: import.meta.env.DEV && import.meta.env.MODE === 'development'
+      shouldShowDevButtons: import.meta.env.DEV && import.meta.env.MODE === 'development',
+      localStorage: {
+        jwtToken: !!sessionStorage.getItem('jwtToken'),
+        userRole: sessionStorage.getItem('userRole'),
+        userId: sessionStorage.getItem('userId'),
+        userEmail: sessionStorage.getItem('userEmail')
+      }
     })
   }, [isAuthenticated, isAdmin, shouldShowSidebar, currentRoute, isAuthPage])
 
@@ -151,7 +186,10 @@ export function PageView() {
             {isAuthenticated ? (
               <>
                 <div className='text-xs text-white mb-1'>
-                  {isAdmin ? '👑 Admin' : '👤 User'}
+                  {isAdmin ? '👑 Admin' : '👤 User'} | Role: {sessionStorage.getItem('userRole')}
+                </div>
+                <div className='text-xs text-gray-300 mb-2'>
+                  Email: {sessionStorage.getItem('userEmail')?.slice(0, 15)}...
                 </div>
                 <button
                   onClick={handleLogout}

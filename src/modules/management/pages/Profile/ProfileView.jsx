@@ -2,8 +2,8 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { EditFormView } from '@shared/components/ui/EditForm/EditFormView'
 import { useProfileViewModel } from './useProfileViewModel'
 
-export function ProfileView() {
-  const vm = useProfileViewModel()
+export function ProfileView({ targetUserId = null }) {
+  const vm = useProfileViewModel(targetUserId)
 
   if (vm.isLoading) {
     return (
@@ -21,10 +21,12 @@ export function ProfileView() {
     )
   }
 
+  const title = vm.isEditingOwnProfile ? 'MEU PERFIL' : 'EDITAR USUÁRIO'
+
   return (
     <SectionView className='flex flex-col h-screen gap-subsection subsection md:gap-subsection-md'>
       <EditFormView
-        title="MEU PERFIL"
+        title={title}
         fields={vm.profileFields}
         initialData={vm.formData}
         onSubmit={vm.handleSubmit}

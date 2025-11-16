@@ -73,13 +73,37 @@ export function useAuthViewModel() {
         throw new Error('Token não recebido do servidor')
       }
 
-      localStorage.setItem('token', token)
-      localStorage.setItem('jwtToken', token)
+      // Salvar dados essenciais IMEDIATAMENTE usando sessionStorage
+      sessionStorage.setItem('token', token)
+      sessionStorage.setItem('jwtToken', token)
       console.log('✅ Token salvo')
 
       // Processar dados do usuário
       let userEntity = null
       let userId = response.id
+      const accessLevel = response.accessLevel
+
+      // Determinar se é admin PRIMEIRO, antes de qualquer outra lógica
+      let isAdminUser = false
+      if (accessLevel) {
+        isAdminUser = accessLevel === 'ADMINISTRADOR' || accessLevel === 'Administrador'
+        console.log('✅ AccessLevel recebido do login:', accessLevel, '-> isAdmin:', isAdminUser)
+      }
+
+      // Salvar dados essenciais IMEDIATAMENTE
+      if (userId) {
+        sessionStorage.setItem('userId', userId.toString())
+        console.log('✅ userId salvo:', userId)
+      }
+
+      sessionStorage.setItem('userEmail', formData.email)
+      sessionStorage.setItem('userRole', isAdminUser ? 'admin' : 'user')
+      console.log('✅ Dados essenciais salvos:', {
+        userId,
+        userEmail: formData.email,
+        userRole: isAdminUser ? 'admin' : 'user',
+        accessLevel
+      })
 
       // Se não temos user nem id na resposta, buscar na API
       if (!response.user && !response.id) {
@@ -89,7 +113,6 @@ export function useAuthViewModel() {
           const users = await getAllUsers()
           console.log(`✓ ${users.length} usuários encontrados na API`)
 
-          // Log do primeiro usuário para debug
           if (users.length > 0) {
             console.log('📋 Primeiro usuário (debug):', users[0])
           }
@@ -100,7 +123,6 @@ export function useAuthViewModel() {
 
           if (currentUser) {
             console.log('✓ Usuário encontrado (objeto completo):', currentUser)
-            console.log('✓ Keys do usuário:', Object.keys(currentUser))
 
             // Tentar extrair ID de várias formas
             userId = currentUser.id ||
@@ -110,10 +132,9 @@ export function useAuthViewModel() {
 
             console.log('✓ userId tentando extrair:', userId)
 
-            // Se AINDA não temos ID, vamos usar o email como identificador temporário
             if (!userId) {
               console.warn('⚠️ API não retorna ID! Usando email como fallback')
-              userId = formData.email // Fallback temporário
+              userId = formData.email
             }
 
             userEntity = currentUser
@@ -139,38 +160,40 @@ export function useAuthViewModel() {
       // Validar userId
       if (!userId) {
         console.error('❌ ERRO: userId não disponível após login!')
-
-        // FALLBACK CRÍTICO: usar email se não temos ID
         console.warn('⚠️ FALLBACK: Usando email como identificador')
         userId = formData.email
       }
 
-      // Salvar userId
-      localStorage.setItem('userId', userId.toString())
-      console.log('✅ userId salvo:', userId)
+      // Atualizar userId se necessário
+      if (userId !== sessionStorage.getItem('userId')) {
+        sessionStorage.setItem('userId', userId.toString())
+        console.log('✅ userId atualizado:', userId)
+      }
 
-      // Salvar dados completos do usuário
+      // Salvar dados completos do usuário se disponível, MAS PRESERVAR ROLE
       if (userEntity) {
-        localStorage.setItem('userEmail', userEntity.email || formData.email)
-        localStorage.setItem('userName', userEntity.nomeCompleto || userEntity.email || formData.email)
+        sessionStorage.setItem('userName', userEntity.nomeCompleto || userEntity.email || formData.email)
 
-        if (userEntity.isAdmin && userEntity.isAdmin()) {
-          localStorage.setItem('userRole', 'admin')
-        } else {
-          localStorage.setItem('userRole', 'user')
+        // IMPORTANTE: Só sobrescrever userRole se userEntity tiver info mais atual
+        if (userEntity.accessLevel && userEntity.isAdmin) {
+          const entityIsAdmin = userEntity.isAdmin()
+          if (entityIsAdmin !== isAdminUser) {
+            console.log('⚠️ Conflito de admin status, usando userEntity:', entityIsAdmin)
+            sessionStorage.setItem('userRole', entityIsAdmin ? 'admin' : 'user')
+            isAdminUser = entityIsAdmin
+          }
         }
 
         console.log('✅ Login completo! Dados salvos:', {
           userId,
           userName: userEntity.nomeCompleto,
           userEmail: userEntity.email,
-          isAdmin: userEntity.isAdmin ? userEntity.isAdmin() : false
+          isAdmin: isAdminUser
         })
       } else {
-        localStorage.setItem('userEmail', formData.email)
-        localStorage.setItem('userName', formData.email)
-        localStorage.setItem('userRole', 'user')
-        console.log('⚠️ Dados mínimos salvos')
+        // Garantir que dados mínimos estão salvos
+        sessionStorage.setItem('userName', formData.email)
+        console.log('⚠️ Dados mínimos salvos, preservando role:', sessionStorage.getItem('userRole'))
       }
 
       setAlertConfig({
@@ -178,12 +201,21 @@ export function useAuthViewModel() {
         message: `Bem-vindo de volta${userEntity?.nomeCompleto ? `, ${userEntity.nomeCompleto}` : ''}!`,
         onClose: () => {
           setAlertConfig(null)
-          // Redireciona conforme accessLevel
-          if (userEntity?.accessLevel === 'ADMINISTRADOR') {
-            navigate('/admin')
-          } else {
-            navigate('/imoveis')
-          }
+
+          // Disparar evento de mudança de auth ANTES do redirect
+          window.dispatchEvent(new CustomEvent('authChanged'))
+
+          // Pequeno delay para garantir que o estado seja atualizado
+          setTimeout(() => {
+            // Redireciona usando o isAdminUser calculado
+            if (isAdminUser) {
+              console.log('🔀 Redirecionando para /admin/imoveis')
+              navigate('/admin/imoveis')
+            } else {
+              console.log('🔀 Redirecionando para /imoveis')
+              navigate('/imoveis')
+            }
+          }, 100)
         }
       })
 

@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRouter } from '@app/routes/useRouterViewModel'
 import {
   PropertyCardModel,
   PROPERTY_CARD_CATEGORY_CONFIG,
@@ -8,20 +9,19 @@ import {
 } from './PropertyCardModel'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
-import { RouterModel } from '@app/routes/RouterModel'
 
 /**
  * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard
  * Centraliza a lógica de negócio e comportamento
  */
 class PropertyCardViewModel {
-  constructor(model, navigate) {
+  constructor(model, navigate, generateRouteFn) {
     this.model = model
     this._categoryLabel = null
     this._buttons = null
     this._differenceLabels = null
-    this.router = RouterModel.getInstance()
     this.navigate = navigate
+    this.generateRoute = generateRouteFn
   }
 
   get categoryLabel() {
@@ -127,12 +127,23 @@ class PropertyCardViewModel {
     if (typeof this.model.onEdit === 'function') {
       this.model.onEdit(this.model.id)
     } else {
-      // Navegação padrão para edição
-      const route = this.router.generateRoute('ADMIN_PROPERTIES_CONFIG', { id: this.model.id })
-      if (this.navigate) {
-        this.navigate(route)
-      } else {
-        window.location.href = route
+      // Usar generateRoute do useRouter hook
+      try {
+        const route = this.generateRoute('ADMIN_PROPERTIES_CONFIG', { id: this.model.id })
+        if (this.navigate) {
+          this.navigate(route)
+        } else {
+          window.location.href = route
+        }
+      } catch (error) {
+        console.error('Erro ao gerar rota:', error)
+        // Fallback direto sem utility
+        const fallbackRoute = `/admin/imoveis/${this.model.id}`
+        if (this.navigate) {
+          this.navigate(fallbackRoute)
+        } else {
+          window.location.href = fallbackRoute
+        }
       }
     }
   }
@@ -181,15 +192,25 @@ class PropertyCardViewModel {
       default: () => {
         console.log('Navigating to property detail')
         const propertyId = this.model?.id || 1
-        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: propertyId })
-        console.log('Generated route:', route)
-        console.log('Navigate function:', this.navigate)
-        if (this.navigate) {
-          console.log('Using navigate')
-          this.navigate(route)
-        } else {
-          console.log('Using window.location')
-          window.location.href = route
+        try {
+          const route = this.generateRoute('PROPERTY_DETAIL', { id: propertyId })
+          console.log('Generated route:', route)
+          if (this.navigate) {
+            console.log('Using navigate')
+            this.navigate(route)
+          } else {
+            console.log('Using window.location')
+            window.location.href = route
+          }
+        } catch (error) {
+          console.error('Erro ao gerar rota:', error)
+          // Fallback direto
+          const fallbackRoute = `/imoveis/${propertyId}`
+          if (this.navigate) {
+            this.navigate(fallbackRoute)
+          } else {
+            window.location.href = fallbackRoute
+          }
         }
       }
     }
@@ -201,16 +222,24 @@ class PropertyCardViewModel {
 
 export function usePropertyCardViewModel(props) {
   const navigate = useNavigate()
+  const { generateRoute } = useRouter()
 
   const [viewModel, setViewModel] = useState(() => {
     try {
       const model = new PropertyCardModel(props)
-      return new PropertyCardViewModel(model, null)
+      return new PropertyCardViewModel(model, navigate, generateRoute)
     } catch (error) {
       console.error('Erro ao criar PropertyCardModel:', error)
       return null
     }
   })
+
+  // Atualizar generateRoute se router mudou
+  useEffect(() => {
+    if (viewModel && generateRoute) {
+      viewModel.generateRoute = generateRoute
+    }
+  }, [viewModel, generateRoute])
 
   // Atualiza o navigate no viewModel após a criação
   if (viewModel && !viewModel.navigate) {

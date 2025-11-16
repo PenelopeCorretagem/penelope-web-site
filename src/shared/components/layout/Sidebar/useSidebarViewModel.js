@@ -20,11 +20,37 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
   const location = useLocation()
   const [model] = useState(() => new SidebarModel(isAdmin))
   const [isOpen, setIsOpen] = useState(initialOpen)
+  const [forceUpdate, setForceUpdate] = useState(0)
 
-  // Sincroniza status de admin com o modelo
+  // Sincroniza status de admin com o modelo E força re-render
   useEffect(() => {
+    console.log('🔄 Sidebar: Admin status changed to:', isAdmin)
     model.setAdminStatus(isAdmin)
+    setForceUpdate(prev => prev + 1) // Força re-render dos menu items
   }, [isAdmin, model])
+
+  // Escutar mudanças de auth para atualizar sidebar
+  useEffect(() => {
+    const handleAuthChange = () => {
+      console.log('🔄 Sidebar: Auth changed, forcing update')
+      setForceUpdate(prev => prev + 1)
+    }
+
+    const handleStorageChange = (event) => {
+      if (['jwtToken', 'userRole', 'userId'].includes(event.key)) {
+        console.log('🔄 Sidebar: Storage changed, forcing update')
+        setForceUpdate(prev => prev + 1)
+      }
+    }
+
+    window.addEventListener('authChanged', handleAuthChange)
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('authChanged', handleAuthChange)
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
 
   /**
    * Alterna estado de abertura do sidebar
@@ -56,15 +82,23 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
    * - Redireciona para home
    */
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
+    sessionStorage.removeItem('jwtToken')
+    sessionStorage.removeItem('userRole')
+    sessionStorage.removeItem('userId')
+    sessionStorage.removeItem('userEmail')
+    sessionStorage.removeItem('userName')
+    sessionStorage.removeItem('token')
+
+    // Disparar evento de mudança de auth
+    window.dispatchEvent(new CustomEvent('authChanged'))
+
     window.location.href = model.getHomeRoute()
   }, [model])
 
   return {
     // Estado
     isOpen,
-    menuItems: model.getMenuItems(),
+    menuItems: model.getMenuItems(), // Será recalculado quando forceUpdate mudar
     homeRoute: model.getHomeRoute(),
 
     // Verificações

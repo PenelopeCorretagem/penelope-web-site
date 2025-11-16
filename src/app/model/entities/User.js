@@ -57,7 +57,7 @@ export class User {
    * Verifica se o usuário é administrador
    */
   isAdmin() {
-    return this.accessLevel === 'ADMINISTRADOR'
+    return this.accessLevel === 'ADMINISTRADOR' || this.accessLevel === 'Administrador'
   }
 
   /**

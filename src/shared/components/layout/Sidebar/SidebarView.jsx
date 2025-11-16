@@ -4,6 +4,7 @@ import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { Link } from 'react-router-dom'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useSidebarViewModel } from './useSidebarViewModel'
+import { useEffect } from 'react'
 
 /**
  * SidebarView - Componente de apresentação do menu lateral
@@ -18,6 +19,13 @@ import { useSidebarViewModel } from './useSidebarViewModel'
  */
 export function SidebarView({ isAdmin = false, initialOpen = false }) {
   const viewModel = useSidebarViewModel(isAdmin, initialOpen)
+
+  // Debug: log quando isAdmin muda
+  useEffect(() => {
+    console.log('🎭 SidebarView: isAdmin prop changed to:', isAdmin)
+    console.log('🎭 SidebarView: menuItems count:', viewModel.menuItems.length)
+    console.log('🎭 SidebarView: menuItems:', viewModel.menuItems.map(item => item.text))
+  }, [isAdmin, viewModel.menuItems])
 
   const renderIcon = (iconName) => {
     const Icon = LucideIcons[iconName]

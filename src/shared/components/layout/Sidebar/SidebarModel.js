@@ -23,6 +23,20 @@ export class SidebarModel {
 
     return [
       {
+        id: 'properties',
+        text: 'Imóveis',
+        icon: 'Building2',
+        path: routes.ADMIN_PROPERTIES,
+        roles: ['admin']
+      },
+      {
+        id: 'users',
+        text: 'Usuários',
+        icon: 'Users',
+        path: routes.ADMIN_USERS,
+        roles: ['admin']
+      },
+      {
         id: 'profile',
         text: 'Meu Perfil',
         icon: 'User',
@@ -35,20 +49,6 @@ export class SidebarModel {
         icon: 'Lock',
         path: this.isAdmin ? routes.ADMIN_ACCOUNT : routes.ACCOUNT,
         roles: ['user', 'admin']
-      },
-      {
-        id: 'users',
-        text: 'Usuários',
-        icon: 'Users',
-        path: routes.ADMIN_USERS,
-        roles: ['admin']
-      },
-      {
-        id: 'properties',
-        text: 'Imóveis',
-        icon: 'Building2',
-        path: routes.ADMIN_PROPERTIES,
-        roles: ['admin']
       }
     ]
   }

@@ -191,4 +191,47 @@ export class RouterModel {
   getAdminRequiredRoutes() {
     return [...this.routeConfig.adminRequiredRoutes]
   }
+
+  // ===== Route Generation =====
+  /**
+   * Generate route with parameters
+   * @param {string} routeName - Name of the route
+   * @param {Object} params - Parameters to replace in route
+   * @returns {string} Generated route
+   */
+  generateRoute(routeName, params = {}) {
+    let route = this.getRoute(routeName)
+
+    if (!route) {
+      console.error(`Rota ${routeName} não encontrada`)
+      return '/'
+    }
+
+    Object.keys(params).forEach(param => {
+      route = route.replace(`:${param}`, params[param])
+    })
+
+    return route
+  }
+
+  /**
+   * Extract parameters from current route based on pattern
+   * @param {string} routePattern - Route pattern with :param syntax
+   * @param {string} actualRoute - Actual route path
+   * @returns {Object} Parameters object
+   */
+  extractParams(routePattern, actualRoute) {
+    const patternParts = routePattern.split('/')
+    const routeParts = actualRoute.split('/')
+    const params = {}
+
+    patternParts.forEach((part, index) => {
+      if (part.startsWith(':')) {
+        const paramName = part.slice(1)
+        params[paramName] = routeParts[index]
+      }
+    })
+
+    return params
+  }
 }
