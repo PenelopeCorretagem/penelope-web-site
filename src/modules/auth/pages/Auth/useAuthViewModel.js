@@ -186,7 +186,6 @@ export function useAuthViewModel() {
 
         console.log('✅ Login completo! Dados salvos:', {
           userId,
-          userName: userEntity.nomeCompleto,
           userEmail: userEntity.email,
           isAdmin: isAdminUser
         })
