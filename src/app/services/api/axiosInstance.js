@@ -1,35 +1,83 @@
 import axios from 'axios'
 
+// Usa URL completa para debug - funciona mesmo sem proxy
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8081/api/v1',
-  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false,
 })
 
-// Request interceptor para adicionar token de autenticação
+// Interceptor para adicionar token nas requisições
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken')
-    if (token) {
+    const token = localStorage.getItem('token')
+
+    // Não adiciona Authorization em rotas públicas
+    const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password', '/users']
+    const isPublicRoute = publicRoutes.some(route => config.url?.includes(route))
+
+    if (token && !isPublicRoute) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    console.log('📡 [REQUEST]', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      fullURL: `${config.baseURL}${config.url}`,
+      data: config.data,
+      hasAuth: !!config.headers.Authorization,
+      headers: config.headers
+    })
+
     return config
   },
   (error) => {
+    console.error('❌ [REQUEST ERROR]', error)
     return Promise.reject(error)
   }
 )
 
-// Response interceptor para tratamento de erros
+// Interceptor para tratar erros de resposta
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ [RESPONSE]', {
+      url: response.config.url,
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data
+    })
+    return response
+  },
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken')
-      window.location.href = '/login'
+    const errorDetails = {
+      url: error.config?.url,
+      method: error.config?.method,
+      fullURL: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
     }
+
+    console.error('❌ [RESPONSE ERROR]', errorDetails)
+
+    // Redireciona apenas em 401 fora das rotas de autenticação
+    if (error.response?.status === 401) {
+      const isAuthRequest = error.config?.url?.includes('/auth/')
+      if (!isAuthRequest) {
+        console.warn('🔒 Token inválido, redirecionando para login')
+        localStorage.removeItem('token')
+        localStorage.removeItem('userId')
+        localStorage.removeItem('userEmail')
+        localStorage.removeItem('userName')
+        setTimeout(() => {
+          window.location.href = '/auth'
+        }, 1000)
+      }
+    }
+
     return Promise.reject(error)
   }
 )

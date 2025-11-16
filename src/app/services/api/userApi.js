@@ -18,6 +18,14 @@ export const registerUser = async (userData) => {
  */
 export const getAllUsers = async () => {
   const response = await axiosInstance.get('/users')
+
+  // Log detalhado dos dados brutos
+  console.log('📋 [USERS API] Usuários retornados (brutos):', response.data)
+  if (response.data && response.data.length > 0) {
+    console.log('📋 [USERS API] Primeiro usuário (exemplo):', response.data[0])
+    console.log('📋 [USERS API] Keys do primeiro usuário:', Object.keys(response.data[0]))
+  }
+
   return userMapper.toEntityList(response.data)
 }
 

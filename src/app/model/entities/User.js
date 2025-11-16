@@ -23,6 +23,11 @@ export class User {
     passwordResetToken,
     passwordResetTokenExpiry,
   }) {
+    // Validar ID
+    if (!id && import.meta.env.DEV) {
+      console.warn('⚠️ User criado sem ID:', { email, nomeCompleto: nomeCompleto || name })
+    }
+
     this.id = id
     this.nomeCompleto = nomeCompleto || name
     this.email = email

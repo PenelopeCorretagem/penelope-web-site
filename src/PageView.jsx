@@ -48,8 +48,16 @@ export function PageView() {
   useEffect(() => {
     const checkAuth = () => {
       const jwtToken = localStorage.getItem('jwtToken')
+      const userId = localStorage.getItem('userId')
       const userRole = localStorage.getItem('userRole')
-      setIsAuthenticated(!!jwtToken)
+
+      console.log('🔍 Auth check:', {
+        hasToken: !!jwtToken,
+        userId,
+        userRole
+      })
+
+      setIsAuthenticated(!!jwtToken && !!userId)
       setIsAdmin(userRole === 'admin')
     }
 
@@ -58,7 +66,7 @@ export function PageView() {
     setAuthReady(true)
 
     const onStorage = (event) => {
-      if (event.key === 'jwtToken' || event.key === 'userRole') {
+      if (event.key === 'jwtToken' || event.key === 'userRole' || event.key === 'userId') {
         checkAuth()
       }
     }
@@ -70,6 +78,9 @@ export function PageView() {
   const handleLogout = () => {
     localStorage.removeItem('jwtToken')
     localStorage.removeItem('userRole')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('userName')
     setIsAuthenticated(false)
     setIsAdmin(false)
     window.location.href = '/'
@@ -78,6 +89,9 @@ export function PageView() {
   const handleDevLogin = () => {
     localStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
     localStorage.setItem('userRole', 'user')
+    localStorage.setItem('userId', '1')
+    localStorage.setItem('userEmail', 'dev@test.com')
+    localStorage.setItem('userName', 'Dev User')
     setIsAuthenticated(true)
     setIsAdmin(false)
     // Redireciona para a home após login
@@ -87,6 +101,9 @@ export function PageView() {
   const handleDevAdminLogin = () => {
     localStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
     localStorage.setItem('userRole', 'admin')
+    localStorage.setItem('userId', '1')
+    localStorage.setItem('userEmail', 'admin@test.com')
+    localStorage.setItem('userName', 'Admin User')
     setIsAuthenticated(true)
     setIsAdmin(true)
     // Redireciona para a home após login

@@ -1,79 +1,129 @@
 import axiosInstance from './axiosInstance'
 
 /**
- * Autentica um usuário.
- * @param {object} credentials - Credenciais do usuário { email, senha }
- * @returns {Promise<object>} Objeto com token { token: string }
+ * Realiza o login do usuário.
+ * @param {object} credentials - { email, senha }
+ * @returns {Promise<{token: string, user: object}>}
  */
-export const loginUser = async (credentials) => {
-  const response = await axiosInstance.post('/auth/login', {
-    email: credentials.email,
-    senha: credentials.senha,
-  })
+export const login = async (credentials) => {
+  try {
+    console.log('🔐 [AUTH] Tentando login com:', {
+      email: credentials.email,
+      senhaLength: credentials.senha?.length,
+    })
 
-  // A resposta do backend é { token: "..." }
-  if (response.data.token) {
-    localStorage.setItem('authToken', response.data.token)
+    const response = await axiosInstance.post('/auth/login', {
+      email: credentials.email,
+      senha: credentials.senha,
+    })
+
+    // Log extremamente detalhado
+    console.log('✅ [AUTH API] Response status:', response.status)
+    console.log('✅ [AUTH API] Response.data type:', typeof response.data)
+    console.log('✅ [AUTH API] Response.data is string?', typeof response.data === 'string')
+    console.log('✅ [AUTH API] Response.data keys:', response.data ? Object.keys(response.data) : 'N/A')
+    console.log('✅ [AUTH API] Response.data completo:', response.data)
+    console.log('✅ [AUTH API] Response.data.token:', response.data?.token)
+    console.log('✅ [AUTH API] Response.data.id:', response.data?.id)
+    console.log('✅ [AUTH API] Response.data.user:', response.data?.user)
+    console.log('✅ [AUTH API] Response.data.usuario:', response.data?.usuario)
+
+    // Se response.data for string, é só o token
+    if (typeof response.data === 'string') {
+      console.log('⚠️ [AUTH API] Response.data é string (token), retornando formato padrão')
+      return {
+        token: response.data,
+        user: null,
+        id: null
+      }
+    }
+
+    // Extrair ID de todas as formas possíveis
+    const extractedId = response.data.id ||
+                       response.data.user?.id ||
+                       response.data.usuario?.id ||
+                       response.data.userId ||
+                       null
+
+    const result = {
+      token: response.data.token || response.data,
+      user: response.data.user || response.data.usuario || null,
+      id: extractedId
+    }
+
+    console.log('✅ [AUTH API] Retornando:', {
+      hasToken: !!result.token,
+      hasUser: !!result.user,
+      hasId: !!result.id,
+      id: result.id
+    })
+
+    return result
+  } catch (error) {
+    console.error('❌ [AUTH] Erro detalhado no login:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    })
+    throw error
   }
+}
 
+/**
+ * Registra um novo usuário.
+ * @param {object} userData - { nomeCompleto, email, senha }
+ * @returns {Promise}
+ */
+export const register = async (userData) => {
+  try {
+    console.log('📝 [AUTH] Tentando registro')
+
+    const response = await axiosInstance.post('/users', {
+      nomeCompleto: userData.nomeCompleto,
+      email: userData.email,
+      senha: userData.senha,
+      accessLevel: 'CLIENTE',
+    })
+
+    console.log('✅ [AUTH] Registro bem-sucedido')
+    return response.data
+  } catch (error) {
+    console.error('❌ [AUTH] Erro no registro:', error.response?.data)
+    throw error
+  }
+}
+
+/**
+ * Solicita recuperação de senha.
+ * @param {string} email
+ * @returns {Promise<string>}
+ */
+export const forgotPassword = async (email) => {
+  const response = await axiosInstance.post('/auth/forgot-password', { email })
   return response.data
 }
 
 /**
- * Solicita a recuperação de senha.
- * @param {string} email - O e-mail do usuário.
- * @returns {Promise<object>} Mensagem de confirmação
- */
-export const forgotPassword = async (email) => {
-  const response = await axiosInstance.post('/auth/forgot-password', {
-    email,
-  })
-
-  // Backend retorna string direta: "Se o e-mail estiver cadastrado..."
-  return {
-    message: response.data,
-    success: true,
-  }
-}
-
-/**
- * Verifica a validade de um token de redefinição de senha.
- * @param {string} token - Token de redefinição.
- * @returns {Promise<object>} Confirmação de validade
+ * Valida o token de recuperação.
+ * @param {string} token
+ * @returns {Promise<string>}
  */
 export const validateResetToken = async (token) => {
-  const response = await axiosInstance.post('/auth/validate-token', {
-    token,
-  })
-
-  // Backend retorna string: "Token é válido."
-  return {
-    message: response.data,
-    valid: true,
-  }
+  const response = await axiosInstance.post('/auth/validate-token', { token })
+  return response.data
 }
 
 /**
- * Atualiza a senha do usuário utilizando um token válido de redefinição.
- * @param {object} data - { token, newPassword }
- * @returns {Promise<object>} Confirmação da redefinição
+ * Reseta a senha com o token.
+ * @param {string} token
+ * @param {string} newPassword
+ * @returns {Promise<string>}
  */
-export const resetPassword = async ({ token, newPassword }) => {
+export const resetPassword = async (token, newPassword) => {
   const response = await axiosInstance.post('/auth/reset-password', {
     token,
     newPassword,
   })
-
-  // Backend retorna string: "Senha redefinida com sucesso."
-  return {
-    message: response.data,
-    success: true,
-  }
-}
-
-/**
- * Faz logout removendo o token
- */
-export const logout = () => {
-  localStorage.removeItem('authToken')
+  return response.data
 }

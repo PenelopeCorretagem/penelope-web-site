@@ -42,17 +42,7 @@ export default defineConfig(({ command, mode }) => {
       strictPort: true, // Falha se porta estiver ocupada
       cors: true, // Permite CORS
 
-      // Proxy para API
-      proxy:
-        mode === 'development'
-          ? {
-              '/api': {
-                target: env.API_URL,
-                changeOrigin: true,
-                secure: false,
-              },
-            }
-          : undefined,
+      // Proxy para API removido temporariamente para debug
     },
 
     // Configurações do preview (build de produção)

@@ -96,6 +96,14 @@ export function RouterView({
             </ProtectedRoute>
           )}
         />
+        <Route
+          path={routes.ACCOUNT}
+          element={(
+            <ProtectedRoute protection={protectedAccess}>
+              <AccountView />
+            </ProtectedRoute>
+          )}
+        />
 
         {/* ===== ROTAS ADMIN ===== */}
         <Route

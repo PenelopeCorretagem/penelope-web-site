@@ -7,7 +7,23 @@ export const userMapper = {
    */
   toEntity: (data) => {
     if (!data) return null
-    return new User(data)
+
+    // Log detalhado para debug
+    if (!data.id && import.meta.env.DEV) {
+      console.log('⚠️ [MAPPER] Dados sem ID:', {
+        keys: Object.keys(data),
+        email: data.email,
+        allData: data,
+      })
+    }
+
+    // Tentar extrair ID de campos alternativos
+    const userId = data.id || data.userId || data.user_id || data.ID
+
+    return new User({
+      ...data,
+      id: userId,
+    })
   },
 
   /**
