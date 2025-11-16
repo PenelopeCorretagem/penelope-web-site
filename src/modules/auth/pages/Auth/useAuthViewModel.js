@@ -73,9 +73,7 @@ export function useAuthViewModel() {
         throw new Error('Token não recebido do servidor')
       }
 
-      localStorage.setItem('token', token)
       localStorage.setItem('jwtToken', token)
-      console.log('✅ Token salvo')
 
       // Processar dados do usuário
       let userEntity = null
@@ -152,7 +150,6 @@ export function useAuthViewModel() {
       // Salvar dados completos do usuário
       if (userEntity) {
         localStorage.setItem('userEmail', userEntity.email || formData.email)
-        localStorage.setItem('userName', userEntity.nomeCompleto || userEntity.email || formData.email)
 
         if (userEntity.isAdmin && userEntity.isAdmin()) {
           localStorage.setItem('userRole', 'admin')
@@ -162,13 +159,11 @@ export function useAuthViewModel() {
 
         console.log('✅ Login completo! Dados salvos:', {
           userId,
-          userName: userEntity.nomeCompleto,
           userEmail: userEntity.email,
           isAdmin: userEntity.isAdmin ? userEntity.isAdmin() : false
         })
       } else {
         localStorage.setItem('userEmail', formData.email)
-        localStorage.setItem('userName', formData.email)
         localStorage.setItem('userRole', 'user')
         console.log('⚠️ Dados mínimos salvos')
       }

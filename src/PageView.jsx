@@ -80,7 +80,6 @@ export function PageView() {
     localStorage.removeItem('userRole')
     localStorage.removeItem('userId')
     localStorage.removeItem('userEmail')
-    localStorage.removeItem('userName')
     setIsAuthenticated(false)
     setIsAdmin(false)
     window.location.href = '/'

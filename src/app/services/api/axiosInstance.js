@@ -68,10 +68,8 @@ axiosInstance.interceptors.response.use(
       const isAuthRequest = error.config?.url?.includes('/auth/')
       if (!isAuthRequest) {
         console.warn('🔒 Token inválido, redirecionando para login')
-        localStorage.removeItem('token')
         localStorage.removeItem('userId')
         localStorage.removeItem('userEmail')
-        localStorage.removeItem('userName')
         setTimeout(() => {
           window.location.href = '/auth'
         }, 1000)

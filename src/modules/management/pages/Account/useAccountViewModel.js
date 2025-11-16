@@ -115,7 +115,6 @@ export function useAccountViewModel() {
       await deleteUser(userId)
 
       localStorage.removeItem('userId')
-      localStorage.removeItem('token')
 
       window.location.href = '/'
     } catch (err) {
