@@ -16,12 +16,14 @@ import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
  * @param {string} [type='button'] - Tipo do botão.
  * @param {Object} [config={}] - Configuração opcional (ex: { onClick }).
  * @param {string|null} [to=null] - Rota associada (para links internos).
+ * @param {string} [shape='rectangle'] - Forma do botão (rectangle, square, circle).
+ * @param {string} [title=''] - Título do botão (tooltip/acessibilidade).
  *
  * @returns {Object} Objeto contendo dados do botão e handlers.
  */
-export function useButtonViewModel(text = '', color = 'pink', type = 'button', config = {}, to = null) {
+export function useButtonViewModel(text = '', color = 'pink', type = 'button', config = {}, to = null, shape = 'rectangle', title = '') {
   /** @type {ButtonModel} Modelo base do botão. */
-  const [model] = useState(() => new ButtonModel(text, color, type, to))
+  const [model] = useState(() => new ButtonModel(text, color, type, to, shape, title))
 
   /**
    * Handler de clique do botão.
@@ -65,6 +67,8 @@ export function useButtonViewModel(text = '', color = 'pink', type = 'button', c
     color: model.color,
     type: model.type,
     to: model.to,
+    shape: model.shape,
+    title: model.title,
     isLink: model.isLink(),
     active: model.active,
     disabled: model.disabled,

@@ -8,8 +8,12 @@ export class PropertyConfigModel {
     this.id = propertyData?.id || null
     this.propertyTitle = propertyData?.property?.title || propertyData?.property?.address?.city || ''
     this.displayEndDate = propertyData?.endDate ? this._formatDate(propertyData.endDate) : ''
+    this.propertyType = propertyData?.type || 'DISPONIVEL'
+    this.responsible = propertyData?.responsible?.id || ''
     this.cardDescription = propertyData?.property?.address?.neighborhood || ''
     this.propertyDescription = propertyData?.property?.description || ''
+    this.area = propertyData?.property?.area || ''
+    this.numberOfRooms = propertyData?.property?.numberOfRooms || ''
 
     this.differentials = propertyData?.property?.amenities?.map(a =>
       this._normalizeDifferential(a.description)
@@ -168,8 +172,12 @@ export class PropertyConfigModel {
     return {
       propertyTitle: this.propertyTitle,
       displayEndDate: this.displayEndDate,
+      propertyType: this.propertyType,
+      responsible: this.responsible,
       cardDescription: this.cardDescription,
       propertyDescription: this.propertyDescription,
+      area: this.area,
+      numberOfRooms: this.numberOfRooms,
       differentials: this.differentials,
       cep: this.address.cep,
       number: this.address.number,
@@ -191,6 +199,64 @@ export class PropertyConfigModel {
       gallery: this.images.gallery,
       floorPlans: this.images.floorPlans
     }
+  }
+
+  /**
+   * Converte os dados do formulário para o formato de requisição da API
+   */
+  toApiRequest(formData) {
+    return {
+      active: true,
+      emphasis: false,
+      endDate: formData.displayEndDate,
+      type: formData.propertyType,
+      responsibleId: formData.responsible,
+      property: {
+        title: formData.propertyTitle,
+        description: formData.propertyDescription,
+        area: parseFloat(formData.area) || null,
+        numberOfRooms: parseInt(formData.numberOfRooms) || null,
+        type: 'APARTAMENTO', // Default, pode ser configurável no futuro
+        address: {
+          street: formData.street,
+          number: formData.number,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          uf: formData.state,
+          region: formData.region,
+          zipCode: formData.cep,
+        },
+        standAddress: formData.enableStandAddress?.includes('enabled') ? {
+          street: formData.standStreet,
+          number: formData.standNumber,
+          neighborhood: formData.standNeighborhood,
+          city: formData.standCity,
+          uf: formData.standState,
+          region: formData.standRegion,
+          zipCode: formData.standCep,
+        } : null,
+        amenities: formData.differentials?.map(diff => ({
+          description: this._denormalizeDifferential(diff)
+        })) || [],
+      }
+    }
+  }
+
+  /**
+   * Converte valor normalizado de volta para nome legível
+   */
+  _denormalizeDifferential(value) {
+    const map = {
+      'piscina': 'Piscina',
+      'academia': 'Academia',
+      'churrasqueira': 'Churrasqueira',
+      'playground': 'Playground',
+      'salao_festas': 'Salão de Festas',
+      'garagem': 'Garagem',
+      'espaco_gourmet': 'Espaço Gourmet',
+      'pet_place': 'Pet Place'
+    }
+    return map[value] || value
   }
 
   /**

@@ -1,7 +1,9 @@
+import React from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 
 export function PropertyConfigView() {
   const { id } = useRouteParams()
@@ -12,14 +14,54 @@ export function PropertyConfigView() {
     loading,
     error,
     initialData,
+    submitting,
     isNew,
+    usersWithCreci,
+    loadingUsers,
     handleSubmit,
     handleDelete,
     handleClear,
     handleCancel
   } = usePropertyConfigViewModel(id)
 
-  console.log('PropertyConfigView - initialData:', initialData)
+  console.log('PropertyConfigView - Users state:', {
+    loadingUsers,
+    usersCount: usersWithCreci.length,
+    users: usersWithCreci
+  })
+
+  // Só monta o formulário quando os usuários estiverem carregados
+  if (loading || loadingUsers) {
+    return (
+      <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+        {loading ? 'Carregando dados da propriedade...' : 'Carregando usuários...'}
+      </SectionView>
+    )
+  }
+
+  if (error) {
+    return (
+      <SectionView className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-red-500 gap-4">
+        <p>{error}</p>
+        <ButtonView
+          type="button"
+          color="brown"
+          onClick={handleCancel}
+        >
+          Voltar
+        </ButtonView>
+      </SectionView>
+    )
+  }
+
+  // Agora monta as opções com segurança, pois os usuários já foram carregados
+  const responsibleOptions = [
+    { value: '', label: 'Selecione um responsável' },
+    ...usersWithCreci.map(user => ({
+      value: user.id?.toString() || user.email,
+      label: user.getDisplayName()
+    }))
+  ]
 
   const steps = [
     {
@@ -40,6 +82,32 @@ export function PropertyConfigView() {
               name: 'displayEndDate',
               label: 'Data Término de Exibição',
               type: 'date',
+              required: true,
+              containerClassName: 'w-full md:w-1/2',
+            },
+          ],
+        },
+        {
+          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          fields: [
+            {
+              name: 'propertyType',
+              label: 'Tipo',
+              type: 'select',
+              options: [
+                { value: '', label: 'Selecione o tipo' },
+                { value: 'DISPONIVEL', label: 'Disponível' },
+                { value: 'EM_OBRAS', label: 'Em Obras' },
+                { value: 'LANCAMENTO', label: 'Lançamento' }
+              ],
+              required: true,
+              containerClassName: 'w-full md:w-1/2',
+            },
+            {
+              name: 'responsible',
+              label: 'Responsável',
+              type: 'select',
+              options: responsibleOptions,
               required: true,
               containerClassName: 'w-full md:w-1/2',
             },
@@ -76,6 +144,25 @@ export function PropertyConfigView() {
               containerClassName: 'w-full h-full flex-1',
               rows: 5,
               required: true,
+            },
+          ],
+        },
+        {
+          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          fields: [
+            {
+              name: 'area',
+              label: 'Área (m²)',
+              type: 'number',
+              required: true,
+              containerClassName: 'w-full md:w-1/2',
+            },
+            {
+              name: 'numberOfRooms',
+              label: 'Número de Quartos',
+              type: 'number',
+              required: true,
+              containerClassName: 'w-full md:w-1/2',
             },
           ],
         },
@@ -320,22 +407,6 @@ export function PropertyConfigView() {
     },
   ]
 
-  if (loading) {
-    return (
-      <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        Carregando dados da propriedade...
-      </SectionView>
-    )
-  }
-
-  if (error) {
-    return (
-      <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)] text-red-500">
-        {error}
-      </SectionView>
-    )
-  }
-
   return (
     <SectionView className="!min-h-[calc(100vh-80px)] !max-h-[calc(100vh-80px)] overflow-y-auto">
       <WizardFormView
@@ -346,6 +417,7 @@ export function PropertyConfigView() {
         onDelete={!isNew ? handleDelete : undefined}
         onClear={handleClear}
         onCancel={handleCancel}
+        disabled={submitting}
         key={id || 'new'} // Force re-render quando mudar de ID
       />
     </SectionView>

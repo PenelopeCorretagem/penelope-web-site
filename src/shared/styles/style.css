@@ -14,6 +14,12 @@
   --color-default-dark-muted: #3c3b3c;      /* Cinza escuro */
   --color-default-dark-light: #777676;      /* Cinza claro */
 
+  --text-form-control: 12px;
+  --text-form-control-md: 16px;
+
+  --text-button: 12px;
+  --text-button-md: 16px;
+
   --padding-section-y: 48px;
   --padding-section-x: 80px;
   --padding-section: 48px 80px;
@@ -28,15 +34,39 @@
   --padding-header-y-md: 24px;
   --padding-header-x-md: 104px;
 
-  --padding-button: 8px 16px;
-  --padding-button-x: 16px;
-  --padding-button-y: 8px;
-  --padding-button-md: 12px 24px;
-  --padding-button-x-md: 24px;
-  --padding-button-y-md: 12px;
+  --padding-button-rectangle: 8px 12px;
+  --padding-button-rectangle-x: 12px;
+  --padding-button-rectangle-y: 8px;
+  --padding-button-rectangle-md: 12px 20px;
+  --padding-button-rectangle-x-md: 20px;
+  --padding-button-rectangle-y-md: 12px;
+
+  --padding-button-square: 8px;
+  --padding-button-square-md: 12px;
+
+  --padding-button-circle: 8px;
+  --padding-button-circle-md: 12px;
+
+  --padding-input: 6px 12px;
+  --padding-input-x: 12px;
+  --padding-input-y: 6px;
+  --padding-input-md: 10px 20px;
+  --padding-input-x-md: 20px;
+  --padding-input-y-md: 10px;
+
+  --padding-select: 8px 12px;
+  --padding-select-x: 12px;
+  --padding-select-y: 8px;
+  --padding-select-md: 12px 20px;
+  --padding-select-x-md: 20px;
+  --padding-select-y-md: 12px;
+
 
   --gap-button: 8px;
   --gap-button-md: 12px;
+
+  --gap-select: 8px;
+  --gap-select-md: 12px;
 
   --padding-card: 16px;
   --padding-card-md: 24px;
@@ -47,8 +77,15 @@
   --gap-section: 100px;
   --gap-section-md: 120px;
 
+  --gap-section-row: 100px;
+  --gap-section-row-md: 120px;
+
+  --gap-section-col: 50px;
+  --gap-section-col-md: 60px;
+
   --gap-subsection: 24px;
   --gap-subsection-md: 36px;
+
 }
 
 /* Fontes personalizadas */
@@ -64,10 +101,33 @@
 @layer base {
   :where(*) {
     box-sizing: border-box;
+    line-height: 1;
   }
 
   :where(button){
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :where(input){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :where(select){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+     accent-color: #ff69b4; /* rosa */
+  }
+
+  :where(textarea){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
   }
 }
 

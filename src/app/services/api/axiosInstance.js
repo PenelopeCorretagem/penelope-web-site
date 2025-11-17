@@ -22,19 +22,13 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    console.log('📡 [REQUEST]', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      fullURL: `${config.baseURL}${config.url}`,
-      data: config.data,
-      hasAuth: !!config.headers.Authorization,
-      headers: config.headers
-    })
+    // Log simplificado apenas para debug
+    console.log(`🚀 [AXIOS] ${config.method?.toUpperCase()} ${config.url}`)
 
     return config
   },
   (error) => {
-    console.error('❌ [REQUEST ERROR]', error)
+    console.error('❌ [AXIOS] Request error:', error.message)
     return Promise.reject(error)
   }
 )
@@ -42,40 +36,11 @@ axiosInstance.interceptors.request.use(
 // Interceptor para tratar erros de resposta
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('✅ [RESPONSE]', {
-      url: response.config.url,
-      status: response.status,
-      statusText: response.statusText,
-      data: response.data
-    })
+    console.log(`✅ [AXIOS] ${response.status} ${response.config.url}`)
     return response
   },
   (error) => {
-    const errorDetails = {
-      url: error.config?.url,
-      method: error.config?.method,
-      fullURL: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-    }
-
-    console.error('❌ [RESPONSE ERROR]', errorDetails)
-
-    // Redireciona apenas em 401 fora das rotas de autenticação
-    if (error.response?.status === 401) {
-      const isAuthRequest = error.config?.url?.includes('/auth/')
-      if (!isAuthRequest) {
-        console.warn('🔒 Token inválido, redirecionando para login')
-        localStorage.removeItem('userId')
-        localStorage.removeItem('userEmail')
-        setTimeout(() => {
-          window.location.href = '/auth'
-        }, 1000)
-      }
-    }
-
+    console.error(`❌ [AXIOS] ${error.response?.status || 'ERROR'} ${error.config?.url}:`, error.message)
     return Promise.reject(error)
   }
 )

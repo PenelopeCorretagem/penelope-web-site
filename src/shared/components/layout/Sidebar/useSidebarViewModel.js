@@ -24,7 +24,6 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
 
   // Sincroniza status de admin com o modelo E força re-render
   useEffect(() => {
-    console.log('🔄 Sidebar: Admin status changed to:', isAdmin)
     model.setAdminStatus(isAdmin)
     setForceUpdate(prev => prev + 1) // Força re-render dos menu items
   }, [isAdmin, model])
@@ -32,13 +31,11 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
   // Escutar mudanças de auth para atualizar sidebar
   useEffect(() => {
     const handleAuthChange = () => {
-      console.log('🔄 Sidebar: Auth changed, forcing update')
       setForceUpdate(prev => prev + 1)
     }
 
     const handleStorageChange = (event) => {
       if (['jwtToken', 'userRole', 'userId'].includes(event.key)) {
-        console.log('🔄 Sidebar: Storage changed, forcing update')
         setForceUpdate(prev => prev + 1)
       }
     }

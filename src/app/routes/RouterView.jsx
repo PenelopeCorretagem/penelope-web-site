@@ -12,6 +12,7 @@ import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
 import { PropertyConfigView } from '@management/pages/PropertyConfig/PropertyConfigView'
 import { PropertiesConfigView } from '@management/pages/PropertiesConfig/PropertiesConfigView'
 import { UsersView } from '@management/pages/Users/UsersView'
+import { UserConfigView } from '@management/pages/UserConfig/UserConfigView'
 import { AccountView } from '@management/pages/Account/AccountView'
 import { NotFoundView } from '@shared/pages/NotFound/NotFoundView'
 import { UnauthorizedView } from '@shared/pages/Unauthorized/UnauthorizedView'
@@ -135,6 +136,22 @@ export function RouterView({
           element={(
             <ProtectedRoute protection={adminAccess}>
               <UsersView />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path={routes.ADMIN_USER_ADD}
+          element={(
+            <ProtectedRoute protection={adminAccess}>
+              <UserConfigView />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path={routes.ADMIN_USER_EDIT}
+          element={(
+            <ProtectedRoute protection={adminAccess}>
+              <UserConfigView />
             </ProtectedRoute>
           )}
         />

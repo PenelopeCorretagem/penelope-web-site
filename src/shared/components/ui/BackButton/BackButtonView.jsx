@@ -7,15 +7,19 @@ export function BackButtonView({
   disabled = false,
   ariaLabel,
   className = '',
+  mode = 'icon', // 'icon' or 'text'
+  text = 'Voltar',
 }) {
   const {
     size: iconSize,
     disabled: isDisabled,
     ariaLabel: accessibilityLabel,
+    mode: displayMode,
+    text: displayText,
     handleClick,
     getBackButtonClasses,
     getIconClasses,
-  } = useBackButtonViewModel({ size, disabled, ariaLabel })
+  } = useBackButtonViewModel({ size, disabled, ariaLabel, mode, text })
 
   const buttonClasses = getBackButtonClasses(className)
   const iconClasses = getIconClasses()
@@ -27,7 +31,14 @@ export function BackButtonView({
       className={buttonClasses}
       aria-label={accessibilityLabel}
     >
-      <LucideArrowLeftToLine size={iconSize} className={iconClasses} />
+      {displayMode === 'text' ? (
+        <>
+          <LucideArrowLeftToLine size={16} className={iconClasses} />
+          {displayText}
+        </>
+      ) : (
+        <LucideArrowLeftToLine size={iconSize} className={iconClasses} />
+      )}
     </button>
   )
 }

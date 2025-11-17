@@ -73,11 +73,15 @@ export function useEditFormViewModel(initialProps = {}) {
   }, [clearErrors, clearSuccess])
 
   const handleCancel = useCallback(() => {
-    setFieldValues(initialProps.initialData || {})
-    setIsEditing(false)
-    clearErrors()
-    clearSuccess()
-  }, [initialProps.initialData, clearErrors, clearSuccess])
+    if (initialProps.onCancel && typeof initialProps.onCancel === 'function') {
+      initialProps.onCancel()
+    } else {
+      setFieldValues(initialProps.initialData || {})
+      setIsEditing(false)
+      clearErrors()
+      clearSuccess()
+    }
+  }, [initialProps.onCancel, initialProps.initialData, clearErrors, clearSuccess])
 
   const handleDelete = useCallback(() => {
     if (initialProps.onDelete) {

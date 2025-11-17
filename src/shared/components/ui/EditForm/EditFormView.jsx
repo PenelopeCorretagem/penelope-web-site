@@ -12,6 +12,7 @@ export function EditFormView({
   fields = [],
   initialData = {},
   onSubmit,
+  onCancel,
   onDelete,
   isEditing: initialIsEditing = false,
   showDeleteButton = true,
@@ -21,6 +22,7 @@ export function EditFormView({
     fields,
     initialData,
     onSubmit,
+    onCancel, // Esta prop precisa ser passada corretamente
     onDelete,
     isEditing: initialIsEditing,
   })
@@ -63,50 +65,50 @@ export function EditFormView({
               {vm.fields
                 .filter(field => !field.hideInViewMode) // Filtra campos que não devem aparecer no modo visualização
                 .map((field) => (
-                <div key={field.name} className="w-full">
-                  {field.type === 'checkbox-group' ? (
-                    <div className="w-full flex flex-col gap-2">
-                      <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
-                        {field.label}:
-                      </label>
-                      <div className={`w-full rounded-sm px-4 py-2 transition-colors duration-200 bg-default-light-muted opacity-75`}>
-                        <div className="flex flex-wrap gap-3">
-                          {field.options?.map(option => {
-                            const currentValue = vm.getFieldValue(field.name) || []
-                            const isSelected = Array.isArray(currentValue) && currentValue.includes(option.value)
+                  <div key={field.name} className="w-full">
+                    {field.type === 'checkbox-group' ? (
+                      <div className="w-full flex flex-col gap-2">
+                        <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
+                          {field.label}:
+                        </label>
+                        <div className={`w-full rounded-sm px-4 py-2 transition-colors duration-200 bg-default-light-muted opacity-75`}>
+                          <div className="flex flex-wrap gap-3">
+                            {field.options?.map(option => {
+                              const currentValue = vm.getFieldValue(field.name) || []
+                              const isSelected = Array.isArray(currentValue) && currentValue.includes(option.value)
 
-                            return (
-                              <div key={option.value} className="flex items-center">
-                                <InputView
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  disabled={true}
-                                  placeholder={option.label}
-                                  hasLabel={false}
-                                  isActive={false}
-                                />
-                              </div>
-                            )
-                          })}
+                              return (
+                                <div key={option.value} className="flex items-center">
+                                  <InputView
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    disabled={true}
+                                    placeholder={option.label}
+                                    hasLabel={false}
+                                    isActive={false}
+                                  />
+                                </div>
+                              )
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <InputView
-                      id={field.name}
-                      name={field.name}
-                      type={field.type || 'text'}
-                      value={vm.getFieldValue(field.name)}
-                      hasLabel={Boolean(field.label)}
-                      disabled={true}
-                      isActive={false}
-                      showPasswordToggle={false} // Nunca mostrar toggle no modo visualização
-                    >
-                      {field.label || ''}
-                    </InputView>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <InputView
+                        id={field.name}
+                        name={field.name}
+                        type={field.type || 'text'}
+                        value={vm.getFieldValue(field.name)}
+                        hasLabel={Boolean(field.label)}
+                        disabled={true}
+                        isActive={false}
+                        showPasswordToggle={false}
+                      >
+                        {field.label || ''}
+                      </InputView>
+                    )}
+                  </div>
+                ))}
             </div>
 
             {/* Buttons - View Mode */}

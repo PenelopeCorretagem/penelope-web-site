@@ -133,13 +133,14 @@ export class UsersModel {
    * Filtra usuários por nome e tipo
    */
   filterUsers(searchTerm = '', userType = 'TODOS', sortOrder = 'none') {
+    console.log('FilterUsers called with:', { searchTerm, userType, sortOrder, usersCount: this.users.length }) // Debug
     let filtered = [...this.users]
 
     // Filtro por nome ou email
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase()
       filtered = filtered.filter(user =>
-        user.nomeCompleto?.toLowerCase().includes(searchLower) ||
+        (user.nomeCompleto || user.name || '')?.toLowerCase().includes(searchLower) ||
         user.email?.toLowerCase().includes(searchLower)
       )
     }
@@ -151,16 +152,23 @@ export class UsersModel {
 
     // Ordenação alfabética
     if (sortOrder === 'asc') {
-      filtered = filtered.sort((a, b) =>
-        (a.nomeCompleto || '').localeCompare(b.nomeCompleto || '', 'pt-BR')
-      )
+      filtered = filtered.sort((a, b) => {
+        const nameA = (a.nomeCompleto || a.name || '').toLowerCase()
+        const nameB = (b.nomeCompleto || b.name || '').toLowerCase()
+        return nameA.localeCompare(nameB, 'pt-BR')
+      })
+      console.log('Sorted ASC:', filtered.slice(0, 3).map(u => u.nomeCompleto || u.name)) // Debug
     } else if (sortOrder === 'desc') {
-      filtered = filtered.sort((a, b) =>
-        (b.nomeCompleto || '').localeCompare(a.nomeCompleto || '', 'pt-BR')
-      )
+      filtered = filtered.sort((a, b) => {
+        const nameA = (a.nomeCompleto || a.name || '').toLowerCase()
+        const nameB = (b.nomeCompleto || b.name || '').toLowerCase()
+        return nameB.localeCompare(nameA, 'pt-BR')
+      })
+      console.log('Sorted DESC:', filtered.slice(0, 3).map(u => u.nomeCompleto || u.name)) // Debug
     }
     // Se sortOrder === 'none', mantém a ordem original
 
+    console.log('Final filtered result:', filtered.length, 'users') // Debug
     return filtered
   }
 }

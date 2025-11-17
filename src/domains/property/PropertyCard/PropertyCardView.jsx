@@ -192,12 +192,13 @@ export function PropertyCardView({
           color={'soft-brown'}
           type={'button'}
           width={'fit'}
-          className='!p-button-y md:!p-button-y-md shadow-md shadow-gray/400'
+          className='shadow-md shadow-gray/400'
           onClick={(e) => {
             e.stopPropagation()
             handleDelete()
           }}
           aria-label="Excluir imóvel"
+          shape='square'
         >
           <X size={30} className='text-default-light' />
         </ButtonView>
@@ -206,7 +207,8 @@ export function PropertyCardView({
           color={'pink'}
           type={'button'}
           width={'fit'}
-          className='!p-button-y md:!p-button-y-md shadow-md shadow-gray/400'
+          className='shadow-md shadow-gray/400'
+          shape='square'
           onClick={(e) => {
             e.stopPropagation()
             handleEdit()

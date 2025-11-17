@@ -17,16 +17,20 @@ export const registerUser = async (userData) => {
  * @returns {Promise<User[]>} Lista de entidades User.
  */
 export const getAllUsers = async () => {
-  const response = await axiosInstance.get('/users')
+  try {
+    console.log('📋 [USERS API] Buscando usuários...')
+    const response = await axiosInstance.get('/users')
 
-  // Log detalhado dos dados brutos
-  console.log('📋 [USERS API] Usuários retornados (brutos):', response.data)
-  if (response.data && response.data.length > 0) {
-    console.log('📋 [USERS API] Primeiro usuário (exemplo):', response.data[0])
-    console.log('📋 [USERS API] Keys do primeiro usuário:', Object.keys(response.data[0]))
+    console.log('📋 [USERS API] Resposta:', {
+      status: response.status,
+      count: response.data?.length || 0
+    })
+
+    return userMapper.toEntityList(response.data)
+  } catch (error) {
+    console.error('❌ [USERS API] Erro ao buscar usuários:', error.message)
+    throw error
   }
-
-  return userMapper.toEntityList(response.data)
 }
 
 /**
@@ -35,8 +39,15 @@ export const getAllUsers = async () => {
  * @returns {Promise<User>} Entidade User.
  */
 export const getUserById = async (id) => {
-  const response = await axiosInstance.get(`/users/${id}`)
-  return userMapper.toEntity(response.data)
+  try {
+    console.log(`📋 [USERS API] Buscando usuário com ID: ${id}`)
+    const response = await axiosInstance.get(`/users/${id}`)
+    console.log('📋 [USERS API] Usuário encontrado:', response.data)
+    return userMapper.toEntity(response.data)
+  } catch (error) {
+    console.error(`❌ [USERS API] Erro ao buscar usuário ${id}:`, error)
+    throw error
+  }
 }
 
 /**
@@ -58,4 +69,35 @@ export const updateUser = async (id, userData) => {
  */
 export const deleteUser = async (id) => {
   await axiosInstance.delete(`/users/${id}`)
+}
+
+/**
+ * Lista usuários que possuem CRECI (corretores).
+ * @returns {Promise<User[]>} Lista de entidades User com CRECI.
+ */
+export const getUsersWithCreci = async () => {
+  try {
+    console.log('📋 [USERS API] Buscando usuários com CRECI...')
+
+    const allUsers = await getAllUsers()
+    console.log('📋 [USERS API] Total usuários:', allUsers.length)
+
+    const usersWithCreci = allUsers.filter(user => {
+      const hasCreci = user.hasCreci()
+      const isActive = user.isActive()
+
+      if (hasCreci) {
+        console.log(`👤 [USERS API] Usuário com CRECI: ${user.name} (${user.creci}) - Ativo: ${isActive}`)
+      }
+
+      return hasCreci && isActive
+    })
+
+    console.log('📋 [USERS API] Usuários com CRECI ativos:', usersWithCreci.length)
+
+    return usersWithCreci
+  } catch (error) {
+    console.error('❌ [USERS API] Erro ao buscar usuários com CRECI:', error)
+    return []
+  }
 }

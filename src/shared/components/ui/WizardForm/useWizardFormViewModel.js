@@ -148,9 +148,11 @@ export function useWizardFormViewModel(initialProps = {}) {
     fieldErrors: model.fieldErrors,
     hasErrors: model.hasErrors,
     hasSuccess: model.hasSuccess,
+    hasDeleteAction: model.hasDeleteAction,
     errorMessages: model.errorMessages,
     successMessage: model.successMessage,
     isLoading: model.isLoading,
+    onDelete: model.onDelete, // Expose onDelete for conditional rendering
 
     // Event Handlers
     handleFieldChange,

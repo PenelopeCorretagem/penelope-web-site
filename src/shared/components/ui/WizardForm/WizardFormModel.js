@@ -47,6 +47,10 @@ export class WizardFormModel {
     return Boolean(this.successMessage)
   }
 
+  get hasDeleteAction() {
+    return typeof this.onDelete === 'function'
+  }
+
   nextStep() {
     if (!this.isLastStep) {
       this.currentStep++
@@ -147,6 +151,7 @@ export class WizardFormModel {
       fieldErrors: this.fieldErrors,
       hasErrors: this.hasErrors,
       hasSuccess: this.hasSuccess,
+      hasDeleteAction: this.hasDeleteAction,
       errorMessages: this.errorMessages,
       successMessage: this.successMessage,
       isLoading: this.isLoading,

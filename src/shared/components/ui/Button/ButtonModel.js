@@ -13,12 +13,16 @@ export class ButtonModel {
    * @param {string} [color='pink'] - Cor do botão.
    * @param {string} [type='button'] - Tipo do botão (button, submit, reset, link).
    * @param {string|null} [to=null] - Rota interna, usada se o tipo for 'link'.
+   * @param {string} [shape='rectangle'] - Forma do botão (rectangle, square, circle).
+   * @param {string} [title=''] - Título do botão (tooltip/acessibilidade).
    */
-  constructor(text = '', color = 'pink', type = 'button', to = null) {
+  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '') {
     this.text = text
     this.color = color
     this.type = type
     this.to = to
+    this.shape = shape
+    this.title = title
     this.active = false
     this.disabled = false
   }
@@ -29,12 +33,15 @@ export class ButtonModel {
   /** @static {string[]} Lista de tipos válidos do botão. */
   static TYPES = ['button', 'submit', 'reset', 'link']
 
+  /** @static {string[]} Lista de formas válidas do botão. */
+  static SHAPES = ['rectangle', 'square', 'circle']
+
   /**
    * Valida se o modelo do botão está em um estado coerente.
    * @returns {boolean} `true` se todas as validações forem aprovadas.
    */
   isValid() {
-    return this.isValidColor() && this.isValidType() && this.hasValidRoute()
+    return this.isValidColor() && this.isValidType() && this.hasValidRoute() && this.isValidShape()
   }
 
   /**
@@ -51,6 +58,14 @@ export class ButtonModel {
    */
   isValidType() {
     return ButtonModel.TYPES.includes(this.type)
+  }
+
+  /**
+   * Valida se a forma atual do botão é válida.
+   * @returns {boolean}
+   */
+  isValidShape() {
+    return ButtonModel.SHAPES.includes(this.shape)
   }
 
   /**
@@ -90,6 +105,14 @@ export class ButtonModel {
   }
 
   /**
+   * Atualiza o título do botão.
+   * @param {string} newTitle - Novo título.
+   */
+  updateTitle(newTitle) {
+    this.title = newTitle
+  }
+
+  /**
    * Define o tipo do botão.
    * @param {string} newType - Novo tipo (button, submit, reset, link).
    * @throws {Error} Se o tipo for inválido.
@@ -107,6 +130,18 @@ export class ButtonModel {
    */
   setTo(newTo) {
     this.to = newTo
+  }
+
+  /**
+   * Define a forma do botão.
+   * @param {string} newShape - Nova forma (rectangle, square, circle).
+   * @throws {Error} Se a forma for inválida.
+   */
+  setShape(newShape) {
+    if (!ButtonModel.SHAPES.includes(newShape)) {
+      throw new Error(`Invalid shape. Must be one of: ${ButtonModel.SHAPES.join(', ')}`)
+    }
+    this.shape = newShape
   }
 
   /**

@@ -34,23 +34,23 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
     // Classes base para inputs normais
     classes.push(
       'w-full',
-      'px-4',
-      'py-2',
+      'p-input md:p-input-md',
       'rounded-sm',
       'transition-colors',
       'duration-200',
-      'text-[12px]',
-      'md:text-[16px]',
-      'leading-normal'
+      'text-form-control',
+      'md:text-form-control-md',
     )
 
     // Placeholder
     classes.push(
-      'placeholder:text-default-dark-muted',
-      'placeholder:text-[12px]',
-      'md:placeholder:text-[16px]',
-      'placeholder:uppercase',
-      'placeholder:font-default'
+      'placeholder:text-current',
+      'placeholder:text-form-control',
+      'placeholder:md:text-form-control-md',
+      'placeholder:leading-none',
+      'placeholder:font-default',
+      'placeholder:p-0',
+      'placeholder:m-0'
     )
 
     // Estados
@@ -102,12 +102,11 @@ function getLabelClasses({ hasErrors, required }) {
 
   // Classes base
   classes.push(
-    'uppercase',
     'font-semibold',
     'font-default',
-    'text-[12px]',
+    'text-form-control',
     'leading-none',
-    'md:text-[16px]'
+    'md:text-form-control-md',
   )
 
   // Estado de erro

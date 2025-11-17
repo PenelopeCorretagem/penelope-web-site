@@ -8,21 +8,26 @@ export const userMapper = {
   toEntity: (data) => {
     if (!data) return null
 
-    // Log detalhado para debug
-    if (!data.id && import.meta.env.DEV) {
-      console.log('⚠️ [MAPPER] Dados sem ID:', {
-        keys: Object.keys(data),
-        email: data.email,
-        allData: data,
-      })
-    }
-
-    // Tentar extrair ID de campos alternativos
-    const userId = data.id || data.userId || data.user_id || data.ID
+    console.log('🔍 [USER MAPPER] User data:', {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      creci: data.creci,
+      active: data.active
+    })
 
     return new User({
-      ...data,
-      id: userId,
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      creci: data.creci,
+      cpf: data.cpf,
+      dateBirth: data.dateBirth,
+      monthlyIncome: data.monthlyIncome,
+      accessLevel: data.accessLevel,
+      active: data.active !== undefined ? data.active : true,
+      dateCreation: data.dateCreation,
     })
   },
 
@@ -30,8 +35,16 @@ export const userMapper = {
    * Converte lista de dados da API para lista de entidades User
    */
   toEntityList: (dataList) => {
-    if (!Array.isArray(dataList)) return []
-    return dataList.map((data) => userMapper.toEntity(data))
+    if (!Array.isArray(dataList)) {
+      console.warn('⚠️ [USER MAPPER] Dados não são array:', dataList)
+      return []
+    }
+
+    const mapped = dataList.map((data) => userMapper.toEntity(data)).filter(Boolean)
+
+    console.log(`✅ [USER MAPPER] ${mapped.length}/${dataList.length} usuários mapeados`)
+
+    return mapped
   },
 
   /**
@@ -39,11 +52,20 @@ export const userMapper = {
    */
   toRequestPayload: (user) => {
     if (!user) return null
+
     if (user instanceof User) {
       return user.toRequestPayload()
     }
-    // Se for um objeto simples, converte para User primeiro
-    const userEntity = new User(user)
-    return userEntity.toRequestPayload()
+
+    return {
+      name: user.name,
+      email: user.email,
+      cpf: user.cpf,
+      dateBirth: user.dateBirth,
+      phone: user.phone,
+      creci: user.creci,
+      monthlyIncome: user.monthlyIncome,
+      accessLevel: user.accessLevel,
+    }
   },
 }

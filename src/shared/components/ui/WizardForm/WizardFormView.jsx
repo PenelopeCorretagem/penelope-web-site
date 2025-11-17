@@ -129,7 +129,6 @@ export function WizardFormView(props) {
 
   const renderField = (field) => {
     const commonProps = {
-      key: field.name,
       id: field.name,
       name: field.name,
       value: vm.getFieldValue(field.name),
@@ -171,14 +170,27 @@ export function WizardFormView(props) {
     }
 
     if (field.type === 'select') {
+      // Debug específico para o campo responsible
+      if (field.name === 'responsible') {
+        console.log('🔧 [SELECT DEBUG] Renderizando campo responsible:', {
+          fieldName: field.name,
+          currentValue: vm.getFieldValue(field.name),
+          optionsCount: field.options?.length || 0,
+          options: field.options,
+          disabled: field.disabled,
+          timestamp: new Date().toISOString()
+        })
+      }
+
       return (
-        <div className="w-full flex flex-col gap-2">
+        <div key={`${field.name}-${field.options?.length || 0}`} className="w-full flex flex-col gap-2">
           {field.label && (
             <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
               {field.label}:
             </label>
           )}
           <SelectView
+            key={`${field.name}-select-${field.options?.length || 0}`}
             id={field.name}
             name={field.name}
             value={vm.getFieldValue(field.name)}
@@ -187,6 +199,7 @@ export function WizardFormView(props) {
             options={field.options || []}
             width="full"
             className={field.className || ''}
+            disabled={field.disabled}
           />
         </div>
       )
@@ -368,6 +381,7 @@ export function WizardFormView(props) {
 
     return (
       <InputView
+        key={field.name}
         {...commonProps}
         type={field.type || 'text'}
         placeholder={field.placeholder || field.label || ''}
@@ -391,14 +405,16 @@ export function WizardFormView(props) {
           >
             LIMPAR
           </ButtonView>
-          <ButtonView
-            type="button"
-            width="fit"
-            color="gray"
-            onClick={vm.handleDelete}
-          >
-            EXCLUIR
-          </ButtonView>
+          {vm.onDelete && (
+            <ButtonView
+              type="button"
+              width="fit"
+              color="gray"
+              onClick={vm.handleDelete}
+            >
+              EXCLUIR
+            </ButtonView>
+          )}
         </div>
       </div>
 

@@ -22,9 +22,6 @@ export function SidebarView({ isAdmin = false, initialOpen = false }) {
 
   // Debug: log quando isAdmin muda
   useEffect(() => {
-    console.log('🎭 SidebarView: isAdmin prop changed to:', isAdmin)
-    console.log('🎭 SidebarView: menuItems count:', viewModel.menuItems.length)
-    console.log('🎭 SidebarView: menuItems:', viewModel.menuItems.map(item => item.text))
   }, [isAdmin, viewModel.menuItems])
 
   const renderIcon = (iconName) => {

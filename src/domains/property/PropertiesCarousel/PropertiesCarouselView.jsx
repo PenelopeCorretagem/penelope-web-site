@@ -4,13 +4,20 @@ import { memo } from 'react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { usePropertiesCarouselViewModel } from '@domains/property/PropertiesCarousel/usePropertiesCarouselViewModel'
+import { useRouter } from '@app/routes/useRouterViewModel'
 
 export const PropertiesCarouselView = memo(function PropertiesCarouselView({
   properties = [],
   titleCarousel,
   supportMode = false,
   onEdit,
-  onDelete
+  onDelete,
+  // Props genéricas para customizar o botão de ação
+  showActionButton = true,
+  actionButtonText = 'Ver Mais',
+  actionRoute = 'PROPERTIES', // Nome da rota no RouterModel
+  actionRouteParams = {}, // Parâmetros para a rota
+  onActionClick = null // Função customizada para o clique (opcional)
 }) {
   const {
     containerRef,
@@ -19,6 +26,27 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
     scrollToLeft,
     scrollToRight,
   } = usePropertiesCarouselViewModel(properties)
+
+  const { navigateTo, generateRoute, getAllRoutes } = useRouter()
+  const routes = getAllRoutes()
+
+  const handleActionClick = () => {
+    if (onActionClick) {
+      // Se foi passada uma função customizada, usa ela
+      onActionClick()
+    } else {
+      // Senão, navega usando o router
+      try {
+        const route = Object.keys(routes).includes(actionRoute)
+          ? generateRoute(actionRoute, actionRouteParams)
+          : routes[actionRoute] || routes.PROPERTIES
+        navigateTo(route)
+      } catch (error) {
+        console.error('Erro ao navegar:', error)
+        navigateTo(routes.PROPERTIES) // Fallback
+      }
+    }
+  }
 
   if (properties.length === 0) {
     return null
@@ -31,15 +59,16 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
           {titleCarousel}
         </HeadingView>
 
-        {!supportMode && (
+        {showActionButton && (
           <ButtonView
             color="brown"
             size="medium"
-            to='/imoveis'
+            type="button"
             width='fit'
-            aria-label="Ver mais propriedades"
+            onClick={handleActionClick}
+            aria-label={actionButtonText}
           >
-            Ver Mais
+            {actionButtonText}
           </ButtonView>
         )}
       </div>
@@ -52,8 +81,9 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
               type="button"
               width='fit'
               onClick={scrollToLeft}
-              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              className="hover:scale-110 pointer-events-auto shadow-lg"
               aria-label="Slide anterior"
+              shape='square'
             >
               <ChevronLeft size={24} />
             </ButtonView>
@@ -63,8 +93,9 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
               type="button"
               width='fit'
               onClick={scrollToRight}
-              className="hover:scale-110 !p-2 md:!p-3 pointer-events-auto shadow-lg"
+              className="hover:scale-110 pointer-events-auto shadow-lg"
               aria-label="Próximo slide"
+              shape='square'
             >
               <ChevronRight size={24} />
             </ButtonView>

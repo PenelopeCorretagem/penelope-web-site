@@ -1,22 +1,22 @@
 export class Advertisement {
   constructor({
     id,
-    title,
-    description,
-    advertisementType,
-    status,
-    property,
+    active,
+    emphasis,
     createdAt,
-    updatedAt,
+    endDate,
+    creator,
+    responsible,
+    property,
   }) {
     this.id = id
-    this.title = title
-    this.description = description
-    this.advertisementType = advertisementType
-    this.status = status
-    this.property = property
+    this.active = active
+    this.emphasis = emphasis
     this.createdAt = createdAt
-    this.updatedAt = updatedAt
+    this.endDate = endDate
+    this.creator = creator
+    this.responsible = responsible
+    this.property = property
   }
 
   /**
@@ -39,7 +39,7 @@ export class Advertisement {
    * Retorna o endereço formatado
    */
   getFormattedAddress() {
-    if (!this.property?.address) return ''
+    if (!this.property?.address) return { city: '', neighborhood: '' }
     const { city, neighborhood } = this.property.address
     return { city, neighborhood }
   }

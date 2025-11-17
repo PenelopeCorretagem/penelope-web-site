@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getAllUsers, updateUser, deleteUser } from '@app/services/api/userApi'
 import { UsersModel } from './UsersModel'
+import { useRouter } from '@app/routes/useRouterViewModel'
 
-export const useUsersViewModel = () => {
+export function useUsersViewModel() {
+  const { navigateTo, generateRoute, getAllRoutes } = useRouter()
+  const routes = getAllRoutes()
   const model = useMemo(() => new UsersModel(), [])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -35,14 +38,16 @@ export const useUsersViewModel = () => {
   }
 
   const handleEdit = useCallback((userId) => {
-    setSelectedUserId(userId)
-    setIsEditing(true)
-  }, [])
+    console.log('Edit user:', userId) // Debug log
+    const editRoute = generateRoute('ADMIN_USER_EDIT', { id: userId })
+    console.log('Generated route:', editRoute) // Debug log
+    navigateTo(editRoute)
+  }, [navigateTo, generateRoute])
 
   const handleAdd = useCallback(() => {
-    setSelectedUserId(null)
-    setIsEditing(true)
-  }, [])
+    console.log('Add user') // Debug log
+    navigateTo(routes.ADMIN_USER_ADD)
+  }, [navigateTo, routes.ADMIN_USER_ADD])
 
   const handleCancel = useCallback(() => {
     setIsEditing(false)
@@ -122,8 +127,10 @@ export const useUsersViewModel = () => {
     setAlertConfig(null)
   }, [])
 
-  const handleSearchChange = useCallback((term) => {
-    setSearchTerm(term)
+  const handleSearchChange = useCallback((e) => {
+    // Handle both event objects and direct values
+    const value = e?.target?.value ?? e ?? ''
+    setSearchTerm(value)
   }, [])
 
   const handleUserTypeFilterChange = useCallback((type) => {
@@ -132,35 +139,36 @@ export const useUsersViewModel = () => {
 
   const handleSortOrderChange = useCallback(() => {
     setSortOrder(prev => {
-      if (prev === 'none') return 'asc'
-      if (prev === 'asc') return 'desc'
-      return 'none'
+      const newOrder = prev === 'none' ? 'asc' : prev === 'asc' ? 'desc' : 'none'
+      console.log('Sort order changed from', prev, 'to', newOrder) // Debug
+      return newOrder
     })
   }, [])
 
   const selectedUser = selectedUserId ? model.getUserById(selectedUserId) : null
   const userFormFields = model.getUserFormFields(selectedUser)
-  const filteredUsers = useMemo(
-    () => model.filterUsers(searchTerm, userTypeFilter, sortOrder),
-    [users, searchTerm, userTypeFilter, sortOrder, model]
-  )
+
+  const filteredUsers = useMemo(() => {
+    console.log('Filtering users...', { searchTerm, userTypeFilter, sortOrder, usersCount: users.length }) // Debug
+    model.setUsers(users)
+    const filtered = model.filterUsers(searchTerm, userTypeFilter, sortOrder)
+    console.log('Filtered result:', filtered.length, 'users') // Debug
+    if (sortOrder !== 'none') {
+      console.log('First few users after sorting:', filtered.slice(0, 3).map(u => u.nomeCompleto || u.name)) // Debug
+    }
+    return filtered
+  }, [searchTerm, userTypeFilter, sortOrder, users, model])
 
   return {
-    users: filteredUsers,
+    users: filteredUsers, // Use filteredUsers instead of original users array
     loading,
     error,
-    isEditing,
-    selectedUser,
-    userFormFields,
     alertConfig,
     searchTerm,
     userTypeFilter,
     sortOrder,
-    totalCount: model.getTotalCount(),
     handleEdit,
     handleAdd,
-    handleCancel,
-    handleSubmit,
     handleDelete,
     handleCloseAlert,
     handleSearchChange,

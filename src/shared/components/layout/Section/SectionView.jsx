@@ -8,6 +8,12 @@ export function SectionView({
   className = '',
   ...props
 }) {
+  const direction = className.includes('flex-col')
+    ? 'col'
+    : className.includes('flex-row')
+      ? 'row'
+      : 'row'
+
   const baseClasses = [
     'section',
     'flex',
@@ -16,7 +22,9 @@ export function SectionView({
     'h-fit',
     'bg-default-light',
     'p-section md:p-section-md',
-    'gap-section md:gap-section-md',
+    direction === 'col'
+      ? 'gap-section-col md:gap-section-col-md'
+      : 'gap-section-row md:gap-section-row-md',
     'overflow-hidden'
   ].join(' ')
 

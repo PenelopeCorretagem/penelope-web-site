@@ -56,6 +56,7 @@ const WIDTH_VARIANTS = {
 }
 
 const SHAPE_VARIANTS = {
+  rectangle: 'rounded-sm',
   square: 'rounded-sm',
   circle: 'rounded-full aspect-square',
 }
@@ -76,8 +77,8 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
     'font-bold',
     'uppercase',
     'leading-none',
-    'text-base',
-    'md:text-xl',
+    'text-button',
+    'md:text-button-md',
     'transition-all',
     'duration-200'
   )
@@ -87,9 +88,12 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
 
   // Padding baseado na forma
   if (shape === 'circle') {
-    classes.push('p-[var(--padding-button-y)]', 'md:p-[var(--padding-button-y-md)]')
+    classes.push('p-[var(--padding-button-circle)]', 'md:p-[var(--padding-button-circle-md)]')
+  } else if (shape === 'square') {
+    classes.push('p-[var(--padding-button-square)]', 'md:p-[var(--padding-button-square-md)]')
   } else {
-    classes.push('p-[var(--padding-button)]', 'md:p-[var(--padding-button-md)]')
+    // rectangle (default)
+    classes.push('p-[var(--padding-button-rectangle)]', 'md:p-[var(--padding-button-rectangle-md)]')
   }
 
   // Cor (base, hover e active)
@@ -107,7 +111,7 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
   classes.push(WIDTH_VARIANTS[width] || WIDTH_VARIANTS.full)
 
   // Forma
-  classes.push(SHAPE_VARIANTS[shape] || SHAPE_VARIANTS.square)
+  classes.push(SHAPE_VARIANTS[shape] || SHAPE_VARIANTS.rectangle)
 
   // Estados interativos
   if (disabled) {
@@ -146,7 +150,7 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
  * @param {string|null} [props.to=null] - Caminho interno (para `<Link>`).
  * @param {string|null} [props.href=null] - URL externa (para `<a>`).
  * @param {string} [props.width='full'] - Largura (full, auto, etc.).
- * @param {string} [props.shape='square'] - Formato visual.
+ * @param {string} [props.shape='rectangle'] - Formato visual.
  * @param {string} [props.className=''] - Classes CSS adicionais.
  * @param {Function} [props.onClick] - Função de callback ao clicar.
  * @param {boolean} [props.disabled=false] - Define se está desabilitado.
@@ -161,23 +165,24 @@ export function ButtonView({
   to = null,
   href = null,
   width = 'full',
-  shape = 'square',
+  shape = 'rectangle',
   className = '',
   onClick,
   disabled = false,
   active = false,
-  title,
+  title = '',
   ...props
 }) {
   // ViewModel fornece apenas dados e comportamento
   const {
     type: buttonType,
     to: buttonTo,
+    title: buttonTitle,
     isLink,
     active: modelActive,
     disabled: modelDisabled,
     handleClick,
-  } = useButtonViewModel(children, color, type, { onClick }, to)
+  } = useButtonViewModel(children, color, type, { onClick }, to, shape, title)
 
   // View compõe os estilos visuais
   const buttonClasses = getButtonClasses({
@@ -198,7 +203,7 @@ export function ButtonView({
         aria-pressed={active || modelActive}
         aria-disabled={disabled || modelDisabled}
         role="button"
-        title={title}
+        title={buttonTitle}
         {...props}
       >
         {children}
@@ -214,7 +219,7 @@ export function ButtonView({
         onClick={handleClick}
         aria-pressed={active || modelActive}
         aria-disabled={disabled || modelDisabled}
-        title={title}
+        title={buttonTitle}
         target="_blank"
         rel="noopener noreferrer"
         {...props}
@@ -231,7 +236,7 @@ export function ButtonView({
       onClick={handleClick}
       disabled={disabled || modelDisabled}
       aria-pressed={active || modelActive}
-      title={title}
+      title={buttonTitle}
       {...props}
     >
       {children}
