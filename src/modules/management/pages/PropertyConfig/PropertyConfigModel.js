@@ -1,3 +1,5 @@
+import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/formatAreaUtil'
+
 /**
  * Modelo de dados para configuração de propriedade
  */
@@ -6,6 +8,7 @@ export class PropertyConfigModel {
     console.log('PropertyConfigModel constructor - input:', propertyData)
 
     this.id = propertyData?.id || null
+    this.active = propertyData?.active !== undefined ? propertyData.active : true // Default true para novas propriedades
     this.propertyTitle = propertyData?.property?.title || propertyData?.property?.address?.city || ''
     this.displayEndDate = propertyData?.endDate ? this._formatDate(propertyData.endDate) : ''
     this.propertyType = propertyData?.type || 'DISPONIVEL'
@@ -41,7 +44,7 @@ export class PropertyConfigModel {
       state: propertyData?.property?.addressStand?.uf || ''
     }
 
-    this.enableStandAddress = propertyData?.property?.addressStand ? ['enabled'] : []
+    this.enableStandAddress = propertyData?.property?.addressStand ? true : false
 
     // Extrai as imagens da API organizadas por ID
     const images = propertyData?.property?.images || []
@@ -170,13 +173,14 @@ export class PropertyConfigModel {
    */
   toFormData() {
     return {
+      active: this.active,
       propertyTitle: this.propertyTitle,
       displayEndDate: this.displayEndDate,
       propertyType: this.propertyType,
       responsible: this.responsible,
       cardDescription: this.cardDescription,
       propertyDescription: this.propertyDescription,
-      area: this.area,
+      area: formatAreaForDisplay(this.area),
       numberOfRooms: this.numberOfRooms,
       differentials: this.differentials,
       cep: this.address.cep,
@@ -206,7 +210,7 @@ export class PropertyConfigModel {
    */
   toApiRequest(formData) {
     return {
-      active: true,
+      active: Boolean(formData.active),
       emphasis: false,
       endDate: formData.displayEndDate,
       type: formData.propertyType,
@@ -214,9 +218,9 @@ export class PropertyConfigModel {
       property: {
         title: formData.propertyTitle,
         description: formData.propertyDescription,
-        area: parseFloat(formData.area) || null,
+        area: formatAreaForDatabase(formData.area),
         numberOfRooms: parseInt(formData.numberOfRooms) || null,
-        type: 'APARTAMENTO', // Default, pode ser configurável no futuro
+        type: 'APARTAMENTO',
         address: {
           street: formData.street,
           number: formData.number,
@@ -226,14 +230,15 @@ export class PropertyConfigModel {
           region: formData.region,
           zipCode: formData.cep,
         },
-        standAddress: formData.enableStandAddress?.includes('enabled') ? {
-          street: formData.standStreet,
-          number: formData.standNumber,
-          neighborhood: formData.standNeighborhood,
-          city: formData.standCity,
-          uf: formData.standState,
-          region: formData.standRegion,
-          zipCode: formData.standCep,
+        // Só incluir standAddress se o checkbox estiver habilitado
+        standAddress: formData.enableStandAddress ? {
+          street: formData.standStreet || '',
+          number: formData.standNumber || '',
+          neighborhood: formData.standNeighborhood || '',
+          city: formData.standCity || '',
+          uf: formData.standState || '',
+          region: formData.standRegion || '',
+          zipCode: formData.standCep || '',
         } : null,
         amenities: formData.differentials?.map(diff => ({
           description: this._denormalizeDifferential(diff)

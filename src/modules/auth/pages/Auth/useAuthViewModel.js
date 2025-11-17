@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
+import { RouterModel } from '@app/routes/RouterModel'
 import { login, register, forgotPassword } from '@app/services/api/authApi'
 import { getAllUsers } from '@app/services/api/userApi'
 import { userMapper } from '@app/services/mapper/userMapper'
@@ -9,6 +10,7 @@ export function useAuthViewModel() {
   const navigate = useNavigate()
   const location = useLocation()
   const [model] = useState(() => new AuthModel())
+  const [routerModel] = useState(() => RouterModel.getInstance())
 
   const [isActive, setIsActive] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
@@ -76,7 +78,6 @@ export function useAuthViewModel() {
       // Salvar dados essenciais IMEDIATAMENTE usando sessionStorage
       sessionStorage.setItem('token', token)
       sessionStorage.setItem('jwtToken', token)
-      console.log('✅ Token salvo')
 
       // Processar dados do usuário
       let userEntity = null
@@ -87,42 +88,28 @@ export function useAuthViewModel() {
       let isAdminUser = false
       if (accessLevel) {
         isAdminUser = accessLevel === 'ADMINISTRADOR' || accessLevel === 'Administrador'
-        console.log('✅ AccessLevel recebido do login:', accessLevel, '-> isAdmin:', isAdminUser)
       }
 
       // Salvar dados essenciais IMEDIATAMENTE
       if (userId) {
         sessionStorage.setItem('userId', userId.toString())
-        console.log('✅ userId salvo:', userId)
       }
 
       sessionStorage.setItem('userEmail', formData.email)
       sessionStorage.setItem('userRole', isAdminUser ? 'admin' : 'user')
-      console.log('✅ Dados essenciais salvos:', {
-        userId,
-        userEmail: formData.email,
-        userRole: isAdminUser ? 'admin' : 'user',
-        accessLevel
-      })
 
       // Se não temos user nem id na resposta, buscar na API
       if (!response.user && !response.id) {
-        console.log('⚠️ Resposta sem user/id, buscando na API...')
 
         try {
           const users = await getAllUsers()
-          console.log(`✓ ${users.length} usuários encontrados na API`)
-
-          if (users.length > 0) {
-            console.log('📋 Primeiro usuário (debug):', users[0])
-          }
 
           const currentUser = users.find(u =>
             u.email?.toLowerCase() === formData.email.toLowerCase()
           )
 
           if (currentUser) {
-            console.log('✓ Usuário encontrado (objeto completo):', currentUser)
+
 
             // Tentar extrair ID de várias formas
             userId = currentUser.id ||
@@ -206,13 +193,13 @@ export function useAuthViewModel() {
 
           // Pequeno delay para garantir que o estado seja atualizado
           setTimeout(() => {
-            // Redireciona usando o isAdminUser calculado
+            // Usar RouterModel para redirecionamento
             if (isAdminUser) {
-              console.log('🔀 Redirecionando para /admin/imoveis')
-              navigate('/admin/imoveis')
+              console.log('🔀 Redirecionando para admin properties')
+              navigate(model.getAdminPropertiesRoute())
             } else {
-              console.log('🔀 Redirecionando para /imoveis')
-              navigate('/imoveis')
+              console.log('🔀 Redirecionando para profile')
+              navigate(model.getProfileRoute())
             }
           }, 100)
         }
@@ -247,7 +234,7 @@ export function useAuthViewModel() {
     } finally {
       setIsLoading(false)
     }
-  }, [navigate])
+  }, [navigate, model])
 
   const handleRegisterSubmit = useCallback(async (formData) => {
     setIsLoading(true)

@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom'
 
 export function UserConfigView() {
   const {
-    selectedUser,
+    model,
+    formData,
     userConfigFields,
     alertConfig,
     loading,
@@ -54,7 +55,7 @@ export function UserConfigView() {
         <div className="flex-1 overflow-hidden">
           <EditFormView
             fields={userConfigFields}
-            initialData={selectedUser || {}}
+            initialData={formData}
             onSubmit={handleSubmit}
             onCancel={handleCancelUserConfig}
             isEditing={true}

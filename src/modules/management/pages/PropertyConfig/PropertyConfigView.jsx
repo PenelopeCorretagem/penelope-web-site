@@ -83,7 +83,14 @@ export function PropertyConfigView() {
               label: 'Data Término de Exibição',
               type: 'date',
               required: true,
-              containerClassName: 'w-full md:w-1/2',
+              containerClassName: 'w-full md:w-1/4',
+            },
+            {
+              name: 'active',
+              label: 'Ativo',
+              type: 'checkbox',
+              placeholder: 'Propriedade ativa',
+              containerClassName: 'w-full md:w-1/4',
             },
           ],
         },
@@ -101,7 +108,7 @@ export function PropertyConfigView() {
                 { value: 'LANCAMENTO', label: 'Lançamento' }
               ],
               required: true,
-              containerClassName: 'w-full md:w-1/2',
+              containerClassName: 'w-1/2',
             },
             {
               name: 'responsible',
@@ -109,7 +116,7 @@ export function PropertyConfigView() {
               type: 'select',
               options: responsibleOptions,
               required: true,
-              containerClassName: 'w-full md:w-1/2',
+              containerClassName: 'w-1/2',
             },
           ],
         },
@@ -153,7 +160,7 @@ export function PropertyConfigView() {
             {
               name: 'area',
               label: 'Área (m²)',
-              type: 'number',
+              type: 'text', // Mudado de 'number' para 'text' para permitir formatação
               required: true,
               containerClassName: 'w-full md:w-1/2',
             },
@@ -283,8 +290,8 @@ export function PropertyConfigView() {
             {
               name: 'enableStandAddress',
               label: 'Habilitar endereço do stand',
-              type: 'checkbox-group',
-              options: [{ value: 'enabled', label: 'Sim' }],
+              type: 'checkbox',
+              placeholder: 'Habilitar endereço do stand',
               containerClassName: 'w-auto',
             },
           ],

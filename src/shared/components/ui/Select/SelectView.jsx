@@ -5,8 +5,6 @@ import { useSelectViewModel } from './useSelectViewModel'
 function getSelectClasses({ variant, shape, width, disabled, className }) {
   const baseClasses = [
     'font-semibold uppercase',
-    'focus:outline-none focus:ring-2 focus:ring-distac-primary',
-    'cursor-pointer',
     'text-form-control md:text-form-control-md',
     'text-left',
     'p-select md:p-select-md',
@@ -14,6 +12,11 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
     'flex items-center justify-between',
     'gap-select md:gap-select-md',
   ]
+
+  // Adicionar classes de focus apenas se não estiver disabled
+  if (!disabled) {
+    baseClasses.push('focus:outline-none focus:ring-2 focus:ring-distac-primary', 'cursor-pointer')
+  }
 
   const variants = {
     default: 'bg-default-light text-default-dark',
@@ -32,14 +35,16 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
     fit: 'w-fit min-w-[var(--select-min-width,theme(minWidth.32))]',
   }
 
-  const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : ''
+  // Usar mesmo estilo do InputView disabled
+  const disabledClasses = disabled
+    ? 'bg-default-light-muted text-default-dark cursor-not-allowed opacity-75 focus:outline-none focus:ring-0'
+    : ''
 
   return [
     baseClasses.join(' '),
-    variants[variant] || variants.default,
+    disabled ? disabledClasses : (variants[variant] || variants.default),
     shapes[shape],
     widths[width],
-    disabledClasses,
     className,
   ]
     .filter(Boolean)

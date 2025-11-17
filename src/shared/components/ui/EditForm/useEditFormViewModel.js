@@ -1,121 +1,173 @@
-import { useState, useCallback, useEffect } from 'react'
-import { EditFormModel } from './EditFormModel'
+import { useState, useEffect, useCallback } from 'react'
 
-export function useEditFormViewModel(initialProps = {}) {
-  const [model] = useState(() => new EditFormModel(initialProps))
-  const [isEditing, setIsEditing] = useState(initialProps.isEditing || false)
-  const [fieldValues, setFieldValues] = useState(initialProps.initialData || {})
-  const [errors, setErrors] = useState([])
-  const [success, setSuccess] = useState('')
-  const [loading, setLoading] = useState(false)
+export function useEditFormViewModel({
+  title = '',
+  fields = [],
+  initialData = {},
+  onSubmit,
+  onCancel,
+  onDelete,
+  isEditing: initialIsEditing = false,
+}) {
+  const [isEditing, setIsEditing] = useState(initialIsEditing)
+  const [formData, setFormData] = useState({})
+  const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
-  // Atualizar valores quando initialData mudar
+  // Inicializar formData com dados iniciais
   useEffect(() => {
-    if (initialProps.initialData) {
-      setFieldValues(initialProps.initialData)
-      model.fieldValues = initialProps.initialData
+    if (Object.keys(initialData).length > 0) {
+      setFormData(initialData)
     }
-  }, [initialProps.initialData, model])
+  }, [initialData])
 
-  const updateFieldValue = useCallback((fieldName, value) => {
-    setFieldValues(prev => ({ ...prev, [fieldName]: value }))
-    model.updateFieldValue(fieldName, value)
-  }, [model])
+  // Sincronizar formData quando initialData muda
+  useEffect(() => {
+    setFormData(prevData => ({
+      ...prevData,
+      ...initialData
+    }))
+  }, [initialData])
 
-  const clearErrors = useCallback(() => {
-    setErrors([])
-    model.clearErrors()
-  }, [model])
+  const getFieldValue = useCallback((fieldName) => {
+    return formData[fieldName] || ''
+  }, [formData])
 
-  const clearSuccess = useCallback(() => {
-    setSuccess('')
-    model.clearSuccess()
-  }, [model])
+  const handleFieldChange = useCallback((fieldName) => {
+    return (event) => {
+      const value = event.target ? event.target.value : event
 
-  const handleFieldChange = useCallback((fieldName) => (e) => {
-    const value = e.target?.value ?? e
-    updateFieldValue(fieldName, value)
-    clearErrors()
-  }, [updateFieldValue, clearErrors])
+      // Encontrar o field para verificar se tem formatter
+      const field = fields.find(f => f.name === fieldName)
+      let processedValue = value
 
-  const handleSubmit = useCallback(async (e) => {
-    e?.preventDefault()
+      // Aplicar formatação se o campo tiver formatter e formatOnChange
+      if (field && field.formatOnChange && field.formatter && typeof field.formatter === 'function') {
+        processedValue = field.formatter(value)
+      }
 
-    setLoading(true)
-    clearErrors()
-    clearSuccess()
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: processedValue
+      }))
+
+      // Limpar erros deste campo quando houver alteração
+      if (errors[fieldName]) {
+        setErrors(prev => {
+          const newErrors = { ...prev }
+          delete newErrors[fieldName]
+          return newErrors
+        })
+      }
+    }
+  }, [fields, errors])
+
+  const validateForm = useCallback(() => {
+    const newErrors = {}
+
+    fields.forEach(field => {
+      if (field.required && !getFieldValue(field.name)) {
+        newErrors[field.name] = `${field.label || field.name} é obrigatório`
+      }
+
+      if (field.validate && getFieldValue(field.name)) {
+        const validationResult = field.validate(getFieldValue(field.name), formData)
+        if (validationResult !== true) {
+          newErrors[field.name] = validationResult
+        }
+      }
+    })
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }, [fields, formData, getFieldValue])
+
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+    setErrors({})
 
     try {
-      if (initialProps.onSubmit) {
-        const result = await initialProps.onSubmit(fieldValues)
+      const result = await onSubmit?.(formData)
 
-        if (result?.success) {
-          setSuccess(result.message || 'Dados salvos com sucesso!')
-          setIsEditing(false)
-        } else if (result?.error) {
-          setErrors(Array.isArray(result.error) ? result.error : [result.error])
-        }
+      if (result?.success) {
+        setSuccessMessage(result.message || 'Dados salvos com sucesso!')
+        setIsEditing(false)
 
-        return result
+        // Limpar mensagem de sucesso após 3 segundos
+        setTimeout(() => {
+          setSuccessMessage('')
+        }, 3000)
+      } else if (result?.error) {
+        setErrors({ general: result.error })
       }
     } catch (error) {
-      setErrors([error.message || 'Erro ao salvar dados'])
-      return { success: false, error: error.message }
+      console.error('Erro ao submeter formulário:', error)
+      setErrors({ general: 'Erro inesperado. Tente novamente.' })
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }, [fieldValues, initialProps, clearErrors, clearSuccess])
+  }, [formData, validateForm, onSubmit])
 
   const handleEdit = useCallback(() => {
     setIsEditing(true)
-    clearErrors()
-    clearSuccess()
-  }, [clearErrors, clearSuccess])
+    setErrors({})
+    setSuccessMessage('')
+  }, [])
 
   const handleCancel = useCallback(() => {
-    if (initialProps.onCancel && typeof initialProps.onCancel === 'function') {
-      initialProps.onCancel()
-    } else {
-      setFieldValues(initialProps.initialData || {})
-      setIsEditing(false)
-      clearErrors()
-      clearSuccess()
-    }
-  }, [initialProps.onCancel, initialProps.initialData, clearErrors, clearSuccess])
+    setIsEditing(false)
+    setErrors({})
+    setSuccessMessage('')
 
-  const handleDelete = useCallback(() => {
-    if (initialProps.onDelete) {
-      initialProps.onDelete()
-    }
-  }, [initialProps])
+    // Restaurar dados iniciais
+    setFormData(initialData)
 
-  const getFieldValue = useCallback((fieldName) => {
-    return fieldValues[fieldName] || ''
-  }, [fieldValues])
+    onCancel?.()
+  }, [initialData, onCancel])
+
+  const handleDelete = useCallback(async () => {
+    if (window.confirm('Tem certeza que deseja excluir este item?')) {
+      setIsLoading(true)
+      try {
+        await onDelete?.()
+      } catch (error) {
+        console.error('Erro ao excluir:', error)
+        setErrors({ general: 'Erro ao excluir. Tente novamente.' })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+  }, [onDelete])
 
   return {
     // Estado
-    title: initialProps.title || '',
-    fields: initialProps.fields || [],
+    title,
+    fields,
+    formData,
     isEditing,
-    isLoading: loading,
-    errorMessages: errors,
-    successMessage: success,
-    fieldValues,
-    hasErrors: errors.length > 0,
-    hasSuccess: Boolean(success),
+    isLoading,
+    errors,
+    successMessage,
 
-    // Event Handlers
+    // Estados computados
+    hasErrors: Object.keys(errors).length > 0,
+    hasSuccess: !!successMessage,
+    errorMessages: Object.values(errors),
+
+    // Métodos
+    getFieldValue,
     handleFieldChange,
     handleSubmit,
     handleEdit,
     handleCancel,
     handleDelete,
-
-    // Utilities
-    getFieldValue,
-    updateFieldValue,
-    clearErrors,
-    clearSuccess,
+    validateForm
   }
 }

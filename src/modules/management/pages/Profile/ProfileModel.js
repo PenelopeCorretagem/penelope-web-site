@@ -1,3 +1,8 @@
+import { validateCPF } from '@shared/utils/validateCPFUtil'
+import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/formatPhoneNumberUtil'
+import { formatCPF, cleanCPF } from '@shared/utils/formatCPFUtil'
+import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+
 /**
  * ProfileModel - Modelo de dados para o perfil do usuário
  *
@@ -9,11 +14,12 @@
  */
 export class ProfileModel {
   constructor(userData = {}) {
-    this.fullName = userData.fullName || userData.nomeCompleto || ''
-    this.cpf = userData.cpf || ''
-    this.birthDate = userData.birthDate || userData.dtNascimento || ''
-    this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
+    this.name = userData.name || userData.nomeCompleto || ''
     this.phone = userData.phone || ''
+    this.creci = userData.creci || ''
+    this.cpf = userData.cpf || ''
+    this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
+    this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
     this.accessLevel = userData.accessLevel || 'CLIENTE'
   }
 
@@ -21,12 +27,27 @@ export class ProfileModel {
    * Define os campos do formulário de perfil
    */
   static getFormFields(isEditingOwnProfile = true, currentUserIsAdmin = false) {
-    const fields = [
+    // Se for usuário cliente (não admin), usar layout específico
+    if (!currentUserIsAdmin) {
+      return ProfileModel.getClientFormFields()
+    }
+
+    // Layout para administradores (layout original)
+    return ProfileModel.getAdminFormFields()
+  }
+
+  /**
+   * Layout específico para usuários CLIENTE
+   */
+  static getClientFormFields() {
+    return [
+      // LINHA 1 - Nome (1/2), Data de Nascimento (1/2)
       {
-        name: 'fullName',
+        name: 'name',
         label: 'Nome Completo',
         placeholder: 'Digite seu nome completo',
         required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
         validate: (value) => {
           if (!value || value.trim().length < 3) {
             return 'Nome completo deve ter pelo menos 3 caracteres'
@@ -42,34 +63,156 @@ export class ProfileModel {
         }
       },
       {
-        name: 'cpf',
-        label: 'CPF',
-        placeholder: 'Digite seu CPF (somente números)',
-        required: true,
-        validate: (value) => {
-          if (!value) return 'CPF é obrigatório'
-
-          // Remove caracteres não numéricos
-          const cleanCpf = value.replace(/\D/g, '')
-
-          if (cleanCpf.length !== 11) {
-            return 'CPF deve ter 11 dígitos'
-          }
-
-          // Validação básica de CPF
-          if (ProfileModel.isValidCPF(cleanCpf)) {
-            return true
-          }
-
-          return 'CPF inválido'
-        }
-      },
-      {
-        name: 'birthDate',
+        name: 'dateBirth',
         label: 'Data de Nascimento',
         type: 'date',
         placeholder: 'DD/MM/AAAA',
         required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        validate: (value) => {
+          if (!value) return 'Data de nascimento é obrigatória'
+
+          const birthDate = new Date(value)
+          const today = new Date()
+          const age = today.getFullYear() - birthDate.getFullYear()
+
+          if (age < 18) {
+            return 'Você deve ter pelo menos 18 anos'
+          }
+
+          if (age > 120) {
+            return 'Data de nascimento inválida'
+          }
+
+          return true
+        }
+      },
+
+      // LINHA 2 - Telefone (1/2), CPF (1/2)
+      {
+        name: 'phone',
+        label: 'Telefone',
+        placeholder: 'Digite seu número de telefone com DDD',
+        required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        formatOnChange: true,
+        formatter: formatPhoneNumber,
+        validate: (value) => {
+          if (!value) return 'Telefone é obrigatório'
+
+          const cleanPhone = cleanPhoneNumber(value)
+
+          if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+            return 'Telefone deve ter 10 ou 11 dígitos'
+          }
+
+          return true
+        }
+      },
+      {
+        name: 'cpf',
+        label: 'CPF',
+        placeholder: 'Digite seu CPF',
+        required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        formatOnChange: true,
+        formatter: formatCPF,
+        validate: (value) => {
+          if (!value) return 'CPF é obrigatório'
+
+          if (!validateCPF(value)) {
+            return 'CPF inválido'
+          }
+
+          return true
+        }
+      },
+
+      // LINHA 3 - Renda (1/2), Nível de Acesso (1/2)
+      {
+        name: 'monthlyIncome',
+        label: 'Renda Média Mensal',
+        type: 'text',
+        placeholder: 'Ex: R$ 5.000,00',
+        required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        formatOnChange: true,
+        formatter: formatCurrencyInput,
+        validate: (value) => {
+          if (!value) return 'Renda mensal é obrigatória'
+
+          const numericValue = formatCurrencyForDatabase(value)
+
+          if (isNaN(numericValue) || numericValue <= 0) {
+            return 'Renda deve ser um valor positivo'
+          }
+
+          if (numericValue > 1000000) {
+            return 'Valor de renda muito alto'
+          }
+
+          return true
+        }
+      },
+      {
+        name: 'accessLevel',
+        label: 'Nível de Acesso',
+        type: 'select',
+        placeholder: 'Selecione o nível de acesso',
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        options: [
+          { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'ADMINISTRADOR', label: 'Administrador' }
+        ],
+        required: true,
+        disabled: true, // Sempre desabilitado
+        hideInViewMode: false, // Sempre visível
+        validate: (value) => {
+          if (!value) {
+            return 'Nível de acesso é obrigatório'
+          }
+          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+            return 'Nível de acesso inválido'
+          }
+          return true
+        }
+      }
+    ]
+  }
+
+  /**
+   * Layout específico para usuários ADMINISTRADOR
+   */
+  static getAdminFormFields() {
+    const fields = [
+      // LINHA 1 - Nome (1/2), Data (1/3), CPF (1/6)
+      {
+        name: 'name',
+        label: 'Nome Completo',
+        placeholder: 'Digite seu nome completo',
+        required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        validate: (value) => {
+          if (!value || value.trim().length < 3) {
+            return 'Nome completo deve ter pelo menos 3 caracteres'
+          }
+          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value)) {
+            return 'Nome deve conter apenas letras'
+          }
+          const nameParts = value.trim().split(' ')
+          if (nameParts.length < 2) {
+            return 'Informe nome e sobrenome'
+          }
+          return true
+        }
+      },
+      {
+        name: 'dateBirth',
+        label: 'Data de Nascimento',
+        type: 'date',
+        placeholder: 'DD/MM/AAAA',
+        required: true,
+        gridColumn: 'col-span-2', // 2/6 = 1/3
         validate: (value) => {
           if (!value) return 'Data de nascimento é obrigatória'
 
@@ -89,36 +232,37 @@ export class ProfileModel {
         }
       },
       {
-        name: 'monthlyIncome',
-        label: 'Renda Média Mensal',
-        type: 'number',
-        placeholder: 'Informe sua renda mensal aproximada',
+        name: 'cpf',
+        label: 'CPF',
+        placeholder: 'Digite seu CPF',
         required: true,
+        gridColumn: 'col-span-1', // 1/6
+        formatOnChange: true,
+        formatter: formatCPF,
         validate: (value) => {
-          if (!value) return 'Renda mensal é obrigatória'
+          if (!value) return 'CPF é obrigatório'
 
-          const income = parseFloat(value)
-          if (isNaN(income) || income <= 0) {
-            return 'Renda deve ser um valor positivo'
-          }
-
-          if (income > 1000000) {
-            return 'Valor de renda muito alto'
+          if (!validateCPF(value)) {
+            return 'CPF inválido'
           }
 
           return true
         }
       },
+
+      // LINHA 2 - Telefone (1/2), Renda (1/2)
       {
         name: 'phone',
-        label: 'Celular',
-        placeholder: 'Digite seu número de celular com DDD',
+        label: 'Telefone',
+        placeholder: 'Digite seu número de telefone com DDD',
         required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        formatOnChange: true,
+        formatter: formatPhoneNumber,
         validate: (value) => {
           if (!value) return 'Telefone é obrigatório'
 
-          // Remove caracteres não numéricos
-          const cleanPhone = value.replace(/\D/g, '')
+          const cleanPhone = cleanPhoneNumber(value)
 
           if (cleanPhone.length < 10 || cleanPhone.length > 11) {
             return 'Telefone deve ter 10 ou 11 dígitos'
@@ -126,54 +270,74 @@ export class ProfileModel {
 
           return true
         }
-      }
-    ]
+      },
+      {
+        name: 'monthlyIncome',
+        label: 'Renda Média Mensal',
+        type: 'text',
+        placeholder: 'Ex: R$ 5.000,00',
+        required: true,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        formatOnChange: true,
+        formatter: formatCurrencyInput,
+        validate: (value) => {
+          if (!value) return 'Renda mensal é obrigatória'
 
-    // Adicionar campo de nível de acesso como checkboxes mutuamente exclusivos
-    if (currentUserIsAdmin || isEditingOwnProfile) {
-      fields.push({
+          const numericValue = formatCurrencyForDatabase(value)
+
+          if (isNaN(numericValue) || numericValue <= 0) {
+            return 'Renda deve ser um valor positivo'
+          }
+
+          if (numericValue > 1000000) {
+            return 'Valor de renda muito alto'
+          }
+
+          return true
+        }
+      },
+
+      // LINHA 3 - Nível de Acesso (1/2), CRECI (1/2)
+      {
         name: 'accessLevel',
         label: 'Nível de Acesso',
-        type: 'checkbox-group',
-        layout: 'horizontal', // Para exibir lado a lado
+        type: 'select',
+        placeholder: 'Selecione o nível de acesso',
+        gridColumn: 'col-span-3', // 3/6 = 1/2
         options: [
-          {
-            value: 'CLIENTE',
-            label: 'Cliente',
-            checked: false
-          },
-          {
-            value: 'ADMINISTRADOR',
-            label: 'Administrador',
-            checked: false
-          }
+          { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'ADMINISTRADOR', label: 'Administrador' }
         ],
-        mutuallyExclusive: true, // Apenas uma opção pode ser selecionada
         required: true,
-        disabled: isEditingOwnProfile && !currentUserIsAdmin, // Desabilita se editando próprio perfil e não é admin
+        disabled: true, // Sempre desabilitado
+        hideInViewMode: false, // Sempre visível
         validate: (value) => {
-          // Value será um array com os valores selecionados
-          if (!value || value.length === 0) {
-            return 'Selecione um nível de acesso'
+          if (!value) {
+            return 'Nível de acesso é obrigatório'
           }
-          if (value.length > 1) {
-            return 'Selecione apenas um nível de acesso'
-          }
-          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value[0])) {
+          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
             return 'Nível de acesso inválido'
           }
           return true
-        },
-        // Função para processar o valor inicial
-        getInitialValue: (currentAccessLevel) => {
-          return currentAccessLevel === 'ADMINISTRADOR' ? ['ADMINISTRADOR'] : ['CLIENTE']
-        },
-        // Função para processar o valor antes de salvar
-        processValue: (selectedArray) => {
-          return selectedArray && selectedArray.length > 0 ? selectedArray[0] : 'CLIENTE'
         }
-      })
-    }
+      },
+      {
+        name: 'creci',
+        label: 'CRECI',
+        placeholder: 'Digite o número do CRECI',
+        required: false,
+        gridColumn: 'col-span-3', // 3/6 = 1/2
+        validate: (value) => {
+          if (value && value.trim().length > 0) {
+            const cleanCreci = value.replace(/\D/g, '')
+            if (cleanCreci.length < 4 || cleanCreci.length > 10) {
+              return 'CRECI deve ter entre 4 e 10 dígitos'
+            }
+          }
+          return true
+        }
+      }
+    ]
 
     return fields
   }
@@ -187,12 +351,7 @@ export class ProfileModel {
 
     fields.forEach(field => {
       if (field.validate) {
-        let valueToValidate = this[field.name]
-
-        // Para o campo accessLevel checkbox-group, converter para array
-        if (field.name === 'accessLevel' && field.type === 'checkbox-group') {
-          valueToValidate = [this.accessLevel]
-        }
+        const valueToValidate = this[field.name]
 
         const result = field.validate(valueToValidate)
         if (result !== true) {
@@ -212,11 +371,12 @@ export class ProfileModel {
    */
   toDisplayFormat() {
     return {
-      fullName: this.fullName,
-      cpf: this.formatCPF(this.cpf),
-      birthDate: this.birthDate,
-      monthlyIncome: this.formatCurrency(this.monthlyIncome),
+      name: this.name,
       phone: this.formatPhone(this.phone),
+      creci: this.creci,
+      cpf: this.formatCPF(this.cpf),
+      dateBirth: this.dateBirth,
+      monthlyIncome: formatCurrencyForDisplay(this.monthlyIncome),
       accessLevel: this.accessLevel
     }
   }
@@ -226,11 +386,12 @@ export class ProfileModel {
    */
   toApiFormat() {
     return {
-      nomeCompleto: this.fullName.trim(),
-      cpf: this.cpf.replace(/\D/g, ''), // Remove formatação
-      dtNascimento: this.birthDate,
-      rendaMensal: parseFloat(this.monthlyIncome),
-      phone: this.phone.replace(/\D/g, ''), // Remove formatação
+      nomeCompleto: this.name.trim(),
+      phone: cleanPhoneNumber(this.phone), // Remove formatação
+      creci: this.creci?.trim() || '',
+      cpf: cleanCPF(this.cpf), // Remove formatação
+      dtNascimento: this.dateBirth,
+      rendaMensal: formatCurrencyForDatabase(this.monthlyIncome),
       accessLevel: this.accessLevel
     }
   }
@@ -240,81 +401,42 @@ export class ProfileModel {
    */
   static fromApiData(apiData) {
     return new ProfileModel({
-      fullName: apiData.nomeCompleto || '',
-      cpf: apiData.cpf || '',
-      birthDate: apiData.dtNascimento || '',
-      monthlyIncome: apiData.rendaMensal?.toString() || '',
+      name: apiData.nomeCompleto || '',
       phone: apiData.phone || '',
+      creci: apiData.creci || '',
+      cpf: apiData.cpf || '',
+      dateBirth: apiData.dtNascimento || '',
+      monthlyIncome: apiData.rendaMensal?.toString() || '',
       accessLevel: apiData.accessLevel || 'CLIENTE'
     })
   }
 
   /**
-   * Formata CPF para exibição
+   * Formata CPF para exibição (usando utility)
    */
   formatCPF(cpf) {
-    if (!cpf) return ''
-    const cleanCpf = cpf.replace(/\D/g, '')
-    return cleanCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    return formatCPF(cpf)
   }
 
   /**
-   * Formata telefone para exibição
+   * Formata telefone para exibição (usando utility)
    */
   formatPhone(phone) {
-    if (!phone) return ''
-    const cleanPhone = phone.replace(/\D/g, '')
-
-    if (cleanPhone.length === 11) {
-      return cleanPhone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
-    } else if (cleanPhone.length === 10) {
-      return cleanPhone.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
-    }
-
-    return phone
+    return formatPhoneNumber(phone)
   }
 
   /**
-   * Formata valor monetário
+   * Formata valor monetário (usando utility)
    */
   formatCurrency(value) {
-    if (!value) return ''
-    const numValue = parseFloat(value)
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(numValue)
+    return formatCurrency(value)
   }
 
   /**
-   * Validação de CPF
+   * Validação de CPF (usando utility)
    */
   static isValidCPF(cpf) {
-    // Verifica se todos os dígitos são iguais
-    if (/^(\d)\1{10}$/.test(cpf)) return false
-
-    // Calcula os dígitos verificadores
-    let sum = 0
-    let remainder
-
-    for (let i = 1; i <= 9; i++) {
-      sum += parseInt(cpf.substring(i - 1, i)) * (11 - i)
-    }
-
-    remainder = (sum * 10) % 11
-    if (remainder === 10 || remainder === 11) remainder = 0
-    if (remainder !== parseInt(cpf.substring(9, 10))) return false
-
-    sum = 0
-    for (let i = 1; i <= 10; i++) {
-      sum += parseInt(cpf.substring(i - 1, i)) * (12 - i)
-    }
-
-    remainder = (sum * 10) % 11
-    if (remainder === 10 || remainder === 11) remainder = 0
-    if (remainder !== parseInt(cpf.substring(10, 11))) return false
-
-    return true
+    return validateCPF(cpf)
   }
 
   /**
@@ -322,11 +444,11 @@ export class ProfileModel {
    */
   get isComplete() {
     return !!(
-      this.fullName &&
-      this.cpf &&
-      this.birthDate &&
-      this.monthlyIncome &&
+      this.name &&
       this.phone &&
+      this.cpf &&
+      this.dateBirth &&
+      this.monthlyIncome &&
       this.accessLevel
     )
   }
@@ -335,9 +457,9 @@ export class ProfileModel {
    * Calcula idade baseada na data de nascimento
    */
   get age() {
-    if (!this.birthDate) return null
+    if (!this.dateBirth) return null
 
-    const birthDate = new Date(this.birthDate)
+    const birthDate = new Date(this.dateBirth)
     const today = new Date()
     let age = today.getFullYear() - birthDate.getFullYear()
 

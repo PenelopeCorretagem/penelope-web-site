@@ -6,6 +6,9 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
+import { formatArea, parseArea } from '@shared/utils/formatAreaUtil'
+import { formatCEP } from '@shared/utils/formatCEPUtil'
+import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 
 export function WizardFormView(props) {
   const vm = useWizardFormViewModel(props)
@@ -127,6 +130,64 @@ export function WizardFormView(props) {
     return false
   }
 
+  // Hook para preenchimento automático de CEP do IMÓVEL
+  const cepAutoFillProperty = useCEPAutoFill(
+    (addressData) => {
+      // Preencher apenas campos do IMÓVEL
+      if (addressData.street) {
+        vm.handleFieldChange('street')(addressData.street)
+      }
+      if (addressData.neighborhood) {
+        vm.handleFieldChange('neighborhood')(addressData.neighborhood)
+      }
+      if (addressData.city) {
+        vm.handleFieldChange('city')(addressData.city)
+      }
+      if (addressData.state) {
+        vm.handleFieldChange('state')(addressData.state)
+      }
+      if (addressData.region) {
+        vm.handleFieldChange('region')(addressData.region)
+      }
+    },
+    {
+      debounceDelay: 800,
+      enableAutoFill: true,
+      onError: (error) => {
+        console.warn('Erro no auto-preenchimento de CEP do imóvel:', error)
+      }
+    }
+  )
+
+  // Hook para preenchimento automático de CEP do STAND
+  const cepAutoFillStand = useCEPAutoFill(
+    (addressData) => {
+      // Preencher apenas campos do STAND
+      if (addressData.street) {
+        vm.handleFieldChange('standStreet')(addressData.street)
+      }
+      if (addressData.neighborhood) {
+        vm.handleFieldChange('standNeighborhood')(addressData.neighborhood)
+      }
+      if (addressData.city) {
+        vm.handleFieldChange('standCity')(addressData.city)
+      }
+      if (addressData.state) {
+        vm.handleFieldChange('standState')(addressData.state)
+      }
+      if (addressData.region) {
+        vm.handleFieldChange('standRegion')(addressData.region)
+      }
+    },
+    {
+      debounceDelay: 800,
+      enableAutoFill: true,
+      onError: (error) => {
+        console.warn('Erro no auto-preenchimento de CEP do stand:', error)
+      }
+    }
+  )
+
   const renderField = (field) => {
     const commonProps = {
       id: field.name,
@@ -137,6 +198,74 @@ export function WizardFormView(props) {
       required: field.required || false,
       children: field.label || '',
       className: field.className || '',
+    }
+
+    // Verificar se é um campo do stand e se deve ser desabilitado
+    const isStandField = field.name.startsWith('stand') && field.name !== 'enableStandAddress'
+    const standEnabled = Boolean(vm.getFieldValue('enableStandAddress'))
+
+    // Se é campo do stand e o checkbox não está marcado, desabilitar
+    if (isStandField && !standEnabled) {
+      commonProps.disabled = true
+    } else {
+      commonProps.disabled = field.disabled || false
+    }
+
+    // Aplicar formatação para campos específicos
+    if (field.name === 'area' && field.type === 'text') {
+      commonProps.formatOnChange = true
+      commonProps.formatter = formatArea
+
+      // Adicionar handler especial para área
+      const originalOnChange = commonProps.onChange
+      commonProps.onChange = (value) => {
+        // Se o cursor está no final (após m²), mover para antes do sufixo
+        setTimeout(() => {
+          const input = document.getElementById(field.name)
+          if (input && value.includes('m²')) {
+            const cursorPosition = value.indexOf(' m²')
+            if (input.selectionStart >= cursorPosition && cursorPosition > 0) {
+              input.setSelectionRange(cursorPosition, cursorPosition)
+            }
+          }
+        }, 0)
+
+        originalOnChange(value)
+      }
+    }
+
+    // Aplicar formatação para CEP do IMÓVEL
+    if (field.name === 'cep' && field.type === 'text') {
+      commonProps.formatOnChange = true
+      commonProps.formatter = formatCEP
+
+      const originalOnChange = commonProps.onChange
+      commonProps.onChange = (value) => {
+        originalOnChange(value)
+
+        // Disparar busca automática apenas para campos do IMÓVEL
+        setTimeout(() => {
+          cepAutoFillProperty.searchCEP(value)
+        }, 100)
+      }
+    }
+
+    // Aplicar formatação para CEP do STAND
+    if (field.name === 'standCep' && field.type === 'text') {
+      commonProps.formatOnChange = true
+      commonProps.formatter = formatCEP
+
+      const originalOnChange = commonProps.onChange
+      commonProps.onChange = (value) => {
+        originalOnChange(value)
+
+        // Disparar busca automática apenas para campos do STAND (se habilitado)
+        if (standEnabled) {
+          setTimeout(() => {
+            cepAutoFillStand.searchCEP(value)
+          }, 100)
+        }
+      }
     }
 
     if (field.type === 'heading') {
@@ -170,38 +299,40 @@ export function WizardFormView(props) {
     }
 
     if (field.type === 'select') {
-      // Debug específico para o campo responsible
-      if (field.name === 'responsible') {
-        console.log('🔧 [SELECT DEBUG] Renderizando campo responsible:', {
-          fieldName: field.name,
-          currentValue: vm.getFieldValue(field.name),
-          optionsCount: field.options?.length || 0,
-          options: field.options,
-          disabled: field.disabled,
-          timestamp: new Date().toISOString()
-        })
-      }
-
       return (
-        <div key={`${field.name}-${field.options?.length || 0}`} className="w-full flex flex-col gap-2">
-          {field.label && (
-            <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
-              {field.label}:
-            </label>
-          )}
-          <SelectView
-            key={`${field.name}-select-${field.options?.length || 0}`}
-            id={field.name}
-            name={field.name}
-            value={vm.getFieldValue(field.name)}
-            onChange={(e) => vm.handleFieldChange(field.name)(e.target.value)}
-            variant="pink"
-            options={field.options || []}
-            width="full"
-            className={field.className || ''}
-            disabled={field.disabled}
-          />
-        </div>
+        <SelectView
+          key={`${field.name}-select-${field.options?.length || 0}`}
+          id={field.name}
+          name={field.name}
+          value={vm.getFieldValue(field.name)}
+          onChange={(e) => vm.handleFieldChange(field.name)(e.target.value)}
+          variant={commonProps.disabled ? 'default' : 'pink'}
+          options={field.options || []}
+          width="full"
+          className="w-full"
+          disabled={commonProps.disabled}
+          hasLabel={Boolean(field.label)}
+        >
+          {field.label}
+        </SelectView>
+      )
+    }
+
+    if (field.type === 'checkbox') {
+      return (
+        <InputView
+          id={field.name}
+          name={field.name}
+          type="checkbox"
+          placeholder={field.placeholder || field.label}
+          checked={Boolean(vm.getFieldValue(field.name))}
+          onChange={(checked) => vm.handleFieldChange(field.name)(checked)}
+          hasLabel={Boolean(field.label)}
+          required={field.required || false}
+          disabled={field.disabled}
+        >
+          {field.label || ''}
+        </InputView>
       )
     }
 
@@ -216,22 +347,23 @@ export function WizardFormView(props) {
           <div className="w-full bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200">
             <div className="flex flex-wrap gap-3">
               {(field.options || []).map(option => (
-                <label key={option.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    value={option.value}
-                    checked={(vm.getFieldValue(field.name) || []).includes(option.value)}
-                    onChange={(e) => {
-                      const currentValue = vm.getFieldValue(field.name) || []
-                      const newValue = e.target.checked
-                        ? [...currentValue, option.value]
-                        : currentValue.filter(v => v !== option.value)
-                      vm.handleFieldChange(field.name)(newValue)
-                    }}
-                    className="w-4 h-4 accent-distac-primary cursor-pointer"
-                  />
-                  <span className="text-[12px] md:text-[16px] text-default-dark">{option.label}</span>
-                </label>
+                <InputView
+                  key={option.value}
+                  id={`${field.name}_${option.value}`}
+                  name={`${field.name}[]`}
+                  type="checkbox"
+                  placeholder={option.label}
+                  checked={(vm.getFieldValue(field.name) || []).includes(option.value)}
+                  onChange={(checked) => {
+                    const currentValue = vm.getFieldValue(field.name) || []
+                    const newValue = checked
+                      ? [...currentValue, option.value]
+                      : currentValue.filter(v => v !== option.value)
+                    vm.handleFieldChange(field.name)(newValue)
+                  }}
+                  hasLabel={false}
+                  disabled={field.disabled}
+                />
               ))}
             </div>
           </div>
@@ -446,7 +578,10 @@ export function WizardFormView(props) {
             {(vm.currentStepData.groups || []).map((group, groupIndex) => (
               <div key={groupIndex} className={group.className || 'w-full'}>
                 {group.fields.map(field => (
-                  <div key={field.name} className={field.containerClassName || 'flex-1'}>
+                  <div
+                    key={field.name}
+                    className={field.containerClassName || 'flex-1'}
+                  >
                     {renderField(field)}
                     {vm.hasFieldError(field.name) && (
                       <div className="text-red-600 text-sm mt-1">

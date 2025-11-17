@@ -1,4 +1,5 @@
 import { InputView } from '@shared/components/ui/Input/InputView'
+import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
@@ -22,7 +23,7 @@ export function EditFormView({
     fields,
     initialData,
     onSubmit,
-    onCancel, // Esta prop precisa ser passada corretamente
+    onCancel,
     onDelete,
     isEditing: initialIsEditing,
   })
@@ -59,19 +60,33 @@ export function EditFormView({
       {/* Form Content */}
       <div className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md">
         {!vm.isEditing ? (
-          /* Modo visualização - usando InputView disabled */
+          /* Modo visualização */
           <>
-            <div className="w-full grid grid-cols-2 gap-subsection md:gap-subsection-md">
+            <div className="w-full grid grid-cols-6 gap-4">
               {vm.fields
-                .filter(field => !field.hideInViewMode) // Filtra campos que não devem aparecer no modo visualização
+                .filter(field => !field.hideInViewMode)
                 .map((field) => (
-                  <div key={field.name} className="w-full">
-                    {field.type === 'checkbox-group' ? (
+                  <div key={field.name} className={field.gridColumn || 'col-span-6'}>
+                    {field.type === 'select' ? (
+                      <SelectView
+                        value={vm.getFieldValue(field.name)}
+                        options={field.options || []}
+                        placeholder={field.placeholder || 'Selecione...'}
+                        disabled={true}
+                        hasLabel={Boolean(field.label)}
+                        width="full"
+                        variant="default"
+                      >
+                        {field.label || ''}
+                      </SelectView>
+                    ) : field.type === 'hidden' || field.hideInViewMode ? (
+                      <div></div> // Placeholder vazio
+                    ) : field.type === 'checkbox-group' ? (
                       <div className="w-full flex flex-col gap-2">
                         <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
                           {field.label}:
                         </label>
-                        <div className={`w-full rounded-sm px-4 py-2 transition-colors duration-200 bg-default-light-muted opacity-75`}>
+                        <div className={`w-full rounded-sm p-button-rectangle md:p-button-rectangle-md transition-colors duration-200 bg-default-light-muted opacity-75`}>
                           <div className="flex flex-wrap gap-3">
                             {field.options?.map(option => {
                               const currentValue = vm.getFieldValue(field.name) || []
@@ -137,17 +152,32 @@ export function EditFormView({
             </div>
           </>
         ) : (
-          /* Modo edição - estilo WizardForm */
+          /* Modo edição */
           <form onSubmit={vm.handleSubmit} className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md">
-            <div className="w-full grid grid-cols-2 gap-subsection md:gap-subsection-md">
+            <div className="w-full grid grid-cols-6 gap-4">
               {vm.fields.map((field) => (
-                <div key={field.name} className="w-full">
-                  {field.type === 'checkbox-group' ? (
+                <div key={field.name} className={field.gridColumn || 'col-span-6'}>
+                  {field.type === 'select' ? (
+                    <SelectView
+                      value={vm.getFieldValue(field.name)}
+                      options={field.options || []}
+                      placeholder={field.placeholder || 'Selecione...'}
+                      disabled={field.disabled}
+                      hasLabel={Boolean(field.label)}
+                      width="full"
+                      variant={field.disabled ? 'default' : 'pink'}
+                      onChange={vm.handleFieldChange(field.name)}
+                    >
+                      {field.label || ''}
+                    </SelectView>
+                  ) : field.type === 'hidden' || field.hideInEditMode ? (
+                    <div></div> // Placeholder vazio
+                  ) : field.type === 'checkbox-group' ? (
                     <div className="w-full flex flex-col gap-2">
                       <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
                         {field.label}:
                       </label>
-                      <div className={`w-full rounded-sm px-4 py-2 transition-colors duration-200 ${
+                      <div className={`w-full rounded-sm p-button-rectangle md:p-button-rectangle-md transition-colors duration-200 ${
                         field.disabled
                           ? 'bg-default-light-muted opacity-75'
                           : 'bg-distac-primary-light'
@@ -196,9 +226,11 @@ export function EditFormView({
                       onChange={vm.handleFieldChange(field.name)}
                       hasLabel={Boolean(field.label)}
                       required={field.required || false}
-                      showPasswordToggle={field.showPasswordToggle && field.type === 'password'} // Só mostra toggle no modo edição para senhas
+                      showPasswordToggle={field.showPasswordToggle && field.type === 'password'}
                       isActive={true}
                       disabled={field.disabled}
+                      formatOnChange={field.formatOnChange}
+                      formatter={field.formatter}
                     >
                       {field.label || ''}
                     </InputView>

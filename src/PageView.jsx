@@ -28,17 +28,6 @@ export function PageView() {
   // Sidebar aparece para usuários autenticados em todas as páginas, exceto páginas de autenticação
   const shouldShowSidebar = isAuthenticated && !isAuthPage
 
-  // Debug adicional
-  useEffect(() => {
-    console.log('SIDEBAR DEBUG:', {
-      currentRoute,
-      isAuthenticated,
-      isAuthPage,
-      shouldShowSidebar,
-      isAdmin
-    })
-  }, [currentRoute, isAuthenticated, isAuthPage, shouldShowSidebar, isAdmin])
-
   useEffect(() => {
     setForceUpdate(prev => prev + 1)
     const jwtToken = sessionStorage.getItem('jwtToken')
@@ -50,12 +39,6 @@ export function PageView() {
       const jwtToken = sessionStorage.getItem('jwtToken')
       const userId = sessionStorage.getItem('userId')
       const userRole = sessionStorage.getItem('userRole')
-
-      console.log('🔍 Auth check:', {
-        hasToken: !!jwtToken,
-        userId,
-        userRole
-      })
 
       const newIsAuthenticated = !!jwtToken && !!userId
       const newIsAdmin = userRole === 'admin'
@@ -71,14 +54,12 @@ export function PageView() {
     // Escutar mudanças no sessionStorage
     const onStorage = (event) => {
       if (['jwtToken', 'userRole', 'userId'].includes(event.key)) {
-        console.log('📢 SessionStorage changed:', event.key, event.newValue)
         checkAuth()
       }
     }
 
     // Escutar mudanças customizadas (para mudanças na mesma aba)
     const onCustomAuth = () => {
-      console.log('📢 Custom auth event triggered')
       checkAuth()
     }
 
@@ -142,26 +123,6 @@ export function PageView() {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
   }
-
-  // Debug logs
-  useEffect(() => {
-    console.log('DEV MODE DEBUG:', {
-      isDev: import.meta.env.DEV,
-      mode: import.meta.env.MODE,
-      isAuthenticated,
-      isAdmin,
-      shouldShowSidebar,
-      currentRoute,
-      isAuthPage,
-      shouldShowDevButtons: import.meta.env.DEV && import.meta.env.MODE === 'development',
-      localStorage: {
-        jwtToken: !!sessionStorage.getItem('jwtToken'),
-        userRole: sessionStorage.getItem('userRole'),
-        userId: sessionStorage.getItem('userId'),
-        userEmail: sessionStorage.getItem('userEmail')
-      }
-    })
-  }, [isAuthenticated, isAdmin, shouldShowSidebar, currentRoute, isAuthPage])
 
   return (
     <div className='flex h-screen w-full overflow-hidden'>

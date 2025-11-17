@@ -9,27 +9,54 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
   const classes = []
 
   if (isCheckbox) {
-    // Classes específicas para checkbox
+    // Classes específicas para checkbox - com aparência visual
     classes.push(
       'w-4',
       'h-4',
       'rounded',
-      'transition-colors',
-      'duration-200'
+      'border-2',
+      'transition-all',
+      'duration-200',
+      'appearance-none',
+      'relative'
     )
 
+    // Estados do checkbox
     if (disabled) {
       classes.push(
+        'bg-default-white',
+        'border-default-dark-muted',
         'opacity-50',
-        'cursor-not-allowed',
-        'accent-default-dark-muted'
+        'cursor-not-allowed'
       )
     } else {
       classes.push(
+        'bg-white',
+        'border-default-dark-muted',
         'cursor-pointer',
-        'accent-distac-primary'
+        'hover:border-distac-primary',
+        'focus:outline-none',
+        'focus:ring-2',
+        'focus:ring-distac-primary',
+        'focus:ring-opacity-50'
       )
     }
+
+    // Estado checked - ícone centralizado
+    classes.push(
+      'checked:bg-distac-primary',
+      'checked:border-distac-primary',
+      'checked:after:content-["✓"]',
+      'checked:after:absolute',
+      'checked:after:top-1/2',
+      'checked:after:left-1/2',
+      'checked:after:-translate-x-1/2',
+      'checked:after:-translate-y-1/2',
+      'checked:after:text-white',
+      'checked:after:text-[10px]',
+      'checked:after:font-bold',
+      'checked:after:leading-none'
+    )
   } else {
     // Classes base para inputs normais
     classes.push(
@@ -148,6 +175,7 @@ export function InputView({
   ...otherProps
 }) {
   const [showPassword, setShowPassword] = useState(false)
+  const [previousValue, setPreviousValue] = useState(value)
 
   // Determina o tipo real do input baseado no toggle
   const actualType = (type === 'password' && showPassword) ? 'text' : type
@@ -184,7 +212,34 @@ export function InputView({
       if (isCheckbox) {
         onChange(event.target.checked, event)
       } else {
-        onChange(event.target.value, event)
+        // Aplicar formatação em tempo real se tiver formatOnChange nas props
+        let processedValue = event.target.value
+
+        if (otherProps.formatOnChange && otherProps.formatter && typeof otherProps.formatter === 'function') {
+          // Para formatação de área e moeda, passar valor anterior para detectar backspace
+          if (otherProps.formatter.name === 'formatCurrency' || otherProps.formatter.name === 'formatArea') {
+            processedValue = otherProps.formatter(event.target.value, previousValue)
+          } else {
+            processedValue = otherProps.formatter(event.target.value)
+          }
+
+          // Atualizar o valor do input imediatamente
+          event.target.value = processedValue
+
+          // Para campos com sufixos (m², R$), posicionar cursor antes do sufixo
+          if (processedValue.includes('m²')) {
+            setTimeout(() => {
+              const cursorPosition = processedValue.indexOf(' m²')
+              if (event.target.setSelectionRange && cursorPosition > 0) {
+                event.target.setSelectionRange(cursorPosition, cursorPosition)
+              }
+            }, 0)
+          }
+        }
+
+        // Salvar valor anterior para próxima comparação
+        setPreviousValue(processedValue)
+        onChange(processedValue, event)
       }
     }
   }
@@ -198,7 +253,7 @@ export function InputView({
           </label>
         )}
 
-        <div className={`w-full rounded-sm px-4 transition-colors duration-200 flex items-center${
+        <div className={`w-full rounded-sm transition-colors duration-200 flex items-center p-button-rectangle md:p-button-rectangle-md ${
           disabled
             ? 'bg-default-light-muted opacity-75'
             : 'bg-distac-primary-light'

@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getUserById, updateUser } from '@app/services/api/userApi'
 import { ProfileModel } from './ProfileModel'
+import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
 
 export function useProfileViewModel(targetUserId = null) {
   const [model, setModel] = useState(new ProfileModel())
   const [formData, setFormData] = useState({
-    fullName: '',
-    cpf: '',
-    birthDate: '',
-    monthlyIncome: '',
+    name: '',
     phone: '',
+    creci: '',
+    cpf: '',
+    dateBirth: '',
+    monthlyIncome: '',
     accessLevel: 'CLIENTE'
   })
   const [isLoading, setIsLoading] = useState(true)
@@ -44,13 +46,15 @@ export function useProfileViewModel(targetUserId = null) {
 
       setModel(profileModel)
       setFormData({
-        fullName: profileModel.fullName,
-        cpf: profileModel.cpf,
-        birthDate: profileModel.birthDate,
-        monthlyIncome: profileModel.monthlyIncome,
+        name: profileModel.name,
         phone: profileModel.phone,
-        // Para checkbox-group, converter string para array
-        accessLevel: [profileModel.accessLevel]
+        creci: profileModel.creci,
+        cpf: profileModel.cpf,
+        dateBirth: profileModel.dateBirth,
+        // Formatar renda mensal para exibição
+        monthlyIncome: formatCurrencyForDisplay(profileModel.monthlyIncome),
+        // Para select, usar valor direto
+        accessLevel: profileModel.accessLevel
       })
     } catch (err) {
       console.error('Erro ao carregar dados do usuário:', err)
@@ -70,12 +74,9 @@ export function useProfileViewModel(targetUserId = null) {
         throw new Error('Usuário não encontrado')
       }
 
-      // Converter o valor array do checkbox-group para string antes de criar o model
+      // Usar dados diretos do select
       const processedData = {
-        ...data,
-        accessLevel: Array.isArray(data.accessLevel) && data.accessLevel.length > 0
-          ? data.accessLevel[0]
-          : 'CLIENTE'
+        ...data
       }
 
       // Criar novo model com os dados atualizados
@@ -94,11 +95,7 @@ export function useProfileViewModel(targetUserId = null) {
       await updateUser(userIdToEdit, updateData)
 
       setModel(updatedModel)
-      setFormData({
-        ...data,
-        // Manter accessLevel como array para o form
-        accessLevel: data.accessLevel
-      })
+      setFormData(data)
 
       return {
         success: true,

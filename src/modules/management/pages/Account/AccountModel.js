@@ -1,3 +1,6 @@
+import { validateEmail } from '@shared/utils/validateEmailUtil'
+import { validatePassword } from '@shared/utils/validatePasswordUtil'
+
 /**
  * AccountModel - Modelo de dados para a conta do usuário
  *
@@ -26,16 +29,8 @@ export class AccountModel {
         label: 'Email',
         placeholder: 'Digite seu endereço de e-mail',
         required: true,
-        validate: (value) => {
-          if (!value || value.trim().length === 0) {
-            return 'Email é obrigatório'
-          }
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-          if (!emailRegex.test(value)) {
-            return 'Email inválido'
-          }
-          return true
-        }
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas = 3
+        validate: validateEmail
       },
       {
         name: 'newPassword',
@@ -43,17 +38,16 @@ export class AccountModel {
         label: 'Nova Senha',
         placeholder: 'Crie uma nova senha (deixe em branco para manter a atual)',
         required: false,
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas = 3
         showPasswordToggle: true,
         validate: (value) => {
-          if (value && value.trim().length > 0) {
-            if (value.length < 6) {
-              return 'Nova senha deve ter pelo menos 6 caracteres'
-            }
-            if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) {
-              return 'Nova senha deve conter ao menos: 1 letra minúscula, 1 maiúscula e 1 número'
-            }
+          // Se não foi preenchida, não valida (campo opcional)
+          if (!value || value.trim().length === 0) {
+            return true
           }
-          return true
+
+          // Se foi preenchida, usa validação COMPLETA de senha
+          return validatePassword(value)
         }
       },
       {
@@ -62,16 +56,17 @@ export class AccountModel {
         label: 'Senha Atual',
         placeholder: 'Digite sua senha atual para confirmar alterações',
         required: true,
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas = 3 (mudança aqui)
         showPasswordToggle: true,
         hideInViewMode: true, // Campo só aparece no modo edição
         validate: (value) => {
           if (!value || value.trim().length === 0) {
             return 'Senha atual é obrigatória para confirmar alterações'
           }
-          if (value.length < 6) {
-            return 'Senha deve ter pelo menos 6 caracteres'
-          }
-          return true
+
+          // Para senha atual, usar também validação completa
+          // pois se a senha foi criada com as regras antigas, o usuário vai saber
+          return validatePassword(value)
         }
       }
     ]
