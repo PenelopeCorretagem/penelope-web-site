@@ -49,6 +49,7 @@
     "check:prod": "npm run lint && npm run format:check && npm run build"
   },
   "dependencies": {
+    "@calcom/embed-react": "^1.5.3",
     "@djpfs/react-vlibras": "^2.0.2",
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.12.2",
