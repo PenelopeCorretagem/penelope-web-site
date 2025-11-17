@@ -140,6 +140,13 @@ export function SelectView({
   const containerRef = useRef(null)
   const selectElementRef = useRef(null)
 
+  // Conectar refs
+  useEffect(() => {
+    if (containerRef.current) {
+      selectProps.selectRef.current = containerRef.current
+    }
+  }, [selectProps.selectRef])
+
   // ----------- AQUI ESTÁ A SOLUÇÃO DEFINITIVA -----------
   useEffect(() => {
     if (width !== 'fit') return

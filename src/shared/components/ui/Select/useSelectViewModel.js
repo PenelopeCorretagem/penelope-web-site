@@ -21,18 +21,28 @@ export function useSelectViewModel(initialProps = {}) {
     }
   }, [initialProps.value, viewModel, refresh])
 
-  // Fechar ao clicar fora
+  // Fechar ao clicar fora - CORRIGIDO
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      if (viewModel.isOpen && selectRef.current && !selectRef.current.contains(event.target)) {
         if (viewModel.setOpen(false)) {
           refresh()
         }
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [viewModel, refresh])
+
+    if (viewModel.isOpen) {
+      // Pequeno delay para evitar conflito com o click que abre o select
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside, true)
+      }, 10)
+
+      return () => {
+        clearTimeout(timeoutId)
+        document.removeEventListener('mousedown', handleClickOutside, true)
+      }
+    }
+  }, [viewModel.isOpen, viewModel, refresh])
 
   // Event handlers
   const handleToggle = useCallback(() => {

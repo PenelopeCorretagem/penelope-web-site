@@ -32,6 +32,7 @@ export class UserConfigModel {
    */
   static getFormFields(isEditMode = false, userAccessLevel = 'CLIENTE') {
     const isAdmin = userAccessLevel === 'ADMINISTRADOR'
+    const isClient = userAccessLevel === 'CLIENTE'
 
     const fields = [
       // LINHA 1: Nome (1/2 = 3 cols), Data (1/3 = 2 cols), CPF (1/6 = 1 col) = 6 cols total
@@ -99,13 +100,13 @@ export class UserConfigModel {
         }
       },
 
-      // LINHA 2: Telefone (1/2 = 3 cols), Renda (1/2 = 3 cols) = 6 cols total
+      // LINHA 2: Layout diferente para cliente vs admin
       {
         name: 'phone',
         label: 'Telefone',
         placeholder: 'Digite o telefone com DDD',
         required: true,
-        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
         formatOnChange: true,
         formatter: formatPhoneNumber,
         validate: (value) => {
@@ -125,7 +126,7 @@ export class UserConfigModel {
         type: 'text',
         placeholder: 'Ex: R$ 5.000,00',
         required: true,
-        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
         formatOnChange: true,
         formatter: formatCurrencyInput,
         validate: (value) => {
@@ -143,40 +144,45 @@ export class UserConfigModel {
 
           return true
         }
-      },
-
-      // LINHA 3: Nível de Acesso (1/2 = 3 cols), CRECI (1/2 = 3 cols) = 6 cols total
-      {
-        name: 'accessLevel',
-        label: 'Nível de Acesso',
-        type: 'select',
-        placeholder: 'Selecione o nível de acesso',
-        gridColumn: 'col-span-3', // 1/2 de 6 colunas
-        options: [
-          { value: 'CLIENTE', label: 'Cliente' },
-          { value: 'ADMINISTRADOR', label: 'Administrador' }
-        ],
-        required: true,
-        validate: (value) => {
-          if (!value) {
-            return 'Nível de acesso é obrigatório'
-          }
-          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
-            return 'Nível de acesso inválido'
-          }
-          return true
-        }
       }
     ]
 
-    // Campo CRECI - sempre na linha 3, segunda metade
+    // Adicionar nível de acesso na linha 2 para clientes ou linha 3 para admins
+    const accessLevelField = {
+      name: 'accessLevel',
+      label: 'Nível de Acesso',
+      type: 'select',
+      placeholder: 'Selecione o nível de acesso',
+      gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
+      options: [
+        { value: 'CLIENTE', label: 'Cliente' },
+        { value: 'ADMINISTRADOR', label: 'Administrador' }
+      ],
+      required: true,
+      validate: (value) => {
+        if (!value) {
+          return 'Nível de acesso é obrigatório'
+        }
+        if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+          return 'Nível de acesso inválido'
+        }
+        return true
+      }
+    }
+
+    // Para cliente: adicionar nível de acesso na linha 2
+    if (isClient) {
+      fields.push(accessLevelField)
+    }
+
+    // Campo CRECI - sempre adicionar se não estiver em modo edição ou se for admin
     if (!isEditMode || isAdmin) {
       fields.push({
         name: 'creci',
         label: 'CRECI',
         placeholder: 'Digite o número do CRECI (opcional)',
         required: false,
-        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        gridColumn: isClient ? 'col-span-6' : 'col-span-3', // Cliente: full width, Admin: 1/2
         validate: (value) => {
           if (value && value.trim().length > 0) {
             const cleanCreci = value.replace(/\D/g, '')
@@ -187,22 +193,31 @@ export class UserConfigModel {
           return true
         }
       })
-    } else {
-      // Placeholder vazio para manter layout quando CRECI não aparece
-      fields.push({
-        name: 'creci_placeholder',
-        label: '',
-        type: 'hidden',
-        placeholder: '',
-        required: false,
-        gridColumn: 'col-span-3',
-        hideInViewMode: true,
-        hideInEditMode: true
-      })
+    }
+
+    // Para admin: adicionar nível de acesso na linha 3 (depois do CRECI se aplicável)
+    if (isAdmin) {
+      // Se não há CRECI (modo edição), adicionar nível de acesso com placeholder para CRECI
+      if (isEditMode) {
+        fields.push(accessLevelField)
+        // Placeholder vazio para manter layout
+        fields.push({
+          name: 'creci_placeholder',
+          label: '',
+          type: 'hidden',
+          placeholder: '',
+          required: false,
+          gridColumn: 'col-span-3',
+          hideInViewMode: true,
+          hideInEditMode: true
+        })
+      } else {
+        // Modo adição: nível de acesso já foi adicionado junto com CRECI acima
+        fields.push(accessLevelField)
+      }
     }
 
     // LINHA 4: E-mail (1/2 = 3 cols), Senha/Placeholder (1/2 = 3 cols) = 6 cols total
-    // Email sempre presente
     fields.push({
       name: 'email',
       label: 'E-mail',
