@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import ReactDOM from 'react-dom'
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { FaArrowLeft } from 'react-icons/fa'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
+import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
 
 export function ScreeningFormView({ onClose }) {
 
@@ -36,20 +37,26 @@ export function ScreeningFormView({ onClose }) {
   }
 
   const enviarWhatsApp = () => {
-    const { nome, sobrenome, celular, email } = formData
+    const { nome, sobrenome, celular, email, rendaMed } = formData
 
-    const mensagem = `
-Olá! Segue minha triagem:
+    // Validação simples dos campos obrigatórios
+    if (!nome || !sobrenome || !email) {
+      window.alert('Por favor preencha os campos Nome, Sobrenome e E-mail antes de enviar.')
+      return
+    }
 
-- Nome: ${nome || ''}
-- Sobrenome: ${sobrenome || ''}
-- E-mail: ${email || ''}
-- Celular: ${celular || ''}
-    `.trim()
+    const mensagem = [
+      'Olá! Segue minha triagem:',
+      `Nome: ${nome || ''}`,
+      `Sobrenome: ${sobrenome || ''}`,
+      `E-mail: ${email || ''}`,
+      `Celular: ${celular || ''}`,
+      `Renda média mensal: ${rendaMed || ''}`,
+    ].join('\n')
 
     const numero = '5511999999999' // << coloque o número da empresa aqui
 
-    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
+    const url = generateWhatsAppLink(numero, mensagem)
 
     window.open(url, '_blank')
   }
