@@ -24,7 +24,7 @@ export class UserConfigModel {
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
     this.accessLevel = userData.accessLevel || 'CLIENTE'
-    this.senha = '' // Sempre vazio por segurança
+    this.senha = userData.senha || ''
   }
 
   /**
@@ -260,6 +260,29 @@ export class UserConfigModel {
     fields.forEach(field => {
       if (field.validate) {
         const valueToValidate = this[field.name]
+        const result = field.validate(valueToValidate)
+        if (result !== true) {
+          errors[field.name] = result
+        }
+      }
+    })
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Valida dados fornecidos externamente (usado no handleSubmit)
+   */
+  validateWithData(data, isEditMode = false, userAccessLevel = 'CLIENTE') {
+    const errors = {}
+    const fields = UserConfigModel.getFormFields(isEditMode, userAccessLevel)
+
+    fields.forEach(field => {
+      if (field.validate) {
+        const valueToValidate = data[field.name]
         const result = field.validate(valueToValidate)
         if (result !== true) {
           errors[field.name] = result
