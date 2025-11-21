@@ -128,7 +128,7 @@ class PropertyCardViewModel {
       this.model.onEdit(this.model.id)
     } else {
       // Navegação padrão para edição
-      const route = this.router.generateRoute('ADMIN_PROPERTIES_CONFIG', { id: this.model.id })
+      const route = this._generateRoute('ADMIN_PROPERTIES_CONFIG', { id: this.model.id })
       if (this.navigate) {
         this.navigate(route)
       } else {
@@ -181,7 +181,7 @@ class PropertyCardViewModel {
       default: () => {
         console.log('Navigating to property detail')
         const propertyId = this.model?.id || 1
-        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: propertyId })
+        const route = this._generateRoute('PROPERTY_DETAIL', { id: propertyId })
         console.log('Generated route:', route)
         console.log('Navigate function:', this.navigate)
         if (this.navigate) {
@@ -197,6 +197,18 @@ class PropertyCardViewModel {
     const actionHandler = actions[action] || actions.default
     actionHandler()
   }
+}
+
+// Helper: gera rota substituindo params em RouterModel.getRoute
+PropertyCardViewModel.prototype._generateRoute = function(routeName, params = {}) {
+  let route = this.router.getRoute(routeName)
+  if (!route) {
+    throw new Error(`Rota ${routeName} não encontrada`)
+  }
+  Object.keys(params).forEach(param => {
+    route = route.replace(`:${param}`, params[param])
+  })
+  return route
 }
 
 export function usePropertyCardViewModel(props) {

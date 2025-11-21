@@ -18,7 +18,18 @@ export class ButtonModel {
     this.text = text
     this.color = color
     this.type = type
-    this.to = to
+    // Backwards-compatible: `to` can be a string (route) or an options object
+    // If an object is provided we extract known properties like `action` and `fullWidth`.
+    if (to && typeof to === 'object') {
+      this.to = to.to || null
+      this.action = to.action || null
+      this.fullWidth = !!to.fullWidth
+    } else {
+      this.to = to
+      this.action = null
+      this.fullWidth = false
+    }
+
     this.active = false
     this.disabled = false
   }

@@ -37,6 +37,10 @@ export class ScheduleModel {
     const appt = new AppointmentModel(appointment)
     this.appointments.push(appt)
   }
+
+  setAppointments(appointments = []) {
+    this.appointments = appointments.map(a => new AppointmentModel(a))
+  }
 }
 
 export default ScheduleModel

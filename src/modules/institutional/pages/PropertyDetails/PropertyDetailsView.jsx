@@ -10,9 +10,12 @@ import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/Pro
 import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView.jsx'
  
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
+import { useNavigate } from 'react-router-dom'
+import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 export function PropertyDetailsView() {
   const { property, isLoading } = usePropertyDetailsViewModel()
+  const navigate = useNavigate()
   const [headerHeight, setHeaderHeight] = useState(80) // valor padrão
   const [tabsHeight, setTabsHeight] = useState(60) // valor padrão para PropertyTabsView
   const [sectionPadding, setSectionPadding] = useState(20) // valor padrão
@@ -68,6 +71,7 @@ export function PropertyDetailsView() {
 
   const handlePropertyCardClick = ({ action, category, title, subtitle, buttonState }) => {
     console.log('Property card action:', { action, category, title, subtitle, buttonState })
+    // useNavigate is captured from the component scope
 
     switch (action) {
       case 'whatsapp':
@@ -75,6 +79,19 @@ export function PropertyDetailsView() {
         break
       case 'visit':
         console.log('Agendando visita para:', title)
+        // Navega para a tela de agenda do imóvel usando slug do título
+        try {
+          const slug = generateSlug(title || property?.title || '')
+          // navegação padrão usando react-router
+          if (typeof navigate === 'function') {
+            navigate(`/agenda?property=${slug}`, { state: { propertyTitle: title || property?.title, propertyId: property?.id } })
+          } else {
+            // fallback para caso navigate não esteja definido (raro)
+            window.location.href = `/agenda?property=${slug}`
+          }
+        } catch (err) {
+          console.error('Erro ao gerar slug/navegar para agenda:', err)
+        }
         break
       default:
         console.log('Ação padrão para:', title)
