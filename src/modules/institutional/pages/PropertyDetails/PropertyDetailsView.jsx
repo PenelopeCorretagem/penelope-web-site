@@ -8,11 +8,17 @@ import { PropertyLocation } from '@institutional/components/PropertyLocation/Pro
 import { PropertyRegion } from '@institutional/components/PropertyRegion/PropertyRegion.jsx'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView.jsx'
 import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView.jsx'
- 
+import { TextView } from '@shared/components/ui/Text/TextView'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { useRouter } from '@app/routes/useRouterViewModel'
+
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
-  const { property, isLoading } = usePropertyDetailsViewModel()
+  const { property, isLoading, error } = usePropertyDetailsViewModel()
+  const { navigateTo, getAllRoutes } = useRouter()
+  const routes = getAllRoutes()
+
   const [headerHeight, setHeaderHeight] = useState(80) // valor padrão
   const [tabsHeight, setTabsHeight] = useState(60) // valor padrão para PropertyTabsView
   const [sectionPadding, setSectionPadding] = useState(20) // valor padrão
@@ -72,19 +78,54 @@ export function PropertyDetailsView() {
     switch (action) {
       case 'whatsapp':
         console.log('Iniciando contato via WhatsApp para:', title)
+        // Here you would integrate with WhatsApp API
         break
       case 'visit':
         console.log('Agendando visita para:', title)
+        // Here you would navigate to schedule page or open modal
         break
       default:
         console.log('Ação padrão para:', title)
     }
   }
 
-  if (isLoading || !property) {
+  // Loading state
+  if (isLoading) {
     return (
-      <div className="p-section-y md:p-section-y-md">
-        <h3 className="text-center">{isLoading ? 'Carregando propriedade...' : 'Imóvel não encontrado'}</h3>
+      <div className="flex items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md">
+        <TextView className="text-center">Carregando detalhes da propriedade...</TextView>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md gap-4">
+        <TextView className="text-center text-red-500">
+          Erro: {error}
+        </TextView>
+        <ButtonView
+          color="brown"
+          onClick={() => navigateTo(routes.PROPERTIES)}
+        >
+          Voltar para Propriedades
+        </ButtonView>
+      </div>
+    )
+  }
+
+  // Property not found
+  if (!property) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md gap-4">
+        <TextView className="text-center">Propriedade não encontrada</TextView>
+        <ButtonView
+          color="brown"
+          onClick={() => navigateTo(routes.PROPERTIES)}
+        >
+          Voltar para Propriedades
+        </ButtonView>
       </div>
     )
   }
@@ -127,7 +168,6 @@ export function PropertyDetailsView() {
           <SectionView id="localizacao" className="bg-distac-gradient !pr-[544px]">
             <PropertyLocation
               locations={[
-                { title: property.title, subtitle: property.subtitle },
                 { title: property.title, subtitle: property.subtitle }
               ]}
               addresses={property.locationAddresses || []}
@@ -137,11 +177,7 @@ export function PropertyDetailsView() {
 
           <SectionView id="sobre-regiao" className="bg-default-light-alt !pr-[544px]">
             <PropertyRegion
-              regionDescription={(() => {
-                const list = property.regionList ? `Regiões de SP: ${property.regionList.join(', ')}` : ''
-                const selected = property.regionDescription || ''
-                return `${list}\n\n${selected}`
-              })()}
+              regionDescription={property.regionDescription}
               image={property.imageLink}
             />
           </SectionView>
@@ -157,6 +193,7 @@ export function PropertyDetailsView() {
             }}
           >
             <PropertyCardView
+              id={property.id}
               category={property.category}
               title={property.title}
               subtitle={property.subtitle}
@@ -177,6 +214,7 @@ export function PropertyDetailsView() {
       <div className="lg:hidden">
         <SectionView className="bg-default-light">
           <PropertyCardView
+            id={property.id}
             category={property.category}
             title={property.title}
             subtitle={property.subtitle}
@@ -197,6 +235,9 @@ export function PropertyDetailsView() {
         <PropertiesCarouselView
           titleCarousel="Imóveis Relacionados"
           properties={property.relatedProperties || []}
+          showActionButton={true}
+          actionButtonText="Ver Todas"
+          actionRoute="PROPERTIES"
         />
       </SectionView>
     </div>

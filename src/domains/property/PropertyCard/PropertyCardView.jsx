@@ -197,7 +197,7 @@ export function PropertyCardView({
             e.stopPropagation()
             handleDelete()
           }}
-          aria-label="Excluir imóvel"
+          aria-label="Desabilitar imóvel"
           shape='square'
         >
           <X size={30} className='text-default-light' />
@@ -213,6 +213,7 @@ export function PropertyCardView({
             e.stopPropagation()
             handleEdit()
           }}
+          aria-label="Editar imóvel"
         >
           <Pencil size={30} className='text-default-light' />
         </ButtonView>
@@ -221,13 +222,13 @@ export function PropertyCardView({
 
       {shouldRenderImage && (
         <div className={`relative ${imageOverlayClasses}`}>
+          {console.log('🖼️ [PROPERTY CARD] Rendering image:', model.imageUrl)}
           <div
             className='w-full h-48 bg-cover bg-center bg-no-repeat rounded-t-sm'
             style={{ backgroundImage: `url(${model.imageUrl})` }}
             role="img"
             aria-label={`Imagem do imóvel ${model.title}`}
           />
-
         </div>
       )}
 

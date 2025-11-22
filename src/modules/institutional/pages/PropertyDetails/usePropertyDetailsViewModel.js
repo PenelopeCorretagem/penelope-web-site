@@ -26,56 +26,75 @@ export function usePropertyDetailsViewModel() {
     const fetchDetail = async () => {
       setIsLoading(true)
       setError(null)
+
       try {
-        console.log('[PropertyDetails] fetching anuncio by id', id)
+        console.log('🔄 [PropertyDetails] Fetching advertisement by ID:', id)
         const advertisement = await getAdvertisementById(id)
-        console.log('[PropertyDetails] advertisement entity', advertisement)
+        console.log('✅ [PropertyDetails] Advertisement loaded:', advertisement)
 
         if (!advertisement) {
-          throw new Error('No data returned from getAdvertisementById')
+          throw new Error('Advertisement not found')
         }
 
-        const p = advertisement.property || {}
-        const imageLink = advertisement.getCoverImageUrl()
+        const property = advertisement.property || {}
+        const address = property.address || {}
+        const standAddress = property.standAddress || property.addressStand || {}
 
-        // Map amenities to features expected by PropertyFeatures
-        const amenitiesFeatures = (p.amenities || []).map(a => ({
-          label: a.description || ''
+        // Get cover image URL
+        const imageLink = advertisement.getCoverImageUrl() || ''
+        console.log('🖼️ [PropertyDetails] Cover image URL:', imageLink)
+
+        // Map amenities to features format
+        const amenitiesFeatures = (property.amenities || []).map(amenity => ({
+          label: amenity.description || amenity.name || 'Amenidade'
         }))
 
-        // Locations: stand then empreendimento
+        // Format addresses for location section
         const formatAddress = (addr) => {
           if (!addr) return ''
-          const parts = [addr.street, addr.number, addr.neighborhood, addr.city, addr.uf]
-          return parts.filter(Boolean).join(', ')
+          const parts = [
+            addr.street,
+            addr.number,
+            addr.neighborhood,
+            addr.city,
+            addr.uf || addr.state
+          ].filter(Boolean)
+          return parts.join(', ')
         }
 
-        const addresses = [formatAddress(p.addressStand), formatAddress(p.address)]
-        const titles = ['Stand de Vendas', 'Empreendimento']
+        const propertyAddress = formatAddress(address)
+        const standAddressFormatted = formatAddress(standAddress)
 
-        // Regions list and selected region text
+        const addresses = [propertyAddress, standAddressFormatted].filter(Boolean)
+        const titles = ['Empreendimento', 'Stand de Vendas'].slice(0, addresses.length)
+
+        // Region description logic
         const regionsList = ['sul', 'leste', 'norte', 'oeste', 'centro']
         const regionTexts = {
           sul: 'A região Sul é referência em qualidade de vida e áreas verdes, com bairros como Moema, Santo Amaro e Campo Belo. Oferece fácil acesso a shoppings, escolas renomadas e parques, sendo ideal para famílias. O Sul também possui uma diversidade de empreendimentos, desde apartamentos compactos até residenciais de alto padrão. Morar aqui significa conforto, segurança e proximidade com importantes vias e centros comerciais.',
           leste: 'A região Leste de São Paulo é ideal para quem busca conveniência e diversidade. Com bairros como Tatuapé, Penha e São Mateus, a área oferece boa infraestrutura, comércios variados e transporte público eficiente. É perfeita para famílias que valorizam escolas, hospitais e áreas de lazer próximas. A Leste combina tranquilidade residencial com fácil acesso ao centro da cidade, tornando-se uma escolha estratégica para morar ou investir em imóveis.',
           norte: 'A região Norte de São Paulo oferece um equilíbrio entre áreas residenciais e comércio local, com bairros como Santana, Casa Verde e Tucuruvi. É perfeita para quem busca tranquilidade sem abrir mão de serviços essenciais, como escolas, hospitais e mercados. O Norte se destaca pela boa oferta de transporte público, incluindo metrô e terminais de ônibus, facilitando o acesso a outras regiões. É uma escolha prática e estratégica para morar ou investir.',
           oeste: 'A região Oeste é conhecida por seu alto padrão e modernidade, abrigando bairros como Pinheiros, Vila Madalena e Butantã. Aqui, os moradores desfrutam de opções culturais, bares, restaurantes e shoppings de primeira linha. É uma área valorizada para quem busca qualidade de vida e mobilidade, próxima a importantes avenidas e centros empresariais. Imóveis no Oeste atraem aqueles que desejam vivência urbana sofisticada, aliando conforto e conveniência.',
-          centro: 'A região Centro é o coração pulsante da cidade, reunindo história, cultura e comércio. Com bairros como Sé, República e Bela Vista, oferece fácil acesso a transporte público, teatros, museus e uma variedade de restaurantes. O Centro é ideal para quem valoriza a vida urbana dinâmica, com opções de lazer e trabalho próximas. Morar aqui significa estar no epicentro das atividades culturais e econômicas da cidade.',
+          centro: 'A região Centro é o coração pulsante da cidade, reunindo história, cultura e comércio. Com bairros como Sé, República e Bela Vista, oferece fácil acesso a transporte público, teatros, museus e uma variedade de restaurantes. O Centro é ideal para quem valoriza a vida urbana dinâmica, com opções de lazer e trabalho próximas. Morar aqui significa estar no epicentro das atividades culturais e econômicas da cidade.'
         }
 
-        const { city, neighborhood } = advertisement.getFormattedAddress()
-        const candidateRegion = String(p.address?.region || '').toLowerCase()
+        const candidateRegion = String(address.region || '').toLowerCase()
         const matchedRegion = regionsList.find(r => candidateRegion.includes(r)) || null
-        const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
+        const selectedRegionText = matchedRegion
+          ? regionTexts[matchedRegion]
+          : (address.region || 'Região não especificada')
 
-        const mapped = {
+        // Get formatted address from advertisement
+        const { city, neighborhood } = advertisement.getFormattedAddress()
+
+        const mappedProperty = {
           id: advertisement.id,
-          title: p.title,
-          subtitle: neighborhood || city || '',
-          description: p.description,
+          title: property.title || 'Título não disponível',
+          subtitle: neighborhood || city || 'Localização não informada',
+          description: property.description || 'Descrição não disponível',
           imageLink,
-          category: p.type,
-          overview: p.description,
+          category: property.type || 'disponivel',
+          overview: property.description || 'Descrição completa não disponível',
           regionDescription: selectedRegionText,
           regionList: regionsList,
           amenitiesFeatures,
@@ -84,117 +103,83 @@ export function usePropertyDetailsViewModel() {
           raw: advertisement,
         }
 
-        if (mounted) setProperty(mapped)
-
-        const fetchRelated = async () => {
-          try {
-            const allAdvertisements = await listAllActiveAdvertisements()
-
-            const city = p.address?.city?.toLowerCase() || null
-            const region = (p.address?.region || p.address?.uf || '').toLowerCase()
-
-            const related = allAdvertisements
-              .filter(item => {
-                if (!item) return false
-                // excluir o próprio anúncio
-                if (String(item.id) === String(advertisement.id)) return false
-
-                const ip = item.property || {}
-                const itemCity = (ip.address?.city || '').toLowerCase()
-                const itemRegion = (ip.address?.region || ip.address?.uf || '').toLowerCase()
-
-                // Prioriza mesma cidade, senão mesma região
-                if (city && itemCity === city) return true
-                if (region && itemRegion === region) return true
-                return false
-              })
-              .slice(0, 6)
-              .map((ad) => {
-                const ap = ad.property || {}
-                const adImageLink = ad.getCoverImageUrl()
-                const differences = ad.getFeatures()
-
-                return {
-                  id: ad.id,
-                  category: ap.type ?? '',
-                  title: ap.title ?? `${ap.address?.city ?? ''}`,
-                  subtitle: ap.address?.neighborhood ?? ap.address?.city ?? '',
-                  description: ap.description ?? '',
-                  differences,
-                  imageLink: adImageLink,
-                  raw: ad,
-                  emphasis: ad.emphasis ?? false,
-                }
-              })
-
-            if (mounted) setProperty(prev => ({ ...prev, relatedProperties: related }))
-          } catch (err) {
-            console.warn('[PropertyDetails] erro ao buscar propriedades relacionadas:', err)
-          }
+        if (mounted) {
+          setProperty(mappedProperty)
+          console.log('✅ [PropertyDetails] Property state updated:', mappedProperty.title)
         }
 
-        fetchRelated()
+        // Fetch related properties asynchronously
+        fetchRelatedProperties(advertisement, mounted)
+
       } catch (err) {
-        console.error('[PropertyDetails] Erro ao carregar detalhe do anúncio:', err)
-
-        // Fallback: tenta carregar todos os anúncios e encontrar pelo id
-        try {
-          console.log('[PropertyDetails] tentando fallback listAllActiveAdvertisements()')
-          const allAdvertisements = await listAllActiveAdvertisements()
-          const found = allAdvertisements.find(item => String(item?.id) === String(id))
-          console.log('[PropertyDetails] fallback search result', found)
-
-          if (found) {
-            const p = found.property || {}
-            const imageLink = found.getCoverImageUrl()
-
-            const amenitiesFeatures = (p.amenities || []).map(a => ({ label: a.description || '' }))
-            const formatAddress = (addr) => {
-              if (!addr) return ''
-              const parts = [addr.street, addr.number, addr.neighborhood, addr.city, addr.uf]
-              return parts.filter(Boolean).join(', ')
-            }
-            const addresses = [formatAddress(p.addressStand), formatAddress(p.address)]
-            const titles = ['Stand de Vendas', 'Empreendimento']
-            const regionsList = ['sul', 'leste', 'norte', 'oeste', 'centro']
-            const candidateRegion = String(p.address?.region || '').toLowerCase()
-            const matchedRegion = regionsList.find(r => candidateRegion.includes(r)) || null
-            const regionTexts = {
-              sul: 'Texto pronto para região Sul: descrição, pontos de interesse e diferenciais locais.',
-              leste: 'Texto pronto para região Leste: descrição, pontos de interesse e diferenciais locais.',
-              norte: 'Texto pronto para região Norte: descrição, pontos de interesse e diferenciais locais.',
-              oeste: 'Texto pronto para região Oeste: descrição, pontos de interesse e diferenciais locais.',
-              centro: 'Texto pronto para região Centro: descrição, pontos de interesse e diferenciais locais.',
-            }
-            const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
-            const { city, neighborhood } = found.getFormattedAddress()
-
-            const mapped = {
-              id: found.id,
-              title: p.title,
-              subtitle: neighborhood || city || '',
-              description: p.description,
-              imageLink,
-              category: p.type,
-              overview: p.description,
-              regionDescription: selectedRegionText,
-              regionList: regionsList,
-              amenitiesFeatures,
-              locationAddresses: addresses,
-              locationTitles: titles,
-              raw: found,
-            }
-
-            if (mounted) setProperty(mapped)
-          } else {
-            if (mounted) setError(err)
-          }
-        } catch (fallbackErr) {
-          console.error('[PropertyDetails] Fallback listAllActiveAdvertisements failed:', fallbackErr)
-          if (mounted) setError(fallbackErr)
+        console.error('❌ [PropertyDetails] Error loading advertisement:', err)
+        if (mounted) {
+          setError(err.message || 'Erro ao carregar detalhes da propriedade')
         }
       } finally {
-        if (mounted) setIsLoading(false)
+        if (mounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    const fetchRelatedProperties = async (mainAdvertisement, mounted) => {
+      try {
+        console.log('🔄 [PropertyDetails] Fetching related properties...')
+        const allAdvertisements = await listAllActiveAdvertisements()
+
+        const mainProperty = mainAdvertisement.property || {}
+        const mainAddress = mainProperty.address || {}
+        const mainCity = mainAddress.city?.toLowerCase() || null
+        const mainRegion = (mainAddress.region || mainAddress.uf || '').toLowerCase()
+
+        const related = allAdvertisements
+          .filter(item => {
+            if (!item || !item.property) return false
+            // Exclude the main advertisement
+            if (String(item.id) === String(mainAdvertisement.id)) return false
+
+            const itemProperty = item.property
+            const itemAddress = itemProperty.address || {}
+            const itemCity = (itemAddress.city || '').toLowerCase()
+            const itemRegion = (itemAddress.region || itemAddress.uf || '').toLowerCase()
+
+            // Prioritize same city, then same region
+            if (mainCity && itemCity === mainCity) return true
+            if (mainRegion && itemRegion === mainRegion) return true
+            return false
+          })
+          .slice(0, 6)
+          .map((ad) => {
+            const adProperty = ad.property || {}
+            const adAddress = adProperty.address || {}
+            const adImageLink = ad.getCoverImageUrl() || ''
+            const differences = ad.getFeatures() || []
+
+            return {
+              id: ad.id,
+              category: adProperty.type?.toLowerCase() || 'disponivel',
+              title: adAddress.city || adProperty.title || 'Propriedade',
+              subtitle: adAddress.neighborhood || 'Bairro não informado',
+              description: adProperty.description || 'Descrição não disponível',
+              differences,
+              imageLink: adImageLink,
+              raw: ad,
+              emphasis: ad.emphasis || false,
+            }
+          })
+
+        console.log('✅ [PropertyDetails] Related properties loaded:', related.length)
+
+        if (mounted) {
+          setProperty(prev => ({
+            ...prev,
+            relatedProperties: related
+          }))
+        }
+      } catch (err) {
+        console.warn('⚠️ [PropertyDetails] Error loading related properties:', err)
+        // Don't set error state for related properties failure
       }
     }
 

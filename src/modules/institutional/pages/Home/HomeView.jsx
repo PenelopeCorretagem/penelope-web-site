@@ -8,119 +8,21 @@ import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
+import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
-  const [cardWidth, setCardWidth] = useState(0)
   const cardRef = useRef(null)
 
-  const fakeRequest =
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    }
-
-  const fakeRequest2 = [
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-  ]
+  // Usa dados reais da API
+  const {
+    featuredProperty,
+    launchProperties,
+    isLoading,
+    error,
+    hasFeaturedProperty,
+    hasLaunchProperties,
+    refresh
+  } = useHomeViewModel()
 
   useEffect(() => {
     const calculateCardWidth = () => {
@@ -158,47 +60,73 @@ export function HomeView() {
     }
   }, [])
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <SectionView className="flex items-center justify-center min-h-[50vh]">
+        <TextView>Carregando...</TextView>
+      </SectionView>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <TextView className="text-red-500">Erro ao carregar dados: {error}</TextView>
+        <ButtonView color="brown" onClick={refresh}>
+          Tentar Novamente
+        </ButtonView>
+      </SectionView>
+    )
+  }
+
   return (
     <>
       <div className='flex flex-col items-center pb-section-y md:pb-section-y-md bg-default-light-alt'>
-        {/*Destac Announcement Property*/ }
-        <SectionView className='!p-0 !gap-0'>
-          <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
-            <div className='flex flex-col items-center gap-subsection md:gap-subsection-md'>
-              <div
-                style={{
-                  width: cardWidth > 0 ? `${cardWidth}px` : 'auto',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <HeadingView
-                  level={2}
-                  className='text-center text-default-light'
-                >
-                  Seu sonho começa com uma chave
-                </HeadingView>
-              </div>
-
-              <div ref={cardRef}>
+        {/*Destac Announcement Property*/}
+        <SectionView className='!p-0 !gap-0 !grid !grid-cols-[35%_65%] !h-[80vh]'>
+          <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full h-full gap-subsection md:gap-subsection-md'>
+            <HeadingView
+              level={2}
+              className='text-center text-default-light break-words'
+            >
+              Seu sonho começa com uma chave
+            </HeadingView>
+            <div ref={cardRef}>
+              {hasFeaturedProperty ? (
                 <PropertyCardView
-                  hasLabel={true}
-                  category={fakeRequest.category}
-                  title={fakeRequest.title}
-                  subtitle={fakeRequest.subtitle}
-                  description={fakeRequest.description}
-                  hasDifference={true}
-                  differences={fakeRequest.differences}
-                  hasButton={true}
+                  id={featuredProperty.id}
+                  hasLabel={featuredProperty.hasLabel}
+                  category={featuredProperty.category}
+                  title={featuredProperty.title}
+                  subtitle={featuredProperty.subtitle}
+                  description={featuredProperty.description}
+                  hasDifference={featuredProperty.hasDifference}
+                  differences={featuredProperty.differences}
+                  hasButton={featuredProperty.hasButton}
                   hasShadow={false}
                 />
-              </div>
+              ) : (
+                <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
+                  <TextView>Nenhum imóvel em destaque</TextView>
+                </div>
+              )}
             </div>
           </div>
-          <ImageView
-            src={fakeRequest.imageLink}
-            alt="Imagem do imóvel"
-            className='flex-1 w-full h-full'
-          />
+
+          <div className="h-full w-full overflow-hidden">
+            {hasFeaturedProperty && featuredProperty.imageLink && (
+            <ImageView
+              src={featuredProperty.imageLink}
+              alt={`Imagem do imóvel ${featuredProperty.title}`}
+              className="!w-full !h-full !object-cover !object-center"
+            />
+            )}
+
+
+          </div>
+
         </SectionView>
 
         <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
@@ -212,12 +140,27 @@ export function HomeView() {
         </div>
       </div>
 
-      {/*Destac Properties*/ }
+      {/*Destac Properties*/}
       <SectionView className="bg-default-light">
-        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
+        {hasLaunchProperties ? (
+          <PropertiesCarouselView
+            properties={launchProperties}
+            titleCarousel="Nossos Lançamentos"
+            showActionButton={true}
+            actionButtonText="Ver Todos"
+            actionRoute="PROPERTIES"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center py-8">
+            <HeadingView level={2} className="text-distac-primary mb-4">
+              Nossos Lançamentos
+            </HeadingView>
+            <TextView>Nenhum lançamento disponível no momento</TextView>
+          </div>
+        )}
       </SectionView>
 
-      {/*Penélope + Cury*/ }
+      {/*Penélope + Cury*/}
       <SectionView className="bg-default-light-alt">
         <div className='flex flex-col items-start justify-center flex-1 gap-subsection md:gap-subsection-md'>
           <HeadingView
@@ -245,7 +188,6 @@ export function HomeView() {
           src={LogoCury}
           alt="Imagem da Logo da Cury"
         />
-
       </SectionView>
     </>
   )

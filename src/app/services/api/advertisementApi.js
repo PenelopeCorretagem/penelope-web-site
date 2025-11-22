@@ -31,43 +31,83 @@ export const getAdvertisementById = async (id) => {
 }
 
 /**
- * Cria um novo anúncio.
- * @param {object} estateCreateRequest - Dados para criação do anúncio
- * @returns {Promise<any>} Resposta da criação
+ * Cria um novo anúncio com dados completos (incluindo URLs de imagens pré-uploadadas).
+ * @param {object} advertisementRequest - Dados completos para criação do anúncio
+ * @returns {Promise<any>}
  */
-export const createAdvertisement = async (estateCreateRequest) => {
-  const response = await axiosInstance.post('/anuncios', estateCreateRequest)
-  return response.data
-}
+export const createAdvertisement = async (advertisementRequest) => {
+  try {
+    const response = await axiosInstance.post('/anuncios', advertisementRequest, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    // Backend pode retornar diferentes formatos dependendo do sucesso
+    if (response.status === 201) {
+      return {
+        success: true,
+        message: 'Advertisement created successfully',
+        data: response.data || null,
+        created: true
+      }
+    }
 
-/**
- * Faz upload de imagens para anúncios.
- * @param {File[]} files - Array de arquivos de imagem
- * @returns {Promise<string[]>} Lista de URLs das imagens enviadas
- */
-export const uploadImages = async (files) => {
-  const formData = new FormData()
-  files.forEach(file => {
-    formData.append('files', file)
-  })
+    return response.data
+  } catch (error) {
+    if (error.response?.status === 400) {
+      const message = error.response.data?.message || 'Dados inválidos fornecidos'
+      throw new Error(`Erro de validação: ${message}`)
+    } else if (error.response?.status === 500) {
+      throw new Error('Erro interno do servidor. Tente novamente mais tarde.')
+    }
 
-  const response = await axiosInstance.post('/anuncios/fotos', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  })
-  return response.data
+    throw error
+  }
 }
 
 /**
  * Atualiza um anúncio existente.
  * @param {number} id - O ID do anúncio.
- * @param {object} estateUpdateRequest - Dados para atualização do anúncio
+ * @param {object} advertisementRequest - Dados para atualização do anúncio
  * @returns {Promise<Advertisement>} Entidade Advertisement atualizada.
  */
-export const updateAdvertisement = async (id, estateUpdateRequest) => {
-  const response = await axiosInstance.put(`/anuncios/${id}`, estateUpdateRequest)
-  return advertisementMapper.toEntity(response.data)
+export const updateAdvertisement = async (id, advertisementRequest) => {
+  try {
+    const response = await axiosInstance.put(`/anuncios/${id}`, advertisementRequest, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    // Handle different response formats from backend
+    if (response.status === 204) {
+      // No Content response - update was successful
+      return {
+        success: true,
+        message: 'Advertisement updated successfully',
+        data: null,
+        updated: true
+      }
+    }
+
+    return advertisementMapper.toEntity(response.data) || {
+      success: true,
+      message: 'Advertisement updated successfully',
+      updated: true
+    }
+  } catch (error) {
+    // Better error handling for specific cases
+    if (error.response?.status === 400) {
+      const message = error.response.data?.message || 'Dados inválidos fornecidos'
+      throw new Error(`Erro de validação: ${message}`)
+    } else if (error.response?.status === 404) {
+      throw new Error('Propriedade não encontrada')
+    } else if (error.response?.status === 500) {
+      throw new Error('Erro interno do servidor. Tente novamente mais tarde.')
+    }
+
+    throw error
+  }
 }
 
 /**
@@ -77,4 +117,41 @@ export const updateAdvertisement = async (id, estateUpdateRequest) => {
  */
 export const deleteAdvertisement = async (id) => {
   await axiosInstance.delete(`/anuncios/${id}`)
+}
+
+/**
+ * Cria um anúncio completo: upload de imagens + criação (DEPRECATED - usar createAdvertisement diretamente)
+ * @deprecated Use uploadImages + createAdvertisement separadamente para melhor controle
+ */
+export const createAdvertisementWithImages = async (advertisementData, imageFiles = []) => {
+  try {
+    let imageUrls = []
+    let imageTypes = []
+
+    // 1. Upload das imagens primeiro (se houver)
+    if (imageFiles.length > 0) {
+      const { uploadImages } = await import('./imageApi')
+      imageUrls = await uploadImages(imageFiles)
+      imageTypes = imageUrls.map(() => 2) // Tipo galeria por padrão
+    }
+
+    // 2. Criar o anúncio com as URLs das imagens
+    const requestWithImages = {
+      ...advertisementData,
+      images: imageUrls,
+      imageType: imageTypes
+    }
+
+    const result = await createAdvertisement(requestWithImages)
+
+    return {
+      ...result,
+      uploadedImages: imageUrls,
+      imageCount: imageUrls.length
+    }
+
+  } catch (error) {
+    console.error('❌ [ADVERTISEMENT API] Complete creation failed:', error)
+    throw error
+  }
 }

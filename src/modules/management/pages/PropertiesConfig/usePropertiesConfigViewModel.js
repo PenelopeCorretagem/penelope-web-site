@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllActiveAdvertisements } from '@app/services/api/advertisementApi'
+import { listAllActiveAdvertisements, getAdvertisementById, updateAdvertisement } from '@app/services/api/advertisementApi'
 import { advertisementMapper } from '@app/services/mapper/advertisementMapper'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
+import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 
 export const usePropertiesConfigViewModel = () => {
   const navigate = useNavigate()
@@ -63,15 +64,51 @@ export const usePropertiesConfigViewModel = () => {
     } catch (error) {
       console.error('Erro ao gerar rota:', error)
       // Fallback direto
-      navigate(`/admin/imoveis/${id}`)
+      navigate(`/admin/gerenciar-imoveis/${id}`)
     }
   }
 
   const handleDelete = async (id) => {
-    console.log('Deleting property:', id)
-    // Implementar lógica de exclusão
-    // Após deletar, recarregar os dados
-    // await fetchAdvertisements()
+    console.log('🗑️ [PROPERTIES CONFIG VM] Soft deleting property:', id)
+
+    if (!window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
+      return
+    }
+
+    try {
+      setLoading(true)
+
+      // First, get the current advertisement data
+      console.log('🔄 [PROPERTIES CONFIG VM] Fetching current advertisement data for ID:', id)
+      const currentAdvertisement = await getAdvertisementById(id)
+
+      // Convert to PropertyConfigModel to get proper format
+      const propertyModel = PropertyConfigModel.fromAdvertisementEntity(currentAdvertisement)
+      const currentFormData = propertyModel.toFormData()
+
+      // Create update request with active set to false
+      const disableRequest = propertyModel.toApiRequest({
+        ...currentFormData,
+        active: false // Set active to false for soft delete
+      })
+
+      console.log('🔄 [PROPERTIES CONFIG VM] Disabling advertisement with data:', disableRequest)
+
+      await updateAdvertisement(id, disableRequest)
+
+      console.log('✅ [PROPERTIES CONFIG VM] Property deactivated successfully')
+
+      // Recarregar os dados após exclusão
+      await fetchAdvertisements()
+
+      // Simple toast notification
+      alert('Propriedade desabilitada com sucesso!')
+    } catch (err) {
+      console.error('❌ [PROPERTIES CONFIG VM] Delete failed:', err)
+      alert(`Erro ao desabilitar propriedade: ${err.message}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSearchChange = useCallback((e) => {

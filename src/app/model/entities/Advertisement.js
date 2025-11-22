@@ -8,6 +8,7 @@ export class Advertisement {
     creator,
     responsible,
     property,
+    imageUrls = [], // Adicionar suporte para URLs simples
   }) {
     this.id = id
     this.active = active
@@ -17,22 +18,41 @@ export class Advertisement {
     this.creator = creator
     this.responsible = responsible
     this.property = property
+    this.imageUrls = imageUrls || [] // Para compatibilidade com fluxo de URLs
   }
 
   /**
    * Retorna a imagem de capa do imóvel
    */
   getCoverImage() {
-    if (!this.property?.images) return null
-    return this.property.images.find(img => img.type === 'Capa')
+    // Primeiro tenta da property
+    const propertyImage = this.property?.getCoverImage()
+    if (propertyImage) {
+      return propertyImage
+    }
+
+    // Se não encontrar e há URLs simples, usa a primeira
+    if (this.imageUrls.length > 0) {
+      return { url: this.imageUrls[0] }
+    }
+    return null
   }
 
   /**
-   * Retorna a URL da imagem de capa ou uma imagem padrão
+   * Retorna a URL da imagem de capa ou null se não houver
    */
   getCoverImageUrl() {
     const coverImage = this.getCoverImage()
-    return coverImage?.url || 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp'
+    const url = coverImage?.url || this.property?.getCoverImageUrl()
+    return url || null
+  }
+
+  /**
+   * Retorna todas as URLs de imagem disponíveis
+   */
+  getAllImageUrls() {
+    const propertyUrls = this.property?.getAllImageUrls() || []
+    return [...propertyUrls, ...this.imageUrls].filter(Boolean)
   }
 
   /**

@@ -105,7 +105,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
         <div className="relative px-4 md:px-6">
           <div
             ref={containerRef}
-            className="flex overflow-x-auto select-none scrollbar-hide scroll-smooth gap-8 p-2 w-full"
+            className="flex overflow-x-auto select-none scrollbar-hide scroll-smooth gap-8 p-4 w-full"
             role="region"
             aria-label="Carrossel de propriedades"
             tabIndex={0}

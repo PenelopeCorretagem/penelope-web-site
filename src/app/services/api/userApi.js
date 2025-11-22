@@ -18,13 +18,7 @@ export const registerUser = async (userData) => {
  */
 export const getAllUsers = async () => {
   try {
-    console.log('📋 [USERS API] Buscando usuários...')
     const response = await axiosInstance.get('/users')
-
-    console.log('📋 [USERS API] Resposta:', {
-      status: response.status,
-      count: response.data?.length || 0
-    })
 
     return userMapper.toEntityList(response.data)
   } catch (error) {
@@ -40,9 +34,7 @@ export const getAllUsers = async () => {
  */
 export const getUserById = async (id) => {
   try {
-    console.log(`📋 [USERS API] Buscando usuário com ID: ${id}`)
     const response = await axiosInstance.get(`/users/${id}`)
-    console.log('📋 [USERS API] Usuário encontrado:', response.data)
     return userMapper.toEntity(response.data)
   } catch (error) {
     console.error(`❌ [USERS API] Erro ao buscar usuário ${id}:`, error)
@@ -77,27 +69,16 @@ export const deleteUser = async (id) => {
  */
 export const getUsersWithCreci = async () => {
   try {
-    console.log('📋 [USERS API] Buscando usuários com CRECI...')
-
     const allUsers = await getAllUsers()
-    console.log('📋 [USERS API] Total usuários:', allUsers.length)
 
     const usersWithCreci = allUsers.filter(user => {
       const hasCreci = user.hasCreci()
       const isActive = user.isActive()
-
-      if (hasCreci) {
-        console.log(`👤 [USERS API] Usuário com CRECI: ${user.name} (${user.creci}) - Ativo: ${isActive}`)
-      }
-
       return hasCreci && isActive
     })
 
-    console.log('📋 [USERS API] Usuários com CRECI ativos:', usersWithCreci.length)
-
     return usersWithCreci
   } catch (error) {
-    console.error('❌ [USERS API] Erro ao buscar usuários com CRECI:', error)
     return []
   }
 }

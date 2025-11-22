@@ -65,7 +65,7 @@ export function useButtonViewModel(text = '', color = 'pink', type = 'button', c
   return {
     text: model.text,
     color: model.color,
-    type: model.type,
+    type: model.type, // Mantém o tipo original do modelo
     to: model.to,
     shape: model.shape,
     title: model.title,

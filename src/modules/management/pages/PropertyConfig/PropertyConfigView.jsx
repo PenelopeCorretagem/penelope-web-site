@@ -1,4 +1,3 @@
-import React from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
@@ -228,7 +227,14 @@ export function PropertyConfigView() {
               name: 'region',
               label: 'Região',
               type: 'select',
-              options: ['Norte', 'Sul', 'Leste', 'Oeste', 'Centro'],
+              options: [
+                { value: '', label: 'Selecione a região' },
+                { value: 'Norte', label: 'Norte' },
+                { value: 'Sul', label: 'Sul' },
+                { value: 'Leste', label: 'Leste' },
+                { value: 'Oeste', label: 'Oeste' },
+                { value: 'Centro', label: 'Centro' }
+              ],
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
@@ -266,7 +272,16 @@ export function PropertyConfigView() {
               name: 'state',
               label: 'UF',
               type: 'select',
-              options: ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS'],
+              options: [
+                { value: '', label: 'Selecione o estado' },
+                { value: 'SP', label: 'SP' },
+                { value: 'RJ', label: 'RJ' },
+                { value: 'MG', label: 'MG' },
+                { value: 'ES', label: 'ES' },
+                { value: 'PR', label: 'PR' },
+                { value: 'SC', label: 'SC' },
+                { value: 'RS', label: 'RS' }
+              ],
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
@@ -315,7 +330,14 @@ export function PropertyConfigView() {
               name: 'standRegion',
               label: 'Região',
               type: 'select',
-              options: ['Norte', 'Sul', 'Leste', 'Oeste', 'Centro'],
+              options: [
+                { value: '', label: 'Selecione a região' },
+                { value: 'Norte', label: 'Norte' },
+                { value: 'Sul', label: 'Sul' },
+                { value: 'Leste', label: 'Leste' },
+                { value: 'Oeste', label: 'Oeste' },
+                { value: 'Centro', label: 'Centro' }
+              ],
               containerClassName: 'w-full md:w-1/3',
             },
           ],
@@ -349,7 +371,16 @@ export function PropertyConfigView() {
               name: 'standState',
               label: 'UF',
               type: 'select',
-              options: ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS'],
+              options: [
+                { value: '', label: 'Selecione o estado' },
+                { value: 'SP', label: 'SP' },
+                { value: 'RJ', label: 'RJ' },
+                { value: 'MG', label: 'MG' },
+                { value: 'ES', label: 'ES' },
+                { value: 'PR', label: 'PR' },
+                { value: 'SC', label: 'SC' },
+                { value: 'RS', label: 'RS' }
+              ],
               containerClassName: 'w-full md:w-1/3',
             },
           ],
@@ -420,12 +451,19 @@ export function PropertyConfigView() {
         title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
         steps={steps}
         initialData={initialData}
-        onSubmit={handleSubmit}
-        onDelete={!isNew ? handleDelete : undefined}
+        onSubmit={(formData) => {
+          console.log('🎯 [PROPERTY CONFIG VIEW] onSubmit called with:', formData)
+          return handleSubmit(formData)
+        }}
+        onDelete={!isNew ? () => {
+          if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
+            return handleDelete()
+          }
+        } : undefined}
         onClear={handleClear}
         onCancel={handleCancel}
         disabled={submitting}
-        key={id || 'new'} // Force re-render quando mudar de ID
+        key={id || 'new'}
       />
     </SectionView>
   )

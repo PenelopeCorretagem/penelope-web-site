@@ -150,9 +150,10 @@ class PropertyCardViewModel {
 
   handleDelete() {
     if (typeof this.model.onDelete === 'function') {
+      console.log('🗑️ [PROPERTY CARD VM] Calling parent delete handler for property:', this.model.id)
       this.model.onDelete(this.model.id)
     } else {
-      console.log('Deleting property:', this.model.id)
+      console.log('🗑️ [PROPERTY CARD VM] No delete handler provided for property:', this.model.id)
     }
   }
 

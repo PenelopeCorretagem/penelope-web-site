@@ -1,94 +1,112 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getAnuncios, getAnuncioLatest } from '@app/services/apiService'
+import { listAllActiveAdvertisements, getLatestAdvertisement } from '@app/services/api/advertisementApi'
+import { HomeModel } from './HomeModel'
 
 /**
- * Hook para gerenciar a lista de anúncios na Home
- * - busca em /api/v1/anuncios
- * - mapeia o formato retornado para o shape esperado pelo carousel/card
+ * Hook para gerenciar a lógica da página Home
+ * Busca o último imóvel e os lançamentos usando a API real
  */
 export function useHomeViewModel() {
-  const [properties, setProperties] = useState([])
-  const [featuredProperty, setFeaturedProperty] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [homeModel] = useState(() => new HomeModel())
+  const [, forceUpdate] = useState(0)
 
-  const mapAnuncioToCard = useCallback((anuncio) => {
-    const p = anuncio.property || {}
-
-    // imagem: tenta encontrar Capa, senão a primeira imagem, senão ''
-    const imageLink = (p.images && p.images.length > 0)
-      ? (p.images.find(img => String(img.type).toLowerCase() === 'capa')?.url || p.images[0].url)
-      : ''
-
-    const differences = (p.amenities && p.amenities.length > 0)
-      ? p.amenities.map(a => a.description)
-      : []
-
-    return {
-      id: anuncio.id ?? p.id,
-      category: p.type ?? '',
-      title: p.title ?? `${p.address?.city ?? ''}`,
-      subtitle: p.address?.neighborhood ?? p.address?.city ?? '',
-      description: p.description ?? '',
-      differences,
-      imageLink,
-      raw: anuncio,
-      emphasis: anuncio.emphasis ?? false,
-    }
+  const refresh = useCallback(() => {
+    forceUpdate(prev => prev + 1)
   }, [])
 
-  const fetchAnuncios = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
+  /**
+   * Busca o imóvel em destaque
+   */
+  const fetchFeaturedProperty = useCallback(async () => {
+    try {
+      // Primeiro tenta buscar o mais recente via endpoint específico
+      const latestAdvertisement = await getLatestAdvertisement()
+
+      if (latestAdvertisement) {
+        const mappedProperty = homeModel.mapAdvertisementToPropertyCard(latestAdvertisement)
+        homeModel.setFeaturedProperty(mappedProperty)
+        console.log('✅ [HOME VM] Featured property loaded from latest endpoint:', mappedProperty?.title)
+        return
+      }
+    } catch (error) {
+      console.warn('⚠️ [HOME VM] Latest advertisement endpoint failed, using fallback:', error.message)
+    }
 
     try {
-      const response = await getAnuncios()
-      const data = response.data || []
+      // Fallback: busca todos os anúncios e seleciona baseado nas regras de negócio
+      const allAdvertisements = await listAllActiveAdvertisements()
+      const selectedFeatured = homeModel.selectFeaturedProperty(allAdvertisements)
 
-      // Filtra apenas anúncios do tipo LANCAMENTO (case-insensitive)
-      const lancamentoAnuncios = data.filter(a => {
-        const t = String(a?.property?.type ?? '').toLowerCase()
-        return t === 'lancamento'
-      })
-
-      const mapped = lancamentoAnuncios.map(mapAnuncioToCard)
-
-      setProperties(mapped)
-
-      // Tenta obter o último anúncio via endpoint dedicado; se falhar, usa fallback
-      try {
-        const latestResp = await getAnuncioLatest()
-        const latestData = latestResp.data
-        if (latestData) {
-          const latestMapped = mapAnuncioToCard(latestData)
-          setFeaturedProperty(latestMapped)
-        } else {
-          const featured = mapped.find(m => m.emphasis) || mapped[0] || null
-          setFeaturedProperty(featured)
-        }
-      } catch (innerErr) {
-        // Se o endpoint /latest falhar, mantém a lógica anterior
-        console.warn('Não foi possível obter o anúncio mais recente, usando fallback:', innerErr)
-        const featured = mapped.find(m => m.emphasis) || mapped[0] || null
-        setFeaturedProperty(featured)
+      if (selectedFeatured) {
+        const mappedProperty = homeModel.mapAdvertisementToPropertyCard(selectedFeatured)
+        homeModel.setFeaturedProperty(mappedProperty)
+        console.log('✅ [HOME VM] Featured property selected from all advertisements:', mappedProperty?.title)
       }
-    } catch (err) {
-      console.error('Erro ao buscar anúncios:', err)
-      setError(err)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('❌ [HOME VM] Failed to load featured property:', error)
+      throw error
     }
-  }, [mapAnuncioToCard])
+  }, [homeModel])
 
+  /**
+   * Busca as propriedades de lançamento
+   */
+  const fetchLaunchProperties = useCallback(async () => {
+    try {
+      // Busca apenas lançamentos
+      const launchAdvertisements = await listAllActiveAdvertisements({ tipo: 'LANCAMENTO' })
+
+      // Mapeia para o formato do PropertyCard
+      const mappedProperties = launchAdvertisements.map(ad =>
+        homeModel.mapAdvertisementToPropertyCard(ad)
+      ).filter(Boolean)
+
+      homeModel.setLaunchProperties(mappedProperties)
+      console.log('✅ [HOME VM] Launch properties loaded:', mappedProperties.length)
+
+    } catch (error) {
+      console.error('❌ [HOME VM] Failed to load launch properties:', error)
+      throw error
+    }
+  }, [homeModel])
+
+  /**
+   * Carrega todos os dados da Home
+   */
+  const fetchHomeData = useCallback(async () => {
+    homeModel.setLoading(true)
+    homeModel.setError(null)
+
+    try {
+      console.log('🔄 [HOME VM] Loading home data...')
+
+      // Executa as buscas em paralelo para melhor performance
+      await Promise.all([
+        fetchFeaturedProperty(),
+        fetchLaunchProperties()
+      ])
+
+      console.log('✅ [HOME VM] Home data loaded successfully')
+
+    } catch (error) {
+      console.error('❌ [HOME VM] Failed to load home data:', error)
+      homeModel.setError(error.message || 'Erro ao carregar dados da página')
+    } finally {
+      homeModel.setLoading(false)
+      refresh() // Atualiza a UI
+    }
+  }, [homeModel, fetchFeaturedProperty, fetchLaunchProperties, refresh])
+
+  // Carrega os dados quando o componente monta
   useEffect(() => {
-    fetchAnuncios()
-  }, [fetchAnuncios])
+    fetchHomeData()
+  }, [fetchHomeData])
+
+  // Retorna os dados formatados pelo modelo
+  const viewData = homeModel.getViewData()
 
   return {
-    properties,
-    featuredProperty,
-    isLoading,
-    error,
-    refresh: fetchAnuncios,
+    ...viewData,
+    refresh: fetchHomeData
   }
 }

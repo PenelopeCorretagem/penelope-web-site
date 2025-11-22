@@ -39,12 +39,12 @@ export function PropertiesConfigView() {
 
   const handleAddProperty = () => {
     try {
-      const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'novo' })
+      const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'new' })
       navigate(route)
     } catch (error) {
       console.error('Erro ao gerar rota:', error)
       // Fallback direto
-      navigate('/admin/imoveis/novo')
+      navigate('/admin/gerenciar-imoveis/new')
     }
   }
 

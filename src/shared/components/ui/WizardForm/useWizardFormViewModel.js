@@ -62,18 +62,41 @@ export function useWizardFormViewModel(initialProps = {}) {
   }, [model, refresh, initialProps])
 
   const handleSubmit = useCallback(async (event) => {
+    console.log('🚀 [WIZARD FORM] handleSubmit called - START')
+    console.log('🚀 [WIZARD FORM] Event type:', event?.type)
+    console.log('🚀 [WIZARD FORM] Event target:', event?.target?.tagName)
+
     if (event) {
       event.preventDefault()
+      console.log('🚀 [WIZARD FORM] preventDefault called')
     }
 
+    console.log('🚀 [WIZARD FORM] Current state:', {
+      isLastStep: model.isLastStep,
+      currentStep: model.currentStep,
+      totalSteps: model.totalSteps,
+      hasOnSubmit: !!model.onSubmit,
+      onSubmitType: typeof model.onSubmit
+    })
+
+    console.log('📋 [WIZARD FORM] Field values:', model.fieldValues)
+
     if (!model.isLastStep) {
+      console.log('🔄 [WIZARD FORM] Not last step, going to next')
       return nextStep()
     }
 
+    console.log('✅ [WIZARD FORM] Last step reached, proceeding with submission')
+
+    // Validação antes de enviar
     if (!model.validateCurrentStep()) {
+      console.error('❌ [WIZARD FORM] Validation failed for current step')
+      console.error('❌ [WIZARD FORM] Validation errors:', model.fieldErrors)
       refresh()
       return false
     }
+
+    console.log('✅ [WIZARD FORM] Validation passed, starting submission')
 
     model.setLoading(true)
     model.clearErrors()
@@ -81,26 +104,46 @@ export function useWizardFormViewModel(initialProps = {}) {
     refresh()
 
     try {
-      if (model.onSubmit) {
-        const result = await model.onSubmit(model.fieldValues)
+      if (model.onSubmit && typeof model.onSubmit === 'function') {
+        console.log('📤 [WIZARD FORM] Calling onSubmit handler')
+        console.log('📤 [WIZARD FORM] Data being sent:', model.fieldValues)
 
-        if (result?.success) {
+        const result = await model.onSubmit(model.fieldValues)
+        console.log('📥 [WIZARD FORM] onSubmit result:', result)
+
+        if (result && result.success) {
+          console.log('✅ [WIZARD FORM] Submit successful')
           model.setSuccess(result.message || 'Dados salvos com sucesso!')
           if (result.reset) {
             model.reset()
           }
-        } else if (result?.error) {
-          model.setErrors(result.error)
+        } else if (result && result.error) {
+          console.log('❌ [WIZARD FORM] Submit failed with error')
+          model.setErrors(Array.isArray(result.error) ? result.error : [result.error])
+        } else if (!result) {
+          console.warn('⚠️ [WIZARD FORM] onSubmit returned no result')
         }
 
         refresh()
         return result
+      } else {
+        console.error('❌ [WIZARD FORM] No valid onSubmit handler')
+        console.error('❌ [WIZARD FORM] onSubmit value:', model.onSubmit)
+        console.error('❌ [WIZARD FORM] onSubmit type:', typeof model.onSubmit)
+        model.setErrors(['Erro interno: handler de submissão não configurado'])
+        refresh()
+        return { success: false, error: 'Handler não configurado' }
       }
     } catch (error) {
-      model.setErrors([error.message || 'Erro ao salvar dados'])
+      console.error('❌ [WIZARD FORM] Submit error caught:', error)
+      console.error('❌ [WIZARD FORM] Error stack:', error.stack)
+
+      const errorMessage = error.message || 'Erro ao salvar dados'
+      model.setErrors([errorMessage])
       refresh()
-      return { success: false, error: error.message }
+      return { success: false, error: errorMessage }
     } finally {
+      console.log('🏁 [WIZARD FORM] handleSubmit finished, setting loading to false')
       model.setLoading(false)
       refresh()
     }

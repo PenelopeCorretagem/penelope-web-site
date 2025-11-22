@@ -386,12 +386,12 @@ export class ProfileModel {
    */
   toApiFormat() {
     return {
-      nomeCompleto: this.name.trim(),
+      name: this.name.trim(), // API usa 'name', não 'nomeCompleto'
       phone: cleanPhoneNumber(this.phone), // Remove formatação
       creci: this.creci?.trim() || '',
       cpf: cleanCPF(this.cpf), // Remove formatação
-      dtNascimento: this.dateBirth,
-      rendaMensal: formatCurrencyForDatabase(this.monthlyIncome),
+      dateBirth: this.dateBirth, // API usa 'dateBirth', não 'dtNascimento'
+      monthlyIncome: formatCurrencyForDatabase(this.monthlyIncome), // API usa 'monthlyIncome', não 'rendaMensal'
       accessLevel: this.accessLevel
     }
   }
@@ -401,12 +401,12 @@ export class ProfileModel {
    */
   static fromApiData(apiData) {
     return new ProfileModel({
-      name: apiData.nomeCompleto || '',
+      name: apiData.name || apiData.nomeCompleto || '', // Suporte para ambos os formatos
       phone: apiData.phone || '',
       creci: apiData.creci || '',
       cpf: apiData.cpf || '',
-      dateBirth: apiData.dtNascimento || '',
-      monthlyIncome: apiData.rendaMensal?.toString() || '',
+      dateBirth: apiData.dateBirth || apiData.dtNascimento || '', // Suporte para ambos os formatos
+      monthlyIncome: apiData.monthlyIncome?.toString() || apiData.rendaMensal?.toString() || '', // Suporte para ambos os formatos
       accessLevel: apiData.accessLevel || 'CLIENTE'
     })
   }
@@ -429,7 +429,7 @@ export class ProfileModel {
    * Formata valor monetário (usando utility)
    */
   formatCurrency(value) {
-    return formatCurrency(value)
+    return formatCurrencyForDisplay(value)
   }
 
   /**

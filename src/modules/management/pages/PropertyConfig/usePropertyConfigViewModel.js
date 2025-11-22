@@ -1,171 +1,232 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  getAdvertisementById,
-  createAdvertisement,
-  updateAdvertisement,
-  deleteAdvertisement
-} from '@app/services/api/advertisementApi'
-import { getUsersWithCreci } from '@app/services/api/userApi'
 import { PropertyConfigModel } from './PropertyConfigModel'
-import { RouterModel } from '@app/routes/RouterModel'
+import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/advertisementApi'
+import { uploadImages } from '@app/services/api/imageApi'
+import { getUsersWithCreci } from '@app/services/api/userApi'
 
-export const usePropertyConfigViewModel = (propertyId) => {
+export function usePropertyConfigViewModel(id) {
   const navigate = useNavigate()
-  const router = RouterModel.getInstance()
-  const [model, setModel] = useState(() => new PropertyConfigModel())
-  const [loading, setLoading] = useState(false)
+
+  const [loading, setLoading] = useState(true)
+  const [loadingUsers, setLoadingUsers] = useState(true)
   const [error, setError] = useState(null)
   const [initialData, setInitialData] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [usersWithCreci, setUsersWithCreci] = useState([])
-  const [loadingUsers, setLoadingUsers] = useState(true)
 
-  useEffect(() => {
-    console.log('PropertyConfigViewModel - propertyId:', propertyId)
+  const isNew = !id || id === 'novo' || id === 'new'
 
-    // Carrega usuários com CRECI
-    loadUsersWithCreci()
-
-    // Verifica se é uma rota de edição válida
-    if (propertyId && propertyId !== 'novo') {
-      loadPropertyData(propertyId)
+  // Simple toast implementation (fallback if useToast doesn't exist)
+  const showToast = (type, message) => {
+    console.log(`${type.toUpperCase()}: ${message}`)
+    // You can replace this with your actual toast implementation
+    if (type === 'error') {
+      alert(`Erro: ${message}`)
     } else {
-      // Para novo imóvel, usa dados vazios
-      const emptyModel = new PropertyConfigModel()
-      setInitialData(emptyModel.toFormData())
-    }
-  }, [propertyId])
-
-  const loadUsersWithCreci = async () => {
-    try {
-      setLoadingUsers(true)
-      console.log('🔄 [PROPERTY CONFIG] Iniciando carregamento de usuários...')
-
-      const users = await getUsersWithCreci()
-      console.log('✅ [PROPERTY CONFIG] Usuários carregados:', users.length, users)
-
-      setUsersWithCreci(users)
-    } catch (err) {
-      console.error('❌ [PROPERTY CONFIG] Erro ao carregar usuários:', err)
-      setUsersWithCreci([])
-    } finally {
-      console.log('🏁 [PROPERTY CONFIG] Finalizando carregamento de usuários')
-      setLoadingUsers(false)
+      alert(`Sucesso: ${message}`)
     }
   }
 
-  const loadPropertyData = async (id) => {
-    try {
-      setLoading(true)
-      setError(null)
+  // Carregar usuários com CRECI
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setLoadingUsers(true)
+        console.log('🔄 [PROPERTY CONFIG VM] Loading users with CRECI...')
 
-      console.log('Loading property with id:', id)
-      // Usando a API estruturada que retorna entidade Advertisement
-      const advertisementEntity = await getAdvertisementById(id)
-      console.log('Advertisement entity received:', advertisementEntity)
+        const users = await getUsersWithCreci()
 
-      // Converte a entidade para o modelo de configuração
-      const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisementEntity)
-      console.log('PropertyModel created:', propertyModel)
-
-      const formData = propertyModel.toFormData()
-      console.log('Form data:', formData)
-
-      setModel(propertyModel)
-      setInitialData(formData)
-    } catch (err) {
-      console.error('Erro ao carregar propriedade:', err)
-      setError('Não foi possível carregar os dados da propriedade.')
-    } finally {
-      setLoading(false)
+        console.log('✅ [PROPERTY CONFIG VM] Users loaded:', users.length)
+        setUsersWithCreci(users)
+      } catch (err) {
+        console.error('❌ [PROPERTY CONFIG VM] Failed to load users:', err)
+        showToast('error', 'Erro ao carregar usuários')
+        // Set empty array on error to avoid breaking the form
+        setUsersWithCreci([])
+      } finally {
+        setLoadingUsers(false)
+      }
     }
-  }
+
+    loadUsers()
+  }, [])
+
+  // Carregar dados da propriedade (se editando)
+  useEffect(() => {
+    const loadPropertyData = async () => {
+      if (isNew) {
+        console.log('📝 [PROPERTY CONFIG VM] Creating new property')
+        setInitialData(new PropertyConfigModel())
+        setLoading(false)
+        return
+      }
+
+      try {
+        setLoading(true)
+        console.log('🔄 [PROPERTY CONFIG VM] Loading property data for ID:', id)
+
+        const advertisement = await getAdvertisementById(id)
+        console.log('📥 [PROPERTY CONFIG VM] Raw advertisement data:', advertisement)
+
+        // Log images before processing
+        if (advertisement?.property?.images) {
+          console.log('🖼️ [PROPERTY CONFIG VM] Raw images:', advertisement.property.images)
+        }
+
+        const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisement)
+        console.log('✅ [PROPERTY CONFIG VM] Property model created:', propertyModel)
+
+        // Log processed images
+        console.log('🖼️ [PROPERTY CONFIG VM] Processed images in model:', {
+          video: propertyModel.images.video,
+          cover: propertyModel.images.cover,
+          gallery: propertyModel.images.gallery,
+          floorPlans: propertyModel.images.floorPlans
+        })
+
+        setInitialData(propertyModel)
+      } catch (err) {
+        console.error('❌ [PROPERTY CONFIG VM] Failed to load property:', err)
+        setError(err.message || 'Erro ao carregar propriedade')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPropertyData()
+  }, [id, isNew])
 
   const handleSubmit = async (formData) => {
+    if (submitting) return
+
+    console.log('🎯 [PROPERTY CONFIG VM] Starting submit process', { isNew, id })
+    console.log('📝 [PROPERTY CONFIG VM] Form data received:', formData)
+
+    setSubmitting(true)
+    setError(null)
+
     try {
-      setSubmitting(true)
-      setError(null)
+      const propertyModel = new PropertyConfigModel(initialData)
 
-      console.log('Submitting property data:', formData)
+      // Extract new files that need uploading
+      const newFiles = propertyModel.extractNewImageFiles(formData)
+      console.log('📁 [PROPERTY CONFIG VM] New files to upload:', newFiles.length)
 
-      const apiRequest = model.toApiRequest(formData)
-      console.log('API request:', apiRequest)
+      let uploadedImageData = []
+
+      // Upload new images if any
+      if (newFiles.length > 0) {
+        console.log('📤 [PROPERTY CONFIG VM] Starting image upload...')
+        const uploadResults = await Promise.all(
+          newFiles.map(async ({ file, type }) => {
+            const urls = await uploadImages([file], type)
+            return { urls, type }
+          })
+        )
+        uploadedImageData = uploadResults
+        console.log('✅ [PROPERTY CONFIG VM] Images uploaded successfully:', uploadedImageData)
+      }
+
+      // Convert to API request format
+      const apiRequest = propertyModel.toApiRequest(formData, uploadedImageData)
+      console.log('🔄 [PROPERTY CONFIG VM] API request prepared:', apiRequest)
 
       let result
-      if (model.isNew()) {
+      if (isNew) {
+        console.log('➕ [PROPERTY CONFIG VM] Creating new advertisement...')
         result = await createAdvertisement(apiRequest)
-        console.log('Property created:', result)
       } else {
-        result = await updateAdvertisement(propertyId, apiRequest)
-        console.log('Property updated:', result)
+        console.log('✏️ [PROPERTY CONFIG VM] Updating existing advertisement...')
+        result = await updateAdvertisement(id, apiRequest)
       }
 
-      // Navegar de volta para a listagem
-      navigate(router.get('ADMIN_PROPERTIES'))
+      console.log('✅ [PROPERTY CONFIG VM] Operation completed successfully:', result)
 
-      return {
-        success: true,
-        message: model.isNew() ? 'Propriedade criada com sucesso!' : 'Propriedade atualizada com sucesso!'
-      }
+      showToast('success', isNew ? 'Propriedade criada com sucesso!' : 'Propriedade atualizada com sucesso!')
+      navigate('/admin/gerenciar-imoveis')
+
+      return result
     } catch (err) {
-      console.error('Erro ao salvar propriedade:', err)
-      const errorMessage = err.response?.data?.message || 'Erro ao salvar propriedade. Tente novamente.'
+      const errorMessage = err.message || (isNew ? 'Erro ao criar propriedade' : 'Erro ao atualizar propriedade')
+      console.error(`❌ [PROPERTY CONFIG VM] ${isNew ? 'Create' : 'Update'} failed:`, err)
       setError(errorMessage)
-
-      return {
-        success: false,
-        message: errorMessage
-      }
+      showToast('error', errorMessage)
+      throw err
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!propertyId || model.isNew()) {
-      console.warn('Cannot delete: no property ID or is new property')
-      return
-    }
+    if (!id || isNew) return
+
+    console.log('🗑️ [PROPERTY CONFIG VM] Starting soft delete (deactivate)...')
 
     try {
       setSubmitting(true)
-      setError(null)
 
-      console.log('Deleting property:', propertyId)
-      await deleteAdvertisement(propertyId)
-      console.log('Property deleted successfully')
+      // Get current form data from initialData
+      const currentFormData = initialData.toFormData()
 
-      // Navegar de volta para a listagem
-      navigate(router.get('ADMIN_PROPERTIES'))
+      // Create update request to disable the advertisement
+      const propertyModel = new PropertyConfigModel(initialData)
+      const disableRequest = propertyModel.toApiRequest({
+        ...currentFormData,
+        active: false // Set active to false for soft delete
+      })
+
+      console.log('🔄 [PROPERTY CONFIG VM] Disabling advertisement with full data:', disableRequest)
+
+      await updateAdvertisement(id, disableRequest)
+
+      console.log('✅ [PROPERTY CONFIG VM] Advertisement deactivated successfully')
+      showToast('success', 'Propriedade desabilitada com sucesso!')
+      navigate('/admin/gerenciar-imoveis')
     } catch (err) {
-      console.error('Erro ao excluir propriedade:', err)
-      const errorMessage = err.response?.data?.message || 'Erro ao excluir propriedade. Tente novamente.'
+      const errorMessage = err.message || 'Erro ao desabilitar propriedade'
+      console.error('❌ [PROPERTY CONFIG VM] Deactivate failed:', err)
       setError(errorMessage)
+      showToast('error', errorMessage)
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleClear = (currentStepIndex) => {
-    console.log(`Clearing fields from step ${currentStepIndex + 1}`)
+  const handleClear = () => {
+    console.log('🧹 [PROPERTY CONFIG VM] Clearing form')
+    if (isNew) {
+      setInitialData(new PropertyConfigModel())
+    } else {
+      // For editing, reload original data
+      const loadOriginalData = async () => {
+        try {
+          const advertisement = await getAdvertisementById(id)
+          const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisement)
+          setInitialData(propertyModel)
+        } catch (err) {
+          console.error('❌ [PROPERTY CONFIG VM] Failed to reload original data:', err)
+        }
+      }
+      loadOriginalData()
+    }
   }
 
   const handleCancel = () => {
-    navigate(router.get('ADMIN_PROPERTIES'))
+    console.log('❌ [PROPERTY CONFIG VM] Cancelling operation')
+    navigate('/admin/gerenciar-imoveis')
   }
 
   return {
-    model,
     loading,
-    error,
-    initialData,
-    submitting,
-    usersWithCreci,
     loadingUsers,
-    isNew: model.isNew(),
+    error,
+    initialData: initialData?.toFormData(),
+    submitting,
+    isNew,
+    usersWithCreci,
     handleSubmit,
-    handleDelete,
+    handleDelete: isNew ? undefined : handleDelete, // Only provide delete for existing items
     handleClear,
     handleCancel
   }

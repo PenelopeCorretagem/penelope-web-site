@@ -172,6 +172,9 @@ export function InputView({
   className = '',
   onChange,
   onClick,
+  // Props customizadas que não devem ir para o input HTML
+  formatOnChange = false,
+  formatter = null,
   ...otherProps
 }) {
   const [showPassword, setShowPassword] = useState(false)
@@ -186,6 +189,13 @@ export function InputView({
   const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
   const inputName = otherProps.name || inputId
   const label = children || ''
+
+  // Filtrar props customizadas que não devem ir para o elemento HTML
+  const {
+    formatOnChange: _formatOnChange,
+    formatter: _formatter,
+    ...htmlProps
+  } = otherProps
 
   // Classes CSS compostas na View
   const containerClasses = isCheckbox
@@ -215,12 +225,12 @@ export function InputView({
         // Aplicar formatação em tempo real se tiver formatOnChange nas props
         let processedValue = event.target.value
 
-        if (otherProps.formatOnChange && otherProps.formatter && typeof otherProps.formatter === 'function') {
+        if (formatOnChange && formatter && typeof formatter === 'function') {
           // Para formatação de área e moeda, passar valor anterior para detectar backspace
-          if (otherProps.formatter.name === 'formatCurrency' || otherProps.formatter.name === 'formatArea') {
-            processedValue = otherProps.formatter(event.target.value, previousValue)
+          if (formatter.name === 'formatCurrency' || formatter.name === 'formatArea') {
+            processedValue = formatter(event.target.value, previousValue)
           } else {
-            processedValue = otherProps.formatter(event.target.value)
+            processedValue = formatter(event.target.value)
           }
 
           // Atualizar o valor do input imediatamente
@@ -270,7 +280,7 @@ export function InputView({
               required={required}
               onChange={handleInputChange}
               onClick={onClick}
-              {...otherProps}
+              {...htmlProps}
             />
             <span className={`text-[12px] md:text-[16px] text-default-dark`}>
               {placeholder || label}
@@ -302,7 +312,7 @@ export function InputView({
           required={required}
           onChange={handleInputChange}
           onClick={onClick}
-          {...otherProps}
+          {...htmlProps}
         />
 
         {hasToggleButton && (
