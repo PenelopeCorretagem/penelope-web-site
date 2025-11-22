@@ -7,28 +7,17 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
 
-export function ScreeningFormView({ onClose }) {
+export function ScreeningFormView({ onClose, property = null }) {
 
   const [formData, setFormData] = useState({})
 
   const fields = [
     { name: 'nome', placeholder: 'NOME:', type: 'text', hasLabel: true, required: true, column: 1 },
-    { name: 'email', placeholder: 'Digite seu e-mail', type: 'email', hasLabel: true, required: true, column: 1 },
+    { name: 'cpf', placeholder: 'CPF:', type: 'text', hasLabel: true, required: true, column: 1 },
     { name: 'celular', placeholder: 'CELULAR:', type: 'tel', hasLabel: true, column: 1 },
 
     { name: 'sobrenome', placeholder: 'SOBRENOME:', type: 'text', hasLabel: true, required: true, column: 2 },
-    {
-      name: 'emailConfirm',
-      placeholder: 'E-MAIL:',
-      type: 'email',
-      hasLabel: true,
-      required: true,
-      validate: (value, allFields) => {
-        if (value !== allFields.email) throw new Error('Os e-mails não coincidem')
-        return true
-      },
-      column: 2,
-    },
+    { name: 'email', placeholder: 'E-MAIL', type: 'email', hasLabel: true, required: true, column: 2 },
     { name: 'rendaMed', placeholder: 'RENDA MÉDIA MENSAL:', type: 'renda', hasLabel: true, column: 2 },
   ]
 
@@ -37,24 +26,31 @@ export function ScreeningFormView({ onClose }) {
   }
 
   const enviarWhatsApp = () => {
-    const { nome, sobrenome, celular, email, rendaMed } = formData
+    const { nome, cpf, sobrenome, celular, email, rendaMed } = formData
 
     // Validação simples dos campos obrigatórios
-    if (!nome || !sobrenome || !email) {
-      window.alert('Por favor preencha os campos Nome, Sobrenome e E-mail antes de enviar.')
+    if (!nome || !sobrenome || !email || !cpf) {
+      window.alert('Por favor preencha os campos Nome, Sobrenome, Cpf e E-mail antes de enviar.')
       return
+    }
+
+    // Informação do imóvel (usar apenas o título, se fornecido)
+    let propertyInfo = ''
+    if (property && property.title) {
+      propertyInfo = `Imóvel: ${property.title}\n\n`
     }
 
     const mensagem = [
       'Olá! Segue minha triagem:',
-      `Nome: ${nome || ''}`,
-      `Sobrenome: ${sobrenome || ''}`,
+      propertyInfo,
+      `Nome: ${nome || ''} ${sobrenome || ''}`,
+      `Cpf: ${cpf || ''}`,
       `E-mail: ${email || ''}`,
       `Celular: ${celular || ''}`,
       `Renda média mensal: ${rendaMed || ''}`,
     ].join('\n')
 
-    const numero = '5511999999999' // << coloque o número da empresa aqui
+    const numero = '5511985600810'
 
     const url = generateWhatsAppLink(numero, mensagem)
 

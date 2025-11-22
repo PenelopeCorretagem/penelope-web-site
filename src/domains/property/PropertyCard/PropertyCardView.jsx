@@ -119,7 +119,12 @@ export function PropertyCardView(props) {
       </div>
 
       {/* ✅ Modal do formulário de contato */}
-      {showForm && <ScreeningFormView onClose={() => setShowForm(false)} />}
+      {showForm && (
+        <ScreeningFormView
+          onClose={() => setShowForm(false)}
+          property={model}
+        />
+      )}
     </>
   )
 }
