@@ -95,7 +95,7 @@ export function ChatbotView() {
           </div>
 
           <button onClick={() => setIsOpen(false)}>
-            <FaTimes className="text-xl" />
+            <FaTimes className="text-xl cursor-pointer" />
           </button>
         </div>
 
@@ -127,7 +127,7 @@ export function ChatbotView() {
               <button
                 key={opt}
                 onClick={() => handleOptionClick(opt)}
-                className="text-distac-primary border border-distac-primary px-3 py-2 rounded-lg hover:bg-distac-primary hover:text-white transition w-fit"
+                className="text-distac-primary border border-distac-primary px-3 py-2 rounded-lg hover:bg-distac-primary hover:text-white transition w-fit cursor-pointer"
               >
                 {opt}
               </button>
