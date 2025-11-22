@@ -1,61 +1,22 @@
-import { useState } from 'react'
+// ScreeningFormView.jsx
+
 import ReactDOM from 'react-dom'
+import { FaArrowLeft } from 'react-icons/fa'
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { FaArrowLeft } from 'react-icons/fa'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
-import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
+
+import { useScreeningFormViewModel } from './useScreeningFormViewModel'
 
 export function ScreeningFormView({ onClose, property = null }) {
 
-  const [formData, setFormData] = useState({})
-
-  const fields = [
-    { name: 'nome', placeholder: 'NOME:', type: 'text', hasLabel: true, required: true, column: 1 },
-    { name: 'cpf', placeholder: 'CPF:', type: 'text', hasLabel: true, required: true, column: 1 },
-    { name: 'celular', placeholder: 'CELULAR:', type: 'tel', hasLabel: true, column: 1 },
-
-    { name: 'sobrenome', placeholder: 'SOBRENOME:', type: 'text', hasLabel: true, required: true, column: 2 },
-    { name: 'email', placeholder: 'E-MAIL', type: 'email', hasLabel: true, required: true, column: 2 },
-    { name: 'rendaMed', placeholder: 'RENDA MÉDIA MENSAL:', type: 'renda', hasLabel: true, column: 2 },
-  ]
-
-  const handleFieldChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const enviarWhatsApp = () => {
-    const { nome, cpf, sobrenome, celular, email, rendaMed } = formData
-
-    // Validação simples dos campos obrigatórios
-    if (!nome || !sobrenome || !email || !cpf) {
-      window.alert('Por favor preencha os campos Nome, Sobrenome, Cpf e E-mail antes de enviar.')
-      return
-    }
-
-    // Informação do imóvel (usar apenas o título, se fornecido)
-    let propertyInfo = ''
-    if (property && property.title) {
-      propertyInfo = `Imóvel: ${property.title}\n\n`
-    }
-
-    const mensagem = [
-      'Olá! Segue minha triagem:',
-      propertyInfo,
-      `Nome: ${nome || ''} ${sobrenome || ''}`,
-      `Cpf: ${cpf || ''}`,
-      `E-mail: ${email || ''}`,
-      `Celular: ${celular || ''}`,
-      `Renda média mensal: ${rendaMed || ''}`,
-    ].join('\n')
-
-    const numero = '5511985600810'
-
-    const url = generateWhatsAppLink(numero, mensagem)
-
-    window.open(url, '_blank')
-  }
+  const {
+    fieldsColumn1,
+    fieldsColumn2,
+    handleFieldChange,
+    enviarWhatsApp
+  } = useScreeningFormViewModel(property)
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
@@ -83,24 +44,19 @@ export function ScreeningFormView({ onClose, property = null }) {
 
         {/* GRID 2 colunas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* Coluna 1 */}
           <FormView
-            fields={fields.filter(f => f.column === 1)}
+            fields={fieldsColumn1}
             onChange={handleFieldChange}
             submitText=""
           />
 
-          {/* Coluna 2 */}
           <FormView
-            fields={fields.filter(f => f.column === 2)}
+            fields={fieldsColumn2}
             onChange={handleFieldChange}
             submitText=""
           />
-
         </div>
 
-        {/* Botão final */}
         <div className="w-full flex justify-center mt-6">
           <ButtonView
             width="full"
