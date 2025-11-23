@@ -317,12 +317,12 @@ export class UserConfigModel {
    */
   toApiFormat() {
     const apiData = {
-      nomeCompleto: this.name.trim(),
+      name: this.name.trim(),
       email: this.email.trim().toLowerCase(),
       phone: cleanPhoneNumber(this.phone),
       cpf: cleanCPF(this.cpf),
-      dtNascimento: this.dateBirth,
-      rendaMensal: formatCurrencyForDatabase(this.monthlyIncome),
+      dateBirth: this.dateBirth,
+      monthlyIncome: formatCurrencyForDatabase(this.monthlyIncome),
       accessLevel: this.accessLevel
     }
 

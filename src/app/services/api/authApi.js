@@ -9,7 +9,7 @@ export const login = async (credentials) => {
   try {
     const response = await axiosInstance.post('/auth/login', {
       email: credentials.email,
-      senha: credentials.senha,
+      password: credentials.password,
     })
 
     // Se response.data for string, é só o token
@@ -54,9 +54,9 @@ export const login = async (credentials) => {
 export const register = async (userData) => {
   try {
     const response = await axiosInstance.post('/users', {
-      nomeCompleto: userData.nomeCompleto,
+      name: userData.name,
       email: userData.email,
-      senha: userData.senha,
+      password: userData.password,
       accessLevel: 'CLIENTE',
     })
 

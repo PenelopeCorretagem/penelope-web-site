@@ -24,12 +24,12 @@ export function useUserConfigViewModel() {
       setTimeout(() => {
         const mockUser = {
           id: id,
-          nomeCompleto: 'Usuário Exemplo',
+          name: 'Usuário Exemplo',
           email: 'usuario@exemplo.com',
           phone: '11987654321',
           cpf: '12345678909',
-          dtNascimento: '1990-01-01',
-          rendaMensal: 5000,
+          dateBirth: '1990-01-01',
+          monthlyIncome: 5000,
           accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
           creci: id === '1' ? '123456' : ''
         }
@@ -47,7 +47,7 @@ export function useUserConfigViewModel() {
           dateBirth: userModel.dateBirth,
           monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
           accessLevel: userModel.accessLevel,
-          senha: '' // Sempre vazio por segurança no modo edição
+          passowrd: '' // Sempre vazio por segurança no modo edição
         })
 
         setLoading(false)
@@ -63,7 +63,7 @@ export function useUserConfigViewModel() {
         dateBirth: '',
         monthlyIncome: '',
         accessLevel: 'CLIENTE',
-        senha: ''
+        password: ''
       })
     }
   }, [isEditMode, id])
