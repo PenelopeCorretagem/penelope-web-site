@@ -47,10 +47,24 @@ export function useEditFormViewModel({
         processedValue = field.formatter(value)
       }
 
-      setFormData(prev => ({
-        ...prev,
-        [fieldName]: processedValue
-      }))
+      setFormData(prev => {
+        const newData = {
+          ...prev,
+          [fieldName]: processedValue
+        }
+
+        // Verificar se há campos condicionais que dependem deste campo
+        fields.forEach(f => {
+          if (f.conditional && f.conditional.field === fieldName) {
+            // Se o valor não corresponde à condição e clearOnHide é true, limpar o campo
+            if (f.conditional.clearOnHide && processedValue !== f.conditional.value) {
+              newData[f.name] = ''
+            }
+          }
+        })
+
+        return newData
+      })
 
       // Limpar erros deste campo quando houver alteração
       if (errors[fieldName]) {
@@ -67,6 +81,18 @@ export function useEditFormViewModel({
     const newErrors = {}
 
     fields.forEach(field => {
+      // Verificar se o campo deve ser exibido com base em condições
+      let shouldValidate = true
+      if (field.conditional) {
+        const dependentFieldValue = formData[field.conditional.field]
+        shouldValidate = dependentFieldValue === field.conditional.value
+      }
+
+      // Pular validação de campos ocultos
+      if (!shouldValidate) {
+        return
+      }
+
       if (field.required && !getFieldValue(field.name)) {
         newErrors[field.name] = `${field.label || field.name} é obrigatório`
       }

@@ -32,7 +32,6 @@ export class UserConfigModel {
    */
   static getFormFields(isEditMode = false, userAccessLevel = 'CLIENTE') {
     const isAdmin = userAccessLevel === 'ADMINISTRADOR'
-    const isClient = userAccessLevel === 'CLIENTE'
 
     const fields = [
       // LINHA 1: Nome (1/2 = 3 cols), Data (1/3 = 2 cols), CPF (1/6 = 1 col) = 6 cols total
@@ -100,13 +99,13 @@ export class UserConfigModel {
         }
       },
 
-      // LINHA 2: Layout diferente para cliente vs admin
+      // LINHA 2: Telefone (1/2 = 3 cols), Renda (1/2 = 3 cols) = 6 cols total
       {
         name: 'phone',
         label: 'Telefone',
         placeholder: 'Digite o telefone com DDD',
         required: true,
-        gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
         formatOnChange: true,
         formatter: formatPhoneNumber,
         validate: (value) => {
@@ -126,7 +125,7 @@ export class UserConfigModel {
         type: 'text',
         placeholder: 'Ex: R$ 5.000,00',
         required: true,
-        gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
         formatOnChange: true,
         formatter: formatCurrencyInput,
         validate: (value) => {
@@ -144,45 +143,41 @@ export class UserConfigModel {
 
           return true
         }
-      }
-    ]
+      },
 
-    // Adicionar nível de acesso na linha 2 para clientes ou linha 3 para admins
-    const accessLevelField = {
-      name: 'accessLevel',
-      label: 'Nível de Acesso',
-      type: 'select',
-      placeholder: 'Selecione o nível de acesso',
-      gridColumn: isClient ? 'col-span-2' : 'col-span-3', // Cliente: 1/3 (2 cols), Admin: 1/2 (3 cols)
-      options: [
-        { value: 'CLIENTE', label: 'Cliente' },
-        { value: 'ADMINISTRADOR', label: 'Administrador' }
-      ],
-      required: true,
-      validate: (value) => {
-        if (!value) {
-          return 'Nível de acesso é obrigatório'
+      // LINHA 3: Nível de Acesso (1/2 = 3 cols), CRECI (1/2 = 3 cols) = 6 cols total
+      {
+        name: 'accessLevel',
+        label: 'Nível de Acesso',
+        type: 'select',
+        placeholder: 'Selecione o nível de acesso',
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        options: [
+          { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'ADMINISTRADOR', label: 'Administrador' }
+        ],
+        required: true,
+        validate: (value) => {
+          if (!value) {
+            return 'Nível de acesso é obrigatório'
+          }
+          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+            return 'Nível de acesso inválido'
+          }
+          return true
         }
-        if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
-          return 'Nível de acesso inválido'
-        }
-        return true
-      }
-    }
-
-    // Para cliente: adicionar nível de acesso na linha 2
-    if (isClient) {
-      fields.push(accessLevelField)
-    }
-
-    // Campo CRECI - sempre adicionar se não estiver em modo edição ou se for admin
-    if (!isEditMode || isAdmin) {
-      fields.push({
+      },
+      {
         name: 'creci',
         label: 'CRECI',
         placeholder: 'Digite o número do CRECI (opcional)',
         required: false,
-        gridColumn: isClient ? 'col-span-6' : 'col-span-3', // Cliente: full width, Admin: 1/2
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        conditional: {
+          field: 'accessLevel',
+          value: 'ADMINISTRADOR',
+          clearOnHide: true // Limpa o valor quando o campo está oculto
+        },
         validate: (value) => {
           if (value && value.trim().length > 0) {
             const cleanCreci = value.replace(/\D/g, '')
@@ -192,41 +187,19 @@ export class UserConfigModel {
           }
           return true
         }
-      })
-    }
+      },
 
-    // Para admin: adicionar nível de acesso na linha 3 (depois do CRECI se aplicável)
-    if (isAdmin) {
-      // Se não há CRECI (modo edição), adicionar nível de acesso com placeholder para CRECI
-      if (isEditMode) {
-        fields.push(accessLevelField)
-        // Placeholder vazio para manter layout
-        fields.push({
-          name: 'creci_placeholder',
-          label: '',
-          type: 'hidden',
-          placeholder: '',
-          required: false,
-          gridColumn: 'col-span-3',
-          hideInViewMode: true,
-          hideInEditMode: true
-        })
-      } else {
-        // Modo adição: nível de acesso já foi adicionado junto com CRECI acima
-        fields.push(accessLevelField)
+      // LINHA 4: E-mail (1/2 = 3 cols), Senha/Placeholder (1/2 = 3 cols) = 6 cols total
+      {
+        name: 'email',
+        label: 'E-mail',
+        type: 'email',
+        placeholder: 'Digite o e-mail',
+        required: true,
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        validate: validateEmail
       }
-    }
-
-    // LINHA 4: E-mail (1/2 = 3 cols), Senha/Placeholder (1/2 = 3 cols) = 6 cols total
-    fields.push({
-      name: 'email',
-      label: 'E-mail',
-      type: 'email',
-      placeholder: 'Digite o e-mail',
-      required: true,
-      gridColumn: 'col-span-3', // 1/2 de 6 colunas
-      validate: validateEmail
-    })
+    ]
 
     if (!isEditMode) {
       // Senha apenas no modo adição
@@ -275,6 +248,41 @@ export class UserConfigModel {
     fields.forEach(field => {
       if (field.validate) {
         const valueToValidate = this[field.name]
+        const result = field.validate(valueToValidate)
+        if (result !== true) {
+          errors[field.name] = result
+        }
+      }
+    })
+
+    return {
+      isValid: Object.keys(errors).length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Valida dados fornecidos externamente (usado no handleSubmit)
+   */
+  validateWithData(data, isEditMode = false, userAccessLevel = 'CLIENTE') {
+    const errors = {}
+    const fields = UserConfigModel.getFormFields(isEditMode, userAccessLevel)
+
+    fields.forEach(field => {
+      // Verificar se o campo deve ser validado com base em condições
+      let shouldValidate = true
+      if (field.conditional) {
+        const dependentFieldValue = data[field.conditional.field]
+        shouldValidate = dependentFieldValue === field.conditional.value
+      }
+
+      // Pular validação de campos ocultos
+      if (!shouldValidate) {
+        return
+      }
+
+      if (field.validate) {
+        const valueToValidate = data[field.name]
         const result = field.validate(valueToValidate)
         if (result !== true) {
           errors[field.name] = result

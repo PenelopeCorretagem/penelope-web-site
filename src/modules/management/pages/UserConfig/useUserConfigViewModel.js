@@ -78,8 +78,8 @@ export function useUserConfigViewModel() {
       // Create model with form data
       const userModel = new UserConfigModel(data)
 
-      // Validate data
-      const validation = userModel.validate(isEditMode, model.accessLevel)
+      // Validate data using the actual form data's accessLevel
+      const validation = userModel.validateWithData(data, isEditMode, data.accessLevel || 'CLIENTE')
       if (!validation.isValid) {
         const errorMessages = Object.values(validation.errors).join(', ')
         throw new Error(`Dados inválidos: ${errorMessages}`)
@@ -125,7 +125,7 @@ export function useUserConfigViewModel() {
     } finally {
       setLoading(false)
     }
-  }, [isEditMode, model.accessLevel, navigateTo, routes.ADMIN_USERS])
+  }, [isEditMode, navigateTo, routes.ADMIN_USERS])
 
   const handleDelete = useCallback(async () => {
     if (!isEditMode || !id) return
