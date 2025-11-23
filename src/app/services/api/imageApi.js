@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance'
 import { imageEstateMapper } from '../mapper/imageEstateMapper'
 import { imageEstateTypeMapper } from '../mapper/imageEstateTypeMapper'
-import { IMAGE_TYPE_IDS } from '../../constants/imageTypes'
+import { IMAGE_TYPE_IDS } from '@constant/imageTypes'
 
 /**
  * Faz upload de imagens independentes (sem estateId).

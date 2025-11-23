@@ -2,9 +2,9 @@
  * Tipos de imagem disponíveis no sistema com seus IDs específicos
  */
 export const IMAGE_TYPES = {
-  COVER: { id: 1, description: 'Capa' },
-  GALLERY: { id: 2, description: 'Galeria' },
-  FLOOR_PLAN: { id: 3, description: 'Planta' }
+  COVER: { id: 1, description: 'Capa', friendlyName: 'Capa' },
+  GALLERY: { id: 2, description: 'Galeria', friendlyName: 'Galeria' },
+  FLOOR_PLAN: { id: 3, description: 'Planta', friendlyName: 'Planta' }
 }
 
 /**

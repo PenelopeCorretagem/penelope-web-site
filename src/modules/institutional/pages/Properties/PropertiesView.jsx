@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
+import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 import { ResultTitleView } from '@institutional/components/ResultTitle/ResultTitleView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'

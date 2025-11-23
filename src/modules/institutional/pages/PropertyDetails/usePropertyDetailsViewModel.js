@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllActiveAdvertisements } from '@app/services/api/advertisementApi'
+import { getAdvertisementById, listAllActiveAdvertisements } from '@app/services/api/realEstateAdvertisementAPI'
 
 /**
  * ViewModel para a tela de detalhes de propriedade

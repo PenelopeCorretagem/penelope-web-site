@@ -1,5 +1,5 @@
 import axiosInstance from './axiosInstance'
-import { advertisementMapper } from '../mapper/advertisementMapper'
+import { RealEstateAdvertisementMapper } from '@mapper/RealEstateAdvertisementMapper'
 
 /**
  * Lista todos os anúncios ativos com filtros opcionais.
@@ -8,7 +8,8 @@ import { advertisementMapper } from '../mapper/advertisementMapper'
  */
 export const listAllActiveAdvertisements = async (filters = {}) => {
   const response = await axiosInstance.get('/anuncios', { params: filters })
-  return advertisementMapper.toEntityList(response.data)
+  console.log(response.data)
+  return RealEstateAdvertisementMapper.toEntityList(response.data)
 }
 
 /**
@@ -17,7 +18,7 @@ export const listAllActiveAdvertisements = async (filters = {}) => {
  */
 export const getLatestAdvertisement = async () => {
   const response = await axiosInstance.get('/anuncios/latest')
-  return advertisementMapper.toEntity(response.data)
+  return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
 /**
@@ -27,7 +28,7 @@ export const getLatestAdvertisement = async () => {
  */
 export const getAdvertisementById = async (id) => {
   const response = await axiosInstance.get(`/anuncios/${id}`)
-  return advertisementMapper.toEntity(response.data)
+  return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
 /**
@@ -90,7 +91,7 @@ export const updateAdvertisement = async (id, advertisementRequest) => {
       }
     }
 
-    return advertisementMapper.toEntity(response.data) || {
+    return RealEstateAdvertisementMapper.toEntity(response.data) || {
       success: true,
       message: 'Advertisement updated successfully',
       updated: true
@@ -117,6 +118,15 @@ export const updateAdvertisement = async (id, advertisementRequest) => {
  */
 export const deleteAdvertisement = async (id) => {
   await axiosInstance.delete(`/anuncios/${id}`)
+}
+
+/**
+ * Desativa um anúncio.
+ * @param {number} id - O ID do anúncio.
+ * @returns {Promise<void>}
+ */
+export const softDeleteAdvertisement = async (id) => {
+  await axiosInstance.patch(`/anuncios/${id}`)
 }
 
 /**

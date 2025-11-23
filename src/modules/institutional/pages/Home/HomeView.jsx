@@ -1,21 +1,21 @@
-import { useState, useRef, useEffect } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
+import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
-import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
+import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
-  const cardRef = useRef(null)
+
 
   // Usa dados reais da API
   const {
     featuredProperty,
+    featureImageCoverUrl,
     launchProperties,
     isLoading,
     error,
@@ -23,42 +23,6 @@ export function HomeView() {
     hasLaunchProperties,
     refresh
   } = useHomeViewModel()
-
-  useEffect(() => {
-    const calculateCardWidth = () => {
-      if (cardRef.current) {
-        const width = cardRef.current.offsetWidth
-        setCardWidth(width)
-      }
-    }
-
-    // Múltiplas tentativas para garantir que funcione
-    const timer1 = setTimeout(calculateCardWidth, 0)
-    const timer2 = setTimeout(calculateCardWidth, 100) // Fallback
-
-    // Também no load da janela
-    window.addEventListener('load', calculateCardWidth)
-    window.addEventListener('resize', calculateCardWidth)
-
-    let observer
-    if (cardRef.current) {
-      observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const width = entry.contentRect.width
-          setCardWidth(width)
-        }
-      })
-      observer.observe(cardRef.current)
-    }
-
-    return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer2)
-      window.removeEventListener('load', calculateCardWidth)
-      window.removeEventListener('resize', calculateCardWidth)
-      if (observer) observer.disconnect()
-    }
-  }, [])
 
   // Loading state
   if (isLoading) {
@@ -93,34 +57,24 @@ export function HomeView() {
             >
               Seu sonho começa com uma chave
             </HeadingView>
-            <div ref={cardRef}>
-              {hasFeaturedProperty ? (
-                <PropertyCardView
-                  id={featuredProperty.id}
-                  hasLabel={featuredProperty.hasLabel}
-                  category={featuredProperty.category}
-                  title={featuredProperty.title}
-                  subtitle={featuredProperty.subtitle}
-                  description={featuredProperty.description}
-                  hasDifference={featuredProperty.hasDifference}
-                  differences={featuredProperty.differences}
-                  hasButton={featuredProperty.hasButton}
-                  hasShadow={false}
-                />
-              ) : (
-                <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
-                  <TextView>Nenhum imóvel em destaque</TextView>
-                </div>
-              )}
-            </div>
+            {hasFeaturedProperty ? (
+              <PropertyCardView
+                realEstateAdvertisement={featuredProperty.realEstateAdvertisement}
+                realStateCardMode={featuredProperty.realStateCardMode}
+              />
+            ) : (
+              <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
+                <TextView>Nenhum imóvel em destaque</TextView>
+              </div>
+            )}
           </div>
 
           <div className="h-full w-full overflow-hidden">
-            {hasFeaturedProperty && featuredProperty.imageLink && (
-            <ImageView
-              src={featuredProperty.imageLink}
+            {hasFeaturedProperty && featureImageCoverUrl && (
+            <img
+              src={featureImageCoverUrl}
               alt={`Imagem do imóvel ${featuredProperty.title}`}
-              className="!w-full !h-full !object-cover !object-center"
+              className="!w-full !h-full !object-cover !object-center border-0"
             />
             )}
 
@@ -141,7 +95,7 @@ export function HomeView() {
       </div>
 
       {/*Destac Properties*/}
-      <SectionView className="bg-default-light">
+      {/* <SectionView className="bg-default-light">
         {hasLaunchProperties ? (
           <PropertiesCarouselView
             properties={launchProperties}
@@ -158,7 +112,7 @@ export function HomeView() {
             <TextView>Nenhum lançamento disponível no momento</TextView>
           </div>
         )}
-      </SectionView>
+      </SectionView> */}
 
       {/*Penélope + Cury*/}
       <SectionView className="bg-default-light-alt">
@@ -187,6 +141,7 @@ export function HomeView() {
         <ImageView
           src={LogoCury}
           alt="Imagem da Logo da Cury"
+          className="h-auto max-h-72"
         />
       </SectionView>
     </>

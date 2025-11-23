@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyConfigModel } from './PropertyConfigModel'
-import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/advertisementApi'
+import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { uploadImages } from '@app/services/api/imageApi'
 import { getUsersWithCreci } from '@app/services/api/userApi'
 

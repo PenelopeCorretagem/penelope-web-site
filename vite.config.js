@@ -33,6 +33,10 @@ export default defineConfig(({ command, mode }) => {
         '@utils': path.resolve(__dirname, './src/shared/utils'),
         '@services': path.resolve(__dirname, './src/app/services'),
         '@app': path.resolve(__dirname, './src/app'),
+        '@api': path.resolve(__dirname, './src/app/services/api'),
+        '@mapper': path.resolve(__dirname, './src/app/services/mapper'),
+        '@entity': path.resolve(__dirname, './src/app/model/entities'),
+        '@constant': path.resolve(__dirname, './src/constants'),
       },
     },
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { PropertiesCarouselModel } from '@domains/property/PropertiesCarousel/PropertiesCarouselModel'
+import { PropertiesCarouselModel } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselModel'
 
 /**
  * PropertiesCarouselViewModel - Gerencia a lógica e apresentação do PropertiesCarousel

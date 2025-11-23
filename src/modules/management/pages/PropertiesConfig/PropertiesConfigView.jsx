@@ -1,5 +1,5 @@
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
+import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { usePropertiesConfigViewModel } from './usePropertiesConfigViewModel'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'

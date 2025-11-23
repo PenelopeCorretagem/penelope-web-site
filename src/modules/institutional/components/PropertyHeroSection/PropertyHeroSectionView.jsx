@@ -1,4 +1,4 @@
-import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView'
+import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
 import { PropertyHeroSectionModel } from './PropertyHeroSectionModel'
 import { usePropertyHeroSectionViewModel } from './usePropertyHeroSectionViewModel'
 

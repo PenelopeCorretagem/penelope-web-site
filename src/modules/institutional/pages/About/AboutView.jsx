@@ -23,7 +23,7 @@ export function AboutView() {
           </TextView>
         </div>
         <div className='flex flex-col gap-subsection mb:gap-subsection-md w-[50%] justify-center'>
-          <CardImageView src={AboutImage} description='Imagem gerada por IA' position='bottom-left' alt='Imagem mulher com chave' className='w-[500px]' />
+          <CardImageView src={AboutImage} description='Imagem gerada por IA' position='bottom-left' alt='Imagem mulher com chave' className='w-[500px] max-h-72' />
         </div>
       </SectionView>
 
@@ -57,13 +57,13 @@ export function AboutView() {
           </TextView>
         </div>
         <div className='flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center'>
-          <CardImageView src={CuryAbout} description='' position='top-right' alt='Imagem da Cury Construtora' />
+          <CardImageView src={CuryAbout} description='' position='top-right' alt='Imagem da Cury Construtora' className='max-h-72' />
         </div>
       </SectionView>
 
       <SectionView className=" bg-default-light-alt">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
-          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md ' />
+          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md max-h-72' />
         </div>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
           <HeadingView level={2} className="text-left text-distac-primary">

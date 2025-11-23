@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllActiveAdvertisements, getAdvertisementById, updateAdvertisement } from '@app/services/api/advertisementApi'
-import { advertisementMapper } from '@app/services/mapper/advertisementMapper'
+import { listAllActiveAdvertisements, getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
+import { RealEstateAdvertisementMapper } from '@app/services/mapper/RealEstateAdvertisementMapper'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 
@@ -37,9 +37,9 @@ export const usePropertiesConfigViewModel = () => {
       ])
 
       // Converte para cards usando o mapper
-      const mappedLancamentos = advertisementMapper.toPropertyCardList(lancamentosData)
-      const mappedDisponiveis = advertisementMapper.toPropertyCardList(disponiveisData)
-      const mappedEmObras = advertisementMapper.toPropertyCardList(emObrasData)
+      const mappedLancamentos = RealEstateAdvertisementMapper.toPropertyCardList(lancamentosData)
+      const mappedDisponiveis = RealEstateAdvertisementMapper.toPropertyCardList(disponiveisData)
+      const mappedEmObras = RealEstateAdvertisementMapper.toPropertyCardList(emObrasData)
 
       model.setLancamentos(mappedLancamentos)
       model.setDisponiveis(mappedDisponiveis)

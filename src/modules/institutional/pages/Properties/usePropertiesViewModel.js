@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { listAllActiveAdvertisements } from '@app/services/api/advertisementApi'
+import { listAllActiveAdvertisements } from '@app/services/api/realEstateAdvertisementAPI'
 import { PropertiesModel } from './PropertiesModel'
 
 /**
