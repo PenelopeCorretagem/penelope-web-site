@@ -1,11 +1,36 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ScheduleModel } from './ScheduleModel'
+import { fetchAppointments, mapAppointmentsToModel } from '../../services/appointmentApi'
 
 export function useScheduleViewModel() {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
   const [model] = useState(() => new ScheduleModel([]))
   const [appointmentsForSelectedDate, setAppointmentsForSelectedDate] = useState([])
   const [totalAppointments, setTotalAppointments] = useState(model.getTotal())
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Busca agendamentos da API quando o componente monta
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetchAppointments({ size: 100 })
+        const mapped = mapAppointmentsToModel(response.content || [])
+        model.setAppointments(mapped)
+        setTotalAppointments(model.getTotal())
+        const appts = model.getByDate(selectedDate)
+        setAppointmentsForSelectedDate(appts)
+      } catch (err) {
+        console.error('Erro ao carregar agendamentos:', err)
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Atualiza a lista filtrada toda vez que a data selecionada muda
   useEffect(() => {
@@ -65,6 +90,8 @@ export function useScheduleViewModel() {
     // Estado
     selectedDate,
     setSelectedDate,
+    loading,
+    error,
 
     // Dados
     appointmentsForSelectedDate,
