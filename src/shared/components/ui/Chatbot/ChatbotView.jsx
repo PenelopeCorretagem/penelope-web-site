@@ -75,7 +75,7 @@ export function ChatbotView() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-[999999] bg-distac-primary rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:scale-105 transition"
+          className="fixed bottom-6 right-6 z-[999999] bg-distac-primary rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
         >
           <FaComments className="text-white text-3xl" />
         </button>
