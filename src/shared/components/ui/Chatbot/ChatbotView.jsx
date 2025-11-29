@@ -18,12 +18,16 @@ export function ChatbotView() {
   return (
     <>
       {!isOpen && (
-        <button
+        <ButtonView
           onClick={handleOpen}
-          className="fixed bottom-6 right-6 z-[999999] bg-distac-primary rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
+          width="fit"
+          shape="circle"
+          variant="primary"
+          className="fixed bottom-6 right-6 z-[999999] shadow-lg w-16 h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
+
         >
           <FaComments className="text-white text-3xl" />
-        </button>
+        </ButtonView>
       )}
 
       {isOpen && (
@@ -41,9 +45,14 @@ export function ChatbotView() {
               </div>
             </div>
 
-            <button onClick={handleClose}>
+            <ButtonView
+              onClick={handleClose}
+              width="fit"
+              shape="rounded"
+              className="!p-2"
+            >
               <FaTimes className="text-xl cursor-pointer" />
-            </button>
+            </ButtonView>
           </div>
 
           {/* MENSAGENS */}
@@ -84,7 +93,7 @@ export function ChatbotView() {
                     width="fit"
                     shape="rounded"
                     onClick={() => handleOptionClick(opt)}
-                    className="!px-3 !py-2 !text-sm !justify-start"
+                    className="!px-3 !py-2 !text-sm !justify-start text-left"
                   >
                     {opt}
                   </ButtonView>
