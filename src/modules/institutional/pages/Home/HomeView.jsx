@@ -9,119 +9,13 @@ import LogoCury from '@institutional/assets/logo-cury.jpg'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
+import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
   const [cardWidth, setCardWidth] = useState(0)
   const cardRef = useRef(null)
 
-  const fakeRequest =
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    }
-
-  const fakeRequest2 = [
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-  ]
+  const { properties, featuredProperty, isLoading } = useHomeViewModel()
 
   useEffect(() => {
     const calculateCardWidth = () => {
@@ -163,45 +57,55 @@ export function HomeView() {
     <>
       <div className='flex flex-col items-center pb-section-y md:pb-section-y-md bg-default-light-alt'>
         {/*Destac Announcement Property*/ }
-        <SectionView className='!p-0 !gap-0'>
-          <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
-            <div className='flex flex-col items-center gap-subsection md:gap-subsection-md'>
-              <div
-                style={{
-                  width: cardWidth > 0 ? `${cardWidth}px` : 'auto',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <HeadingView
-                  level={2}
-                  className='text-center text-default-light'
+        {featuredProperty ? (
+          <SectionView className='!p-0 !gap-0'>
+            <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-fit'>
+              <div className='flex flex-col items-center gap-subsection md:gap-subsection-md'>
+                <div
+                  style={{
+                    width: cardWidth > 0 ? `${cardWidth}px` : 'auto',
+                    transition: 'all 0.3s ease'
+                  }}
                 >
-                  Seu sonho começa com uma chave
-                </HeadingView>
-              </div>
+                  <HeadingView
+                    level={2}
+                    className='text-center text-default-light'
+                  >
+                    Seu sonho começa com uma chave
+                  </HeadingView>
+                </div>
 
-              <div ref={cardRef}>
-                <PropertyCardView
-                  hasLabel={true}
-                  category={fakeRequest.category}
-                  title={fakeRequest.title}
-                  subtitle={fakeRequest.subtitle}
-                  description={fakeRequest.description}
-                  hasDifference={true}
-                  differences={fakeRequest.differences}
-                  hasButton={true}
-                  hasShadow={false}
-                />
+                <div ref={cardRef}>
+                  <PropertyCardView
+                    hasLabel={true}
+                    category={featuredProperty.category}
+                    title={featuredProperty.title}
+                    subtitle={featuredProperty.subtitle}
+                    description={featuredProperty.description}
+                    hasDifference={true}
+                    differences={featuredProperty.differences}
+                    hasButton={true}
+                    hasShadow={false}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <ImageView
-            src={fakeRequest.imageLink}
-            alt="Imagem do imóvel"
-            mode="background"
-            className='flex-1 bg-cover bg-center bg-no-repeat'
-          />
-        </SectionView>
+            <ImageView
+              src={featuredProperty.imageLink}
+              alt="Imagem do imóvel"
+              mode="background"
+              className='flex-1 bg-cover bg-center bg-no-repeat'
+            />
+          </SectionView>
+        ) : (
+          <SectionView className='!p-0 !gap-0'>
+            <div className='p-section-y md:p-section-y-md flex items-center justify-center w-full'>
+              <HeadingView level={3} className='text-center'>
+                {isLoading ? 'Carregando propriedades...' : 'Nenhum anúncio encontrado'}
+              </HeadingView>
+            </div>
+          </SectionView>
+        )}
 
         <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
           <HeadingView
@@ -216,7 +120,7 @@ export function HomeView() {
 
       {/*Destac Properties*/ }
       <SectionView className="bg-default-light">
-        <PropertiesCarouselView properties={fakeRequest2} titleCarousel="Nossos Lançamentos" />
+        <PropertiesCarouselView properties={properties} titleCarousel="Nossos Lançamentos" />
       </SectionView>
 
       {/*Penélope + Cury*/ }

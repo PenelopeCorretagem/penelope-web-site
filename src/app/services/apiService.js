@@ -44,3 +44,54 @@ export const validateResetToken = (token) => {
 export const resetPassword = ({ token, newPassword }) => {
   return api.post('/auth/reset-password', { token, newPassword })
 }
+
+/**
+ * Recupera a lista de anúncios.
+ * Retorna a promise do axios para permitir tratamento externo.
+ */
+export const getAnuncios = () => {
+  return api.get('/anuncios')
+}
+
+/**
+ * Recupera o último anúncio criado (destaque)
+ */
+export const getAnuncioLatest = () => {
+  return api.get('/anuncios/latest')
+}
+
+/**
+ * Recupera um anúncio por id
+ * @param {number|string} id
+ */
+export const getAnuncioById = (id) => {
+  return api.get(`/anuncios/${id}`)
+}
+
+/**
+ * Solicita o envio de uma mensagem de contato.
+ * @param {string} nome - O nome do usuário.
+ * @param {string} email - O e-mail do usuário.
+ * @param {string} assunto - O assunto do email.
+ * @param {string} mensagem - O conteúdo do email.
+ */
+export const contactUs = (nome, email, assunto, mensagem) => {
+  return api.post(`/contact-us`, { nome, email, assunto, mensagem })
+}
+
+/**
+ * Recupera um usuário por id
+ * @param {number|string} id
+ */
+export const getUserById = (id) => {
+  return api.get(`/users/${id}`)
+}
+
+/**
+ * Recupera um usuário por id
+ * @param {number|string} id
+ * @param {object} userData - Dados do usuário para atualização
+ */
+export const updateUser = (id, userData) => {
+  return api.patch(`/users/${id}`, userData)
+}

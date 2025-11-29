@@ -159,7 +159,8 @@ class PropertyCardViewModel {
       video: () => console.log('Assistindo vídeo'),
       default: () => {
         console.log('Navigating to property detail')
-        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: 1 })
+        const propertyId = this.model?.id || 1
+        const route = this.router.generateRoute('PROPERTY_DETAIL', { id: propertyId })
         console.log('Generated route:', route)
         console.log('Navigate function:', this.navigate)
         if (this.navigate) {
