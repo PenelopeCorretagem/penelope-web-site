@@ -89,6 +89,14 @@ export class ButtonModel {
   }
 
   /**
+   * Retorna a função de ação do botão (alias para action).
+   * @returns {Function|null}
+   */
+  get onClick() {
+    return this.action
+  }
+
+  /**
    * Atualiza a cor do botão, validando o valor recebido.
    * @param {string} newColor - Nova cor.
    * @throws {Error} Se a cor não estiver entre as válidas.

@@ -28,12 +28,14 @@ const editButton = (realEstateAdvertisementId) => new ButtonModel(
   'Editar Imóvel'
 )
 
-const scheduleButton = () => new ButtonModel(
+const scheduleButton = (onClick = null) => new ButtonModel(
   'Agendar Visita',
   'brown',
   'button',
+  null,
   'rectangle',
   'Agendar Visita',
+  onClick
 )
 
 const whatsAppButton = () => new ButtonModel(
@@ -101,13 +103,15 @@ export class PropertyCardModel {
   #renderRealStateCardCategoryLabel
   #renderRealStateCardCoverImage
   #renderRealStateCardFeatures
+  #onScheduleClick
 
-  constructor({ realEstateAdvertisement, realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT }) {
+  constructor({ realEstateAdvertisement, realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT, onScheduleClick = null }) {
     validateRealEstateAdvertisementInstance(realEstateAdvertisement)
     validateRealStateCardMode(realStateCardMode)
 
     this.#realEstateAdvertisement = realEstateAdvertisement
     this.#realStateCardMode = realStateCardMode
+    this.#onScheduleClick = onScheduleClick
     this.#realStateCardCategory = new LabelModel(
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
@@ -223,7 +227,7 @@ export class PropertyCardModel {
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton())
-      buttons.push(scheduleButton())
+      buttons.push(scheduleButton(this.#onScheduleClick))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.DETAILS) {
       buttons.push(galleryButton())
       buttons.push(floorplanButton())
