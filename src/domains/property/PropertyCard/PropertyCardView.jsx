@@ -4,6 +4,8 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView'
+import { MediaLightboxView } from '@shared/components/ui/MediaLightbox/MediaLightboxView'
+import { useMediaLightboxViewModel } from '@shared/components/ui/MediaLightbox/useMediaLightboxViewModel'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 
 export function PropertyCardView(props) {
@@ -29,6 +31,7 @@ export function PropertyCardView(props) {
   } = usePropertyCardViewModel(props)
 
   const [showForm, setShowForm] = useState(false)
+  const mediaLightbox = useMediaLightboxViewModel()
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('a')) return
@@ -38,7 +41,9 @@ export function PropertyCardView(props) {
   const handleButtonAction = (action) => {
     console.log('🟢 Botão clicado:', action)
     if (action === 'contato' || action === 'whatsapp') {
-      setShowForm(true) // ✅ abre o formulário
+      setShowForm(true)
+    } else if (action === 'gallery' || action === 'floorplan' || action === 'video') {
+      mediaLightbox.open({ media: model.media || [], type: action })
     } else {
       handleButtonClick(action)
     }
@@ -123,6 +128,14 @@ export function PropertyCardView(props) {
         <ScreeningFormView
           onClose={() => setShowForm(false)}
           property={model}
+        />
+      )}
+
+      {/* ✅ Modal do MediaLightbox */}
+      {mediaLightbox.isOpen() && (
+        <MediaLightboxView
+          property={model}
+          onClose={mediaLightbox.close}
         />
       )}
     </>
