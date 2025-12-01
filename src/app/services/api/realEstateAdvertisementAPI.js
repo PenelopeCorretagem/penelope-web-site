@@ -42,6 +42,7 @@ export const listAllActiveAdvertisements = async (filters = {}) => {
   }
 
   const response = await axiosInstance.get('/anuncios', { params })
+  console.log(response)
 
   return RealEstateAdvertisementMapper.toEntityList(response.data)
 }
@@ -52,6 +53,7 @@ export const listAllActiveAdvertisements = async (filters = {}) => {
  */
 export const getLatestAdvertisement = async () => {
   const response = await axiosInstance.get('/anuncios/latest')
+  console.log(response)
   return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
@@ -62,6 +64,7 @@ export const getLatestAdvertisement = async () => {
  */
 export const getAdvertisementById = async (id) => {
   const response = await axiosInstance.get(`/anuncios/${id}`)
+  console.log(response)
   return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
@@ -87,6 +90,7 @@ export const createAdvertisement = async (advertisementRequest) => {
       }
     }
 
+    console.log(response)
     return response.data
   } catch (error) {
     if (error.response?.status === 400) {

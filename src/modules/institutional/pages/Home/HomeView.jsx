@@ -7,7 +7,7 @@ import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
 import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
-import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
+
 import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
@@ -116,9 +116,6 @@ export function HomeView() {
           className="h-auto max-h-72"
         />
       </SectionView>
-
-      {/* 🔥 CHATBOT INCLUIDO AQUI */}
-      <ChatbotView />
     </>
   )
 }

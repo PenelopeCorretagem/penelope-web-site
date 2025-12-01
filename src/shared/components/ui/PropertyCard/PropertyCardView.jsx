@@ -93,7 +93,7 @@ export function PropertyCardView({
   }
 
   return (
-    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'grid grid-cols-[35%_65%] h-[78vh]' : ''}>
+    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full grid grid-cols-[35%_65%] h-[78vh]' : ''}>
       <div  className={viewModel.isDetailsMode || viewModel.isDistacMode ?'bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full h-full gap-subsection md:gap-subsection-md' : 'h-full'}>
         {viewModel.isDetailsMode || viewModel.isDistacMode ? (
           <HeadingView

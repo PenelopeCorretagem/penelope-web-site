@@ -3,9 +3,7 @@ import { HeaderView } from '@shared/components/layout/Header/HeaderView'
 import { RouterView } from '@routes/RouterView'
 import { useRouter } from '@routes/useRouterViewModel'
 import { FooterView } from '@shared/components/layout/Footer/FooterView'
-import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { TextView } from '@shared/components/ui/Text/TextView'
-import { getAuthLinkContainerThemeClasses, getAuthLinkButtonThemeClasses } from '@shared/styles/theme'
+import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 
 export function PageView() {
@@ -135,6 +133,7 @@ export function PageView() {
 
         <div className='flex-1 overflow-x-hidden overflow-y-auto'>
           <RouterView isAuthenticated={isAuthenticated} isAdmin={isAdmin} authReady={authReady} />
+          <ChatbotView />
           {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
         </div>
       </div>
