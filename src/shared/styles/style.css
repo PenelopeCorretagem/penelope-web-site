@@ -266,3 +266,18 @@
     padding-top 500ms ease-in-out,
     padding-bottom 500ms ease-in-out;
 }
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s ease-out;
+}
