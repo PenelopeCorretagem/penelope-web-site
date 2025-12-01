@@ -13,6 +13,8 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
 
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
+import { useNavigate } from 'react-router-dom'
+import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 export function PropertyDetailsView() {
   const {
