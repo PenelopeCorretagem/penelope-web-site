@@ -64,7 +64,7 @@ export function useAuthViewModel() {
     try {
       const response = await login({
         email: formData.email,
-        senha: formData.senha
+        password: formData.senha
       })
 
       console.log('🔍 [LOGIN] Response da API:', response)
@@ -242,11 +242,14 @@ export function useAuthViewModel() {
       if (formData.senha !== formData.confirmSenha) {
         throw new Error('As senhas não coincidem.')
       }
+      console.log({ name: formData.nomeCompleto,
+        email: formData.email,
+        password: formData.senha })
 
       await register({
-        nomeCompleto: formData.nomeCompleto,
+        name: formData.nomeCompleto,
         email: formData.email,
-        senha: formData.senha
+        password: formData.senha
       })
 
       setAlertConfig({

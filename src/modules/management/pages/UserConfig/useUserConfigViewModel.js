@@ -24,12 +24,12 @@ export function useUserConfigViewModel() {
       setTimeout(() => {
         const mockUser = {
           id: id,
-          nomeCompleto: 'Usuário Exemplo',
+          name: 'Usuário Exemplo',
           email: 'usuario@exemplo.com',
           phone: '11987654321',
           cpf: '12345678909',
-          dtNascimento: '1990-01-01',
-          rendaMensal: 5000,
+          dateBirth: '1990-01-01',
+          monthlyIncome: 5000,
           accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
           creci: id === '1' ? '123456' : ''
         }
@@ -47,7 +47,7 @@ export function useUserConfigViewModel() {
           dateBirth: userModel.dateBirth,
           monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
           accessLevel: userModel.accessLevel,
-          senha: '' // Sempre vazio por segurança no modo edição
+          passowrd: '' // Sempre vazio por segurança no modo edição
         })
 
         setLoading(false)
@@ -63,7 +63,7 @@ export function useUserConfigViewModel() {
         dateBirth: '',
         monthlyIncome: '',
         accessLevel: 'CLIENTE',
-        senha: ''
+        password: ''
       })
     }
   }, [isEditMode, id])
@@ -78,8 +78,8 @@ export function useUserConfigViewModel() {
       // Create model with form data
       const userModel = new UserConfigModel(data)
 
-      // Validate data
-      const validation = userModel.validate(isEditMode, model.accessLevel)
+      // Validate data using the actual form data's accessLevel
+      const validation = userModel.validateWithData(data, isEditMode, data.accessLevel || 'CLIENTE')
       if (!validation.isValid) {
         const errorMessages = Object.values(validation.errors).join(', ')
         throw new Error(`Dados inválidos: ${errorMessages}`)
@@ -125,7 +125,7 @@ export function useUserConfigViewModel() {
     } finally {
       setLoading(false)
     }
-  }, [isEditMode, model.accessLevel, navigateTo, routes.ADMIN_USERS])
+  }, [isEditMode, navigateTo, routes.ADMIN_USERS])
 
   const handleDelete = useCallback(async () => {
     if (!isEditMode || !id) return
