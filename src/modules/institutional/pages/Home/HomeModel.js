@@ -1,4 +1,4 @@
-import { ESTATE_TYPES } from '@constant/estateType'
+import { ESTATE_TYPES } from '@constant/estateTypes'
 import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
 
 export class HomeModel {

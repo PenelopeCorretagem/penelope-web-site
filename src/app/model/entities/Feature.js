@@ -7,7 +7,7 @@
  *
  * Os campos internos são privados e acessados apenas via getters.
  */
-export class Difference {
+export class Feature {
   /** @type {number} */
   #id
 

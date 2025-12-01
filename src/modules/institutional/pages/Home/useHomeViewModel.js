@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { listAllActiveAdvertisements } from '@api/realEstateAdvertisementAPI'
 import { HomeModel } from './HomeModel'
 import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { ESTATE_TYPES } from '@constant/estateTypes'
 
 export function useHomeViewModel() {
 
@@ -20,7 +21,7 @@ export function useHomeViewModel() {
   const fetchLaunchProperties = useCallback(async () => {
     try {
       const launchAds = await listAllActiveAdvertisements({
-        tipo: 'LANCAMENTO'
+        type: ESTATE_TYPES['LANCAMENTO'].key
       })
 
       if (Array.isArray(launchAds)) {
@@ -74,6 +75,17 @@ export function useHomeViewModel() {
       )
   }, [])
 
+  // Memoize the mapped properties to avoid recreating arrays on every render
+  const featuredProperty = useMemo(() =>
+    mapperPropertyCardModel(homeModel.featuredRealEstateAdvertisement, REAL_STATE_CARD_MODES.DISTAC),
+  [homeModel.featuredRealEstateAdvertisement, mapperPropertyCardModel]
+  )
+
+  // Don't map to PropertyCardModel here - let PropertiesCarouselView handle it
+  const launchProperties = useMemo(() =>
+    homeModel.preLaunchRealEstateAdvertisements,
+  [homeModel.preLaunchRealEstateAdvertisements]
+  )
 
 
   // ======================
@@ -89,9 +101,8 @@ export function useHomeViewModel() {
     hasLaunchProperties: homeModel.preLaunchRealEstateAdvertisements.length > 0,
 
     featureImageCoverUrl: homeModel.featuredRealEstateAdvertisement !== null ? homeModel.featuredRealEstateAdvertisement.estate.getCoverImageUrl() : null,
-    featuredProperty: mapperPropertyCardModel(homeModel.featuredRealEstateAdvertisement, REAL_STATE_CARD_MODES.MINIMALIST),
-    launchProperties: homeModel.preLaunchRealEstateAdvertisements.map(realEstateAdvertisement =>
-      mapperPropertyCardModel(realEstateAdvertisement, REAL_STATE_CARD_MODES.DEFAULT)),
+    featuredProperty,
+    launchProperties,
 
     refresh: fetchHomeData
   }

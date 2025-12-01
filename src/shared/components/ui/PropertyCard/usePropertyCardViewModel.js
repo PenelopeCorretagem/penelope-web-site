@@ -1,32 +1,36 @@
+import { useMemo } from 'react'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 
-export function usePropertyCardViewModel(realEstateAdvertisement, realStateCardMode) {
-  const propertyCardModel = new PropertyCardModel({ realEstateAdvertisement, realStateCardMode })
-
-  const realStateCardCategoryLabelPosition = () => {
-    return propertyCardModel.realStateCardCoverImageUrl != null
-      ? 'absolute top-0 -translate-y-1/2 left-[1.5rem]'
-      : ''
-  }
+export function usePropertyCardViewModel(realEstateAdvertisement, realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT) {
+  const propertyCardModel = useMemo(
+    () => new PropertyCardModel({ realEstateAdvertisement, realStateCardMode }),
+    [realEstateAdvertisement, realStateCardMode]
+  )
 
   return {
+    // Dados do card
     realStateCardCategory: propertyCardModel.realStateCardCategory,
-    realStateCardCategoryLabelPosition: realStateCardCategoryLabelPosition,
-    realStateCardMode : propertyCardModel.realStateCardMode,
+    realStateCardMode: propertyCardModel.realStateCardMode,
     realStateCardButtons: propertyCardModel.realStateCardButtons,
-    realStateCardDifferences: propertyCardModel.realStateCardDifferences,
+    realStateCardFeatures: propertyCardModel.realStateCardFeatures,
     realStateCardCoverImageUrl: propertyCardModel.realStateCardCoverImageUrl,
     realStateCardTitle: propertyCardModel.realStateCardTitle,
     realStateCardSubtitle: propertyCardModel.realStateCardSubtitle,
     realStateCardDescription: propertyCardModel.realStateCardDescription,
-    shouldRenderRealStateCardCategoryLabel: propertyCardModel.shouldRenderRealStateCardCategoryLabel,
-    shouldRenderRealStateCardCoverImage: propertyCardModel.shouldRenderRealStateCardCoverImage,
-    shouldRenderRealStateCardDifferences: propertyCardModel.shouldRenderRealStateCardDifferences,
+
+    // Flags de renderização
+    renderRealStateCardCategoryLabel: propertyCardModel.renderRealStateCardCategoryLabel,
+    renderRealStateCardCoverImage: propertyCardModel.renderRealStateCardCoverImage,
+    renderRealStateCardFeatures: propertyCardModel.renderRealStateCardFeatures,
+
+    // Flags de modo
     isConfigMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.CONFIG,
     isMoreDetailsMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.MORE_DETAILS,
     isRedirectionMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION,
     isMinimalistMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.MINIMALIST,
+    isDetailsMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DETAILS,
+    isDistacMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DISTAC,
     isDefaultMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DEFAULT
   }
 }

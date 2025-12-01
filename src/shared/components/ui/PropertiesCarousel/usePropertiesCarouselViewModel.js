@@ -1,227 +1,111 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { PropertiesCarouselModel } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselModel'
+import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 
 /**
- * PropertiesCarouselViewModel - Gerencia a lógica e apresentação do PropertiesCarousel
- * Centraliza a lógica de navegação, drag & drop e animações
+ * Hook para gerenciar estado e interações do PropertiesCarousel.
+ * Implementa Factory Pattern - cria e encapsula o Model internamente.
+ *
+ * @param {Array} realEstateAdvertisements Lista de propriedades
+ * @param {Object|string} realStateCardMode Modo de exibição dos cards
+ * @param {string} initialTitle Título opcional do carrossel
  */
-class PropertiesCarouselViewModel {
-  constructor(model, updateView) {
-    this.model = model
-    this.updateView = updateView
-    this.isAnimating = false
-    this.isDragging = false
-    this.startX = 0
-    this.currentTranslate = 0
-    this.prevTranslate = 0
-  }
-
-  next() {
-    if (this.isAnimating || this.isDragging) return
-
-    const currentIndex = this.model.getCurrentIndex()
-    this.model.setCurrentIndex(currentIndex + 1)
-    this.updateView()
-  }
-
-  previous() {
-    if (this.isAnimating || this.isDragging) return
-
-    const currentIndex = this.model.getCurrentIndex()
-    this.model.setCurrentIndex(currentIndex - 1)
-    this.updateView()
-  }
-
-  goToSlide(realIndex) {
-    if (this.isAnimating || this.isDragging) return
-
-    const cloneCount = this.model.getCloneCount()
-    // Vai para o item real no meio do array
-    this.model.setCurrentIndex(cloneCount + realIndex)
-    this.updateView()
-  }
-
-  // Verifica se precisa reposicionar para criar loop infinito
-  checkInfiniteLoop() {
-    const currentIndex = this.model.getCurrentIndex()
-    const cloneCount = this.model.getCloneCount()
-    const _originalLength = this.model.getOriginalLength()
-
-    // Se chegou no final dos clones finais, volta para o início real
-    if (currentIndex >= cloneCount * 2) {
-      this.model.setCurrentIndex(cloneCount)
-      return true
-    }
-
-    // Se chegou no início dos clones iniciais, vai para o final real
-    if (currentIndex < cloneCount) {
-      this.model.setCurrentIndex(cloneCount + _originalLength - 1)
-      return true
-    }
-
-    return false
-  }
-
-  setAnimating(isAnimating) {
-    this.isAnimating = isAnimating
-  }
-
-  getCurrentRealIndex() {
-    return this.model.getRealIndex()
-  }
-
-  getTotalOriginalItems() {
-    return this.model.getOriginalLength()
-  }
-
-  getItems() {
-    return this.model.getItems()
-  }
-
-  getOriginalItems() {
-    return this.model.getOriginalItems()
-  }
-}
-
-/**
- * Hook para gerenciar estado e interações do PropertiesCarousel
- * Implementa Factory Pattern - cria o modelo internamente
- * @param {Array} properties - Lista de propriedades para exibir
- * @returns {Object} Estado e comandos do carousel
- */
-export function usePropertiesCarouselViewModel(properties = []) {
+export function usePropertiesCarouselViewModel(
+  realEstateAdvertisements = [],
+  realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
+  initialTitle = ''
+) {
   const [, forceUpdate] = useState(0)
   const containerRef = useRef(null)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const [isScrollable, setIsScrollable] = useState(false) // Novo estado
+  const [isScrollable, setIsScrollable] = useState(false)
 
   const refresh = useCallback(() => {
     forceUpdate(prev => prev + 1)
   }, [])
 
-  // ✅ Factory Pattern - Hook cria o modelo
-  const [viewModel] = useState(() => {
-    const model = new PropertiesCarouselModel(properties)
-    return new PropertiesCarouselViewModel(model, refresh)
+  // Memoize the array to avoid recreating on every render
+  const memoizedAdvertisements = useMemo(() => realEstateAdvertisements, [realEstateAdvertisements])
+
+  // ✅ Factory Pattern — criando o model corretamente
+  const [model] = useState(() => {
+    return new PropertiesCarouselModel({
+      realEstateAdvertisements: memoizedAdvertisements,
+      realStateCardMode,
+      containerRef,
+      titleCarousel: initialTitle
+    })
   })
 
-  // Verifica o progresso do scroll e atualiza a barra
+  // 🔄 Sync: Update model when dependencies change, but don't force re-render
+  useEffect(() => {
+    let hasChanges = false
+
+    if (model.realEstateAdvertisements !== memoizedAdvertisements) {
+      model.realEstateAdvertisements = memoizedAdvertisements
+      hasChanges = true
+    }
+
+    if (model.realStateCardMode !== realStateCardMode) {
+      model.realStateCardMode = realStateCardMode
+      hasChanges = true
+    }
+
+    if (initialTitle !== undefined && model.titleCarousel !== initialTitle) {
+      model.titleCarousel = initialTitle
+      hasChanges = true
+    }
+
+    // Only refresh if there were actual changes
+    if (hasChanges) {
+      refresh()
+    }
+  }, [memoizedAdvertisements, realStateCardMode, initialTitle, model])
+
+  // ------------------------------------------------------------------------------------
+  // Delegações: Scroll e Navegação agora são chamadas diretas ao Model
+  // ------------------------------------------------------------------------------------
+
   const checkScrollProgress = useCallback(() => {
-    if (!containerRef.current) return
+    model.checkScrollProgress()
+    setScrollProgress(model.scrollProgress)
+  }, [model])
 
-    const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
-    const maxScroll = scrollWidth - clientWidth
-    const shadowOffset = 16 // Mesmo offset usado na navegação
-
-    // Calcula o progresso (0 a 100)
-    let progress = maxScroll > 0 ? (scrollLeft / maxScroll) * 100 : 0
-
-    // Se chegou próximo do fim (considerando a sombra), considera 100%
-    if (scrollLeft >= maxScroll - shadowOffset - 10) {
-      progress = 100
-    }
-    // Se está próximo do início, considera 0%
-    else if (scrollLeft <= 10) {
-      progress = 0
-    }
-
-    setScrollProgress(Math.round(progress))
-  }, [])
-
-  // Navegação por botões - move exatamente um card por vez
   const scrollToLeft = useCallback(() => {
-    if (!containerRef.current) return
-
-    const container = containerRef.current
-    const cards = container.querySelectorAll('.flex-shrink-0')
-
-    if (cards.length === 0) return
-
-    // Pega a posição atual do scroll
-    const currentScrollLeft = container.scrollLeft
-
-    // Encontra o card que está mais próximo da posição atual
-    let currentCardIndex = 0
-    let minDistance = Infinity
-
-    for (let i = 0; i < cards.length; i++) {
-      const cardLeft = cards[i].offsetLeft
-      const distance = Math.abs(cardLeft - currentScrollLeft)
-
-      if (distance < minDistance) {
-        minDistance = distance
-        currentCardIndex = i
-      }
-    }
-
-    // Move para o card anterior
-    const targetIndex = Math.max(0, currentCardIndex - 1)
-    const targetCard = cards[targetIndex]
-
-    // Calcula a posição exata do card alvo
-    const cardLeft = targetCard.offsetLeft
-    container.scrollTo({ left: cardLeft, behavior: 'smooth' })
-  }, [])
+    model.scrollToLeft()
+  }, [model])
 
   const scrollToRight = useCallback(() => {
-    if (!containerRef.current) return
+    model.scrollToRight()
+  }, [model])
 
-    const container = containerRef.current
-    const cards = container.querySelectorAll('.flex-shrink-0')
-
-    if (cards.length === 0) return
-
-    // Pega a posição atual do scroll
-    const currentScrollLeft = container.scrollLeft
-
-    // Encontra o card que está mais próximo da posição atual
-    let currentCardIndex = 0
-    let minDistance = Infinity
-
-    for (let i = 0; i < cards.length; i++) {
-      const cardLeft = cards[i].offsetLeft
-      const distance = Math.abs(cardLeft - currentScrollLeft)
-
-      if (distance < minDistance) {
-        minDistance = distance
-        currentCardIndex = i
-      }
-    }
-
-    // Move para o próximo card
-    const targetIndex = Math.min(cards.length - 1, currentCardIndex + 1)
-    const targetCard = cards[targetIndex]
-
-    // Calcula a posição exata do card alvo
-    const cardLeft = targetCard.offsetLeft
-    container.scrollTo({ left: cardLeft, behavior: 'smooth' })
-  }, [])
-
-  // Nova função para verificar se o container tem scroll
+  // Verifica se o container possui scroll horizontal
   const checkIfScrollable = useCallback(() => {
-    if (!containerRef.current) return
-
+    if (!containerRef.current) {
+      setIsScrollable(false)
+      return
+    }
     const { scrollWidth, clientWidth } = containerRef.current
-    const hasScroll = scrollWidth > clientWidth
-    setIsScrollable(hasScroll)
+    setIsScrollable(scrollWidth > clientWidth)
   }, [])
 
-  // Effect para detectar mudanças no scroll
+  // Listener de scroll
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
     const handleScroll = () => checkScrollProgress()
+
     container.addEventListener('scroll', handleScroll)
 
     // Check inicial
     checkScrollProgress()
-    checkIfScrollable() // Verifica se é scrollable
+    checkIfScrollable()
 
     return () => container.removeEventListener('scroll', handleScroll)
   }, [checkScrollProgress, checkIfScrollable])
 
-  // Novo effect para detectar mudanças no tamanho da janela
+  // Listener de resize
   useEffect(() => {
     const handleResize = () => {
       checkIfScrollable()
@@ -230,22 +114,17 @@ export function usePropertiesCarouselViewModel(properties = []) {
 
     window.addEventListener('resize', handleResize)
 
-    // Check inicial após um pequeno delay para garantir que o DOM foi renderizado
     const timeoutId = setTimeout(checkIfScrollable, 100)
 
     return () => {
       window.removeEventListener('resize', handleResize)
       clearTimeout(timeoutId)
     }
-  }, [checkIfScrollable, checkScrollProgress, properties.length])
+  }, [checkIfScrollable, checkScrollProgress])
 
-  const commands = {
-    next: () => viewModel.next(),
-    previous: () => viewModel.previous(),
-    goToSlide: (index) => viewModel.goToSlide(index),
-    scrollToLeft,
-    scrollToRight,
-  }
+  // ------------------------------------------------------------------------------------
+  // API exposta pela ViewModel para a View
+  // ------------------------------------------------------------------------------------
 
   return {
     // Refs
@@ -253,19 +132,32 @@ export function usePropertiesCarouselViewModel(properties = []) {
 
     // Estado
     scrollProgress,
-    isScrollable, // Novo retorno
+    isScrollable,
 
-    // Dados
-    properties: viewModel.getOriginalItems(),
-    currentRealIndex: viewModel.getCurrentRealIndex(),
-    totalItems: viewModel.getTotalOriginalItems(),
+    // Dados derivados do Model
+    properties: model.getOriginalItems(),
+    currentRealIndex: model.getCurrentRealIndex(),
+    totalItems: model.getTotalOriginalItems(),
+    titleCarousel: model.titleCarousel,
+    callToActionButton: model.callToActionButton,
 
-    // Commands
-    ...commands,
+    // Comandos expostos
+    next: () => {
+      model.goToNextRealEstateAdvertisement()
+      refresh()
+    },
+    previous: () => {
+      model.goToPreviousRealEstateAdvertisement()
+      refresh()
+    },
+    goToSlide: (index) => {
+      model.goToSlide(index)
+      refresh()
+    },
+    scrollToLeft,
+    scrollToRight,
 
-    // Utilities
-    checkScrollProgress,
+    // Utils
+    checkScrollProgress
   }
 }
-
-export { PropertiesCarouselViewModel }

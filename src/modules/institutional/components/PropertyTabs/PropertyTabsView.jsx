@@ -26,6 +26,7 @@ export function PropertyTabsView({ tabs, anchors }) {
         {tabsData.map(({ tab, anchor, isActive }) => (
           <li key={anchor} role="none">
             <button
+              type="button"
               className={`uppercase font-medium transition-colors duration-200 focus:outline-none cursor-pointer ${
                 isActive
                   ? 'text-distac-primary'

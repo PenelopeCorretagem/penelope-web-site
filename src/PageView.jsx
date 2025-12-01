@@ -138,67 +138,6 @@ export function PageView() {
           {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
         </div>
       </div>
-
-
-      {/* Botões de teste */}
-      {import.meta.env.DEV && (
-        <div className='fixed right-4 bottom-4 flex flex-col gap-2 rounded bg-gray-800/90 p-4 z-[9999] backdrop-blur-sm shadow-lg'>
-          <div className='flex flex-col gap-2'>
-            {isAuthenticated ? (
-              <>
-                <div className='text-xs text-white mb-1'>
-                  {isAdmin ? '👑 Admin' : '👤 User'} | Role: {sessionStorage.getItem('userRole')}
-                </div>
-                <div className='text-xs text-gray-300 mb-2'>
-                  Email: {sessionStorage.getItem('userEmail')?.slice(0, 15)}...
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className='rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 text-sm'
-                >
-                  Logout (DEV)
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={handleDevLogin}
-                  className='rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 text-sm'
-                >
-                  Login User (DEV)
-                </button>
-                <button
-                  onClick={handleDevAdminLogin}
-                  className='rounded bg-purple-500 px-4 py-2 text-white transition-colors hover:bg-purple-600 text-sm'
-                >
-                  Login Admin (DEV)
-                </button>
-              </>
-            )}
-            {/* Botão para mostrar feedback */}
-            <button
-              onClick={() => setShowFeedback(true)}
-              className='rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600 text-sm'
-            >
-              Feedback
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Exemplo de AlertView flutuante */}
-      <AlertView
-        isVisible={showFeedback}
-        message="Este é um feedback flutuante de exemplo!"
-        onClose={() => setShowFeedback(false)}
-        buttonsLayout='col'
-      >
-        <TextView className={getAuthLinkContainerThemeClasses()}>
-          <button className={getAuthLinkButtonThemeClasses()}>
-            Recuperar senha
-          </button>
-        </TextView>
-      </AlertView>
     </div>
   )
 }

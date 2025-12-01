@@ -13,7 +13,7 @@ import { IMAGE_TYPES } from '@constant/imageTypes'
  * - #address
  * - #standAddress
  * - #images (Array<ImageEstate>)
- * - #differences (Array<Difference>)
+ * - #features (Array<Feature>)
  *
  * Todos os acessos e alterações são feitos via getters e setters.
  */
@@ -27,7 +27,7 @@ export class Estate {
   #address
   #standAddress
   #images
-  #differences
+  #features
 
   constructor({
     id,
@@ -39,7 +39,7 @@ export class Estate {
     address,
     standAddress,
     images = [],
-    differences = [],
+    features = [],
   }) {
     this.#id = id
     this.#title = title
@@ -50,7 +50,7 @@ export class Estate {
     this.#address = address
     this.#standAddress = standAddress
     this.#images = images
-    this.#differences = differences
+    this.#features = features
   }
 
   // --------------------------
@@ -83,8 +83,8 @@ export class Estate {
   get images() { return this.#images }
   set images(value) { this.#images = Array.isArray(value) ? value : [] }
 
-  get differences() { return this.#differences }
-  set differences(value) { this.#differences = Array.isArray(value) ? value : [] }
+  get features() { return this.#features }
+  set features(value) { this.#features = Array.isArray(value) ? value : [] }
 
   // --------------------------
   // Métodos utilitários
@@ -130,5 +130,9 @@ export class Estate {
   /** Retorna imagens de planta */
   getFloorPlanImages() {
     return this.getImageByType(IMAGE_TYPES.FLOOR_PLAN.description)
+  }
+
+  isRealEstateInstance(object){
+    return object instanceof Estate
   }
 }

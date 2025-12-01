@@ -4,18 +4,19 @@ import { memo } from 'react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { usePropertiesCarouselViewModel } from '@shared/components/ui/PropertiesCarousel/usePropertiesCarouselViewModel'
-import { useRouter } from '@app/routes/useRouterViewModel'
+import { RouterModel } from '@app/routes/RouterModel'
+import { ROUTES } from '@constant/routes'
+import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 
 export const PropertiesCarouselView = memo(function PropertiesCarouselView({
-  properties = [],
-  titleCarousel,
-  supportMode = false,
-  onEdit,
-  onDelete,
+  // NOTE: agora a prop se chama `properties` (array)
+  realEstateAdvertisements = [],
+  titleCarousel = '',
+  realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
   // Props genéricas para customizar o botão de ação
   showActionButton = true,
   actionButtonText = 'Ver Mais',
-  actionRoute = 'PROPERTIES', // Nome da rota no RouterModel
+  actionRoute = 'PROPERTIES', // Nome da rota
   actionRouteParams = {}, // Parâmetros para a rota
   onActionClick = null // Função customizada para o clique (opcional)
 }) {
@@ -25,38 +26,58 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
     isScrollable,
     scrollToLeft,
     scrollToRight,
-  } = usePropertiesCarouselViewModel(properties)
+    titleCarousel: modelTitle,
+    callToActionButton
+  } = usePropertiesCarouselViewModel(realEstateAdvertisements, realStateCardMode, titleCarousel)
 
-  const { navigateTo, generateRoute, getAllRoutes } = useRouter()
-  const routes = getAllRoutes()
-
-  const handleActionClick = () => {
-    if (onActionClick) {
-      // Se foi passada uma função customizada, usa ela
-      onActionClick()
-    } else {
-      // Senão, navega usando o router
-      try {
-        const route = Object.keys(routes).includes(actionRoute)
-          ? generateRoute(actionRoute, actionRouteParams)
-          : routes[actionRoute] || routes.PROPERTIES
-        navigateTo(route)
-      } catch (error) {
-        console.error('Erro ao navegar:', error)
-        navigateTo(routes.PROPERTIES) // Fallback
-      }
+  // Router fallback usando RouterModel (caso a sua app não use useRouter())
+  const router = RouterModel.getInstance()
+  const getRouteOrFallback = (routeName, params) => {
+    try {
+      if (!routeName) return router.generateRoute(ROUTES.PROPERTIES.key, params)
+      // Se receber chave como 'PROPERTIES', tenta pegar key no map ROUTES, senão assume que routeName já é chave válida
+      const routeKey = ROUTES?.[routeName]?.key || ROUTES?.[routeName] || routeName
+      return router.generateRoute(routeKey, params)
+    } catch (e) {
+      console.error('Erro ao gerar rota:', e)
+      return router.generateRoute(ROUTES.PROPERTIES.key, params)
     }
   }
 
-  if (properties.length === 0) {
+  const handleActionClick = () => {
+    if (onActionClick) {
+      onActionClick()
+      return
+    }
+
+    // Se o model expôs um CTA configurado, tenta navegar por ele; senão, usa props
+    if (callToActionButton && callToActionButton.getRoute) {
+      try {
+        const route = callToActionButton.getRoute()
+        router.navigateTo(route)
+        return
+      } catch (e) {
+        // fallback para props
+      }
+    }
+
+    const route = getRouteOrFallback(actionRoute, actionRouteParams)
+    try {
+      router.navigateTo(route)
+    } catch (e) {
+      console.error('Erro ao navegar:', e)
+    }
+  }
+
+  if (!realEstateAdvertisements || realEstateAdvertisements.length === 0) {
     return null
   }
 
   return (
     <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
-      <div className='flex flex-row justify-between items-start'>
+      <div className="flex flex-row justify-between items-start">
         <HeadingView level={2} className="text-center text-distac-primary">
-          {titleCarousel}
+          {modelTitle || titleCarousel}
         </HeadingView>
 
         {showActionButton && (
@@ -64,7 +85,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
             color="brown"
             size="medium"
             type="button"
-            width='fit'
+            width="fit"
             onClick={handleActionClick}
             aria-label={actionButtonText}
           >
@@ -75,30 +96,34 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
 
       <div className="relative w-full">
         {isScrollable && (
-          <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-2">
-            <ButtonView
-              color="brown"
-              type="button"
-              width='fit'
-              onClick={scrollToLeft}
-              className="hover:scale-110 pointer-events-auto shadow-lg"
-              aria-label="Slide anterior"
-              shape='square'
-            >
-              <ChevronLeft size={24} />
-            </ButtonView>
+          <div className="absolute inset-0 flex justify-between items-center pointer-events-none z-20">
+            <div className="pointer-events-auto">
+              <ButtonView
+                color="brown"
+                type="button"
+                width="fit"
+                onClick={scrollToLeft}
+                className="hover:scale-110 shadow-lg"
+                aria-label="Slide anterior"
+                shape="square"
+              >
+                <ChevronLeft size={24} />
+              </ButtonView>
+            </div>
 
-            <ButtonView
-              color="brown"
-              type="button"
-              width='fit'
-              onClick={scrollToRight}
-              className="hover:scale-110 pointer-events-auto shadow-lg"
-              aria-label="Próximo slide"
-              shape='square'
-            >
-              <ChevronRight size={24} />
-            </ButtonView>
+            <div className="pointer-events-auto">
+              <ButtonView
+                color="brown"
+                type="button"
+                width="fit"
+                onClick={scrollToRight}
+                className="hover:scale-110 shadow-lg"
+                aria-label="Próximo slide"
+                shape="square"
+              >
+                <ChevronRight size={24} />
+              </ButtonView>
+            </div>
           </div>
         )}
 
@@ -110,26 +135,12 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
             aria-label="Carrossel de propriedades"
             tabIndex={0}
           >
-            {properties.map((property, index) => (
+            {realEstateAdvertisements.map((realEstateAdvertisement, index) => (
               <PropertyCardView
-                key={`${property.id || index}-${property.title}`}
-                id={property.id || index + 1}
-                hasLabel={true}
-                category={property.category}
-                title={property.title}
-                subtitle={property.subtitle}
-                description={property.description}
-                hasDifference={true}
-                differences={property.differences}
-                hasButton={!supportMode}
-                hasShadow={true}
-                hasImage={true}
-                hasHoverEffect={!supportMode}
-                imageUrl={property.imageLink}
+                key={realEstateAdvertisement.id || index}
+                realEstateAdvertisement={realEstateAdvertisement}
+                realStateCardMode={realStateCardMode}
                 className="flex-shrink-0"
-                supportMode={supportMode}
-                onEdit={onEdit}
-                onDelete={onDelete}
               />
             ))}
           </div>
@@ -143,7 +154,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
               className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
               style={{
                 width: `${scrollProgress}%`,
-                transform: `translateX(0%)`,
+                transform: `translateX(0%)`
               }}
             />
           </div>

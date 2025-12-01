@@ -1,10 +1,10 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
-import { getEstateTypeByKey } from '@constant/estateType'
+import { getEstateTypeByKey } from '@constant/estateTypes'
 import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
 import { User } from '@entity/User'
 import { Address } from '@entity/Address'
 import { Estate } from '@entity/Estate'
-import { Difference } from '@entity/Difference'
+import { Feature } from '@entity/Feature'
 import { ImageEstate } from '@entity/ImageEstate'
 import { ImageEstateType } from '@entity/ImageEstateType'
 
@@ -69,12 +69,12 @@ export class RealEstateAdvertisementMapper {
             zipCode: data.property.addressStand.zipCode,
           })
           : null,
-        differences: data.property.amenities
+        features: data.property.amenities
           ? data.property.amenities.map(
-            diff =>
-              new Difference({
-                id: diff.id,
-                description: diff.description,
+            feature =>
+              new Feature({
+                id: feature.id,
+                description: feature.description,
               })
           )
           : [],
@@ -221,8 +221,8 @@ export class RealEstateAdvertisementMapper {
               zipCode: advertisement.estate.standAddress.zipCode,
             }
             : null,
-          amenities: advertisement.estate.differences
-            ? advertisement.estate.differences.map(diff => ({
+          amenities: advertisement.estate.Features
+            ? advertisement.estate.Features.map(diff => ({
               id: diff.id,
               description: diff.description,
             }))

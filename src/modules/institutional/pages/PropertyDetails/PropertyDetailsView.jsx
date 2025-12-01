@@ -1,27 +1,34 @@
 import { useState, useEffect } from 'react'
-import { PropertyHeroSectionView } from '@institutional/components/PropertyHeroSection/PropertyHeroSectionView.jsx'
 import { PropertyTabsView } from '@institutional/components/PropertyTabs/PropertyTabsView.jsx'
-import { PropertyOverview } from '@institutional/components/PropertyOverview/PropertyOverview.jsx'
 import { SectionView } from '@shared/components/layout/Section/SectionView.jsx'
-import { PropertyFeatures } from '@institutional/components/PropertyFeatures/PropertyFeatures.jsx'
 import { PropertyLocation } from '@institutional/components/PropertyLocation/PropertyLocation.jsx'
-import { PropertyRegion } from '@institutional/components/PropertyRegion/PropertyRegion.jsx'
+import { PropertyFeatureView } from '@shared/components/ui/PropertyFeature/PropertyFeatureView.jsx'
+import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { ImageView } from '@shared/components/ui/Image/ImageView.jsx'
 import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView.jsx'
 import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView.jsx'
 import { TextView } from '@shared/components/ui/Text/TextView'
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
 
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
-  const { property, isLoading, error } = usePropertyDetailsViewModel()
+  const {
+    realEstateAdvertisement,
+    relatedRealEstateAdvertisements,
+    region,
+    isLoading,
+    error
+  } = usePropertyDetailsViewModel()
+
   const { navigateTo, getAllRoutes } = useRouter()
   const routes = getAllRoutes()
 
-  const [headerHeight, setHeaderHeight] = useState(80) // valor padrão
-  const [tabsHeight, setTabsHeight] = useState(60) // valor padrão para PropertyTabsView
-  const [sectionPadding, setSectionPadding] = useState(20) // valor padrão
+  const [headerHeight, setHeaderHeight] = useState(80)
+  const [tabsHeight, setTabsHeight] = useState(60)
+  const [sectionPadding, setSectionPadding] = useState(20)
 
   useEffect(() => {
     const calculateHeights = () => {
@@ -41,7 +48,6 @@ export function PropertyDetailsView() {
       const rootStyles = getComputedStyle(document.documentElement)
       const paddingValue = rootStyles.getPropertyValue('--padding-section-y').trim()
       if (paddingValue) {
-        // Converter rem/px para pixels
         const numericValue = parseFloat(paddingValue)
         if (paddingValue.includes('rem')) {
           const rootFontSize = parseFloat(rootStyles.fontSize) || 16
@@ -52,17 +58,12 @@ export function PropertyDetailsView() {
       }
     }
 
-    // Calcular alturas iniciais
     calculateHeights()
-
-    // Recalcular quando a janela for redimensionada
     window.addEventListener('resize', calculateHeights)
 
-    // Observer para detectar mudanças no DOM
     const observer = new MutationObserver(calculateHeights)
     observer.observe(document.body, { childList: true, subtree: true })
 
-    // Aguardar renderização completa
     const timer = setTimeout(calculateHeights, 200)
 
     return () => {
@@ -72,36 +73,19 @@ export function PropertyDetailsView() {
     }
   }, [])
 
-  const handlePropertyCardClick = ({ action, category, title, subtitle, buttonState }) => {
-    console.log('Property card action:', { action, category, title, subtitle, buttonState })
-
-    switch (action) {
-      case 'whatsapp':
-        console.log('Iniciando contato via WhatsApp para:', title)
-        // Here you would integrate with WhatsApp API
-        break
-      case 'visit':
-        console.log('Agendando visita para:', title)
-        // Here you would navigate to schedule page or open modal
-        break
-      default:
-        console.log('Ação padrão para:', title)
-    }
-  }
-
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md">
+      <SectionView className="flex items-center justify-center min-h-[50vh]">
         <TextView className="text-center">Carregando detalhes da propriedade...</TextView>
-      </div>
+      </SectionView>
     )
   }
 
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md gap-4">
+      <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <TextView className="text-center text-red-500">
           Erro: {error}
         </TextView>
@@ -111,14 +95,14 @@ export function PropertyDetailsView() {
         >
           Voltar para Propriedades
         </ButtonView>
-      </div>
+      </SectionView>
     )
   }
 
   // Property not found
-  if (!property) {
+  if (!realEstateAdvertisement) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] p-section-y md:p-section-y-md gap-4">
+      <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <TextView className="text-center">Propriedade não encontrada</TextView>
         <ButtonView
           color="brown"
@@ -126,26 +110,23 @@ export function PropertyDetailsView() {
         >
           Voltar para Propriedades
         </ButtonView>
-      </div>
+      </SectionView>
     )
   }
 
   return (
     <div className="relative h-fit">
       {/* Hero */}
-      <PropertyHeroSectionView
-        title={property.title}
-        location={property.subtitle}
-        description={property.description}
-        image={property.imageLink}
-        category={property.category}
-      />
+      <SectionView className="!p-0">
+        <PropertyCardView
+          realEstateAdvertisement={realEstateAdvertisement}
+          realStateCardMode={REAL_STATE_CARD_MODES.DETAILS}
+        />
+      </SectionView>
 
       {/* Tabs - Sticky */}
       <div
-        className="sticky z-40 bg-white shadow-sm"
-        style={{ top: `${headerHeight}px` }}
-        data-tabs-component
+        className="bg-white shadow-sm"
       >
         <PropertyTabsView
           tabs={['Sobre o Imóvel', 'Diferenciais', 'Localização', 'Sobre a Região']}
@@ -155,35 +136,57 @@ export function PropertyDetailsView() {
 
       {/* === WRAPPER LIMITADOR === */}
       <div id="property-content-wrapper" className="relative z-10">
-        {/* Bloco principal das seções */}
         <div className="relative">
-          <SectionView id="sobre-imovel" className="bg-default-light relative !pr-[544px]">
-            <PropertyOverview overview={property.overview} />
+          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
+            <HeadingView level={2} className="mb-8 text-distac-primary">
+              Sobre o Imóvel
+            </HeadingView>
+            <TextView className="text-default-dark-muted leading-relaxed">
+              {realEstateAdvertisement.estate?.description}
+            </TextView>
           </SectionView>
 
           <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <PropertyFeatures features={property.amenitiesFeatures || []} />
+            <div>
+              <HeadingView level={2} className="text-distac-primary mb-10">
+                Diferenciais
+              </HeadingView>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl">
+                {realEstateAdvertisement.estate?.features?.map((feature) => (
+                  <PropertyFeatureView feature={feature} key={feature.id} />
+                ))}
+              </div>
+            </div>
           </SectionView>
 
-          <SectionView id="localizacao" className="bg-distac-gradient !pr-[544px]">
-            <PropertyLocation
-              locations={[
-                { title: property.title, subtitle: property.subtitle }
-              ]}
-              addresses={property.locationAddresses || []}
-              titles={property.locationTitles || []}
-            />
+          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
+            <HeadingView level={2} className="text-default-light mb-10">
+              Localização
+            </HeadingView>
+            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
+              <PropertyLocation
+                address={realEstateAdvertisement.estate?.address}
+                type="building"
+              />
+              <PropertyLocation
+                address={realEstateAdvertisement.estate?.standAddress}
+                type="stand"
+              />
+            </div>
           </SectionView>
 
-          <SectionView id="sobre-regiao" className="bg-default-light-alt !pr-[544px]">
-            <PropertyRegion
-              regionDescription={property.regionDescription}
-              image={property.imageLink}
-            />
+          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
+            <HeadingView level={2} className="mb-10 text-distac-primary">
+              Sobre a Região
+            </HeadingView>
+            <TextView className="text-default-dark-muted leading-relaxed">
+              {region.description}
+            </TextView>
+            <ImageView src={region.imageUrl} alt="Região" description={region.description} className="max-h-96" />
           </SectionView>
         </div>
 
-        {/* Overlay do Card - limitado pelo wrapper */}
+        {realEstateAdvertisement && (
         <div className="hidden lg:block absolute inset-0 pointer-events-none">
           <div
             className="sticky right-0 z-50 w-fit mr-[var(--padding-section-x)] md:mr-[var(--padding-section-x-md)] ml-auto pointer-events-auto"
@@ -193,53 +196,27 @@ export function PropertyDetailsView() {
             }}
           >
             <PropertyCardView
-              id={property.id}
-              category={property.category}
-              title={property.title}
-              subtitle={property.subtitle}
-              description={property.description}
-              buttonState="contato"
-              hasLabel
-              hasButton
-              hasShadow
-              hasHoverEffect={false}
-              onButtonClick={handlePropertyCardClick}
-              className="w-full"
+              realEstateAdvertisement={realEstateAdvertisement}
+              realStateCardMode={REAL_STATE_CARD_MODES.REDIRECTION}
+              className="!w-full"
             />
           </div>
         </div>
+        )}
       </div>
 
-      {/* Card Mobile */}
-      <div className="lg:hidden">
-        <SectionView className="bg-default-light">
-          <PropertyCardView
-            id={property.id}
-            category={property.category}
-            title={property.title}
-            subtitle={property.subtitle}
-            description={property.description}
-            buttonState="contato"
-            hasLabel
-            hasButton
-            hasShadow
-            hasHoverEffect={false}
-            onButtonClick={handlePropertyCardClick}
-            className="w-full"
+      {/* Carrossel de Imóveis Relacionados */}
+      {relatedRealEstateAdvertisements.length > 0 && (
+        <SectionView>
+          <PropertiesCarouselView
+            titleCarousel="Imóveis Relacionados"
+            realEstateAdvertisements={relatedRealEstateAdvertisements}
+            showActionButton={true}
+            actionButtonText="Ver Todas"
+            actionRoute="PROPERTIES"
           />
         </SectionView>
-      </div>
-
-      {/* Carrossel */}
-      <SectionView className="">
-        <PropertiesCarouselView
-          titleCarousel="Imóveis Relacionados"
-          properties={property.relatedProperties || []}
-          showActionButton={true}
-          actionButtonText="Ver Todas"
-          actionRoute="PROPERTIES"
-        />
-      </SectionView>
+      )}
     </div>
   )
 }

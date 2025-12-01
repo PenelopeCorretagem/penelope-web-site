@@ -34,6 +34,13 @@
   --padding-header-y-md: 24px;
   --padding-header-x-md: 104px;
 
+  --padding-filter: 16px 80px;
+  --padding-filter-md: 24px 104px;
+  --padding-filter-y: 16px;
+  --padding-filter-x: 80px;
+  --padding-filter-y-md: 24px;
+  --padding-filter-x-md: 104px;
+
   --padding-button-rectangle: 8px 12px;
   --padding-button-rectangle-x: 12px;
   --padding-button-rectangle-y: 8px;

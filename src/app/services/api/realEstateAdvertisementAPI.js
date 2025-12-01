@@ -2,13 +2,47 @@ import axiosInstance from './axiosInstance'
 import { RealEstateAdvertisementMapper } from '@mapper/RealEstateAdvertisementMapper'
 
 /**
- * Lista todos os anúncios ativos com filtros opcionais.
- * @param {object} filters - Filtros de busca (cidade, regiao, tipo, quartos, ativo)
- * @returns {Promise<Advertisement[]>} Lista de entidades Advertisement.
+ * Lista todos os anúncios com filtros opcionais.
+ * @param {object} filters - Filtros de busca
+ * @param {string} filters.city
+ * @param {string} filters.region
+ * @param {string} filters.type
+ * @param {number} filters.numberOfRooms
+ * @param {boolean} filters.active
+ * @param {number} filters.area
+ * @param {string} filters.title
+ * @param {string} filters.description
+ * @param {string|Date} filters.createdAt
+ * @param {string|Date} filters.createdAtMin
+ * @param {string|Date} filters.createdAtMax
+ * @param {string|Date} filters.endDate
+ * @param {string|Date} filters.endDateMin
+ * @param {string|Date} filters.endDateMax
  */
 export const listAllActiveAdvertisements = async (filters = {}) => {
-  const response = await axiosInstance.get('/anuncios', { params: filters })
-  console.log(response.data)
+  const params = {
+    city: filters.city,
+    region: filters.region,
+    type: filters.type,
+    numberOfRooms: filters.numberOfRooms,
+    active: filters.active,
+    area: filters.area,
+    title: filters.title,
+    description: filters.description,
+
+    // === CreatedAt filters ===
+    createdAt: filters.createdAt,
+    createdAtMin: filters.createdAtMin,
+    createdAtMax: filters.createdAtMax,
+
+    // === EndDate filters ===
+    endDate: filters.endDate,
+    endDateMin: filters.endDateMin,
+    endDateMax: filters.endDateMax
+  }
+
+  const response = await axiosInstance.get('/anuncios', { params })
+
   return RealEstateAdvertisementMapper.toEntityList(response.data)
 }
 

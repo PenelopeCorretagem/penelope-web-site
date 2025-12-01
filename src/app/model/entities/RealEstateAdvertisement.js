@@ -96,4 +96,8 @@ export class RealEstateAdvertisement {
     const addr = this.getFormattedAddress()
     return `Anúncio #${this.#id} — ${addr.city}/${addr.neighborhood} — ${this.#active ? 'Ativo' : 'Inativo'}`
   }
+
+  isRealEstateAdvertisement(object){
+    return object instanceof RealEstateAdvertisement
+  }
 }

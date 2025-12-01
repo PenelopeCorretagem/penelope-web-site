@@ -10,12 +10,8 @@ import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilte
 import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
-
-
-  // Usa dados reais da API
   const {
     featuredProperty,
-    featureImageCoverUrl,
     launchProperties,
     isLoading,
     error,
@@ -49,38 +45,13 @@ export function HomeView() {
     <>
       <div className='flex flex-col items-center pb-section-y md:pb-section-y-md bg-default-light-alt'>
         {/*Destac Announcement Property*/}
-        <SectionView className='!p-0 !gap-0 !grid !grid-cols-[35%_65%] !h-[80vh]'>
-          <div className='bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full h-full gap-subsection md:gap-subsection-md'>
-            <HeadingView
-              level={2}
-              className='text-center text-default-light break-words'
-            >
-              Seu sonho começa com uma chave
-            </HeadingView>
-            {hasFeaturedProperty ? (
-              <PropertyCardView
-                realEstateAdvertisement={featuredProperty.realEstateAdvertisement}
-                realStateCardMode={featuredProperty.realStateCardMode}
-              />
-            ) : (
-              <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
-                <TextView>Nenhum imóvel em destaque</TextView>
-              </div>
-            )}
-          </div>
-
-          <div className="h-full w-full overflow-hidden">
-            {hasFeaturedProperty && featureImageCoverUrl && (
-            <img
-              src={featureImageCoverUrl}
-              alt={`Imagem do imóvel ${featuredProperty.title}`}
-              className="!w-full !h-full !object-cover !object-center border-0"
+        <SectionView className='!p-0'>
+          {hasFeaturedProperty ? (
+            <PropertyCardView
+              realEstateAdvertisement={featuredProperty.realEstateAdvertisement}
+              realStateCardMode={featuredProperty.realStateCardMode}
             />
-            )}
-
-
-          </div>
-
+          ) : null}
         </SectionView>
 
         <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
@@ -95,10 +66,10 @@ export function HomeView() {
       </div>
 
       {/*Destac Properties*/}
-      {/* <SectionView className="bg-default-light">
+      <SectionView className="bg-default-light">
         {hasLaunchProperties ? (
           <PropertiesCarouselView
-            properties={launchProperties}
+            realEstateAdvertisements={launchProperties}
             titleCarousel="Nossos Lançamentos"
             showActionButton={true}
             actionButtonText="Ver Todos"
@@ -112,7 +83,7 @@ export function HomeView() {
             <TextView>Nenhum lançamento disponível no momento</TextView>
           </div>
         )}
-      </SectionView> */}
+      </SectionView>
 
       {/*Penélope + Cury*/}
       <SectionView className="bg-default-light-alt">
