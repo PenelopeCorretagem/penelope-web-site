@@ -2,11 +2,13 @@ export class ButtonModel {
   static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'transparent']
   static TYPES = ['button', 'submit', 'reset', 'link']
 
-  constructor(text = '', color = 'pink', type = 'button', to = null) {
+  constructor(text = '', color = 'pink', type = 'button', to = null, action = null, fullWidth = false) {
     this.text = text
     this.color = color
     this.type = type
     this.to = to
+    this.action = action     // ✅ adiciona a ação
+    this.fullWidth = fullWidth // ✅ adiciona fullWidth
     this.active = false
   }
 
