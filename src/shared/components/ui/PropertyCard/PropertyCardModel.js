@@ -3,8 +3,7 @@ import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
-import { getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
-import { PropertyConfigModel } from '../../../../modules/management/pages/PropertyConfig/PropertyConfigModel'
+import { softDeleteAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
 
@@ -179,30 +178,15 @@ export class PropertyCardModel {
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
   async softDelete() {
     try {
-      console.log('🗑️ [PROPERTY CARD MODEL] Soft deleting property:', this.#realEstateAdvertisement.id)
+      console.log('🗑️ [PROPERTY CARD MODEL] Toggling active for property:', this.#realEstateAdvertisement.id)
       if (!window.confirm('Tem certeza que deseja desabilitar este imóvel? Ele não aparecerá mais no site.')) return false
-      // Buscar o anúncio atual para montar o payload corretamente
-      const currentAdvertisement = await getAdvertisementById(this.#realEstateAdvertisement.id)
 
-      // Montar request usando o PropertyConfigModel como na área de administração
-      const propertyConfigModel = PropertyConfigModel.fromAdvertisementEntity(currentAdvertisement)
-      const currentFormData = propertyConfigModel.toFormData()
-      const disableRequest = propertyConfigModel.toApiRequest({
-        ...currentFormData,
-        active: false
-      })
+      const isActive = !this.#realEstateAdvertisement.active
 
-      // Atualiza o anúncio
-      await updateAdvertisement(this.#realEstateAdvertisement.id, disableRequest)
+      // Chama o endpoint de soft-delete diretamente enviando true/false no corpo
+      await softDeleteAdvertisement(this.#realEstateAdvertisement.id, isActive)
 
-      // Emite evento global para que listeners (ex.: views de listagem) recarreguem dados
-      try {
-        window.dispatchEvent(new CustomEvent('propertySoftDeleted', { detail: { id: this.#realEstateAdvertisement.id } }))
-      } catch (err) {
-        // Se CustomEvent não estiver disponível, ignorar
-      }
-
-      alert('Propriedade desabilitada com sucesso!')
+      alert(`Propriedade ${isActive ? 'habilitada' : 'desabilitada'} com sucesso!`)
       return true
     } catch (err) {
       alert(`Erro ao desabilitar propriedade: ${err.message}`)

@@ -150,21 +150,14 @@ export const updateAdvertisement = async (id, advertisementRequest) => {
 }
 
 /**
- * Exclui um anúncio.
- * @param {number} id - O ID do anúncio.
- * @returns {Promise<void>}
- */
-export const deleteAdvertisement = async (id) => {
-  await axiosInstance.delete(`/anuncios/${id}`)
-}
-
-/**
  * Desativa um anúncio.
  * @param {number} id - O ID do anúncio.
+ * @param {boolean} value - Valor a ser enviado no corpo (true/false)
  * @returns {Promise<void>}
  */
-export const softDeleteAdvertisement = async (id) => {
-  await axiosInstance.patch(`/anuncios/${id}`)
+export const softDeleteAdvertisement = async (id, value) => {
+  // Envia o booleano diretamente no corpo conforme solicitado (true ou false)
+  await axiosInstance.patch(`/anuncios/${id}`, value)
 }
 
 /**

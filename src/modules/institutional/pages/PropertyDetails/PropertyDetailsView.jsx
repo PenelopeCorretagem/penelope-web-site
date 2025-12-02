@@ -13,8 +13,6 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
 
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
-import { useNavigate } from 'react-router-dom'
-import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 export function PropertyDetailsView() {
   const {
@@ -166,14 +164,20 @@ export function PropertyDetailsView() {
               Localização
             </HeadingView>
             <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
+
+              {realEstateAdvertisement.estate?.address && (
               <PropertyLocation
                 address={realEstateAdvertisement.estate?.address}
                 type="building"
               />
+              )}
+
+              {realEstateAdvertisement.estate?.hasStandAddress() && (
               <PropertyLocation
                 address={realEstateAdvertisement.estate?.standAddress}
                 type="stand"
               />
+              )}
             </div>
           </SectionView>
 

@@ -16,8 +16,9 @@ export function PropertyCardView({
 
   const containerClasses = () => {
     const baseClasses = ['flex', 'flex-col', 'w-[340px]', 'relative', 'justify-between']
+    baseClasses.push('group')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isRedirectionMode) baseClasses.push('shadow-md shadow-gray-400 h-full')
-    if (viewModel.isConfigMode || viewModel.isDefaultMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
+    if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isDistacMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
     if (!viewModel.isDistacMode) baseClasses.push('rounded-sm')
     return baseClasses.join(' ')
   }
@@ -181,10 +182,15 @@ export function PropertyCardView({
               </TextView>
 
               {viewModel.renderRealStateCardFeatures && (
-                <div className='gap-card md:gap-card-md grid w-full grid-cols-3'>
-                  {viewModel.realStateCardFeatures.map((realStateFeature) => (
-                    <PropertyFeatureView feature={realStateFeature} key={realStateFeature.id} />
-                  ))}
+                <div className="w-full overflow-hidden">
+                  <div
+                    className="property-features-marquee flex items-center gap-card md:gap-card-md will-change-transform"
+                    aria-hidden={false}
+                  >
+                    {viewModel.realStateCardFeatures.concat(viewModel.realStateCardFeatures).map((realStateFeature, idx) => (
+                      <PropertyFeatureView feature={realStateFeature} key={`${realStateFeature.id}-${idx}`} />
+                    ))}
+                  </div>
                 </div>
               )}
 

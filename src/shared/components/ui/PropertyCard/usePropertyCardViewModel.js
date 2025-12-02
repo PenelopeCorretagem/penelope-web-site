@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
-import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 export function usePropertyCardViewModel(realEstateAdvertisement, realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT) {
   const navigate = useNavigate()

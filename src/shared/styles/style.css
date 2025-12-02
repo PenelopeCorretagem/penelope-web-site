@@ -281,3 +281,43 @@
 .animate-slideUp {
   animation: slideUp 0.35s ease-out;
 }
+
+/* Marquee Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* marquee track for property features */
+.property-features-marquee {
+  display: flex;
+  gap: var(--gap-card);
+  align-items: center;
+  /* start stopped — animation applied only on hover */
+  transform: translateX(0);
+  transition: transform 0.6s ease-out; /* volta suave ao estado inicial ao sair do hover */
+  will-change: transform;
+}
+
+/* ensure child items keep their intrinsic width for smooth scrolling */
+.property-features-marquee > * {
+  flex: 0 0 auto;
+}
+
+/* Only run the marquee on devices that support hover, and only while hovered.
+   Apply the animation on hover; when hover ends animation is removed and the
+   transition above smoothly returns the track to translateX(0). */
+@media (hover: hover) {
+  .group:hover .property-features-marquee {
+    animation: marquee 6s linear infinite;
+  }
+}
+
+/* mobile/medium spacing fallback (respect md:gap-card-md applied in markup) */
+@media (min-width: 768px) {
+  .property-features-marquee { gap: var(--gap-card-md); }
+}

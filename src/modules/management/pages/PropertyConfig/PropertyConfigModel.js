@@ -195,16 +195,11 @@ export class PropertyConfigModel {
    */
   _normalizeDifferential(name) {
     const map = {
-      'Piscina': 'piscina',
-      'Academia': 'academia',
-      'Churrasqueira': 'churrasqueira',
-      'Playground': 'playground',
-      'Salão de Festas': 'salao_festas',
-      'Salao de Festas': 'salao_festas',
-      'Garagem': 'garagem',
-      'Espaço Gourmet': 'espaco_gourmet',
-      'Espaco Gourmet': 'espaco_gourmet',
-      'Pet Place': 'pet_place'
+      'Pet': 'pet',
+      'Floresta': 'floresta',
+      'Brinquedo': 'brinquedo',
+      'Lounge': 'lounge',
+      'Yoga': 'yoga ',
     }
     return map[name] || name.toLowerCase().replace(/\s+/g, '_')
   }
@@ -381,14 +376,11 @@ export class PropertyConfigModel {
       if (!Array.isArray(differentials)) return []
 
       const differentialMap = {
-        'piscina': 1,
-        'academia': 2,
-        'churrasqueira': 3,
-        'playground': 4,
-        'salao_festas': 5,
-        'garagem': 6,
-        'espaco_gourmet': 7,
-        'pet_place': 8
+        'pet': 1,
+        'floresta': 2,
+        'brinquedo': 3,
+        'lounge': 4,
+        'yoga': 5,
       }
 
       return differentials

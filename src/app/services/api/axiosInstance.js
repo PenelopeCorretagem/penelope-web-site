@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Usa variável de ambiente para a URL base da API
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

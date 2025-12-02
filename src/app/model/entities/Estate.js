@@ -135,4 +135,31 @@ export class Estate {
   isRealEstateInstance(object){
     return object instanceof Estate
   }
+
+  hasStandAddress(){
+    return(
+      this.#standAddress?.id === null
+      && this.#standAddress?.street !== undefined
+      && this.#standAddress?.street !== null
+      && this.#standAddress?.street !== ''
+      && this.#standAddress?.number !== undefined
+      && this.#standAddress?.number !== null
+      && this.#standAddress?.neighborhood !== undefined
+      && this.#standAddress?.neighborhood !== null
+      && this.#standAddress?.neighborhood !== ''
+      && this.#standAddress?.city !== undefined
+      && this.#standAddress?.city !== null
+      && this.#standAddress?.city !== ''
+      && this.#standAddress?.uf !== undefined
+      && this.#standAddress?.uf !== null
+      && this.#standAddress?.uf !== ''
+      && this.#standAddress?.region !== undefined
+      && this.#standAddress?.region !== null
+      && this.#standAddress?.region !== ''
+      && this.#standAddress?.zipCode !== undefined
+      && this.#standAddress?.zipCode !== null
+      && this.#standAddress?.zipCode !== ''
+    )
+
+  }
 }
