@@ -1,7 +1,7 @@
 // ScreeningFormView.jsx
 
 import ReactDOM from 'react-dom'
-import { FaArrowLeft } from 'react-icons/fa'
+import { FaTimes } from 'react-icons/fa'
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
@@ -24,25 +24,28 @@ export function ScreeningFormView({ onClose, property = null }) {
 
         <HeadingView
           level={4}
-          className="flex justify-between items-center w-full mb-10 text-distac-primary font-semibold"
+          className="grid grid-cols-3 items-center w-full mb-10 text-distac-primary font-semibold"
         >
-          <ButtonView
-            shape="square"
-            width="fit"
-            onClick={onClose}
-            className="!p-button-x"
-            color="transparent"
-            title="Voltar"
-          >
-            <FaArrowLeft className="text-distac-secondary text-3xl" aria-hidden="true" />
-            <span className="sr-only">Voltar</span>
-          </ButtonView>
+          <div></div>
 
-          Formulário de Triagem
-          <LogoView className="text-distac-primary fill-current" />
+          <div className="text-center">Formulário de Triagem</div>
+
+          <div className="flex justify-end">
+            <ButtonView
+              shape="square"
+              width="fit"
+              onClick={onClose}
+              className="!p-button-x"
+              color="transparent"
+              title="Fechar"
+            >
+              <FaTimes className="text-distac-secondary text-3xl" aria-hidden="true" />
+              <span className="sr-only">Fechar</span>
+            </ButtonView>
+          </div>
+
         </HeadingView>
 
-        {/* GRID 2 colunas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormView
             fields={fieldsColumn1}

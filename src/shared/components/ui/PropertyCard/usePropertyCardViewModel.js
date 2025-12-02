@@ -4,7 +4,11 @@ import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { generateSlug } from '@shared/utils/generateSlugUtil'
 
-export function usePropertyCardViewModel(realEstateAdvertisement, realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT) {
+export function usePropertyCardViewModel(
+  realEstateAdvertisement,
+  realStateCardMode,
+  onWhatsAppClick = null
+) {
   const navigate = useNavigate()
 
   const onScheduleClick = useMemo(() => {
@@ -23,8 +27,12 @@ export function usePropertyCardViewModel(realEstateAdvertisement, realStateCardM
   }, [realEstateAdvertisement, realStateCardMode, navigate])
 
   const propertyCardModel = useMemo(
-    () => new PropertyCardModel({ realEstateAdvertisement, realStateCardMode, onScheduleClick }),
-    [realEstateAdvertisement, realStateCardMode, onScheduleClick]
+    () => new PropertyCardModel({
+      realEstateAdvertisement,
+      realStateCardMode,
+      onWhatsAppClick
+    }),
+    [realEstateAdvertisement, realStateCardMode, onWhatsAppClick]
   )
 
   return {

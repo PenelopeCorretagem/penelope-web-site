@@ -11,6 +11,8 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
+import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView.jsx'
+import { X } from 'lucide-react'
 
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 import { useNavigate } from 'react-router-dom'
@@ -31,6 +33,7 @@ export function PropertyDetailsView() {
   const [headerHeight, setHeaderHeight] = useState(80)
   const [tabsHeight, setTabsHeight] = useState(60)
   const [sectionPadding, setSectionPadding] = useState(20)
+  const [isScreeningFormOpen, setIsScreeningFormOpen] = useState(false)
 
   useEffect(() => {
     const calculateHeights = () => {
@@ -201,6 +204,7 @@ export function PropertyDetailsView() {
               realEstateAdvertisement={realEstateAdvertisement}
               realStateCardMode={REAL_STATE_CARD_MODES.REDIRECTION}
               className="!w-full"
+              onWhatsAppClick={() => setIsScreeningFormOpen(true)}
             />
           </div>
         </div>
@@ -218,6 +222,23 @@ export function PropertyDetailsView() {
             actionRoute="PROPERTIES"
           />
         </SectionView>
+      )}
+
+      {isScreeningFormOpen && (
+        <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div className="flex justify-between items-center mb-4">
+              <HeadingView level={3}>Formulário de Triagem</HeadingView>
+              <button
+                onClick={() => setIsScreeningFormOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <ScreeningFormView onClose={() => setIsScreeningFormOpen(false)} />
+          </div>
+        </div>
       )}
     </div>
   )
