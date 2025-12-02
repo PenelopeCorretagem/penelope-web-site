@@ -54,7 +54,8 @@ export class RealEstateAdvertisementMapper {
             city: data.property.address.city,
             uf: data.property.address.uf,
             region: data.property.address.region,
-            zipCode: data.property.address.zipCode,
+            zipCode: data.property.address.cep,
+            complement: data.property.address.complement || null,
           })
           : null,
         standAddress: data.property.addressStand
@@ -66,7 +67,8 @@ export class RealEstateAdvertisementMapper {
             city: data.property.addressStand.city,
             uf: data.property.addressStand.uf,
             region: data.property.addressStand.region,
-            zipCode: data.property.addressStand.zipCode,
+            zipCode: data.property.addressStand.cep,
+            complement: data.property.addressStand.complement || null,
           })
           : null,
         features: data.property.amenities
@@ -86,7 +88,7 @@ export class RealEstateAdvertisementMapper {
         id: data.responsible.id,
         name: data.responsible.name,
         email: data.responsible.email,
-        phone: data.responsible.phone,
+        phone: data.responsible.phone || data.responsible.cellphone || null,
         creci: data.responsible.creci || null,
         cpf: data.responsible.cpf,
         dateBirth: data.responsible.dateBirth,
@@ -102,7 +104,7 @@ export class RealEstateAdvertisementMapper {
         id: data.creator.id,
         name: data.creator.name,
         email: data.creator.email,
-        phone: data.creator.phone,
+        phone: data.creator.phone || data.creator.cellphone || null,
         creci: data.creator.creci,
         cpf: data.creator.cpf,
         dateBirth: data.creator.dateBirth,
@@ -122,6 +124,13 @@ export class RealEstateAdvertisementMapper {
       creator,
       responsible,
       estate,
+      eventTypeId: data.eventTypeId
+        ? {
+          id: data.eventTypeId.id,
+          title: data.eventTypeId.title,
+          slug: data.eventTypeId.slug,
+        }
+        : null,
     })
   }
 
@@ -157,7 +166,8 @@ export class RealEstateAdvertisementMapper {
           id: advertisement.creator.id,
           name: advertisement.creator.name,
           email: advertisement.creator.email,
-          phone: advertisement.creator.phone,
+          // Use cellphone in API payload to match backend naming
+          cellphone: advertisement.creator.phone,
           creci: advertisement.creator.creci,
           cpf: advertisement.creator.cpf,
           dateBirth: advertisement.creator.dateBirth,
@@ -172,7 +182,7 @@ export class RealEstateAdvertisementMapper {
           id: advertisement.responsible.id,
           name: advertisement.responsible.name,
           email: advertisement.responsible.email,
-          phone: advertisement.responsible.phone,
+          cellphone: advertisement.responsible.phone,
           creci: advertisement.responsible.creci,
           cpf: advertisement.responsible.cpf,
           dateBirth: advertisement.responsible.dateBirth,
@@ -206,7 +216,9 @@ export class RealEstateAdvertisementMapper {
               city: advertisement.estate.address.city,
               uf: advertisement.estate.address.uf,
               region: advertisement.estate.address.region,
-              zipCode: advertisement.estate.address.zipCode,
+              // Use 'cep' in the outgoing API payload and include complement if exists
+              cep: advertisement.estate.address.zipCode,
+              complement: advertisement.estate.address.complement,
             }
             : null,
           addressStand: advertisement.estate.standAddress
@@ -218,15 +230,24 @@ export class RealEstateAdvertisementMapper {
               city: advertisement.estate.standAddress.city,
               uf: advertisement.estate.standAddress.uf,
               region: advertisement.estate.standAddress.region,
-              zipCode: advertisement.estate.standAddress.zipCode,
+              cep: advertisement.estate.standAddress.zipCode,
+              complement: advertisement.estate.standAddress.complement,
             }
             : null,
-          amenities: advertisement.estate.Features
-            ? advertisement.estate.Features.map(diff => ({
+          amenities: advertisement.estate.features
+            ? advertisement.estate.features.map(diff => ({
               id: diff.id,
               description: diff.description,
             }))
             : [],
+        }
+        : null,
+      // include eventTypeId if present in the entity
+      eventTypeId: advertisement.eventTypeId
+        ? {
+          id: advertisement.eventTypeId.id,
+          title: advertisement.eventTypeId.title,
+          slug: advertisement.eventTypeId.slug,
         }
         : null,
     }
