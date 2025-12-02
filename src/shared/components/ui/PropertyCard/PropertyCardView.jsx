@@ -11,8 +11,13 @@ export function PropertyCardView({
   realEstateAdvertisement,
   realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
   className = '',
+  onWhatsAppClick = null,
 }) {
-  const viewModel = usePropertyCardViewModel(realEstateAdvertisement, realStateCardMode)
+  const viewModel = usePropertyCardViewModel(
+    realEstateAdvertisement,
+    realStateCardMode,
+    onWhatsAppClick
+  )
 
   const containerClasses = () => {
     const baseClasses = ['flex', 'flex-col', 'w-[340px]', 'relative', 'justify-between']
