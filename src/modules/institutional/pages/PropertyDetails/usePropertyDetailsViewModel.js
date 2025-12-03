@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllActiveAdvertisements } from '@app/services/api/realEstateAdvertisementAPI'
+import { getAdvertisementById, listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
 import { RealStateDetailsModel } from './RealStateDetailsModel'
 
 /**
@@ -21,7 +21,7 @@ export function usePropertyDetailsViewModel() {
   const fetchRelatedProperties = useCallback(async (mainAdvertisement) => {
     try {
       console.log('🔄 [PropertyDetails] Fetching related properties...')
-      const allAdvertisements = await listAllActiveAdvertisements()
+      const allAdvertisements = await listAllAdvertisements ()
 
       const mainEstate = mainAdvertisement.estate
       if (!mainEstate) return []

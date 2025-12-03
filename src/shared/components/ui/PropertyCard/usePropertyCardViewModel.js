@@ -57,6 +57,9 @@ export function usePropertyCardViewModel(
     isMinimalistMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.MINIMALIST,
     isDetailsMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DETAILS,
     isDistacMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DISTAC,
-    isDefaultMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DEFAULT
+    isDefaultMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DEFAULT,
+
+    isActiveAdvertisement: realEstateAdvertisement?.active || false,
+
   }
 }

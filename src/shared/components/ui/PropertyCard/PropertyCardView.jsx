@@ -99,7 +99,7 @@ export function PropertyCardView({
   }
 
   return (
-    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full grid grid-cols-[35%_65%] h-[78vh]' : ''}>
+    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full grid grid-cols-[35%_65%] h-[78vh] relative' : 'relative'}>
       <div  className={viewModel.isDetailsMode || viewModel.isDistacMode ?'bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full h-full gap-subsection md:gap-subsection-md' : 'h-full'}>
         {viewModel.isDetailsMode || viewModel.isDistacMode ? (
           <HeadingView
@@ -218,6 +218,11 @@ export function PropertyCardView({
               className="!w-full !h-full !object-cover !object-center border-0"
             />
           )}
+        </div>
+      ) : null}
+
+      {!viewModel.isActiveAdvertisement ? (
+        <div className="absolute inset-0 bg-default-dark opacity-50 rounded-sm">
         </div>
       ) : null}
     </div>

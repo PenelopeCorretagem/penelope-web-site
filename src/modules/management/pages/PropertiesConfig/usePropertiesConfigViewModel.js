@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllActiveAdvertisements, getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
+import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 
@@ -38,9 +38,9 @@ export const usePropertiesConfigViewModel = () => {
       setError(null)
 
       const [launchProperties, availableProperties, underConstructionProperties] = await Promise.all([
-        listAllActiveAdvertisements({ type: 'LANCAMENTO' }),
-        listAllActiveAdvertisements({ type: 'DISPONIVEL' }),
-        listAllActiveAdvertisements({ type: 'EM_OBRAS' })
+        listAllAdvertisements ({ type: 'LANCAMENTO' }),
+        listAllAdvertisements ({ type: 'DISPONIVEL' }),
+        listAllAdvertisements ({ type: 'EM_OBRAS' })
       ])
 
       // Update model only if data is different to prevent unnecessary re-renders

@@ -12,10 +12,10 @@ const axiosInstance = axios.create({
 // Interceptor para adicionar token nas requisições
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
 
     // Não adiciona Authorization em rotas públicas
-    const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password', '/users']
+    const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password']
     const isPublicRoute = publicRoutes.some(route => config.url?.includes(route))
 
     if (token && !isPublicRoute) {

@@ -19,7 +19,7 @@ import { RealEstateAdvertisementMapper } from '@mapper/RealEstateAdvertisementMa
  * @param {string|Date} filters.endDateMin
  * @param {string|Date} filters.endDateMax
  */
-export const listAllActiveAdvertisements = async (filters = {}) => {
+export const listAllAdvertisements  = async (filters = {}) => {
   const params = {
     city: filters.city,
     region: filters.region,
@@ -41,7 +41,7 @@ export const listAllActiveAdvertisements = async (filters = {}) => {
     endDateMax: filters.endDateMax
   }
 
-  const response = await axiosInstance.get('/anuncios', { params })
+  const response = await axiosInstance.get('/advertisement', { params })
   console.log(response)
 
   return RealEstateAdvertisementMapper.toEntityList(response.data)
@@ -52,7 +52,7 @@ export const listAllActiveAdvertisements = async (filters = {}) => {
  * @returns {Promise<Advertisement>} Entidade Advertisement.
  */
 export const getLatestAdvertisement = async () => {
-  const response = await axiosInstance.get('/anuncios/latest')
+  const response = await axiosInstance.get('/advertisement/latest')
   console.log(response)
   return RealEstateAdvertisementMapper.toEntity(response.data)
 }
@@ -63,7 +63,7 @@ export const getLatestAdvertisement = async () => {
  * @returns {Promise<Advertisement>} Entidade Advertisement.
  */
 export const getAdvertisementById = async (id) => {
-  const response = await axiosInstance.get(`/anuncios/${id}`)
+  const response = await axiosInstance.get(`/advertisement/${id}`)
   console.log(response)
   return RealEstateAdvertisementMapper.toEntity(response.data)
 }
@@ -75,7 +75,8 @@ export const getAdvertisementById = async (id) => {
  */
 export const createAdvertisement = async (advertisementRequest) => {
   try {
-    const response = await axiosInstance.post('/anuncios', advertisementRequest, {
+    // Token é adicionado automaticamente pelo interceptor
+    const response = await axiosInstance.post('/advertisement', advertisementRequest, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -112,7 +113,8 @@ export const createAdvertisement = async (advertisementRequest) => {
  */
 export const updateAdvertisement = async (id, advertisementRequest) => {
   try {
-    const response = await axiosInstance.put(`/anuncios/${id}`, advertisementRequest, {
+    // Token é adicionado automaticamente pelo interceptor
+    const response = await axiosInstance.put(`/advertisement/${id}`, advertisementRequest, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -156,8 +158,8 @@ export const updateAdvertisement = async (id, advertisementRequest) => {
  * @returns {Promise<void>}
  */
 export const softDeleteAdvertisement = async (id, value) => {
-  // Envia o booleano diretamente no corpo conforme solicitado (true ou false)
-  await axiosInstance.patch(`/anuncios/${id}`, value)
+  // Token é adicionado automaticamente pelo interceptor
+  await axiosInstance.patch(`/advertisement/${id}`, value)
 }
 
 /**

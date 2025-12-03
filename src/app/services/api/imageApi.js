@@ -21,7 +21,7 @@ export const uploadImages = async (files) => {
       formData.append('files', file)
     })
 
-    const response = await axiosInstance.post('/anuncios/fotos', formData, {
+    const response = await axiosInstance.post('/advertisement/photos', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

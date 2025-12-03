@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { listAllActiveAdvertisements } from '@app/services/api/realEstateAdvertisementAPI'
+import { listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
 import { PropertiesModel } from './PropertiesModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
@@ -20,9 +20,18 @@ export const usePropertiesViewModel = ({ onError }) => {
     try {
       // Busca cada categoria em paralelo
       const [lancamentosData, disponiveisData, emObrasData] = await Promise.all([
-        listAllActiveAdvertisements({ type: ESTATE_TYPES['LANCAMENTO'].key }),
-        listAllActiveAdvertisements({ type: ESTATE_TYPES['DISPONIVEL'].key }),
-        listAllActiveAdvertisements({ type: ESTATE_TYPES['EM_OBRAS'].key })
+        listAllAdvertisements ({
+          type: ESTATE_TYPES['LANCAMENTO'].key,
+          active: true
+        }),
+        listAllAdvertisements ({
+          type: ESTATE_TYPES['DISPONIVEL'].key,
+          active: true
+        }),
+        listAllAdvertisements ({
+          type: ESTATE_TYPES['EM_OBRAS'].key,
+          active: true
+        })
       ])
 
       model.setLancamentos(lancamentosData)
