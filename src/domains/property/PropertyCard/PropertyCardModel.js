@@ -63,7 +63,8 @@ export class PropertyCardModel {
     hasShadow = false,
     hasImage = false,
     hasHoverEffect = false,
-    imageUrl = ''
+    imageUrl = '',
+    media = []
   }) {
     this.validateInputs(category, title, subtitle, description)
 
@@ -80,6 +81,7 @@ export class PropertyCardModel {
     this.hasImage = Boolean(hasImage)
     this.hasHoverEffect = Boolean(hasHoverEffect)
     this.imageUrl = String(imageUrl).trim()
+    this.media = Array.isArray(media) ? media : []
   }
 
   validateInputs(category, title, subtitle, description) {
@@ -176,5 +178,9 @@ export class PropertyCardModel {
 
   get hasDifferences() {
     return this.differences.length > 0
+  }
+
+  get hasMedia() {
+    return this.media && this.media.length > 0
   }
 }
