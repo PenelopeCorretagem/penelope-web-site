@@ -12,6 +12,8 @@ export function ButtonView(props) {
     disabled
   } = useButtonViewModel(props)
 
+  const content = props.children || model.text
+
   if (isLink && to) {
     return (
       <Link
@@ -23,7 +25,7 @@ export function ButtonView(props) {
         role="button"
         title={props.title}
       >
-        {model.text}
+        {content}
       </Link>
     )
   }
@@ -40,7 +42,7 @@ export function ButtonView(props) {
         aria-disabled={disabled}
         title={props.title}
       >
-        {model.text}
+        {content}
       </a>
     )
   }
@@ -54,7 +56,7 @@ export function ButtonView(props) {
       aria-pressed={model.active}
       title={props.title}
     >
-      {model.text}
+      {content}
     </button>
   )
 }

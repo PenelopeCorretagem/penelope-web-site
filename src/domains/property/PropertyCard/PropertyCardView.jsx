@@ -4,6 +4,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView'
+import { MediaLightboxView } from '@shared/components/ui/MediaLightbox/MediaLightboxView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 
 export function PropertyCardView(props) {
@@ -29,6 +30,26 @@ export function PropertyCardView(props) {
   } = usePropertyCardViewModel(props)
 
   const [showForm, setShowForm] = useState(false)
+  const [showLightbox, setShowLightbox] = useState(false)
+  const [mediaType, setMediaType] = useState(null) // gallery | floorplan | video
+
+  const mockGallery = [
+    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
+    'https://eeon9q568x2.exactdn.com/wp-content/uploads/2025/06/Fachada-iconica-do-edificio-escultural-no-Itaim-Bibi-1024x890.jpg',
+    'https://img.freepik.com/fotos-gratis/tiro-vertical-de-um-edificio-branco-sob-o-ceu-claro_181624-4575.jpg?semt=ais_incoming&w=740&q=80',
+    'https://eeon9q568x2.exactdn.com/wp-content/uploads/2025/06/Fachada-iconica-do-edificio-escultural-no-Itaim-Bibi-1024x890.jpg',
+  ]
+
+  const mockFloorplans = [
+    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
+    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
+  ]
+
+  const mockVideos = [
+    'https://www.w3schools.com/html/mov_bbb.mp4'
+  ]
+
+
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('a')) return
@@ -37,12 +58,21 @@ export function PropertyCardView(props) {
 
   const handleButtonAction = (action) => {
     console.log('🟢 Botão clicado:', action)
+
     if (action === 'contato' || action === 'whatsapp') {
-      setShowForm(true) // ✅ abre o formulário
-    } else {
-      handleButtonClick(action)
+      setShowForm(true)
+      return
     }
+
+    if (action === 'gallery' || action === 'floorplan' || action === 'video') {
+      setMediaType(action)
+      setShowLightbox(true)
+      return
+    }
+
+    handleButtonClick(action)
   }
+
 
   const renderButtons = () => {
     if (!shouldRenderButtons) return null
@@ -125,6 +155,21 @@ export function PropertyCardView(props) {
           property={model}
         />
       )}
+
+      {showLightbox && (
+      <MediaLightboxView
+        type={mediaType}
+        onClose={() => setShowLightbox(false)}
+        medias={
+          mediaType === 'gallery'
+            ? mockGallery
+            : mediaType === 'floorplan'
+              ? mockFloorplans
+              : mockVideos
+        }
+      />
+      )}
+
     </>
   )
 }
