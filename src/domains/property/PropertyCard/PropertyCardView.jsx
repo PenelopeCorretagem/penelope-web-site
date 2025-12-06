@@ -60,19 +60,26 @@ export function PropertyCardView(props) {
     handleButtonClick(action)
   }
 
-  // ✅ ADICIONADO - Função para obter imagens corretas
+  const DEFAULT_VIDEO = 'https://www.youtube.com/embed/NA0u8QCrZfY'
+
   const getMediaForLightbox = () => {
     switch (mediaType) {
       case 'gallery':
         return hasGalleryImages ? galleryImages : []
+
       case 'floorplan':
         return hasFloorplanImages ? floorplanImages : []
+
       case 'video':
-        return hasVideoImages ? videoImages : []
+        return hasVideoImages
+          ? [DEFAULT_VIDEO, ...videoImages]
+          : [DEFAULT_VIDEO]
+
       default:
         return []
     }
   }
+
 
   const renderButtons = () => {
     if (!shouldRenderButtons) return null
