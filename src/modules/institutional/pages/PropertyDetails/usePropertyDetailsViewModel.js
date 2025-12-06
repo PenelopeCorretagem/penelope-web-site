@@ -73,7 +73,7 @@ export function usePropertyDetailsViewModel() {
         const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
 
         const mapped = {
-          id: data.id,
+          id: data.id, // ✅ ID do anúncio
           title: p.title,
           subtitle: p.address?.neighborhood || p.address?.city || '',
           description: p.description,
@@ -87,6 +87,8 @@ export function usePropertyDetailsViewModel() {
           locationTitles: titles,
           raw: data,
         }
+
+        console.log('[PropertyDetails] ✅ Mapped property with ID:', mapped.id)
 
         if (mounted) setProperty(mapped)
 
@@ -182,7 +184,7 @@ export function usePropertyDetailsViewModel() {
             const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
 
             const mapped = {
-              id: found.id,
+              id: found.id, // ✅ ID do anúncio no fallback
               title: p.title,
               subtitle: p.address?.neighborhood || p.address?.city || '',
               description: p.description,
@@ -196,6 +198,8 @@ export function usePropertyDetailsViewModel() {
               locationTitles: titles,
               raw: found,
             }
+
+            console.log('[PropertyDetails] ✅ Fallback mapped property with ID:', mapped.id)
 
             if (mounted) setProperty(mapped)
           } else {

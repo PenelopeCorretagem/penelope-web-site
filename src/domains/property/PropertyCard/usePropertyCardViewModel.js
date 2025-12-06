@@ -45,60 +45,42 @@ class PropertyCardViewModel {
       return
     }
 
-    // Função auxiliar para encontrar imagens por tipo (retorna array)
     const findImagesByType = (type) => {
       return rawImages
         .filter(img => String(img.type).toLowerCase() === type.toLowerCase())
         .map(img => img.url)
     }
 
-    // Função para encontrar UMA imagem por tipo (retorna string)
     const findImageByType = (type) => {
       return rawImages.find(img =>
         String(img.type).toLowerCase() === type.toLowerCase()
       )?.url || ''
     }
 
-    // Função para pegar a primeira imagem disponível
     const getFirstImage = () => {
       return rawImages.length > 0 ? rawImages[0].url : ''
     }
 
     this._images = {
-      // Arrays de imagens para lightbox
       gallery: findImagesByType('galeria'),
       floorplan: findImagesByType('planta'),
       video: findImagesByType('video'),
-
-      // Imagem de capa (string)
       cover: findImageByType('capa'),
-
-      // Primeira imagem disponível (string)
       first: getFirstImage(),
-
-      // Imagem principal para exibição no card
-      // Prioriza: galeria > planta > capa > primeira
       main: findImagesByType('galeria')[0] ||
             findImagesByType('planta')[0] ||
             findImageByType('capa') ||
             getFirstImage(),
-
-      // Array de todas as imagens
       all: rawImages.map(img => ({
         url: img.url,
         type: img.type
       })),
-
-      // Verifica se tem imagens disponíveis
       hasImages: rawImages.length > 0
     }
 
     console.log('[PropertyCardViewModel] Images processed:', this._images)
   }
 
-  /**
-   * Retorna as imagens processadas
-   */
   get images() {
     return this._images || {
       gallery: [],
@@ -112,51 +94,30 @@ class PropertyCardViewModel {
     }
   }
 
-  /**
-   * Retorna a imagem principal do card
-   */
   get mainImage() {
     return this.images.main
   }
 
-  /**
-   * Retorna array de imagens de galeria
-   */
   get galleryImages() {
     return this.images.gallery
   }
 
-  /**
-   * Retorna array de imagens de planta
-   */
   get floorplanImages() {
     return this.images.floorplan
   }
 
-  /**
-   * Retorna array de vídeos
-   */
   get videoImages() {
     return this.images.video
   }
 
-  /**
-   * Verifica se tem imagens de galeria
-   */
   get hasGalleryImages() {
     return this.images.gallery.length > 0
   }
 
-  /**
-   * Verifica se tem imagens de planta
-   */
   get hasFloorplanImages() {
     return this.images.floorplan.length > 0
   }
 
-  /**
-   * Verifica se tem vídeos
-   */
   get hasVideoImages() {
     return this.images.video.length > 0
   }
@@ -318,25 +279,34 @@ export function usePropertyCardViewModel(props) {
   const navigate = useNavigate()
   const [isLoadingImages, setIsLoadingImages] = useState(false)
 
-  const [viewModel, setViewModel] = useState(() => {
+  // ✅ SOLUÇÃO: Criar novo objeto de imagens para forçar re-render
+  const [imagesState, setImagesState] = useState({
+    gallery: [],
+    floorplan: [],
+    video: [],
+    cover: '',
+    first: '',
+    main: '',
+    all: [],
+    hasImages: false
+  })
+
+  const [viewModel] = useState(() => {
     try {
       const model = new PropertyCardModel(props)
-      return new PropertyCardViewModel(model, null)
+      return new PropertyCardViewModel(model, navigate)
     } catch (error) {
       console.error('Erro ao criar PropertyCardModel:', error)
       return null
     }
   })
 
-  // Atualiza o navigate no viewModel após a criação
-  if (viewModel && !viewModel.navigate) {
-    viewModel.navigate = navigate
-  }
-
   // Busca as imagens da API quando o ID estiver disponível
   useEffect(() => {
-    if (!viewModel || !viewModel.model?.id) {
-      console.log('[PropertyCardViewModel] Skipping image fetch - no ID available')
+    const propertyId = props.id
+
+    if (!viewModel || !props.id) {
+      console.log('[PropertyCardViewModel] Skipping image fetch - no valid ID in props')
       return
     }
 
@@ -344,32 +314,36 @@ export function usePropertyCardViewModel(props) {
     const fetchImages = async () => {
       setIsLoadingImages(true)
       try {
-        console.log('[PropertyCardViewModel] Fetching images for property ID:', viewModel.model.id)
-        const response = await getAnuncioById(viewModel.model.id)
+        console.log('[PropertyCardViewModel] Fetching images for property ID:', propertyId)
+        const response = await getAnuncioById(propertyId)
         const data = response?.data
 
         if (!data) {
           console.warn('[PropertyCardViewModel] No data returned from API')
           if (mounted) {
             viewModel.setImages([])
+            // ✅ Criar NOVO objeto para forçar re-render
+            setImagesState({ ...viewModel.images })
           }
           return
         }
 
         const property = data.property || {}
-        const images = property.images || []
+        const rawImages = property.images || []
 
-        console.log('[PropertyCardViewModel] Raw images from API:', images)
+        console.log('[PropertyCardViewModel] Raw images from API:', rawImages)
 
         if (mounted) {
-          viewModel.setImages(images)
-          // Force re-render mantendo a mesma instância do viewModel
-          setViewModel(() => viewModel)
+          viewModel.setImages(rawImages)
+          // ✅ Criar NOVO objeto para forçar re-render
+          setImagesState({ ...viewModel.images })
+          console.log('✅ [PropertyCardViewModel] State updated with images:', viewModel.images)
         }
       } catch (error) {
         console.error('[PropertyCardViewModel] Error fetching images:', error)
         if (mounted) {
           viewModel.setImages([])
+          setImagesState({ ...viewModel.images })
         }
       } finally {
         if (mounted) {
@@ -383,13 +357,13 @@ export function usePropertyCardViewModel(props) {
     return () => {
       mounted = false
     }
-  }, [viewModel?.model?.id])
+  }, [props.id, viewModel])
 
   const handleButtonClick = useCallback((action) => {
     if (!viewModel) return
     console.log('Button clicked with action:', action)
     viewModel.handleButtonClick(action, props.onButtonClick)
-  }, [viewModel, props.onButtonClick, navigate])
+  }, [viewModel, props.onButtonClick])
 
   if (!viewModel) {
     return {
@@ -438,17 +412,25 @@ export function usePropertyCardViewModel(props) {
     handleButtonClick,
     hasError: false,
     model: viewModel.model,
-    setViewModel,
-    // Propriedades de imagens exportadas
-    images: viewModel.images,
-    mainImage: viewModel.mainImage,
-    galleryImages: viewModel.galleryImages,
-    floorplanImages: viewModel.floorplanImages,
-    videoImages: viewModel.videoImages,
-    hasGalleryImages: viewModel.hasGalleryImages,
-    hasFloorplanImages: viewModel.hasFloorplanImages,
-    hasVideoImages: viewModel.hasVideoImages,
-    isLoadingImages
+    // ✅ Usar o estado ao invés dos getters diretos
+    images: imagesState,
+    mainImage: imagesState.main || '',
+    galleryImages: imagesState.gallery || [],
+    floorplanImages: imagesState.floorplan || [],
+    videoImages: imagesState.video || [],
+    hasGalleryImages: (imagesState.gallery || []).length > 0,
+    hasFloorplanImages: (imagesState.floorplan || []).length > 0,
+    hasVideoImages: (imagesState.video || []).length > 0,
+    isLoadingImages,
+    // 🔍 Debug
+    _debug: {
+      propsId: props.id,
+      modelId: viewModel.model?.id,
+      imagesProcessed: imagesState.hasImages,
+      rawImages: imagesState,
+      galleryCount: imagesState.gallery?.length || 0,
+      floorplanCount: imagesState.floorplan?.length || 0
+    }
   }
 }
 

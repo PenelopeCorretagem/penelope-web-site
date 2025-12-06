@@ -85,28 +85,37 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({ pro
           aria-label="Carrossel de propriedades"
           tabIndex={0}
         >
-          {properties.map((property, index) => (
-            <div
-              key={`${property.id || index}-${property.title}`}
-              className="flex-shrink-0 w-[342px] p-4"
-            >
-              <PropertyCardView
-                id={property.id || index + 1}
-                hasLabel={true}
-                category={property.category}
-                title={property.title}
-                subtitle={property.subtitle}
-                description={property.description}
-                hasDifference={true}
-                differences={property.differences}
-                hasButton={true}
-                hasShadow={true}
-                hasImage={true}
-                hasHoverEffect={true}
-                imageUrl={property.imageLink}
-              />
-            </div>
-          ))}
+          {properties.map((property, index) => {
+            // ✅ Só passa o ID se ele realmente existir no objeto
+            const cardProps = {
+              hasLabel: true,
+              category: property.category,
+              title: property.title,
+              subtitle: property.subtitle,
+              description: property.description,
+              hasDifference: true,
+              differences: property.differences,
+              hasButton: true,
+              hasShadow: true,
+              hasImage: true,
+              hasHoverEffect: true,
+              imageUrl: property.imageLink,
+            }
+
+            // Adiciona o ID apenas se existir
+            if (property.id) {
+              cardProps.id = property.id
+            }
+
+            return (
+              <div
+                key={`${property.id || index}-${property.title}`}
+                className="flex-shrink-0 w-[342px] p-4"
+              >
+                <PropertyCardView {...cardProps} />
+              </div>
+            )
+          })}
         </div>
       </div>
 

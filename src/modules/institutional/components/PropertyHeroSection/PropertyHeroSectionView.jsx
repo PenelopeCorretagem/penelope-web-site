@@ -12,6 +12,7 @@ export function PropertyHeroSectionView(props) {
         {/* Card de Informações */}
         <div className="flex items-center justify-center md:w-7/20 w-full p-6">
           <PropertyCardView
+            id={props.id} // ✅ ADICIONA O ID!
             hasLabel={true}
             category={category}
             title={title}

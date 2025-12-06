@@ -8,7 +8,7 @@ import { PropertyLocation } from '@institutional/components/PropertyLocation/Pro
 import { PropertyRegion } from '@institutional/components/PropertyRegion/PropertyRegion.jsx'
 import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView.jsx'
 import { PropertyCardView } from '@domains/property/PropertyCard/PropertyCardView.jsx'
- 
+
 import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
@@ -89,10 +89,14 @@ export function PropertyDetailsView() {
     )
   }
 
+  console.log('🏠 Property objeto completo:', property)
+  console.log('🆔 Property.id:', property.id)
+
   return (
     <div className="relative h-fit">
       {/* Hero */}
       <PropertyHeroSectionView
+        id={property.id} // ✅ ADICIONA ESTA LINHA
         title={property.title}
         location={property.subtitle}
         description={property.description}
@@ -148,6 +152,7 @@ export function PropertyDetailsView() {
         </div>
 
         {/* Overlay do Card - limitado pelo wrapper */}
+        {property.id && (
         <div className="hidden lg:block absolute inset-0 pointer-events-none">
           <div
             className="sticky right-0 z-50 w-fit mr-[var(--padding-section-x)] md:mr-[var(--padding-section-x-md)] ml-auto pointer-events-auto"
@@ -157,6 +162,7 @@ export function PropertyDetailsView() {
             }}
           >
             <PropertyCardView
+              id={property.id}
               category={property.category}
               title={property.title}
               subtitle={property.subtitle}
@@ -171,12 +177,15 @@ export function PropertyDetailsView() {
             />
           </div>
         </div>
+        )}
       </div>
 
       {/* Card Mobile */}
+      {property.id && (
       <div className="lg:hidden">
         <SectionView className="bg-default-light">
           <PropertyCardView
+            id={property.id}
             category={property.category}
             title={property.title}
             subtitle={property.subtitle}
@@ -191,6 +200,7 @@ export function PropertyDetailsView() {
           />
         </SectionView>
       </div>
+      )}
 
       {/* Carrossel */}
       <SectionView className="">

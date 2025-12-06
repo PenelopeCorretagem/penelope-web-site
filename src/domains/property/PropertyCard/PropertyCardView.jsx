@@ -34,8 +34,11 @@ export function PropertyCardView(props) {
     hasGalleryImages,
     hasFloorplanImages,
     hasVideoImages,
-    isLoadingImages
+    isLoadingImages,
+    _debug
   } = usePropertyCardViewModel(props)
+
+  console.log('🐛 PropertyCardView Debug:', _debug)
 
   const [showForm, setShowForm] = useState(false)
   const [showLightbox, setShowLightbox] = useState(false)
@@ -65,6 +68,14 @@ export function PropertyCardView(props) {
 
   const handleButtonAction = (action) => {
     console.log('🟢 Botão clicado:', action)
+    console.log('🔍 Imagens disponíveis:', {
+      hasGalleryImages,
+      galleryImages,
+      hasFloorplanImages,
+      floorplanImages,
+      hasVideoImages,
+      videoImages
+    })
 
     if (action === 'contato' || action === 'whatsapp') {
       setShowForm(true)
@@ -101,20 +112,34 @@ export function PropertyCardView(props) {
 
   // ✅ Função para obter as imagens corretas baseadas no tipo
   const getMediaForLightbox = () => {
+    console.log('🎬 getMediaForLightbox chamado para tipo:', mediaType)
+    console.log('📊 Estado das imagens:', {
+      hasGalleryImages,
+      galleryImagesLength: galleryImages?.length,
+      hasFloorplanImages,
+      floorplanImagesLength: floorplanImages?.length,
+      hasVideoImages,
+      videoImagesLength: videoImages?.length
+    })
+
     switch (mediaType) {
       case 'gallery':
-        // Usa imagens da API se disponíveis, senão usa mock
-        return hasGalleryImages ? galleryImages : mockGallery
+        const galleryResult = hasGalleryImages && galleryImages.length > 0 ? galleryImages : mockGallery
+        console.log('🖼️ Usando galeria:', galleryResult)
+        return galleryResult
 
       case 'floorplan':
-        // Usa plantas da API se disponíveis, senão usa mock
-        return hasFloorplanImages ? floorplanImages : mockFloorplans
+        const floorplanResult = hasFloorplanImages && floorplanImages.length > 0 ? floorplanImages : mockFloorplans
+        console.log('📐 Usando plantas:', floorplanResult)
+        return floorplanResult
 
       case 'video':
-        // Usa vídeos da API se disponíveis, senão usa mock
-        return hasVideoImages ? videoImages : mockVideos
+        const videoResult = hasVideoImages && videoImages.length > 0 ? videoImages : mockVideos
+        console.log('🎥 Usando vídeos:', videoResult)
+        return videoResult
 
       default:
+        console.log('⚠️ Tipo desconhecido, retornando array vazio')
         return []
     }
   }
