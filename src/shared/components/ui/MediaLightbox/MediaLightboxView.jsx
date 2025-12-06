@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useMediaLightboxViewModel } from './useMediaLightboxViewModel'
 
-export function MediaLightboxView({ isOpen = true, medias = [], onClose = () => {} }) {
+export function MediaLightboxView({ isOpen = true, medias = [] }) {
   const {
     currentIndex,
     currentMedia,

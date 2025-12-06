@@ -47,28 +47,31 @@ const whatsAppButton = (onWhatsAppClick = null) => new ButtonModel(
   onWhatsAppClick
 )
 
-const galleryButton = () => new ButtonModel(
+const galleryButton = (onClick = null) => new ButtonModel(
   'Galeria',
   'white',
   'button',
   'rectangle',
   'Galeria',
+  onClick
 )
 
-const floorplanButton = () => new ButtonModel(
+const floorplanButton = (onClick = null) => new ButtonModel(
   'Planta',
   'white',
   'button',
   'rectangle',
   'Planta',
+  onClick
 )
 
-const videoButton = () => new ButtonModel(
+const videoButton = (onClick = null) => new ButtonModel(
   'Vídeo',
   'white',
   'button',
   'rectangle',
   'Vídeo',
+  onClick
 )
 
 /** Valida se o modo do card é válido */
@@ -105,6 +108,10 @@ export class PropertyCardModel {
   #renderRealStateCardCoverImage
   #renderRealStateCardFeatures
   #onWhatsAppClick
+  #onVideoClick
+  #onGalleryClick
+  #onFloorplanClick
+  #showMediaLightbox
 
   constructor({
     realEstateAdvertisement,
@@ -146,6 +153,10 @@ export class PropertyCardModel {
   get renderRealStateCardCategoryLabel() { return this.#renderRealStateCardCategoryLabel }
   get renderRealStateCardCoverImage() { return this.#renderRealStateCardCoverImage }
   get renderRealStateCardFeatures() { return this.#renderRealStateCardFeatures }
+  get showMediaLightbox() { return this.#showMediaLightbox }
+  get onVideoClick() { return this.#onVideoClick }
+  get onGalleryClick() { return this.#onGalleryClick }
+  get onFloorplanClick() { return this.#onFloorplanClick }
 
   // ===== SETTERS =====
   set realEstateAdvertisement(value) {
@@ -180,6 +191,10 @@ export class PropertyCardModel {
   set realStateCardDescription(value) { this.#realStateCardDescription = value }
   set realStateCardFeatures(value) { this.#realStateCardFeatures = value }
   set realStateCardCoverImageUrl(value) { this.#realStateCardCoverImageUrl = value }
+  set showMediaLightbox(value) { this.#showMediaLightbox = value }
+  set onVideoClick(value) { this.#onVideoClick = value}
+  set onGalleryClick(value) { this.#onGalleryClick = value}
+  set onFloorplanClick(value) { this.#onFloorplanClick = value}
 
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
   async softDelete() {
@@ -219,9 +234,9 @@ export class PropertyCardModel {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))
       buttons.push(scheduleButton())
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.DETAILS) {
-      buttons.push(galleryButton())
-      buttons.push(floorplanButton())
-      buttons.push(videoButton())
+      buttons.push(galleryButton(this.#onGalleryClick))
+      buttons.push(floorplanButton(this.#onFloorplanClick))
+      buttons.push(videoButton(this.#onVideoClick))
     } else {
       buttons.push(defaultButton(this.#realEstateAdvertisement.id))
     }

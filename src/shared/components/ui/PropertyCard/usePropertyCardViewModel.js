@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -9,6 +9,11 @@ export function usePropertyCardViewModel(
   onWhatsAppClick = null
 ) {
   const navigate = useNavigate()
+  const [showLightbox, setShowLightbox] = useState(false)
+  let medias
+  // const onVideoClick =
+  const onGalleryClick = ()=>{ setShowLightbox(true), medias = realEstateAdvertisement?.estate?.getGalleryImages(), console.log('galeria foi')}
+  const onFloorplanClick = ()=>{ setShowLightbox(true), medias = realEstateAdvertisement?.estate?.getFloorPlanImages(), console.log('planta foi')}
 
   const onScheduleClick = useMemo(() => {
     if (realStateCardMode !== REAL_STATE_CARD_MODES.REDIRECTION) return null
@@ -29,7 +34,10 @@ export function usePropertyCardViewModel(
     () => new PropertyCardModel({
       realEstateAdvertisement,
       realStateCardMode,
-      onWhatsAppClick
+      onWhatsAppClick,
+      onFloorplanClick,
+      onGalleryClick
+
     }),
     [realEstateAdvertisement, realStateCardMode, onWhatsAppClick]
   )
@@ -60,6 +68,8 @@ export function usePropertyCardViewModel(
     isDefaultMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DEFAULT,
 
     isActiveAdvertisement: realEstateAdvertisement?.active || false,
-
+    medias,
+    showLightbox,
+    setShowLightbox,
   }
 }
