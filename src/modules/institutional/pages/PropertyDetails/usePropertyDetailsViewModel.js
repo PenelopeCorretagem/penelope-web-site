@@ -44,7 +44,7 @@ export function usePropertyDetailsViewModel() {
 
         // Map amenities to features expected by PropertyFeatures
         const amenitiesFeatures = (p.amenities || []).map(a => ({
-           // default icon
+          // default icon
           label: a.description || ''
         }))
 
@@ -160,42 +160,42 @@ export function usePropertyDetailsViewModel() {
               ? (p.images.find(img => String(img.type).toLowerCase() === 'capa')?.url || p.images[0].url)
               : ''
 
-              // map amenities and locations similar to primary mapping
-              const amenitiesFeatures = (p.amenities || []).map(a => ({ icon: 'BRINDE', label: a.description || '' }))
-              const formatAddress = (addr) => {
-                if (!addr) return ''
-                const parts = [addr.street, addr.number, addr.neighborhood, addr.city, addr.uf]
-                return parts.filter(Boolean).join(', ')
-              }
-              const addresses = [formatAddress(p.addressStand), formatAddress(p.address)]
-              const titles = ['Stand de Vendas', 'Empreendimento']
-              const regionsList = ['sul', 'leste', 'norte', 'oeste', 'centro']
-              const candidateRegion = String(p.address?.region || '').toLowerCase()
-              const matchedRegion = regionsList.find(r => candidateRegion.includes(r)) || null
-              const regionTexts = {
-                sul: 'Texto pronto para região Sul: descrição, pontos de interesse e diferenciais locais.',
-                leste: 'Texto pronto para região Leste: descrição, pontos de interesse e diferenciais locais.',
-                norte: 'Texto pronto para região Norte: descrição, pontos de interesse e diferenciais locais.',
-                oeste: 'Texto pronto para região Oeste: descrição, pontos de interesse e diferenciais locais.',
-                centro: 'Texto pronto para região Centro: descrição, pontos de interesse e diferenciais locais.',
-              }
-              const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
+            // map amenities and locations similar to primary mapping
+            const amenitiesFeatures = (p.amenities || []).map(a => ({ icon: 'BRINDE', label: a.description || '' }))
+            const formatAddress = (addr) => {
+              if (!addr) return ''
+              const parts = [addr.street, addr.number, addr.neighborhood, addr.city, addr.uf]
+              return parts.filter(Boolean).join(', ')
+            }
+            const addresses = [formatAddress(p.addressStand), formatAddress(p.address)]
+            const titles = ['Stand de Vendas', 'Empreendimento']
+            const regionsList = ['sul', 'leste', 'norte', 'oeste', 'centro']
+            const candidateRegion = String(p.address?.region || '').toLowerCase()
+            const matchedRegion = regionsList.find(r => candidateRegion.includes(r)) || null
+            const regionTexts = {
+              sul: 'Texto pronto para região Sul: descrição, pontos de interesse e diferenciais locais.',
+              leste: 'Texto pronto para região Leste: descrição, pontos de interesse e diferenciais locais.',
+              norte: 'Texto pronto para região Norte: descrição, pontos de interesse e diferenciais locais.',
+              oeste: 'Texto pronto para região Oeste: descrição, pontos de interesse e diferenciais locais.',
+              centro: 'Texto pronto para região Centro: descrição, pontos de interesse e diferenciais locais.',
+            }
+            const selectedRegionText = matchedRegion ? regionTexts[matchedRegion] : (p.address?.region || '')
 
-              const mapped = {
-                id: found.id,
-                title: p.title,
-                subtitle: p.address?.neighborhood || p.address?.city || '',
-                description: p.description,
-                imageLink,
-                category: p.type,
-                overview: p.description,
-                regionDescription: selectedRegionText,
-                regionList: regionsList,
-                amenitiesFeatures,
-                locationAddresses: addresses,
-                locationTitles: titles,
-                raw: found,
-              }
+            const mapped = {
+              id: found.id,
+              title: p.title,
+              subtitle: p.address?.neighborhood || p.address?.city || '',
+              description: p.description,
+              imageLink,
+              category: p.type,
+              overview: p.description,
+              regionDescription: selectedRegionText,
+              regionList: regionsList,
+              amenitiesFeatures,
+              locationAddresses: addresses,
+              locationTitles: titles,
+              raw: found,
+            }
 
             if (mounted) setProperty(mapped)
           } else {

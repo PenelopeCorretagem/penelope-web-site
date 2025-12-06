@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   PropertyCardModel,
@@ -9,6 +9,7 @@ import {
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
+import { getAnuncioById } from '@app/services/apiService'
 
 /**
  * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard
@@ -20,8 +21,144 @@ class PropertyCardViewModel {
     this._categoryLabel = null
     this._buttons = null
     this._differenceLabels = null
+    this._images = null
     this.router = RouterModel.getInstance()
     this.navigate = navigate
+  }
+
+  /**
+   * Define as imagens processadas da API
+   * Separa imagens por tipo: galeria, planta, vídeo, capa
+   */
+  setImages(rawImages) {
+    if (!rawImages || rawImages.length === 0) {
+      this._images = {
+        gallery: [],
+        floorplan: [],
+        video: [],
+        cover: '',
+        first: '',
+        main: '',
+        all: [],
+        hasImages: false
+      }
+      return
+    }
+
+    // Função auxiliar para encontrar imagens por tipo (retorna array)
+    const findImagesByType = (type) => {
+      return rawImages
+        .filter(img => String(img.type).toLowerCase() === type.toLowerCase())
+        .map(img => img.url)
+    }
+
+    // Função para encontrar UMA imagem por tipo (retorna string)
+    const findImageByType = (type) => {
+      return rawImages.find(img =>
+        String(img.type).toLowerCase() === type.toLowerCase()
+      )?.url || ''
+    }
+
+    // Função para pegar a primeira imagem disponível
+    const getFirstImage = () => {
+      return rawImages.length > 0 ? rawImages[0].url : ''
+    }
+
+    this._images = {
+      // Arrays de imagens para lightbox
+      gallery: findImagesByType('galeria'),
+      floorplan: findImagesByType('planta'),
+      video: findImagesByType('video'),
+
+      // Imagem de capa (string)
+      cover: findImageByType('capa'),
+
+      // Primeira imagem disponível (string)
+      first: getFirstImage(),
+
+      // Imagem principal para exibição no card
+      // Prioriza: galeria > planta > capa > primeira
+      main: findImagesByType('galeria')[0] ||
+            findImagesByType('planta')[0] ||
+            findImageByType('capa') ||
+            getFirstImage(),
+
+      // Array de todas as imagens
+      all: rawImages.map(img => ({
+        url: img.url,
+        type: img.type
+      })),
+
+      // Verifica se tem imagens disponíveis
+      hasImages: rawImages.length > 0
+    }
+
+    console.log('[PropertyCardViewModel] Images processed:', this._images)
+  }
+
+  /**
+   * Retorna as imagens processadas
+   */
+  get images() {
+    return this._images || {
+      gallery: [],
+      floorplan: [],
+      video: [],
+      cover: '',
+      first: '',
+      main: '',
+      all: [],
+      hasImages: false
+    }
+  }
+
+  /**
+   * Retorna a imagem principal do card
+   */
+  get mainImage() {
+    return this.images.main
+  }
+
+  /**
+   * Retorna array de imagens de galeria
+   */
+  get galleryImages() {
+    return this.images.gallery
+  }
+
+  /**
+   * Retorna array de imagens de planta
+   */
+  get floorplanImages() {
+    return this.images.floorplan
+  }
+
+  /**
+   * Retorna array de vídeos
+   */
+  get videoImages() {
+    return this.images.video
+  }
+
+  /**
+   * Verifica se tem imagens de galeria
+   */
+  get hasGalleryImages() {
+    return this.images.gallery.length > 0
+  }
+
+  /**
+   * Verifica se tem imagens de planta
+   */
+  get hasFloorplanImages() {
+    return this.images.floorplan.length > 0
+  }
+
+  /**
+   * Verifica se tem vídeos
+   */
+  get hasVideoImages() {
+    return this.images.video.length > 0
   }
 
   get categoryLabel() {
@@ -46,15 +183,14 @@ class PropertyCardViewModel {
           buttonConfig.text,
           variant,
           'button',
-          null, // rota (não usada aqui)
-          buttonConfig.action, // ✅ ação passada corretamente
-          buttonConfig.fullWidth || false // ✅ fullWidth tratado separadamente
+          null,
+          buttonConfig.action,
+          buttonConfig.fullWidth || false
         )
       })
     }
     return this._buttons
   }
-
 
   get formattedDifferences() {
     if (!this._differenceLabels) {
@@ -70,7 +206,7 @@ class PropertyCardViewModel {
   }
 
   get hasValidImage() {
-    return this.model.hasValidImage
+    return this.model.hasValidImage || !!this.mainImage
   }
 
   get labelPosition() {
@@ -180,6 +316,7 @@ class PropertyCardViewModel {
 
 export function usePropertyCardViewModel(props) {
   const navigate = useNavigate()
+  const [isLoadingImages, setIsLoadingImages] = useState(false)
 
   const [viewModel, setViewModel] = useState(() => {
     try {
@@ -195,6 +332,58 @@ export function usePropertyCardViewModel(props) {
   if (viewModel && !viewModel.navigate) {
     viewModel.navigate = navigate
   }
+
+  // Busca as imagens da API quando o ID estiver disponível
+  useEffect(() => {
+    if (!viewModel || !viewModel.model?.id) {
+      console.log('[PropertyCardViewModel] Skipping image fetch - no ID available')
+      return
+    }
+
+    let mounted = true
+    const fetchImages = async () => {
+      setIsLoadingImages(true)
+      try {
+        console.log('[PropertyCardViewModel] Fetching images for property ID:', viewModel.model.id)
+        const response = await getAnuncioById(viewModel.model.id)
+        const data = response?.data
+
+        if (!data) {
+          console.warn('[PropertyCardViewModel] No data returned from API')
+          if (mounted) {
+            viewModel.setImages([])
+          }
+          return
+        }
+
+        const property = data.property || {}
+        const images = property.images || []
+
+        console.log('[PropertyCardViewModel] Raw images from API:', images)
+
+        if (mounted) {
+          viewModel.setImages(images)
+          // Force re-render mantendo a mesma instância do viewModel
+          setViewModel(() => viewModel)
+        }
+      } catch (error) {
+        console.error('[PropertyCardViewModel] Error fetching images:', error)
+        if (mounted) {
+          viewModel.setImages([])
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingImages(false)
+        }
+      }
+    }
+
+    fetchImages()
+
+    return () => {
+      mounted = false
+    }
+  }, [viewModel?.model?.id])
 
   const handleButtonClick = useCallback((action) => {
     if (!viewModel) return
@@ -219,7 +408,16 @@ export function usePropertyCardViewModel(props) {
       buttonLayout: 'single',
       handleButtonClick: () => {},
       hasError: true,
-      model: null
+      model: null,
+      images: null,
+      mainImage: '',
+      galleryImages: [],
+      floorplanImages: [],
+      videoImages: [],
+      hasGalleryImages: false,
+      hasFloorplanImages: false,
+      hasVideoImages: false,
+      isLoadingImages: false
     }
   }
 
@@ -240,7 +438,17 @@ export function usePropertyCardViewModel(props) {
     handleButtonClick,
     hasError: false,
     model: viewModel.model,
-    setViewModel
+    setViewModel,
+    // Propriedades de imagens exportadas
+    images: viewModel.images,
+    mainImage: viewModel.mainImage,
+    galleryImages: viewModel.galleryImages,
+    floorplanImages: viewModel.floorplanImages,
+    videoImages: viewModel.videoImages,
+    hasGalleryImages: viewModel.hasGalleryImages,
+    hasFloorplanImages: viewModel.hasFloorplanImages,
+    hasVideoImages: viewModel.hasVideoImages,
+    isLoadingImages
   }
 }
 

@@ -27,12 +27,21 @@ export function PropertyCardView(props) {
     handleButtonClick,
     hasError,
     model,
+    // ✅ Novas propriedades de imagens da API
+    galleryImages,
+    floorplanImages,
+    videoImages,
+    hasGalleryImages,
+    hasFloorplanImages,
+    hasVideoImages,
+    isLoadingImages
   } = usePropertyCardViewModel(props)
 
   const [showForm, setShowForm] = useState(false)
   const [showLightbox, setShowLightbox] = useState(false)
   const [mediaType, setMediaType] = useState(null) // gallery | floorplan | video
 
+  // ✅ Mocks como fallback (caso não tenha imagens da API)
   const mockGallery = [
     'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
     'https://eeon9q568x2.exactdn.com/wp-content/uploads/2025/06/Fachada-iconica-do-edificio-escultural-no-Itaim-Bibi-1024x890.jpg',
@@ -48,8 +57,6 @@ export function PropertyCardView(props) {
   const mockVideos = [
     'https://www.w3schools.com/html/mov_bbb.mp4'
   ]
-
-
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('a')) return
@@ -73,7 +80,6 @@ export function PropertyCardView(props) {
     handleButtonClick(action)
   }
 
-
   const renderButtons = () => {
     if (!shouldRenderButtons) return null
 
@@ -91,6 +97,26 @@ export function PropertyCardView(props) {
         {button.text}
       </ButtonView>
     ))
+  }
+
+  // ✅ Função para obter as imagens corretas baseadas no tipo
+  const getMediaForLightbox = () => {
+    switch (mediaType) {
+      case 'gallery':
+        // Usa imagens da API se disponíveis, senão usa mock
+        return hasGalleryImages ? galleryImages : mockGallery
+
+      case 'floorplan':
+        // Usa plantas da API se disponíveis, senão usa mock
+        return hasFloorplanImages ? floorplanImages : mockFloorplans
+
+      case 'video':
+        // Usa vídeos da API se disponíveis, senão usa mock
+        return hasVideoImages ? videoImages : mockVideos
+
+      default:
+        return []
+    }
   }
 
   if (hasError) {
@@ -144,6 +170,13 @@ export function PropertyCardView(props) {
             </div>
           )}
 
+          {/* ✅ Indicador de carregamento de imagens (opcional) */}
+          {isLoadingImages && (
+            <TextView className="text-xs text-gray-500">
+              Carregando imagens...
+            </TextView>
+          )}
+
           {renderButtons()}
         </div>
       </div>
@@ -156,20 +189,14 @@ export function PropertyCardView(props) {
         />
       )}
 
+      {/* ✅ Lightbox com imagens da API ou fallback para mocks */}
       {showLightbox && (
-      <MediaLightboxView
-        type={mediaType}
-        onClose={() => setShowLightbox(false)}
-        medias={
-          mediaType === 'gallery'
-            ? mockGallery
-            : mediaType === 'floorplan'
-              ? mockFloorplans
-              : mockVideos
-        }
-      />
+        <MediaLightboxView
+          type={mediaType}
+          onClose={() => setShowLightbox(false)}
+          medias={getMediaForLightbox()}
+        />
       )}
-
     </>
   )
 }
