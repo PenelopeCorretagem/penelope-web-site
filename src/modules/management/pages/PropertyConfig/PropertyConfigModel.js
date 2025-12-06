@@ -4,127 +4,255 @@ import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/forma
  * Modelo de dados para configuração de propriedade
  */
 export class PropertyConfigModel {
-  constructor(propertyData = null) {
-    console.log('PropertyConfigModel constructor - input:', propertyData)
+  constructor(realEstateAdvertisement = null) {
+    console.log('🔨 [PROPERTY MODEL] Constructor called with:', {
+      hasData: !!realEstateAdvertisement,
+      id: realEstateAdvertisement?.id,
+      hasEstate: !!realEstateAdvertisement?.estate,
+      estateTitle: realEstateAdvertisement?.estate?.title
+    })
 
-    this.id = propertyData?.id || null
-    this.active = propertyData?.active !== undefined ? propertyData.active : true // Default true para novas propriedades
-    this.propertyTitle = propertyData?.property?.title || propertyData?.property?.address?.city || ''
-    this.displayEndDate = propertyData?.endDate ? this._formatDate(propertyData.endDate) : ''
-    this.propertyType = propertyData?.type || 'DISPONIVEL'
-    this.responsible = propertyData?.responsible?.id || ''
-    this.cardDescription = propertyData?.property?.address?.neighborhood || ''
-    this.propertyDescription = propertyData?.property?.description || ''
-    this.area = propertyData?.property?.area || ''
-    this.numberOfRooms = propertyData?.property?.numberOfRooms || ''
+    this.id = realEstateAdvertisement?.id || null
+    this.active = realEstateAdvertisement?.active !== undefined ? realEstateAdvertisement.active : true
+    this.displayEndDate = realEstateAdvertisement?.endDate ? this._formatDate(realEstateAdvertisement.endDate) : ''
 
-    this.differentials = propertyData?.property?.amenities?.map(a =>
-      this._normalizeDifferential(a.description)
-    ) || []
+    // Access Estate entity getters (not private properties)
+    const estate = realEstateAdvertisement?.estate
+    this.propertyTitle = estate?.title || ''
+    this.propertyType = estate?.type?.key || 'DISPONIVEL'
+    this.propertyDescription = estate?.description || ''
+    this.area = estate?.area || ''
+    this.numberOfRooms = estate?.numberOfRooms || ''
 
-    // Endereço do imóvel
+    // Responsible
+    this.responsible = realEstateAdvertisement?.responsible?.id || realEstateAdvertisement?.creator?.id || ''
+
+    // Card description from address
+    this.cardDescription = estate?.address?.neighborhood || ''
+
+    console.log('🔨 [PROPERTY MODEL] Basic fields processed:', {
+      id: this.id,
+      title: this.propertyTitle,
+      type: this.propertyType,
+      responsible: this.responsible,
+      area: this.area,
+      rooms: this.numberOfRooms,
+      active: this.active,
+      endDate: this.displayEndDate
+    })
+
+    // Extract differentials from features (not amenities)
+    console.log('🎯 [PROPERTY MODEL] Processing features:', estate?.features?.length || 0)
+    this.differentials = estate?.features?.map(feature => {
+      const normalized = this._normalizeDifferential(feature.description)
+      console.log(`  - Feature "${feature.description}" normalized to "${normalized}"`)
+      return normalized
+    }) || []
+    console.log('🎯 [PROPERTY MODEL] Final differentials:', this.differentials)
+
+    // Store original advertisement data for updates
+    this.originalAdvertisementData = realEstateAdvertisement
+
+    // Address
+    const mainAddress = estate?.address || {}
+    console.log('📍 [PROPERTY MODEL] Processing main address:', mainAddress)
+
     this.address = {
-      cep: propertyData?.property?.address?.cep || '',
-      number: propertyData?.property?.address?.number || '',
-      region: propertyData?.property?.address?.region || '',
-      street: propertyData?.property?.address?.street || '',
-      neighborhood: propertyData?.property?.address?.neighborhood || '',
-      city: propertyData?.property?.address?.city || '',
-      state: propertyData?.property?.address?.uf || ''
+      cep: mainAddress?.zipCode || '',
+      number: mainAddress?.number || '',
+      region: mainAddress?.region || '',
+      street: mainAddress?.street || '',
+      neighborhood: mainAddress?.neighborhood || '',
+      city: mainAddress?.city || '',
+      state: mainAddress?.uf || ''
     }
 
-    // Endereço do stand
+    console.log('📍 [PROPERTY MODEL] Processed address:', this.address)
+
+    // Stand address
+    const standAddressData = estate?.standAddress
+    console.log('📍 [PROPERTY MODEL] Processing stand address:', !!standAddressData, standAddressData)
+
     this.standAddress = {
-      cep: propertyData?.property?.addressStand?.cep || '',
-      number: propertyData?.property?.addressStand?.number || '',
-      region: propertyData?.property?.addressStand?.region || '',
-      street: propertyData?.property?.addressStand?.street || '',
-      neighborhood: propertyData?.property?.addressStand?.neighborhood || '',
-      city: propertyData?.property?.addressStand?.city || '',
-      state: propertyData?.property?.addressStand?.uf || ''
+      cep: standAddressData?.zipCode || '',
+      number: standAddressData?.number || '',
+      region: standAddressData?.region || '',
+      street: standAddressData?.street || '',
+      neighborhood: standAddressData?.neighborhood || '',
+      city: standAddressData?.city || '',
+      state: standAddressData?.uf || ''
     }
 
-    this.enableStandAddress = propertyData?.property?.addressStand ? true : false
+    this.enableStandAddress = !!standAddressData && Object.values(standAddressData).some(v => v)
+    console.log('📍 [PROPERTY MODEL] Processed stand address:', {
+      enabled: this.enableStandAddress,
+      address: this.enableStandAddress ? this.standAddress : 'disabled'
+    })
 
-    // Extrai as imagens da API organizadas por ID
-    const images = propertyData?.property?.images || []
+    // Images
+    const images = estate?.images || []
+    console.log('🖼️ [PROPERTY MODEL] Constructor - Processing images:', images.length)
+    console.log('🖼️ [PROPERTY MODEL] Raw images:', images.map(img => ({
+      id: img.id,
+      type: img.type?.description,
+      url: img.url?.substring(0, 100)
+    })))
+
     this.images = {
       video: this._createFilePreview(this._extractImageUrl(images, 'Video'), 'Video'),
       cover: this._createFilePreview(this._extractImageUrl(images, 'Capa'), 'Capa'),
       gallery: this._extractAndCreatePreviews(images, 'Galeria'),
       floorPlans: this._extractAndCreatePreviews(images, 'Planta')
     }
+
+    console.log('🖼️ [PROPERTY MODEL] Constructor - Final images:', {
+      video: !!this.images.video,
+      cover: !!this.images.cover,
+      gallery: this.images.gallery.length,
+      floorPlans: this.images.floorPlans.length
+    })
   }
 
   /**
    * Cria um PropertyConfigModel a partir de uma entidade Advertisement
    */
   static fromAdvertisementEntity(advertisementEntity) {
+    console.log('🔄 [PROPERTY MODEL] fromAdvertisementEntity called with:', {
+      id: advertisementEntity?.id,
+      hasEstate: !!advertisementEntity?.estate,
+      estateTitle: advertisementEntity?.estate?.title
+    })
+
     if (!advertisementEntity) {
+      console.warn('⚠️ [PROPERTY MODEL] No advertisement entity provided, creating empty model')
       return new PropertyConfigModel()
     }
 
-    // Converte a entidade Advertisement para o formato esperado
-    const propertyData = {
-      id: advertisementEntity.id,
-      endDate: advertisementEntity.createdAt,
-      property: advertisementEntity.property
-    }
-
-    return new PropertyConfigModel(propertyData)
+    return new PropertyConfigModel(advertisementEntity)
   }
 
   /**
-   * Extrai URL de uma única imagem por tipo
+   * Enhanced image URL extraction with better type matching
    */
   _extractImageUrl(images, type) {
-    const image = images.find(img => img.type === type)
-    return image?.url || ''
+    console.log(`🔍 [PROPERTY MODEL] _extractImageUrl searching for "${type}"`)
+
+    if (!Array.isArray(images) || images.length === 0) {
+      console.log(`❌ [PROPERTY MODEL] No images array or empty`)
+      return ''
+    }
+
+    // Try exact match first using type.description (from ImageEstateType entity)
+    let image = images.find(img => img.type?.description === type)
+    console.log(`🔍 [PROPERTY MODEL] Exact match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
+
+    // If not found, try alternative type mappings
+    if (!image) {
+      const typeMapping = {
+        'Video': ['video', 'Video', 'VIDEO', '4'],
+        'Capa': ['capa', 'Capa', 'CAPA', 'cover', 'Cover', 'COVER', '1'],
+        'Galeria': ['galeria', 'Galeria', 'GALERIA', 'gallery', 'Gallery', 'GALLERY', '2'],
+        'Planta': ['planta', 'Planta', 'PLANTA', 'floor_plan', 'Floor_Plan', 'FLOOR_PLAN', 'floorplan', 'FloorPlan', 'FLOORPLAN', '3']
+      }
+
+      const alternativeTypes = typeMapping[type] || []
+      image = images.find(img => alternativeTypes.includes(String(img.type?.description)))
+      console.log(`🔍 [PROPERTY MODEL] Alternative match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
+    }
+
+    const url = image?.url || ''
+    console.log(`🔍 [PROPERTY MODEL] Extracted ${type} image:`, {
+      found: !!image,
+      imageId: image?.id,
+      imageType: image?.type?.description,
+      urlLength: url?.length
+    })
+
+    return url
   }
 
   /**
-   * Extrai imagens de um tipo e cria previews numeradas
+   * Enhanced gallery/floor plans extraction with better sorting and type matching
    */
   _extractAndCreatePreviews(images, type) {
-    return images
-      .filter(img => img.type === type)
-      .sort((a, b) => a.id - b.id) // Ordena por ID
+    console.log(`🔍 [PROPERTY MODEL] _extractAndCreatePreviews for "${type}"`)
+
+    if (!Array.isArray(images)) {
+      console.log(`❌ [PROPERTY MODEL] Images is not an array for ${type}`)
+      return []
+    }
+
+    // Try exact match first using type.description
+    let matchingImages = images.filter(img => img.type?.description === type)
+    console.log(`🔍 [PROPERTY MODEL] Exact matches for "${type}":`, matchingImages.length)
+
+    // If no exact match, try alternative mappings
+    if (matchingImages.length === 0) {
+      const typeMapping = {
+        'Galeria': ['galeria', 'Galeria', 'GALERIA', 'gallery', 'Gallery', 'GALLERY', '2'],
+        'Planta': ['planta', 'Planta', 'PLANTA', 'floor_plan', 'Floor_Plan', 'FLOOR_PLAN', 'floorplan', 'FloorPlan', 'FLOORPLAN', '3']
+      }
+
+      const alternativeTypes = typeMapping[type] || []
+      matchingImages = images.filter(img => alternativeTypes.includes(String(img.type?.description)))
+      console.log(`🔍 [PROPERTY MODEL] Found ${matchingImages.length} alternative matches for "${type}"`)
+    }
+
+    const previews = matchingImages
+      .sort((a, b) => (a?.id || 0) - (b?.id || 0))
       .map((img, index) => this._createFilePreview(img.url, type, index + 1))
       .filter(Boolean)
+
+    console.log(`✅ [PROPERTY MODEL] Created ${previews.length} previews for "${type}"`)
+    return previews
   }
 
   /**
    * Cria um objeto File-like para preview de URL
    */
   _createFilePreview(url, type, index = null) {
-    if (!url) return null
+    console.log(`🖼️ [PROPERTY MODEL] _createFilePreview:`, { url: url?.substring(0, 100), type, index, hasUrl: !!url })
 
-    // Cria nome descritivo baseado no tipo e índice
+    if (!url) {
+      console.log(`❌ [PROPERTY MODEL] No URL provided for ${type}`)
+      return null
+    }
+
     const fileName = this._generateFileName(type, index)
+    const isVideo = type === 'Video'
 
-    return {
+    const preview = {
       preview: url,
       name: fileName,
-      type: type === 'Video' ? 'video/mp4' : 'image/jpeg',
+      type: isVideo ? 'video/mp4' : 'image/jpeg',
       isExisting: true,
-      url: url
+      url: url,
+      size: 0,
+      lastModified: Date.now()
     }
+
+    console.log(`✅ [PROPERTY MODEL] Created preview for ${type}:`, {
+      fileName,
+      urlLength: url?.length
+    })
+
+    return preview
   }
 
   /**
-   * Gera nome do arquivo baseado no tipo e índice
+   * Enhanced filename generation
    */
   _generateFileName(type, index = null) {
     const typeNames = {
-      'Video': 'Vídeo',
-      'Capa': 'Capa',
-      'Galeria': 'Galeria',
-      'Planta': 'Planta'
+      'Video': 'Vídeo do Imóvel',
+      'Capa': 'Imagem de Capa',
+      'Galeria': 'Foto da Galeria',
+      'Planta': 'Planta Baixa'
     }
 
     const baseName = typeNames[type] || type
 
-    if (index !== null) {
+    if (index !== null && index > 0) {
       return `${baseName} ${index}`
     }
 
@@ -135,19 +263,19 @@ export class PropertyConfigModel {
    * Normaliza o nome do diferencial para corresponder aos valores do checkbox
    */
   _normalizeDifferential(name) {
+    if (!name) return ''
+
+    const lowerName = String(name).toLowerCase().trim()
+
     const map = {
-      'Piscina': 'piscina',
-      'Academia': 'academia',
-      'Churrasqueira': 'churrasqueira',
-      'Playground': 'playground',
-      'Salão de Festas': 'salao_festas',
-      'Salao de Festas': 'salao_festas',
-      'Garagem': 'garagem',
-      'Espaço Gourmet': 'espaco_gourmet',
-      'Espaco Gourmet': 'espaco_gourmet',
-      'Pet Place': 'pet_place'
+      'pet': 'pet',
+      'floresta': 'floresta',
+      'brinquedo': 'brinquedo',
+      'lounge': 'lounge',
+      'yoga': 'yoga',
     }
-    return map[name] || name.toLowerCase().replace(/\s+/g, '_')
+
+    return map[lowerName] || lowerName.replace(/\s+/g, '_')
   }
 
   /**
@@ -172,7 +300,9 @@ export class PropertyConfigModel {
    * Converte o modelo para formato de formulário
    */
   toFormData() {
-    return {
+    console.log('📤 [PROPERTY MODEL] toFormData() called')
+
+    const formData = {
       active: this.active,
       propertyTitle: this.propertyTitle,
       displayEndDate: this.displayEndDate,
@@ -203,65 +333,240 @@ export class PropertyConfigModel {
       gallery: this.images.gallery,
       floorPlans: this.images.floorPlans
     }
-  }
 
-  /**
-   * Converte os dados do formulário para o formato de requisição da API
-   */
-  toApiRequest(formData) {
-    return {
-      active: Boolean(formData.active),
-      emphasis: false,
-      endDate: formData.displayEndDate,
+    console.log('📤 [PROPERTY MODEL] toFormData() complete:', {
+      title: formData.propertyTitle,
       type: formData.propertyType,
-      responsibleId: formData.responsible,
-      property: {
-        title: formData.propertyTitle,
-        description: formData.propertyDescription,
-        area: formatAreaForDatabase(formData.area),
-        numberOfRooms: parseInt(formData.numberOfRooms) || null,
-        type: 'APARTAMENTO',
-        address: {
-          street: formData.street,
-          number: formData.number,
-          neighborhood: formData.neighborhood,
-          city: formData.city,
-          uf: formData.state,
-          region: formData.region,
-          zipCode: formData.cep,
-        },
-        // Só incluir standAddress se o checkbox estiver habilitado
-        standAddress: formData.enableStandAddress ? {
-          street: formData.standStreet || '',
-          number: formData.standNumber || '',
-          neighborhood: formData.standNeighborhood || '',
-          city: formData.standCity || '',
-          uf: formData.standState || '',
-          region: formData.standRegion || '',
-          zipCode: formData.standCep || '',
-        } : null,
-        amenities: formData.differentials?.map(diff => ({
-          description: this._denormalizeDifferential(diff)
-        })) || [],
+      images: {
+        video: !!formData.video,
+        cover: !!formData.cover,
+        gallery: formData.gallery.length,
+        floorPlans: formData.floorPlans.length
       }
-    }
+    })
+
+    return formData
   }
 
   /**
-   * Converte valor normalizado de volta para nome legível
+   * Enhanced method to extract new image files, considering both new files and replacements
    */
-  _denormalizeDifferential(value) {
-    const map = {
-      'piscina': 'Piscina',
-      'academia': 'Academia',
-      'churrasqueira': 'Churrasqueira',
-      'playground': 'Playground',
-      'salao_festas': 'Salão de Festas',
-      'garagem': 'Garagem',
-      'espaco_gourmet': 'Espaço Gourmet',
-      'pet_place': 'Pet Place'
+  extractNewImageFiles(formData) {
+    const newFiles = []
+
+    // Check if video is new or replaced
+    if (formData.video && !formData.video.isExisting) {
+      newFiles.push({
+        file: formData.video,
+        type: 2, // Videos as gallery for now
+        fieldType: 'video'
+      })
     }
-    return map[value] || value
+
+    // Check if cover is new or replaced
+    if (formData.cover && !formData.cover.isExisting) {
+      newFiles.push({
+        file: formData.cover,
+        type: 1, // Cover type
+        fieldType: 'cover'
+      })
+    }
+
+    // Process gallery images - can have multiple new files
+    if (Array.isArray(formData.gallery)) {
+      formData.gallery.forEach((file, index) => {
+        if (file && !file.isExisting) {
+          newFiles.push({
+            file: file,
+            type: 2, // Gallery type
+            fieldType: 'gallery',
+            index: index
+          })
+        }
+      })
+    }
+
+    // Process floor plans - can have multiple new files
+    if (Array.isArray(formData.floorPlans)) {
+      formData.floorPlans.forEach((file, index) => {
+        if (file && !file.isExisting) {
+          newFiles.push({
+            file: file,
+            type: 3, // Floor plan type
+            fieldType: 'floorPlan',
+            index: index
+          })
+        }
+      })
+    }
+
+    console.log('📁 [PROPERTY MODEL] New files to upload:', newFiles.length)
+    console.log('📁 [PROPERTY MODEL] File breakdown:', newFiles.map(f => ({
+      fieldType: f.fieldType,
+      type: f.type,
+      fileName: f.file?.name
+    })))
+
+    return newFiles
+  }
+
+  /**
+   * Enhanced API request conversion with better image handling for updates
+   */
+  toApiRequest(formData, uploadedImageData = []) {
+    console.log('🔄 [PROPERTY MODEL] Converting form data to API request')
+
+    // Função para limitar e sanitizar strings
+    const sanitizeString = (value, maxLength = null) => {
+      if (!value) return ''
+      const cleaned = String(value).trim()
+      return maxLength ? cleaned.substring(0, maxLength) : cleaned
+    }
+
+    // Função para formatar CEP (apenas números, 8 dígitos)
+    const formatCep = (cep) => {
+      if (!cep) return ''
+      const cleanCep = String(cep).replace(/\D/g, '')
+      return cleanCep.padStart(8, '0').substring(0, 8)
+    }
+
+    // Função para validar e sanitizar tipo ENUM
+    const sanitizePropertyType = (type) => {
+      const validTypes = ['DISPONIVEL', 'EM_OBRAS', 'LANCAMENTO']
+      const cleanType = String(type || '').trim().toUpperCase()
+      return validTypes.includes(cleanType) ? cleanType : 'DISPONIVEL'
+    }
+
+    // Função para gerar data de fim válida (formato ISO)
+    const generateValidEndDate = (inputDate) => {
+      if (inputDate) {
+        try {
+          const date = new Date(inputDate)
+          if (!isNaN(date.getTime())) {
+            return date.toISOString()
+          }
+        } catch (e) {
+          console.warn('Data inválida fornecida, usando data padrão')
+        }
+      }
+      // Se não há data ou é inválida, usar 30 dias a partir de hoje
+      const now = new Date()
+      const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000))
+      return endDate.toISOString()
+    }
+
+    const sanitizeNumber = (value) => {
+      const num = Number(value)
+      return isNaN(num) ? 0 : num
+    }
+
+    const mapDifferentialsToIds = (differentials) => {
+      if (!Array.isArray(differentials)) return []
+
+      const differentialMap = {
+        'pet': 1,
+        'floresta': 2,
+        'brinquedo': 3,
+        'lounge': 4,
+        'yoga': 5,
+      }
+
+      return differentials
+        .map(diff => differentialMap[diff])
+        .filter(id => id !== undefined)
+    }
+
+    // Build comprehensive image arrays including existing and new images
+    const imageUrls = []
+    const imageTypes = []
+
+    // Add existing images that weren't changed
+    if (formData.video && formData.video.isExisting) {
+      imageUrls.push(formData.video.url)
+      imageTypes.push(2) // Video as gallery
+    }
+
+    if (formData.cover && formData.cover.isExisting) {
+      imageUrls.push(formData.cover.url)
+      imageTypes.push(1) // Cover
+    }
+
+    if (Array.isArray(formData.gallery)) {
+      formData.gallery.forEach(file => {
+        if (file && file.isExisting) {
+          imageUrls.push(file.url)
+          imageTypes.push(2) // Gallery
+        }
+      })
+    }
+
+    if (Array.isArray(formData.floorPlans)) {
+      formData.floorPlans.forEach(file => {
+        if (file && file.isExisting) {
+          imageUrls.push(file.url)
+          imageTypes.push(3) // Floor plan
+        }
+      })
+    }
+
+    // Add newly uploaded images
+    if (Array.isArray(uploadedImageData)) {
+      uploadedImageData.forEach(item => {
+        if (item.urls && item.type) {
+          imageUrls.push(...item.urls)
+          imageTypes.push(...new Array(item.urls.length).fill(item.type))
+        }
+      })
+    }
+
+    // Build complete API request
+    const request = {
+      title: sanitizeString(formData.propertyTitle, 255),
+      description: sanitizeString(formData.propertyDescription, 1000),
+      area: formatAreaForDatabase(formData.area) || 0,
+      numberOfRooms: sanitizeNumber(formData.numberOfRooms),
+      type: sanitizePropertyType(formData.propertyType),
+      advertisementCreateRequest: {
+        creator: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.creator?.id) || 1,
+        responsible: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.responsible?.id) || 1,
+        dataFim: generateValidEndDate(formData.displayEndDate),
+        active: Boolean(formData.active)
+      },
+      address: {
+        id: this.originalAdvertisementData?.property?.address?.id || null,
+        street: sanitizeString(formData.street, 255),
+        number: sanitizeString(formData.number, 20),
+        neighborhood: sanitizeString(formData.neighborhood, 100),
+        city: sanitizeString(formData.city, 100),
+        uf: sanitizeString(formData.state, 2),
+        zipCode: formatCep(formData.cep),
+        complement: null,
+        region: sanitizeString(formData.region, 50)
+      },
+      standAddress: (formData.enableStandAddress && formData.standStreet) ? {
+        id: this.originalAdvertisementData?.property?.standAddress?.id || null,
+        street: sanitizeString(formData.standStreet, 255),
+        number: sanitizeString(formData.standNumber, 20),
+        neighborhood: sanitizeString(formData.standNeighborhood, 100),
+        city: sanitizeString(formData.standCity, 100),
+        uf: sanitizeString(formData.standState, 2),
+        zipCode: formatCep(formData.standCep),
+        complement: null,
+        region: sanitizeString(formData.standRegion, 50)
+      } : null,
+      amenitiesIds: mapDifferentialsToIds(formData.differentials),
+      images: imageUrls,
+      imageType: imageTypes
+    }
+
+    console.log('✅ [PROPERTY MODEL] API request created for', this.isNew() ? 'CREATE' : 'UPDATE')
+    console.log('🔍 [PROPERTY MODEL] Property type:', request.type)
+    console.log('🔍 [PROPERTY MODEL] Active status:', request.advertisementCreateRequest.active)
+    console.log('🖼️ [PROPERTY MODEL] Total images:', imageUrls.length)
+    console.log('🏷️ [PROPERTY MODEL] Image types:', imageTypes)
+    console.log('🎯 [PROPERTY MODEL] Amenities IDs:', request.amenitiesIds)
+
+    return request
   }
 
   /**

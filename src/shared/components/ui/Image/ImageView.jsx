@@ -30,23 +30,19 @@ export function ImageView({ src, alt = '', description, className = '' }) {
   }
 
   return (
-    hasDescription ? (
-      <div className="flex flex-col gap-card md:gap-card-md">
-        <img
-          src={src}
-          alt={alt}
-          className={`object-cover ${className}`}
-        />
-        <TextView className="text-default-dark-muted">
-          {description}
-        </TextView>
-      </div>
-    ) : (
+
+    <div className="flex flex-col gap-card md:gap-card-md bg-distac-gradient p-1 rounded-sm h-fit">
       <img
         src={src}
         alt={alt}
-        className={`object-cover ${className}`}
+        className={`object-cover rounded-[2px] ${className}`}
       />
-    )
+      {hasDescription ?? (
+      <TextView className="text-default-dark-muted">
+        {description}
+      </TextView>
+      )
+      }
+    </div>
   )
 }

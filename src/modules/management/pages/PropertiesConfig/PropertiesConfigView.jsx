@@ -1,5 +1,5 @@
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
+import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
 import { usePropertiesConfigViewModel } from './usePropertiesConfigViewModel'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
@@ -9,6 +9,8 @@ import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
+import { useCallback, useMemo } from 'react'
+import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 
 export function PropertiesConfigView() {
   const navigate = useNavigate()
@@ -37,22 +39,46 @@ export function PropertiesConfigView() {
 
   const headerHeight = useHeaderHeight()
 
-  const handleAddProperty = () => {
+  const handleAddProperty = useCallback(() => {
     try {
-      const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'novo' })
+      const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'new' })
       navigate(route)
     } catch (error) {
       console.error('Erro ao gerar rota:', error)
       // Fallback direto
-      navigate('/admin/imoveis/novo')
+      navigate('/admin/gerenciar-imoveis/new')
     }
-  }
+  }, [navigate, generateRoute])
 
-  const getSortIcon = () => {
+  const regionOptions = useMemo(() => [
+    { value: 'TODAS', label: 'Todas as Regiões' },
+    { value: 'GRANDE_SP', label: 'Grande São Paulo' },
+    { value: 'INTERIOR', label: 'Interior' },
+    { value: 'LITORAL', label: 'Litoral' },
+    { value: 'VALE_PARAIBA', label: 'Vale do Paraíba' }
+  ], [])
+
+  const cityOptions = useMemo(() => [
+    { value: 'TODAS', label: 'Todas as Cidades' },
+    ...availableCities.map(city => ({ value: city, label: city }))
+  ], [availableCities])
+
+  const typeOptions = useMemo(() => [
+    { value: 'TODOS', label: 'Todos os Tipos' },
+    { value: 'LANCAMENTOS', label: 'Lançamentos' },
+    { value: 'DISPONIVEIS', label: 'Disponíveis' },
+    { value: 'EM_OBRAS', label: 'Em Obras' }
+  ], [])
+
+  const onRegionChange = useCallback((e) => handleRegionFilterChange(e.target.value), [handleRegionFilterChange])
+  const onCityChange = useCallback((e) => handleCityFilterChange(e.target.value), [handleCityFilterChange])
+  const onTypeChange = useCallback((e) => handleTypeFilterChange(e.target.value), [handleTypeFilterChange])
+
+  const getSortIcon = useCallback(() => {
     if (sortOrder === 'asc') return <ArrowUpAZ size={16} />
     if (sortOrder === 'desc') return <ArrowDownAZ size={16} />
     return <ArrowUpDown size={16} />
-  }
+  }, [sortOrder])
 
   if (loading) {
     return (
@@ -100,51 +126,34 @@ export function PropertiesConfigView() {
               value={regionFilter}
               name="regionFilter"
               id="regionFilter"
-              options={[
-                { value: 'TODAS', label: 'Todas as Regiões' },
-                { value: 'GRANDE_SP', label: 'Grande São Paulo' },
-                { value: 'INTERIOR', label: 'Interior' },
-                { value: 'LITORAL', label: 'Litoral' },
-                { value: 'VALE_PARAIBA', label: 'Vale do Paraíba' }
-              ]}
+              options={regionOptions}
               width="fit"
               variant="brown"
               shape="square"
               hasLabel={false}
-              onChange={(e) => handleRegionFilterChange(e.target.value)}
+              onChange={onRegionChange}
             />
             <SelectView
               value={cityFilter}
               name="cityFilter"
               id="cityFilter"
-              options={[
-                { value: 'TODAS', label: 'Todas as Cidades' },
-                ...availableCities.map(city => ({
-                  value: city,
-                  label: city
-                }))
-              ]}
+              options={cityOptions}
               width="fit"
               variant="brown"
               shape="square"
               hasLabel={false}
-              onChange={(e) => handleCityFilterChange(e.target.value)}
+              onChange={onCityChange}
             />
             <SelectView
               value={typeFilter}
               name="typeFilter"
               id="typeFilter"
-              options={[
-                { value: 'TODOS', label: 'Todos os Tipos' },
-                { value: 'LANCAMENTOS', label: 'Lançamentos' },
-                { value: 'DISPONIVEIS', label: 'Disponíveis' },
-                { value: 'EM_OBRAS', label: 'Em Obras' }
-              ]}
+              options={typeOptions}
               width="fit"
               variant="brown"
               shape="square"
               hasLabel={false}
-              onChange={(e) => handleTypeFilterChange(e.target.value)}
+              onChange={onTypeChange}
             />
             <div className="w-full md:w-fit">
               <ButtonView
@@ -165,37 +174,31 @@ export function PropertiesConfigView() {
         <div className="flex flex-col gap-subsection md:gap-subsection-md h-fit flex-1">
           {lancamentos.length > 0 && (
             <PropertiesCarouselView
-              properties={lancamentos}
+              realEstateAdvertisements={lancamentos}
+              realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Lançamentos"
               actionButtonText="Adicionar Imóvel"
               onActionClick={handleAddProperty}
-              supportMode={true}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
             />
           )}
 
           {disponiveis.length > 0 && (
             <PropertiesCarouselView
-              properties={disponiveis}
+              realEstateAdvertisements={disponiveis}
+              realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Disponíveis"
               actionButtonText="Adicionar Imóvel"
               onActionClick={handleAddProperty}
-              supportMode={true}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
             />
           )}
 
           {emObras.length > 0 && (
             <PropertiesCarouselView
-              properties={emObras}
+              realEstateAdvertisements={emObras}
+              realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Em Obras"
               actionButtonText="Adicionar Imóvel"
               onActionClick={handleAddProperty}
-              supportMode={true}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
             />
           )}
 

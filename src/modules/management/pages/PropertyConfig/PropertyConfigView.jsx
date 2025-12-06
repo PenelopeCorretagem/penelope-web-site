@@ -1,4 +1,3 @@
-import React from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
@@ -8,7 +7,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 export function PropertyConfigView() {
   const { id } = useRouteParams()
 
-  console.log('PropertyConfigView - ID from params:', id)
+  console.log('🎨 [PROPERTY CONFIG VIEW] Mounted with ID:', id)
 
   const {
     loading,
@@ -24,11 +23,62 @@ export function PropertyConfigView() {
     handleCancel
   } = usePropertyConfigViewModel(id)
 
-  console.log('PropertyConfigView - Users state:', {
-    loadingUsers,
+  console.log('🎨 [PROPERTY CONFIG VIEW] State updated:', {
+    loading,
+    error,
+    isNew,
+    hasInitialData: !!initialData,
+    initialDataKeys: initialData ? Object.keys(initialData) : [],
     usersCount: usersWithCreci.length,
-    users: usersWithCreci
+    loadingUsers
   })
+
+  if (initialData) {
+    console.log('🎨 [PROPERTY CONFIG VIEW] Received initialData:', {
+      propertyTitle: initialData.propertyTitle,
+      propertyType: initialData.propertyType,
+      responsible: initialData.responsible,
+      address: {
+        street: initialData.street,
+        city: initialData.city,
+        cep: initialData.cep
+      },
+      differentials: initialData.differentials,
+      // Log detalhado de imagens
+      images: {
+        video: {
+          exists: !!initialData.video,
+          preview: initialData.video?.preview?.substring(0, 100),
+          name: initialData.video?.name,
+          isExisting: initialData.video?.isExisting,
+          url: initialData.video?.url?.substring(0, 100)
+        },
+        cover: {
+          exists: !!initialData.cover,
+          preview: initialData.cover?.preview?.substring(0, 100),
+          name: initialData.cover?.name,
+          isExisting: initialData.cover?.isExisting,
+          url: initialData.cover?.url?.substring(0, 100)
+        },
+        gallery: {
+          count: initialData.gallery?.length || 0,
+          items: initialData.gallery?.map(item => ({
+            name: item?.name,
+            preview: item?.preview?.substring(0, 50),
+            isExisting: item?.isExisting
+          }))
+        },
+        floorPlans: {
+          count: initialData.floorPlans?.length || 0,
+          items: initialData.floorPlans?.map(item => ({
+            name: item?.name,
+            preview: item?.preview?.substring(0, 50),
+            isExisting: item?.isExisting
+          }))
+        }
+      }
+    })
+  }
 
   // Só monta o formulário quando os usuários estiverem carregados
   if (loading || loadingUsers) {
@@ -62,6 +112,8 @@ export function PropertyConfigView() {
       label: user.getDisplayName()
     }))
   ]
+
+  console.log('🎨 [PROPERTY CONFIG VIEW] Responsible options:', responsibleOptions.map(opt => ({ value: opt.value, label: opt.label })))
 
   const steps = [
     {
@@ -181,12 +233,11 @@ export function PropertyConfigView() {
               label: 'Diferenciais',
               type: 'checkbox-group',
               options: [
-                { value: 'piscina', label: 'Piscina' },
-                { value: 'academia', label: 'Academia' },
-                { value: 'churrasqueira', label: 'Churrasqueira' },
-                { value: 'playground', label: 'Playground' },
-                { value: 'salao_festas', label: 'Salão de Festas' },
-                { value: 'garagem', label: 'Garagem' },
+                { value: 'pet', label: 'Pet' },
+                { value: 'floresta', label: 'Floresta' },
+                { value: 'brinquedo', label: 'Brinquedo' },
+                { value: 'lounge', label: 'Lounge' },
+                { value: 'yoga', label: 'Yoga' },
               ],
             },
           ],
@@ -228,7 +279,14 @@ export function PropertyConfigView() {
               name: 'region',
               label: 'Região',
               type: 'select',
-              options: ['Norte', 'Sul', 'Leste', 'Oeste', 'Centro'],
+              options: [
+                { value: '', label: 'Selecione a região' },
+                { value: 'Norte', label: 'Norte' },
+                { value: 'Sul', label: 'Sul' },
+                { value: 'Leste', label: 'Leste' },
+                { value: 'Oeste', label: 'Oeste' },
+                { value: 'Centro', label: 'Centro' }
+              ],
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
@@ -266,7 +324,16 @@ export function PropertyConfigView() {
               name: 'state',
               label: 'UF',
               type: 'select',
-              options: ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS'],
+              options: [
+                { value: '', label: 'Selecione o estado' },
+                { value: 'SP', label: 'SP' },
+                { value: 'RJ', label: 'RJ' },
+                { value: 'MG', label: 'MG' },
+                { value: 'ES', label: 'ES' },
+                { value: 'PR', label: 'PR' },
+                { value: 'SC', label: 'SC' },
+                { value: 'RS', label: 'RS' }
+              ],
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
@@ -315,7 +382,14 @@ export function PropertyConfigView() {
               name: 'standRegion',
               label: 'Região',
               type: 'select',
-              options: ['Norte', 'Sul', 'Leste', 'Oeste', 'Centro'],
+              options: [
+                { value: '', label: 'Selecione a região' },
+                { value: 'Norte', label: 'Norte' },
+                { value: 'Sul', label: 'Sul' },
+                { value: 'Leste', label: 'Leste' },
+                { value: 'Oeste', label: 'Oeste' },
+                { value: 'Centro', label: 'Centro' }
+              ],
               containerClassName: 'w-full md:w-1/3',
             },
           ],
@@ -349,7 +423,16 @@ export function PropertyConfigView() {
               name: 'standState',
               label: 'UF',
               type: 'select',
-              options: ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS'],
+              options: [
+                { value: '', label: 'Selecione o estado' },
+                { value: 'SP', label: 'SP' },
+                { value: 'RJ', label: 'RJ' },
+                { value: 'MG', label: 'MG' },
+                { value: 'ES', label: 'ES' },
+                { value: 'PR', label: 'PR' },
+                { value: 'SC', label: 'SC' },
+                { value: 'RS', label: 'RS' }
+              ],
               containerClassName: 'w-full md:w-1/3',
             },
           ],
@@ -420,12 +503,28 @@ export function PropertyConfigView() {
         title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
         steps={steps}
         initialData={initialData}
-        onSubmit={handleSubmit}
-        onDelete={!isNew ? handleDelete : undefined}
+        onSubmit={(formData) => {
+          console.log('🎯 [PROPERTY CONFIG VIEW] onSubmit called with formData images:', {
+            videoExists: !!formData.video,
+            coverExists: !!formData.cover,
+            galleryCount: formData.gallery?.length,
+            floorPlansCount: formData.floorPlans?.length,
+            video: formData.video,
+            cover: formData.cover,
+            gallery: formData.gallery,
+            floorPlans: formData.floorPlans
+          })
+          return handleSubmit(formData)
+        }}
+        onDelete={!isNew ? () => {
+          if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
+            return handleDelete()
+          }
+        } : undefined}
         onClear={handleClear}
         onCancel={handleCancel}
         disabled={submitting}
-        key={id || 'new'} // Force re-render quando mudar de ID
+        key={id || 'new'}
       />
     </SectionView>
   )

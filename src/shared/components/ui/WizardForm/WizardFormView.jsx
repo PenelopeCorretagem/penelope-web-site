@@ -6,7 +6,7 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
-import { formatArea, parseArea } from '@shared/utils/formatAreaUtil'
+import { formatArea } from '@shared/utils/formatAreaUtil'
 import { formatCEP } from '@shared/utils/formatCEPUtil'
 import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 
@@ -299,15 +299,27 @@ export function WizardFormView(props) {
     }
 
     if (field.type === 'select') {
+      // Processar opções - garantir que sejam objetos com value e label
+      let processedOptions = []
+
+      if (Array.isArray(field.options)) {
+        processedOptions = field.options.map(option => {
+          if (typeof option === 'string') {
+            return { value: option, label: option }
+          }
+          return option
+        })
+      }
+
       return (
         <SelectView
-          key={`${field.name}-select-${field.options?.length || 0}`}
+          key={`${field.name}-select-${processedOptions.length}-${commonProps.disabled ? 'disabled' : 'enabled'}`}
           id={field.name}
           name={field.name}
           value={vm.getFieldValue(field.name)}
           onChange={(e) => vm.handleFieldChange(field.name)(e.target.value)}
           variant={commonProps.disabled ? 'default' : 'pink'}
-          options={field.options || []}
+          options={processedOptions}
           width="full"
           className="w-full"
           disabled={commonProps.disabled}
@@ -345,7 +357,7 @@ export function WizardFormView(props) {
             </label>
           )}
           <div className="w-full bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex !w-fit gap-3">
               {(field.options || []).map(option => (
                 <InputView
                   key={option.value}
@@ -406,19 +418,20 @@ export function WizardFormView(props) {
           />
 
           {hasFiles ? (
-            <div className="flex flex-col gap-card md:gap-card-md flex-1 h-full">
+            <div className="flex flex-col gap-card md:gap-card-md flex-1 h-full max-h-72">
               {field.multiple ? (
                 <div
                   className="flex flex-col gap-2 bg-distac-primary-light rounded-sm p-4 h-full overflow-y-auto"
                   onClick={() => handleFileButtonClick(field.name)}
-                  role="button"
-                  tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
                       handleFileButtonClick(field.name)
                     }
                   }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Adicionar arquivos para ${field.label}`}
                 >
                   {currentFiles.map((file, index) => {
                     const imageUrl = getImagePreview(file)
@@ -433,7 +446,27 @@ export function WizardFormView(props) {
                         onDragEnd={handleDragEnd}
                         onDrop={(e) => handleDrop(e, field.name, index)}
                         onClick={(e) => e.stopPropagation()}
-                        className={`flex items-center gap-3 bg-default-light px-3 py-2 rounded-sm cursor-move transition-all ${
+                        onKeyDown={(e) => {
+                          e.stopPropagation()
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            // File item interaction handled by child buttons
+                          }
+                          if (e.key === 'ArrowUp' && index > 0) {
+                            e.preventDefault()
+                            const prevItem = e.target.parentElement.children[index - 1]
+                            if (prevItem) prevItem.focus()
+                          }
+                          if (e.key === 'ArrowDown' && index < currentFiles.length - 1) {
+                            e.preventDefault()
+                            const nextItem = e.target.parentElement.children[index + 1]
+                            if (nextItem) nextItem.focus()
+                          }
+                        }}
+                        role="listitem"
+                        tabIndex={0}
+                        aria-label={`Arquivo ${file.name}, posição ${index + 1}`}
+                        className={`flex items-center gap-3 bg-default-light px-3 py-2 rounded-sm cursor-move transition-all focus:outline-none focus:ring-2 focus:ring-distac-primary ${
                           draggedIndex === index ? 'opacity-50' : ''
                         } ${
                           dragOverIndex === index && draggedIndex !== index ? 'border-2 border-distac-primary' : ''
@@ -470,19 +503,25 @@ export function WizardFormView(props) {
                   })}
                 </div>
               ) : (
-                <div className="relative w-full h-full flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
+                <div className="relative w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
                   {isImageFile(currentFiles) && getImagePreview(currentFiles) ? (
                     <>
                       <img
                         src={getImagePreview(currentFiles)}
                         alt={currentFiles.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                       />
                       <button
                         type="button"
                         onClick={() => vm.handleFieldChange(field.name)(null)}
-                        className="absolute top-2 right-2 bg-distac-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer hover:bg-distac-secondary transition-colors shadow-lg opacity-0 group-hover:opacity-100"
-                        title="Remover arquivo"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            vm.handleFieldChange(field.name)(null)
+                          }
+                        }}
+                        aria-label={`Remover arquivo ${currentFiles.name}`}
+                        className="absolute top-2 right-2 bg-distac-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer hover:bg-distac-secondary transition-colors shadow-lg opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white"
                       >
                         ×
                       </button>
@@ -493,16 +532,17 @@ export function WizardFormView(props) {
             </div>
           ) : (
             <div
-              className="w-full h-full flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors"
+              className="w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-distac-primary"
               onClick={() => handleFileButtonClick(field.name)}
-              role="button"
-              tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
                   handleFileButtonClick(field.name)
                 }
               }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Selecionar arquivo para ${field.label}`}
             >
               Nenhum arquivo selecionado
             </div>
@@ -569,7 +609,13 @@ export function WizardFormView(props) {
       </div>
 
       {/* Form */}
-      <div className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md">
+      <form
+        className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md"
+        onSubmit={(e) => {
+          console.log('🚀 [FORM] Form onSubmit triggered')
+          vm.handleSubmit(e)
+        }}
+      >
         <div className="relative w-full h-full flex-1">
           <div
             key={vm.currentStep}
@@ -577,7 +623,7 @@ export function WizardFormView(props) {
           >
             {(vm.currentStepData.groups || []).map((group, groupIndex) => (
               <div key={groupIndex} className={group.className || 'w-full'}>
-                {group.fields.map(field => (
+                {group.fields.map((field) => (
                   <div
                     key={field.name}
                     className={field.containerClassName || 'flex-1'}
@@ -620,7 +666,10 @@ export function WizardFormView(props) {
               type="button"
               width="fit"
               color="brown"
-              onClick={handlePrevious}
+              onClick={(e) => {
+                console.log('🔄 [FORM] VOLTAR button clicked')
+                handlePrevious(e)
+              }}
             >
               VOLTAR
             </ButtonView>
@@ -633,22 +682,40 @@ export function WizardFormView(props) {
               type="button"
               width="fit"
               color="gray"
-              onClick={vm.handleCancel}
+              onClick={(e) => {
+                console.log('❌ [FORM] CANCELAR button clicked')
+                vm.handleCancel()
+              }}
             >
               CANCELAR
             </ButtonView>
-            <ButtonView
-              type={vm.isLastStep ? 'submit' : 'button'}
-              width="fit"
-              color="pink"
-              disabled={vm.isLoading}
-              onClick={vm.isLastStep ? undefined : handleNext}
-            >
-              {vm.isLoading ? 'Salvando...' : vm.isLastStep ? 'SALVAR' : 'CONTINUAR'}
-            </ButtonView>
+
+            {vm.isLastStep ? (
+              <ButtonView
+                type="submit"
+                width="fit"
+                color="pink"
+                disabled={vm.isLoading}
+              >
+                {vm.isLoading ? 'Salvando...' : 'SALVAR'}
+              </ButtonView>
+            ) : (
+              <ButtonView
+                type="button"
+                width="fit"
+                color="pink"
+                disabled={vm.isLoading}
+                onClick={(e) => {
+                  console.log('➡️ [FORM] CONTINUAR button clicked')
+                  handleNext(e)
+                }}
+              >
+                CONTINUAR
+              </ButtonView>
+            )}
           </div>
         </div>
-      </div>
+      </form>
     </div>
   )
 }

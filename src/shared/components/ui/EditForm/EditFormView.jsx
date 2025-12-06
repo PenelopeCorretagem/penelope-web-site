@@ -28,6 +28,17 @@ export function EditFormView({
     isEditing: initialIsEditing,
   })
 
+  // Função para verificar se um campo deve ser exibido com base em condições
+  const shouldShowField = (field) => {
+    if (!field.conditional) return true
+
+    const dependentFieldValue = vm.getFieldValue(field.conditional.field)
+    return dependentFieldValue === field.conditional.value
+  }
+
+  // Filtrar campos visíveis
+  const visibleFields = vm.fields.filter(shouldShowField)
+
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Header */}
@@ -63,7 +74,7 @@ export function EditFormView({
           /* Modo visualização */
           <>
             <div className="w-full grid grid-cols-6 gap-4">
-              {vm.fields
+              {visibleFields
                 .filter(field => !field.hideInViewMode)
                 .map((field) => (
                   <div key={field.name} className={field.gridColumn || 'col-span-6'}>
@@ -155,7 +166,7 @@ export function EditFormView({
           /* Modo edição */
           <form onSubmit={vm.handleSubmit} className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md">
             <div className="w-full grid grid-cols-6 gap-4">
-              {vm.fields.map((field) => (
+              {visibleFields.map((field) => (
                 <div key={field.name} className={field.gridColumn || 'col-span-6'}>
                   {field.type === 'select' ? (
                     <SelectView

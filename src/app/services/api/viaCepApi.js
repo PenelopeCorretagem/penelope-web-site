@@ -1,37 +1,6 @@
-import axios from 'axios'
+import { useState, useEffect, useCallback } from 'react'
+import axiosInstance from './axiosInstance'
 import { cleanCEP } from '@shared/utils/formatCEPUtil'
-
-// Instância específica para ViaCEP
-const viaCepInstance = axios.create({
-  baseURL: 'https://viacep.com.br/ws',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-})
-
-// Interceptors para log
-viaCepInstance.interceptors.request.use(
-  (config) => {
-    console.log(`🌐 [VIACEP] Buscando CEP: ${config.url}`)
-    return config
-  },
-  (error) => {
-    console.error('❌ [VIACEP] Request error:', error.message)
-    return Promise.reject(error)
-  }
-)
-
-viaCepInstance.interceptors.response.use(
-  (response) => {
-    console.log('✅ [VIACEP] CEP encontrado:', response.data)
-    return response
-  },
-  (error) => {
-    console.error('❌ [VIACEP] Response error:', error.message)
-    return Promise.reject(error)
-  }
-)
 
 /**
  * Busca dados de endereço por CEP na API do ViaCEP
@@ -48,8 +17,14 @@ export async function getAddressByCEP(cep) {
       throw new Error('CEP deve ter 8 dígitos')
     }
 
-    // Fazer requisição para ViaCEP
-    const response = await viaCepInstance.get(`/${cleanedCEP}/json/`)
+    // Construir URL completa para ViaCEP
+    const viaCepBaseUrl = import.meta.env.VITE_VIACEP_BASE_URL
+    const fullUrl = `${viaCepBaseUrl}/${cleanedCEP}/json/`
+
+    // Fazer requisição usando axiosInstance com URL completa
+    const response = await axiosInstance.get(fullUrl, {
+      timeout: 10000,
+    })
     const data = response.data
 
     // Verificar se CEP foi encontrado
@@ -73,8 +48,6 @@ export async function getAddressByCEP(cep) {
     }
 
   } catch (error) {
-    console.error('Erro ao buscar CEP:', error)
-
     // Tratar diferentes tipos de erro
     if (error.response?.status === 404) {
       throw new Error('CEP não encontrado')

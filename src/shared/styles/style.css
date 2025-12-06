@@ -34,6 +34,13 @@
   --padding-header-y-md: 24px;
   --padding-header-x-md: 104px;
 
+  --padding-filter: 16px 80px;
+  --padding-filter-md: 24px 104px;
+  --padding-filter-y: 16px;
+  --padding-filter-x: 80px;
+  --padding-filter-y-md: 24px;
+  --padding-filter-x-md: 104px;
+
   --padding-button-rectangle: 8px 12px;
   --padding-button-rectangle-x: 12px;
   --padding-button-rectangle-y: 8px;
@@ -258,4 +265,59 @@
   transition:
     padding-top 500ms ease-in-out,
     padding-bottom 500ms ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s ease-out;
+}
+
+/* Marquee Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* marquee track for property features */
+.property-features-marquee {
+  display: flex;
+  gap: var(--gap-card);
+  align-items: center;
+  /* start stopped — animation applied only on hover */
+  transform: translateX(0);
+  transition: transform 0.6s ease-out; /* volta suave ao estado inicial ao sair do hover */
+  will-change: transform;
+}
+
+/* ensure child items keep their intrinsic width for smooth scrolling */
+.property-features-marquee > * {
+  flex: 0 0 auto;
+}
+
+/* Only run the marquee on devices that support hover, and only while hovered.
+   Apply the animation on hover; when hover ends animation is removed and the
+   transition above smoothly returns the track to translateX(0). */
+@media (hover: hover) {
+  .group:hover .property-features-marquee {
+    animation: marquee 6s linear infinite;
+  }
+}
+
+/* mobile/medium spacing fallback (respect md:gap-card-md applied in markup) */
+@media (min-width: 768px) {
+  .property-features-marquee { gap: var(--gap-card-md); }
 }

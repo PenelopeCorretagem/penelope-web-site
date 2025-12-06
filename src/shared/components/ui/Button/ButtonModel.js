@@ -16,16 +16,20 @@ export class ButtonModel {
    * @param {string} [shape='rectangle'] - Forma do botão (rectangle, square, circle).
    * @param {string} [title=''] - Título do botão (tooltip/acessibilidade).
    */
-  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '') {
+
+  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '', action = null, fullWidth = false) {
     this.text = text
     this.color = color
     this.type = type
     this.to = to
     this.shape = shape
     this.title = title
+    this.action = action
+    this.fullWidth = fullWidth
     this.active = false
     this.disabled = false
   }
+
 
   /** @static {string[]} Lista de cores válidas do botão. */
   static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'soft-gray', 'transparent']
@@ -82,6 +86,14 @@ export class ButtonModel {
    */
   isLink() {
     return this.type === 'link'
+  }
+
+  /**
+   * Retorna a função de ação do botão (alias para action).
+   * @returns {Function|null}
+   */
+  get onClick() {
+    return this.action
   }
 
   /**

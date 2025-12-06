@@ -82,18 +82,41 @@ export class WizardFormModel {
   }
 
   validateCurrentStep() {
-    const stepFields = this.currentStepData.fields || []
+    console.log('🔍 [WIZARD MODEL] Validating current step:', this.currentStep)
+
+    const stepFields = this.getAllFieldsForStep(this.currentStep)
     let isValid = true
+
+    console.log('🔍 [WIZARD MODEL] Fields to validate:', stepFields.map(f => ({ name: f.name, required: f.required })))
 
     stepFields.forEach(field => {
       const value = this.fieldValues[field.name]
-      if (field.required && (!value || value.trim() === '')) {
+      console.log(`🔍 [WIZARD MODEL] Validating field ${field.name}:`, { value, required: field.required })
+
+      if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         this.fieldErrors[field.name] = `${field.label} é obrigatório`
+        console.log(`❌ [WIZARD MODEL] Field ${field.name} failed validation`)
         isValid = false
       }
     })
 
+    console.log('🔍 [WIZARD MODEL] Validation result:', { isValid, errors: this.fieldErrors })
     return isValid
+  }
+
+  // Método auxiliar para obter todos os campos de uma etapa
+  getAllFieldsForStep(stepIndex) {
+    const step = this.steps[stepIndex]
+    if (!step || !step.groups) return []
+
+    const fields = []
+    step.groups.forEach(group => {
+      if (group.fields) {
+        fields.push(...group.fields)
+      }
+    })
+
+    return fields
   }
 
   clearErrors() {

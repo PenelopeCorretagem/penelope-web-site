@@ -1,32 +1,79 @@
+import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
 /**
  * Modelo de dados para configuração de propriedades
  */
 export class PropertiesConfigModel {
-  constructor() {
-    this.lancamentos = []
-    this.disponiveis = []
-    this.emObras = []
+  #launchProperties = []
+  #availableProperties = []
+  #underConstructionProperties = []
+  #isLoading = false
+  #error = null
+
+  constructor(launchProperties = [], availableProperties = [], underConstructionProperties = []) {
+    this.launchProperties = launchProperties
+    this.availableProperties = availableProperties
+    this.underConstructionProperties = underConstructionProperties
   }
 
-  /**
-   * Define os lançamentos
-   */
-  setLancamentos(properties) {
-    this.lancamentos = properties
+  // Getters
+  get launchProperties() {
+    return this.#launchProperties
   }
 
-  /**
-   * Define os disponíveis
-   */
-  setDisponiveis(properties) {
-    this.disponiveis = properties
+  get availableProperties() {
+    return this.#availableProperties
   }
 
-  /**
-   * Define os em obras
-   */
-  setEmObras(properties) {
-    this.emObras = properties
+  get underConstructionProperties() {
+    return this.#underConstructionProperties
+  }
+
+  // Alias getters using Portuguese naming so other modules can use lancamentos/disponiveis/emObras
+  get lancamentos() {
+    return this.#launchProperties
+  }
+
+  get disponiveis() {
+    return this.#availableProperties
+  }
+
+  get emObras() {
+    return this.#underConstructionProperties
+  }
+
+  get isLoading() {
+    return this.#isLoading
+  }
+  get error() {
+    return this.#error
+  }
+
+  // Setters
+  set launchProperties(properties) {
+    this.#launchProperties = properties
+    properties.forEach(prop => {
+      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+    })
+  }
+
+  set availableProperties(properties) {
+    properties.forEach(prop => {
+      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+    })
+
+    this.#availableProperties = properties
+  }
+  set underConstructionProperties(properties) {
+    properties.forEach(prop => {
+      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+    })
+    this.#underConstructionProperties = properties
+  }
+  set isLoading(value) {
+    this.#isLoading = value
+  }
+  set error(value) {
+    this.#error = value
   }
 
   /**

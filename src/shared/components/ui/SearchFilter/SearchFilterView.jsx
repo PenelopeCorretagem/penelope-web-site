@@ -1,7 +1,7 @@
 import { useSearchFilterViewModel } from '@shared/components/ui/SearchFilter/useSearchViewModel'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { FaSearch, FaFilter } from 'react-icons/fa'
+import { FaSearch } from 'react-icons/fa'
 
 export function SearchFilterView({
   filters: externalFilters = null,

@@ -19,6 +19,7 @@ export const registerUser = async (userData) => {
 export const getAllUsers = async () => {
   try {
     const response = await axiosInstance.get('/users')
+
     return userMapper.toEntityList(response.data)
   } catch (error) {
     console.error('❌ [USERS API] Erro ao buscar usuários:', error.message)
@@ -73,13 +74,11 @@ export const getUsersWithCreci = async () => {
     const usersWithCreci = allUsers.filter(user => {
       const hasCreci = user.hasCreci()
       const isActive = user.isActive()
-
       return hasCreci && isActive
     })
 
     return usersWithCreci
   } catch (error) {
-    console.error('❌ [USERS API] Erro ao buscar usuários com CRECI:', error)
     return []
   }
 }

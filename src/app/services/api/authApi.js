@@ -7,30 +7,13 @@ import axiosInstance from './axiosInstance'
  */
 export const login = async (credentials) => {
   try {
-    console.log('🔐 [AUTH] Tentando login com:', {
-      email: credentials.email,
-      senhaLength: credentials.senha?.length,
-    })
-
     const response = await axiosInstance.post('/auth/login', {
       email: credentials.email,
-      senha: credentials.senha,
+      password: credentials.password,
     })
-
-    // Log extremamente detalhado
-    console.log('✅ [AUTH API] Response status:', response.status)
-    console.log('✅ [AUTH API] Response.data type:', typeof response.data)
-    console.log('✅ [AUTH API] Response.data is string?', typeof response.data === 'string')
-    console.log('✅ [AUTH API] Response.data keys:', response.data ? Object.keys(response.data) : 'N/A')
-    console.log('✅ [AUTH API] Response.data completo:', response.data)
-    console.log('✅ [AUTH API] Response.data.token:', response.data?.token)
-    console.log('✅ [AUTH API] Response.data.id:', response.data?.id)
-    console.log('✅ [AUTH API] Response.data.user:', response.data?.user)
-    console.log('✅ [AUTH API] Response.data.usuario:', response.data?.usuario)
 
     // Se response.data for string, é só o token
     if (typeof response.data === 'string') {
-      console.log('⚠️ [AUTH API] Response.data é string (token), retornando formato padrão')
       return {
         token: response.data,
         user: null,
@@ -51,15 +34,6 @@ export const login = async (credentials) => {
       id: extractedId,
       accessLevel: response.data.accessLevel
     }
-
-    console.log('✅ [AUTH API] Retornando:', {
-      hasToken: !!result.token,
-      hasUser: !!result.user,
-      hasId: !!result.id,
-      id: result.id,
-      accessLevel: result.accessLevel
-    })
-
     return result
   } catch (error) {
     console.error('❌ [AUTH] Erro detalhado no login:', {
@@ -79,16 +53,13 @@ export const login = async (credentials) => {
  */
 export const register = async (userData) => {
   try {
-    console.log('📝 [AUTH] Tentando registro')
-
     const response = await axiosInstance.post('/users', {
-      nomeCompleto: userData.nomeCompleto,
+      name: userData.name,
       email: userData.email,
-      senha: userData.senha,
+      password: userData.password,
       accessLevel: 'CLIENTE',
     })
 
-    console.log('✅ [AUTH] Registro bem-sucedido')
     return response.data
   } catch (error) {
     console.error('❌ [AUTH] Erro no registro:', error.response?.data)

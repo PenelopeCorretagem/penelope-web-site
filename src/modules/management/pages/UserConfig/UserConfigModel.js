@@ -166,17 +166,18 @@ export class UserConfigModel {
           }
           return true
         }
-      }
-    ]
-
-    // Campo CRECI - sempre na linha 3, segunda metade
-    if (!isEditMode || isAdmin) {
-      fields.push({
+      },
+      {
         name: 'creci',
         label: 'CRECI',
         placeholder: 'Digite o número do CRECI (opcional)',
         required: false,
         gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        conditional: {
+          field: 'accessLevel',
+          value: 'ADMINISTRADOR',
+          clearOnHide: true // Limpa o valor quando o campo está oculto
+        },
         validate: (value) => {
           if (value && value.trim().length > 0) {
             const cleanCreci = value.replace(/\D/g, '')
@@ -186,32 +187,19 @@ export class UserConfigModel {
           }
           return true
         }
-      })
-    } else {
-      // Placeholder vazio para manter layout quando CRECI não aparece
-      fields.push({
-        name: 'creci_placeholder',
-        label: '',
-        type: 'hidden',
-        placeholder: '',
-        required: false,
-        gridColumn: 'col-span-3',
-        hideInViewMode: true,
-        hideInEditMode: true
-      })
-    }
+      },
 
-    // LINHA 4: E-mail (1/2 = 3 cols), Senha/Placeholder (1/2 = 3 cols) = 6 cols total
-    // Email sempre presente
-    fields.push({
-      name: 'email',
-      label: 'E-mail',
-      type: 'email',
-      placeholder: 'Digite o e-mail',
-      required: true,
-      gridColumn: 'col-span-3', // 1/2 de 6 colunas
-      validate: validateEmail
-    })
+      // LINHA 4: E-mail (1/2 = 3 cols), Senha/Placeholder (1/2 = 3 cols) = 6 cols total
+      {
+        name: 'email',
+        label: 'E-mail',
+        type: 'email',
+        placeholder: 'Digite o e-mail',
+        required: true,
+        gridColumn: 'col-span-3', // 1/2 de 6 colunas
+        validate: validateEmail
+      }
+    ]
 
     if (!isEditMode) {
       // Senha apenas no modo adição
@@ -281,6 +269,18 @@ export class UserConfigModel {
     const fields = UserConfigModel.getFormFields(isEditMode, userAccessLevel)
 
     fields.forEach(field => {
+      // Verificar se o campo deve ser validado com base em condições
+      let shouldValidate = true
+      if (field.conditional) {
+        const dependentFieldValue = data[field.conditional.field]
+        shouldValidate = dependentFieldValue === field.conditional.value
+      }
+
+      // Pular validação de campos ocultos
+      if (!shouldValidate) {
+        return
+      }
+
       if (field.validate) {
         const valueToValidate = data[field.name]
         const result = field.validate(valueToValidate)
@@ -317,12 +317,12 @@ export class UserConfigModel {
    */
   toApiFormat() {
     const apiData = {
-      nomeCompleto: this.name.trim(),
+      name: this.name.trim(),
       email: this.email.trim().toLowerCase(),
       phone: cleanPhoneNumber(this.phone),
       cpf: cleanCPF(this.cpf),
-      dtNascimento: this.dateBirth,
-      rendaMensal: formatCurrencyForDatabase(this.monthlyIncome),
+      dateBirth: this.dateBirth,
+      monthlyIncome: formatCurrencyForDatabase(this.monthlyIncome),
       accessLevel: this.accessLevel
     }
 

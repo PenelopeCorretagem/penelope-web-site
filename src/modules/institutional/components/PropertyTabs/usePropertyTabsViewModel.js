@@ -5,10 +5,14 @@ export function usePropertyTabsViewModel(anchors, tabs) {
   const [model] = useState(() => new PropertyTabsModel({ tabs, anchors }))
   const [activeTab, setActiveTab] = useState(model.activeTab)
   const isManualClick = useRef(false)
+  const manualClickTimer = useRef(null)
 
   const getDOMElements = useCallback(() => {
     const header = document.querySelector('header[role="banner"]')
-    const tabsElement = document.querySelector('[data-tabs-component]')
+    const tabsElement =
+      document.querySelector('nav[data-tabs-component], [data-tabs-component][role="tablist"]') ||
+      document.querySelector('[data-tabs-component]')
+
     const headerHeight = header?.offsetHeight || 0
     const tabsHeight = tabsElement?.offsetHeight || 0
 
@@ -19,6 +23,22 @@ export function usePropertyTabsViewModel(anchors, tabs) {
       tabsHeight,
       totalOffset: headerHeight + tabsHeight,
     }
+  }, [])
+
+  // Helper: find nearest scrollable parent of an element (fallback to document.scrollingElement)
+  const getScrollableParent = useCallback((node) => {
+    if (!node) return document.scrollingElement || document.documentElement
+    let parent = node.parentElement
+    while (parent && parent !== document.body) {
+      const style = window.getComputedStyle(parent)
+      const overflowY = style.overflowY || ''
+      const canScroll = overflowY === 'auto' || overflowY === 'scroll'
+      if (canScroll && parent.scrollHeight > parent.clientHeight) {
+        return parent
+      }
+      parent = parent.parentElement
+    }
+    return document.scrollingElement || document.documentElement
   }, [])
 
   const checkActiveSection = useCallback(() => {
@@ -50,18 +70,42 @@ export function usePropertyTabsViewModel(anchors, tabs) {
       const element = document.getElementById(anchor)
       if (!element) return false
 
-      const { totalOffset } = getDOMElements()
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-      const scrollPosition = elementPosition - totalOffset - 20
+      // detect the container that should be scrolled
+      const scrollParent = getScrollableParent(element)
+      const elementRect = element.getBoundingClientRect()
 
-      window.scrollTo({
-        top: scrollPosition,
-        behavior: 'smooth',
-      })
+      // compute the scrollTop target relative to the detected scroll parent
+      const parentIsWindow = scrollParent === document.scrollingElement || scrollParent === document.documentElement
+      const parentScrollTop = parentIsWindow ? window.pageYOffset : scrollParent.scrollTop
+      const parentRectTop = parentIsWindow ? 0 : scrollParent.getBoundingClientRect().top
+      const elementTopRelativeToParent = elementRect.top - parentRectTop + parentScrollTop
+
+      // Stop at the very top of the viewport/container (no offsets/subtractions)
+      const targetScrollTop = Math.max(0, elementTopRelativeToParent)
+
+      if (parentIsWindow) {
+        window.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth',
+        })
+      } else {
+        scrollParent.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth',
+        })
+      }
+
+      // Accessibility: focus the target element without re-scrolling
+      try {
+        element.setAttribute('tabindex', '-1')
+        element.focus({ preventScroll: true })
+      } catch (err) {
+        // ignore focus errors
+      }
 
       return true
     },
-    [getDOMElements]
+    [getScrollableParent]
   )
 
   useEffect(() => {
@@ -91,6 +135,11 @@ export function usePropertyTabsViewModel(anchors, tabs) {
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      // Cleanup any pending timers used for manual click debounce
+      if (manualClickTimer.current) {
+        clearTimeout(manualClickTimer.current)
+        manualClickTimer.current = null
+      }
     }
   }, [checkActiveSection, model])
 
@@ -110,16 +159,25 @@ export function usePropertyTabsViewModel(anchors, tabs) {
 
       setActiveTab(anchor)
       model.setActiveTab(anchor)
+
+      // mark as manual click both in ref and in model for debugging/consistency
       isManualClick.current = true
+      model.setManualClick(true)
 
       const scrollSuccess = scrollToElement(anchor)
 
       if (scrollSuccess) {
-        setTimeout(() => {
+        if (manualClickTimer.current) {
+          clearTimeout(manualClickTimer.current)
+        }
+        manualClickTimer.current = setTimeout(() => {
           isManualClick.current = false
+          model.setManualClick(false)
+          manualClickTimer.current = null
         }, model.scrollConfig.clickTimeout)
       } else {
         isManualClick.current = false
+        model.setManualClick(false)
       }
     },
     [model, scrollToElement]

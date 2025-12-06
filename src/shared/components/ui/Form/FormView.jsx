@@ -44,6 +44,7 @@ export function FormView({
   submitText = 'Enviar',
   submitWidth = 'fit',
   onSubmit,
+  onChange, // optional external change handler: (fieldName, value)
   footerContent,
   initialErrors = [],
   initialSuccess = '',
@@ -109,7 +110,10 @@ export function FormView({
               name={field.name}
               placeholder={field.placeholder || ''}
               value={getFieldValue(field.name)}
-              onChange={handleFieldChange(field.name)}
+              onChange={(value, event) => {
+                handleFieldChange(field.name)(value, event)
+                if (onChange) onChange(field.name, value, event)
+              }}
               onClick={field.onClick}
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={field.required || false}
@@ -125,7 +129,10 @@ export function FormView({
               type={field.type || 'text'}
               placeholder={field.placeholder || ''}
               value={getFieldValue(field.name)}
-              onChange={handleFieldChange(field.name)}
+              onChange={(value, event) => {
+                handleFieldChange(field.name)(value, event)
+                if (onChange) onChange(field.name, value, event)
+              }}
               onClick={field.onClick}
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={field.required || false}
@@ -154,15 +161,18 @@ export function FormView({
 
 
 
-      {/* Botão de submit - não desabilitar por campos vazios */}
+      {/* Botão de submit – só aparece se submitText for válido */}
+      {submitText?.trim() && (
       <ButtonView
         type="submit"
         width={submitWidth}
-        disabled={isLoading} // Só desabilita se estiver carregando
+        disabled={isLoading}
         className={submitButtonClasses}
       >
         {isLoading ? 'Carregando...' : submitText}
       </ButtonView>
+      )}
+
 
       {/* Rodapé */}
       {hasFooter && (

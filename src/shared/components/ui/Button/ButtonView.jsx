@@ -175,7 +175,6 @@ export function ButtonView({
 }) {
   // ViewModel fornece apenas dados e comportamento
   const {
-    type: buttonType,
     to: buttonTo,
     title: buttonTitle,
     isLink,
@@ -193,6 +192,9 @@ export function ButtonView({
     shape,
     className,
   })
+
+  // Use o type passado via props, não do ViewModel
+  const finalType = type
 
   if (isLink && buttonTo) {
     return (
@@ -231,7 +233,7 @@ export function ButtonView({
 
   return (
     <button
-      type={buttonType}
+      type={finalType} // Use o type das props diretamente
       className={buttonClasses}
       onClick={handleClick}
       disabled={disabled || modelDisabled}

@@ -32,7 +32,7 @@ export function ContactsView() {
             src={HappyCoupleDancing}
             alt="Casal feliz dançando representando a conquista do sonho da casa própria"
             description="Imagem gerada por IA"
-            className="max-w-lg rounded-2xl shadow-md"
+            className="w-lg rounded-2xl shadow-md h-72"
           />
 
           <TextView>

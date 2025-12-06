@@ -18,6 +18,8 @@ export default defineConfig(({ command, mode }) => {
     define: {
       'import.meta.env.DEV': mode === 'development',
       'import.meta.env.MODE': JSON.stringify(mode),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1'),
+      'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(env.VITE_VIACEP_BASE_URL || 'https://viacep.com.br/ws'),
     },
 
     resolve: {
@@ -31,6 +33,10 @@ export default defineConfig(({ command, mode }) => {
         '@utils': path.resolve(__dirname, './src/shared/utils'),
         '@services': path.resolve(__dirname, './src/app/services'),
         '@app': path.resolve(__dirname, './src/app'),
+        '@api': path.resolve(__dirname, './src/app/services/api'),
+        '@mapper': path.resolve(__dirname, './src/app/services/mapper'),
+        '@entity': path.resolve(__dirname, './src/app/model/entities'),
+        '@constant': path.resolve(__dirname, './src/constants'),
       },
     },
 
@@ -41,8 +47,6 @@ export default defineConfig(({ command, mode }) => {
       open: true, // Abre browser automaticamente
       strictPort: true, // Falha se porta estiver ocupada
       cors: true, // Permite CORS
-
-      // Proxy para API removido temporariamente para debug
     },
 
     // Configurações do preview (build de produção)

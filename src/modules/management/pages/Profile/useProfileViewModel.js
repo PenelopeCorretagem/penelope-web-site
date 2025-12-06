@@ -57,7 +57,6 @@ export function useProfileViewModel(targetUserId = null) {
         accessLevel: profileModel.accessLevel
       })
     } catch (err) {
-      console.error('Erro ao carregar dados do usuário:', err)
       setError(err.message || 'Erro ao carregar dados do usuário')
     } finally {
       setIsLoading(false)
@@ -74,12 +73,19 @@ export function useProfileViewModel(targetUserId = null) {
         throw new Error('Usuário não encontrado')
       }
 
-      // Usar dados diretos do select
+      // Processar dados do formulário antes de criar o model
       const processedData = {
-        ...data
+        name: data.name?.trim() || '',
+        phone: data.phone || '',
+        creci: data.creci?.trim() || '',
+        cpf: data.cpf || '',
+        dateBirth: data.dateBirth || '',
+        // monthlyIncome já vem formatado do form, manter como string
+        monthlyIncome: data.monthlyIncome || '',
+        accessLevel: data.accessLevel || 'CLIENTE'
       }
 
-      // Criar novo model com os dados atualizados
+      // Criar novo model com os dados processados
       const updatedModel = new ProfileModel(processedData)
 
       // Validar dados
@@ -102,7 +108,6 @@ export function useProfileViewModel(targetUserId = null) {
         message: 'Perfil atualizado com sucesso!'
       }
     } catch (err) {
-      console.error('Erro ao atualizar perfil:', err)
       return {
         success: false,
         error: err.message || 'Erro ao atualizar perfil'

@@ -19,59 +19,50 @@ export function useUserConfigViewModel() {
 
   // Load user data for edit mode
   useEffect(() => {
-    const loadUserData = async () => {
-      if (isEditMode && id) {
-        try {
-          setLoading(true)
-
-          const userData = await getUserById(id)
-          const userModel = UserConfigModel.fromApiData({
-            nomeCompleto: userData.name,
-            email: userData.email,
-            phone: userData.phone,
-            cpf: userData.cpf,
-            dtNascimento: userData.dateBirth,
-            rendaMensal: userData.monthlyIncome,
-            accessLevel: userData.accessLevel,
-            creci: userData.creci || ''
-          })
-
-          setModel(userModel)
-
-          // Format data for form display
-          setFormData({
-            name: userModel.name,
-            email: userModel.email,
-            phone: userModel.phone,
-            creci: userModel.creci,
-            cpf: userModel.cpf,
-            dateBirth: userModel.dateBirth,
-            monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
-            accessLevel: userModel.accessLevel,
-            senha: '' // Sempre vazio por segurança no modo edição
-          })
-        } catch (error) {
-          setAlertConfig({
-            type: 'error',
-            message: error.message || 'Erro ao carregar dados do usuário'
-          })
-        } finally {
-          setLoading(false)
+    if (isEditMode && id) {
+      setLoading(true)
+      // TODO: Replace with actual API call
+      setTimeout(() => {
+        const mockUser = {
+          id: id,
+          name: 'Usuário Exemplo',
+          email: 'usuario@exemplo.com',
+          phone: '11987654321',
+          cpf: '12345678909',
+          dateBirth: '1990-01-01',
+          monthlyIncome: 5000,
+          accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
+          creci: id === '1' ? '123456' : ''
         }
       } else {
         // Initialize empty form for add mode
         setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          creci: '',
-          cpf: '',
-          dateBirth: '',
-          monthlyIncome: '',
-          accessLevel: 'CLIENTE',
-          senha: ''
+          name: userModel.name,
+          email: userModel.email,
+          phone: userModel.phone,
+          creci: userModel.creci,
+          cpf: userModel.cpf,
+          dateBirth: userModel.dateBirth,
+          monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
+          accessLevel: userModel.accessLevel,
+          passowrd: '' // Sempre vazio por segurança no modo edição
         })
-      }
+
+        setLoading(false)
+      }, 500)
+    } else {
+      // Initialize empty form for add mode
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        creci: '',
+        cpf: '',
+        dateBirth: '',
+        monthlyIncome: '',
+        accessLevel: 'CLIENTE',
+        password: ''
+      })
     }
 
     loadUserData()
@@ -87,8 +78,8 @@ export function useUserConfigViewModel() {
       // Create model with form data
       const userModel = new UserConfigModel(data)
 
-      // Validate data using the actual form data, not model properties
-      const validation = userModel.validateWithData(data, isEditMode, model.accessLevel)
+      // Validate data using the actual form data's accessLevel
+      const validation = userModel.validateWithData(data, isEditMode, data.accessLevel || 'CLIENTE')
       if (!validation.isValid) {
         const errorMessages = Object.values(validation.errors).join(', ')
         throw new Error(`Dados inválidos: ${errorMessages}`)
@@ -130,7 +121,7 @@ export function useUserConfigViewModel() {
     } finally {
       setLoading(false)
     }
-  }, [isEditMode, model.accessLevel, navigateTo, routes.ADMIN_USERS, id])
+  }, [isEditMode, navigateTo, routes.ADMIN_USERS])
 
   const handleDelete = useCallback(async () => {
     if (!isEditMode || !id) return
