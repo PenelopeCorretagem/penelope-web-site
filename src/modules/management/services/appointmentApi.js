@@ -3,7 +3,7 @@
  * Serviço para consumir a API de agendamentos (appointments)
  */
 
-const BASE_URL = 'http://localhost:8081/api/v1/api/appointments';
+const BASE_URL = 'http://localhost:8081/api/v1/appointments'
 
 /**
  * Busca agendamentos com paginação e filtros
@@ -28,9 +28,9 @@ export async function fetchAppointments({
     size: String(size),
     sortBy,
     sortDir,
-  });
+  })
 
-  const token = localStorage.getItem('jwtToken');
+  const token = sessionStorage.getItem('token') || localStorage.getItem('jwtToken')
 
   const response = await fetch(`${BASE_URL}?${params}`, {
     method: 'GET',
@@ -38,13 +38,13 @@ export async function fetchAppointments({
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` }),
     },
-  });
+  })
 
   if (!response.ok) {
-    throw new Error(`Erro ao buscar agendamentos: ${response.status} ${response.statusText}`);
+    throw new Error(`Erro ao buscar agendamentos: ${response.status} ${response.statusText}`)
   }
 
-  return response.json();
+  return response.json()
 }
 
 /**
@@ -59,5 +59,5 @@ export function mapAppointmentsToModel(appointments) {
     time: new Date(appt.startDateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     title: appt.estate?.title || 'Agendamento',
     client: appt.client?.name || 'Cliente não informado',
-  }));
+  }))
 }

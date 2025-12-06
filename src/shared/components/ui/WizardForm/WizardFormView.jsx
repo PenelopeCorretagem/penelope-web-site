@@ -357,7 +357,7 @@ export function WizardFormView(props) {
             </label>
           )}
           <div className="w-full bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex !w-fit gap-3">
               {(field.options || []).map(option => (
                 <InputView
                   key={option.value}
@@ -418,7 +418,7 @@ export function WizardFormView(props) {
           />
 
           {hasFiles ? (
-            <div className="flex flex-col gap-card md:gap-card-md flex-1 h-full">
+            <div className="flex flex-col gap-card md:gap-card-md flex-1 h-full max-h-72">
               {field.multiple ? (
                 <div
                   className="flex flex-col gap-2 bg-distac-primary-light rounded-sm p-4 h-full overflow-y-auto"
@@ -503,13 +503,13 @@ export function WizardFormView(props) {
                   })}
                 </div>
               ) : (
-                <div className="relative w-full h-full flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
+                <div className="relative w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
                   {isImageFile(currentFiles) && getImagePreview(currentFiles) ? (
                     <>
                       <img
                         src={getImagePreview(currentFiles)}
                         alt={currentFiles.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                       />
                       <button
                         type="button"
@@ -532,7 +532,7 @@ export function WizardFormView(props) {
             </div>
           ) : (
             <div
-              className="w-full h-full flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-distac-primary"
+              className="w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-distac-primary"
               onClick={() => handleFileButtonClick(field.name)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {

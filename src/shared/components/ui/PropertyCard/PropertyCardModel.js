@@ -104,7 +104,6 @@ export class PropertyCardModel {
   #renderRealStateCardCategoryLabel
   #renderRealStateCardCoverImage
   #renderRealStateCardFeatures
-  #onScheduleClick
   #onWhatsAppClick
 
   constructor({
@@ -186,9 +185,9 @@ export class PropertyCardModel {
   async softDelete() {
     try {
       console.log('🗑️ [PROPERTY CARD MODEL] Toggling active for property:', this.#realEstateAdvertisement.id)
-      if (!window.confirm('Tem certeza que deseja desabilitar este imóvel? Ele não aparecerá mais no site.')) return false
-
       const isActive = !this.#realEstateAdvertisement.active
+
+      if (!window.confirm(`Tem certeza que deseja ${isActive ? 'habilitar' : 'desabilitar'} este imóvel?`)) return false
 
       // Chama o endpoint de soft-delete diretamente enviando true/false no corpo
       await softDeleteAdvertisement(this.#realEstateAdvertisement.id, isActive)

@@ -44,7 +44,7 @@ export function HomeView() {
 
   return (
     <>
-      <div className='flex flex-col items-center pb-section-y md:pb-section-y-md bg-default-light-alt'>
+      <div className='flex flex-col items-center  bg-default-light-alt'>
         {/*Destac Announcement Property*/}
         <SectionView className='!p-0'>
           {hasFeaturedProperty ? (
@@ -55,7 +55,7 @@ export function HomeView() {
           ) : null}
         </SectionView>
 
-        <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
+        {/* <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
           <HeadingView
             level={4}
             className='text-center mt-section-y md:mt-section-y-md text-distac-secondary'
@@ -63,7 +63,7 @@ export function HomeView() {
             Encontre seu imóvel ideal
           </HeadingView>
           <SearchFilterView className="w-fit !bg-default-light !p-0" selectClassName="!bg-default-light-muted" />
-        </div>
+        </div> */}
       </div>
 
       {/*Destac Properties*/}

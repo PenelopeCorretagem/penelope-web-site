@@ -80,7 +80,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
           {modelTitle || titleCarousel}
         </HeadingView>
 
-        {showActionButton && (
+        {/* {showActionButton && (
           <ButtonView
             color="brown"
             size="medium"
@@ -91,7 +91,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
           >
             {actionButtonText}
           </ButtonView>
-        )}
+        )} */}
       </div>
 
       <div className="relative w-full">

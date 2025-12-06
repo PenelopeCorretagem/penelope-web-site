@@ -3,7 +3,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
-import { Pencil, X } from 'lucide-react'
+import { Pencil, X, Check } from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { PropertyFeatureView } from '@shared/components/ui//PropertyFeature/PropertyFeatureView'
 
@@ -79,7 +79,7 @@ export function PropertyCardView({
       )
     } else if(!isConfigMode) {
       return (
-        <div className="flex flex-col gap-3 w-full">
+        <div className="flex z-2 flex-col gap-3 w-full">
           {buttons.map((button, index) => (
             <ButtonView
               key={`button-${index}`}
@@ -139,7 +139,7 @@ export function PropertyCardView({
                   className='shadow-md shadow-gray/400 !p-3'
                   width='fit'
                 >
-                  <X size={30} className='text-default-light' />
+                  {viewModel.isActiveAdvertisement? (<X size={30} className='text-default-light' />) : (<Check size={30} className='text-default-light' />)}
                 </ButtonView>
 
                 <ButtonView
@@ -201,6 +201,10 @@ export function PropertyCardView({
 
               {renderButtons(viewModel.isDetailsMode, viewModel.isConfigMode, viewModel.realStateCardButtons)}
             </div>
+            {!viewModel.isActiveAdvertisement ? (
+              <div className="absolute inset-0 bg-default-dark opacity-50 rounded-sm">
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
@@ -218,11 +222,6 @@ export function PropertyCardView({
               className="!w-full !h-full !object-cover !object-center border-0"
             />
           )}
-        </div>
-      ) : null}
-
-      {!viewModel.isActiveAdvertisement ? (
-        <div className="absolute inset-0 bg-default-dark opacity-50 rounded-sm">
         </div>
       ) : null}
     </div>

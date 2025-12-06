@@ -67,23 +67,43 @@ export function usePropertyConfigViewModel(id) {
         console.log('🔄 [PROPERTY CONFIG VM] Loading property data for ID:', id)
 
         const advertisement = await getAdvertisementById(id)
-        console.log('📥 [PROPERTY CONFIG VM] Raw advertisement data:', advertisement)
-
-        // Log images before processing
-        if (advertisement?.property?.images) {
-          console.log('🖼️ [PROPERTY CONFIG VM] Raw images:', advertisement.property.images)
-        }
+        console.log('📥 [PROPERTY CONFIG VM] Raw advertisement structure:', {
+          id: advertisement?.id,
+          active: advertisement?.active,
+          endDate: advertisement?.endDate,
+          creator: advertisement?.creator,
+          responsible: advertisement?.responsible,
+          hasEstate: !!advertisement?.estate,
+          hasProperty: !!advertisement?.property,
+          estateKeys: advertisement?.estate ? Object.keys(advertisement.estate).slice(0, 10) : [],
+          propertyKeys: advertisement?.property ? Object.keys(advertisement.property).slice(0, 10) : [],
+          estate: {
+            title: advertisement?.estate?.title,
+            type: advertisement?.estate?.type,
+            description: advertisement?.estate?.description?.substring(0, 50),
+            area: advertisement?.estate?.area,
+            numberOfRooms: advertisement?.estate?.numberOfRooms,
+            address: advertisement?.estate?.address,
+            amenities: advertisement?.estate?.amenities?.map(a => ({ description: a.description, name: a.name })),
+            imagesCount: advertisement?.estate?.images?.length || 0
+          },
+          property: {
+            title: advertisement?.property?.title,
+            type: advertisement?.property?.type,
+            description: advertisement?.property?.description?.substring(0, 50),
+            area: advertisement?.property?.area,
+            numberOfRooms: advertisement?.property?.numberOfRooms,
+            address: advertisement?.property?.address,
+            amenities: advertisement?.property?.amenities?.map(a => ({ description: a.description, name: a.name })),
+            imagesCount: advertisement?.property?.images?.length || 0
+          }
+        })
 
         const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisement)
-        console.log('✅ [PROPERTY CONFIG VM] Property model created:', propertyModel)
+        console.log('✅ [PROPERTY CONFIG VM] Property model created')
 
-        // Log processed images
-        console.log('🖼️ [PROPERTY CONFIG VM] Processed images in model:', {
-          video: propertyModel.images.video,
-          cover: propertyModel.images.cover,
-          gallery: propertyModel.images.gallery,
-          floorPlans: propertyModel.images.floorPlans
-        })
+        const formDataOutput = propertyModel.toFormData()
+        console.log('📋 [PROPERTY CONFIG VM] Form data being set - ALL FIELDS:', formDataOutput)
 
         setInitialData(propertyModel)
       } catch (err) {
