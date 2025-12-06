@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
 import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+import { registerUser, updateUser, deleteUser, getUserById }  from '@app/services/api/userApi'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()
@@ -33,11 +34,8 @@ export function useUserConfigViewModel() {
           accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
           creci: id === '1' ? '123456' : ''
         }
-
-        const userModel = UserConfigModel.fromApiData(mockUser)
-        setModel(userModel)
-
-        // Format data for form display
+      } else {
+        // Initialize empty form for add mode
         setFormData({
           name: userModel.name,
           email: userModel.email,
@@ -66,6 +64,8 @@ export function useUserConfigViewModel() {
         password: ''
       })
     }
+
+    loadUserData()
   }, [isEditMode, id])
 
   // Get form fields based on mode and user access level
@@ -88,14 +88,12 @@ export function useUserConfigViewModel() {
       // Convert to API format
       const apiData = userModel.toApiFormat()
 
-      // Só incluir senha na API se foi fornecida no modo edição
-      if (isEditMode && data.senha && data.senha.trim() !== '') {
-        apiData.senha = data.senha.trim()
+      // Call API
+      if (isEditMode) {
+        await updateUser(id, apiData)
+      } else {
+        await registerUser(apiData)
       }
-
-      // TODO: Replace with actual API calls
-      console.log('Saving user data:', apiData)
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
       setAlertConfig({
         type: 'success',
@@ -111,8 +109,6 @@ export function useUserConfigViewModel() {
         message: isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!'
       }
     } catch (error) {
-      console.error('Erro ao salvar usuário:', error)
-
       setAlertConfig({
         type: 'error',
         message: error.message || 'Erro ao salvar usuário'
@@ -133,9 +129,7 @@ export function useUserConfigViewModel() {
     try {
       setLoading(true)
 
-      // TODO: Replace with actual API call
-      console.log('Deleting user:', id)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await deleteUser(id)
 
       setAlertConfig({
         type: 'success',
@@ -146,8 +140,6 @@ export function useUserConfigViewModel() {
         navigateTo(routes.ADMIN_USERS)
       }, 2000)
     } catch (error) {
-      console.error('Erro ao excluir usuário:', error)
-
       setAlertConfig({
         type: 'error',
         message: error.message || 'Erro ao excluir usuário'

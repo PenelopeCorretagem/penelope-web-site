@@ -57,15 +57,22 @@ export const userMapper = {
       return user.toRequestPayload()
     }
 
-    return {
-      name: user.name,
+    const payload = {
+      nomeCompleto: user.name || user.nomeCompleto,
       email: user.email,
       cpf: user.cpf,
-      dateBirth: user.dateBirth,
+      dtNascimento: user.dateBirth || user.dtNascimento,
       phone: user.phone,
       creci: user.creci,
-      monthlyIncome: user.monthlyIncome,
+      rendaMensal: user.monthlyIncome || user.rendaMensal,
       accessLevel: user.accessLevel,
     }
+
+    // Incluir senha se estiver presente
+    if (user.senha) {
+      payload.senha = user.senha
+    }
+
+    return payload
   },
 }
