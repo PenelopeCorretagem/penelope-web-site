@@ -4,7 +4,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView'
-import { MediaLightboxView } from '@shared/components/ui/MediaLightbox/MediaLightboxView'
+import { MediaLightboxView } from '@shared/components/ui/MediaLightbox/MediaLightboxView' // ✅ ADICIONADO
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 
 export function PropertyCardView(props) {
@@ -27,39 +27,17 @@ export function PropertyCardView(props) {
     handleButtonClick,
     hasError,
     model,
-    // ✅ Novas propriedades de imagens da API
-    galleryImages,
-    floorplanImages,
-    videoImages,
-    hasGalleryImages,
-    hasFloorplanImages,
-    hasVideoImages,
-    isLoadingImages,
-    _debug
+    galleryImages, // ✅ ADICIONADO
+    floorplanImages, // ✅ ADICIONADO
+    videoImages, // ✅ ADICIONADO
+    hasGalleryImages, // ✅ ADICIONADO
+    hasFloorplanImages, // ✅ ADICIONADO
+    hasVideoImages, // ✅ ADICIONADO
   } = usePropertyCardViewModel(props)
 
-  console.log('🐛 PropertyCardView Debug:', _debug)
-
   const [showForm, setShowForm] = useState(false)
-  const [showLightbox, setShowLightbox] = useState(false)
-  const [mediaType, setMediaType] = useState(null) // gallery | floorplan | video
-
-  // ✅ Mocks como fallback (caso não tenha imagens da API)
-  const mockGallery = [
-    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
-    'https://eeon9q568x2.exactdn.com/wp-content/uploads/2025/06/Fachada-iconica-do-edificio-escultural-no-Itaim-Bibi-1024x890.jpg',
-    'https://img.freepik.com/fotos-gratis/tiro-vertical-de-um-edificio-branco-sob-o-ceu-claro_181624-4575.jpg?semt=ais_incoming&w=740&q=80',
-    'https://eeon9q568x2.exactdn.com/wp-content/uploads/2025/06/Fachada-iconica-do-edificio-escultural-no-Itaim-Bibi-1024x890.jpg',
-  ]
-
-  const mockFloorplans = [
-    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
-    'https://portalhospitaisbrasil.com.br/wp-content/uploads/Loca%C3%BE%C2%A7es-imobili%C3%9Frias-Nerplan.jpg',
-  ]
-
-  const mockVideos = [
-    'https://www.w3schools.com/html/mov_bbb.mp4'
-  ]
+  const [showLightbox, setShowLightbox] = useState(false) // ✅ ADICIONADO
+  const [mediaType, setMediaType] = useState(null) // ✅ ADICIONADO
 
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('a')) return
@@ -67,21 +45,12 @@ export function PropertyCardView(props) {
   }
 
   const handleButtonAction = (action) => {
-    console.log('🟢 Botão clicado:', action)
-    console.log('🔍 Imagens disponíveis:', {
-      hasGalleryImages,
-      galleryImages,
-      hasFloorplanImages,
-      floorplanImages,
-      hasVideoImages,
-      videoImages
-    })
-
     if (action === 'contato' || action === 'whatsapp') {
       setShowForm(true)
-      return
+      return // ✅ ADICIONADO return
     }
 
+    // ✅ ADICIONADO - Abre lightbox para galeria/planta/vídeo
     if (action === 'gallery' || action === 'floorplan' || action === 'video') {
       setMediaType(action)
       setShowLightbox(true)
@@ -89,6 +58,20 @@ export function PropertyCardView(props) {
     }
 
     handleButtonClick(action)
+  }
+
+  // ✅ ADICIONADO - Função para obter imagens corretas
+  const getMediaForLightbox = () => {
+    switch (mediaType) {
+      case 'gallery':
+        return hasGalleryImages ? galleryImages : []
+      case 'floorplan':
+        return hasFloorplanImages ? floorplanImages : []
+      case 'video':
+        return hasVideoImages ? videoImages : []
+      default:
+        return []
+    }
   }
 
   const renderButtons = () => {
@@ -108,40 +91,6 @@ export function PropertyCardView(props) {
         {button.text}
       </ButtonView>
     ))
-  }
-
-  // ✅ Função para obter as imagens corretas baseadas no tipo
-  const getMediaForLightbox = () => {
-    console.log('🎬 getMediaForLightbox chamado para tipo:', mediaType)
-    console.log('📊 Estado das imagens:', {
-      hasGalleryImages,
-      galleryImagesLength: galleryImages?.length,
-      hasFloorplanImages,
-      floorplanImagesLength: floorplanImages?.length,
-      hasVideoImages,
-      videoImagesLength: videoImages?.length
-    })
-
-    switch (mediaType) {
-      case 'gallery':
-        const galleryResult = hasGalleryImages && galleryImages.length > 0 ? galleryImages : mockGallery
-        console.log('🖼️ Usando galeria:', galleryResult)
-        return galleryResult
-
-      case 'floorplan':
-        const floorplanResult = hasFloorplanImages && floorplanImages.length > 0 ? floorplanImages : mockFloorplans
-        console.log('📐 Usando plantas:', floorplanResult)
-        return floorplanResult
-
-      case 'video':
-        const videoResult = hasVideoImages && videoImages.length > 0 ? videoImages : mockVideos
-        console.log('🎥 Usando vídeos:', videoResult)
-        return videoResult
-
-      default:
-        console.log('⚠️ Tipo desconhecido, retornando array vazio')
-        return []
-    }
   }
 
   if (hasError) {
@@ -195,18 +144,10 @@ export function PropertyCardView(props) {
             </div>
           )}
 
-          {/* ✅ Indicador de carregamento de imagens (opcional) */}
-          {isLoadingImages && (
-            <TextView className="text-xs text-gray-500">
-              Carregando imagens...
-            </TextView>
-          )}
-
           {renderButtons()}
         </div>
       </div>
 
-      {/* ✅ Modal do formulário de contato */}
       {showForm && (
         <ScreeningFormView
           onClose={() => setShowForm(false)}
@@ -214,7 +155,7 @@ export function PropertyCardView(props) {
         />
       )}
 
-      {/* ✅ Lightbox com imagens da API ou fallback para mocks */}
+      {/* ✅ ADICIONADO - Lightbox com imagens da API */}
       {showLightbox && (
         <MediaLightboxView
           type={mediaType}

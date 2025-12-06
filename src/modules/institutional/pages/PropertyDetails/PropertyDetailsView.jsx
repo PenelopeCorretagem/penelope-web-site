@@ -13,29 +13,25 @@ import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
   const { property, isLoading } = usePropertyDetailsViewModel()
-  const [headerHeight, setHeaderHeight] = useState(80) // valor padrão
-  const [tabsHeight, setTabsHeight] = useState(60) // valor padrão para PropertyTabsView
-  const [sectionPadding, setSectionPadding] = useState(20) // valor padrão
+  const [headerHeight, setHeaderHeight] = useState(80)
+  const [tabsHeight, setTabsHeight] = useState(60)
+  const [sectionPadding, setSectionPadding] = useState(20)
 
   useEffect(() => {
     const calculateHeights = () => {
-      // Calcular altura do header
       const header = document.querySelector('header[role="banner"]')
       if (header) {
         setHeaderHeight(header.offsetHeight - 1)
       }
 
-      // Calcular altura das tabs
       const tabs = document.querySelector('[data-tabs-component]')
       if (tabs) {
         setTabsHeight(tabs.offsetHeight - 1)
       }
 
-      // Obter valor da CSS variable para padding
       const rootStyles = getComputedStyle(document.documentElement)
       const paddingValue = rootStyles.getPropertyValue('--padding-section-y').trim()
       if (paddingValue) {
-        // Converter rem/px para pixels
         const numericValue = parseFloat(paddingValue)
         if (paddingValue.includes('rem')) {
           const rootFontSize = parseFloat(rootStyles.fontSize) || 16
@@ -46,17 +42,12 @@ export function PropertyDetailsView() {
       }
     }
 
-    // Calcular alturas iniciais
     calculateHeights()
-
-    // Recalcular quando a janela for redimensionada
     window.addEventListener('resize', calculateHeights)
 
-    // Observer para detectar mudanças no DOM
     const observer = new MutationObserver(calculateHeights)
     observer.observe(document.body, { childList: true, subtree: true })
 
-    // Aguardar renderização completa
     const timer = setTimeout(calculateHeights, 200)
 
     return () => {
@@ -89,14 +80,11 @@ export function PropertyDetailsView() {
     )
   }
 
-  console.log('🏠 Property objeto completo:', property)
-  console.log('🆔 Property.id:', property.id)
-
   return (
     <div className="relative h-fit">
       {/* Hero */}
       <PropertyHeroSectionView
-        id={property.id} // ✅ ADICIONA ESTA LINHA
+        id={property.id} // ✅ MUDANÇA 1: Adiciona ID
         title={property.title}
         location={property.subtitle}
         description={property.description}
@@ -152,7 +140,6 @@ export function PropertyDetailsView() {
         </div>
 
         {/* Overlay do Card - limitado pelo wrapper */}
-        {property.id && (
         <div className="hidden lg:block absolute inset-0 pointer-events-none">
           <div
             className="sticky right-0 z-50 w-fit mr-[var(--padding-section-x)] md:mr-[var(--padding-section-x-md)] ml-auto pointer-events-auto"
@@ -162,7 +149,6 @@ export function PropertyDetailsView() {
             }}
           >
             <PropertyCardView
-              id={property.id}
               category={property.category}
               title={property.title}
               subtitle={property.subtitle}
@@ -177,15 +163,12 @@ export function PropertyDetailsView() {
             />
           </div>
         </div>
-        )}
       </div>
 
       {/* Card Mobile */}
-      {property.id && (
       <div className="lg:hidden">
         <SectionView className="bg-default-light">
           <PropertyCardView
-            id={property.id}
             category={property.category}
             title={property.title}
             subtitle={property.subtitle}
@@ -200,7 +183,6 @@ export function PropertyDetailsView() {
           />
         </SectionView>
       </div>
-      )}
 
       {/* Carrossel */}
       <SectionView className="">

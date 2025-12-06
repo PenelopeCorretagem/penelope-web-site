@@ -11,37 +11,21 @@ import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
 import { getAnuncioById } from '@app/services/apiService'
 
-/**
- * PropertyCardViewModel - Gerencia a lógica e apresentação do PropertyCard
- * Centraliza a lógica de negócio e comportamento
- */
 class PropertyCardViewModel {
   constructor(model, navigate) {
     this.model = model
     this._categoryLabel = null
     this._buttons = null
     this._differenceLabels = null
-    this._images = null
+    this._images = null // ✅ ADICIONADO
     this.router = RouterModel.getInstance()
     this.navigate = navigate
   }
 
-  /**
-   * Define as imagens processadas da API
-   * Separa imagens por tipo: galeria, planta, vídeo, capa
-   */
+  // ✅ ADICIONADO - Método para processar imagens da API
   setImages(rawImages) {
     if (!rawImages || rawImages.length === 0) {
-      this._images = {
-        gallery: [],
-        floorplan: [],
-        video: [],
-        cover: '',
-        first: '',
-        main: '',
-        all: [],
-        hasImages: false
-      }
+      this._images = { gallery: [], floorplan: [], video: [], hasImages: false }
       return
     }
 
@@ -51,51 +35,17 @@ class PropertyCardViewModel {
         .map(img => img.url)
     }
 
-    const findImageByType = (type) => {
-      return rawImages.find(img =>
-        String(img.type).toLowerCase() === type.toLowerCase()
-      )?.url || ''
-    }
-
-    const getFirstImage = () => {
-      return rawImages.length > 0 ? rawImages[0].url : ''
-    }
-
     this._images = {
       gallery: findImagesByType('galeria'),
       floorplan: findImagesByType('planta'),
       video: findImagesByType('video'),
-      cover: findImageByType('capa'),
-      first: getFirstImage(),
-      main: findImagesByType('galeria')[0] ||
-            findImagesByType('planta')[0] ||
-            findImageByType('capa') ||
-            getFirstImage(),
-      all: rawImages.map(img => ({
-        url: img.url,
-        type: img.type
-      })),
       hasImages: rawImages.length > 0
     }
-
-    console.log('[PropertyCardViewModel] Images processed:', this._images)
   }
 
+  // ✅ ADICIONADO - Getters para as imagens
   get images() {
-    return this._images || {
-      gallery: [],
-      floorplan: [],
-      video: [],
-      cover: '',
-      first: '',
-      main: '',
-      all: [],
-      hasImages: false
-    }
-  }
-
-  get mainImage() {
-    return this.images.main
+    return this._images || { gallery: [], floorplan: [], video: [], hasImages: false }
   }
 
   get galleryImages() {
@@ -167,7 +117,7 @@ class PropertyCardViewModel {
   }
 
   get hasValidImage() {
-    return this.model.hasValidImage || !!this.mainImage
+    return this.model.hasValidImage
   }
 
   get labelPosition() {
@@ -247,7 +197,6 @@ class PropertyCardViewModel {
   }
 
   _executeDefaultAction(action) {
-    console.log('Executing action:', action)
     const actions = {
       whatsapp: () => console.log('Iniciando contato via WhatsApp'),
       visit: () => console.log('Agendando visita'),
@@ -255,16 +204,11 @@ class PropertyCardViewModel {
       floorplan: () => console.log('Visualizando planta'),
       video: () => console.log('Assistindo vídeo'),
       default: () => {
-        console.log('Navigating to property detail')
         const propertyId = this.model?.id || 1
         const route = this.router.generateRoute('PROPERTY_DETAIL', { id: propertyId })
-        console.log('Generated route:', route)
-        console.log('Navigate function:', this.navigate)
         if (this.navigate) {
-          console.log('Using navigate')
           this.navigate(route)
         } else {
-          console.log('Using window.location')
           window.location.href = route
         }
       }
@@ -277,36 +221,31 @@ class PropertyCardViewModel {
 
 export function usePropertyCardViewModel(props) {
   const navigate = useNavigate()
-  const [isLoadingImages, setIsLoadingImages] = useState(false)
-
-  // ✅ SOLUÇÃO: Criar novo objeto de imagens para forçar re-render
-  const [imagesState, setImagesState] = useState({
+  const [isLoadingImages, setIsLoadingImages] = useState(false) // ✅ ADICIONADO
+  const [imagesState, setImagesState] = useState({ // ✅ ADICIONADO
     gallery: [],
     floorplan: [],
     video: [],
-    cover: '',
-    first: '',
-    main: '',
-    all: [],
     hasImages: false
   })
 
-  const [viewModel] = useState(() => {
+  const [viewModel, setViewModel] = useState(() => {
     try {
       const model = new PropertyCardModel(props)
-      return new PropertyCardViewModel(model, navigate)
+      return new PropertyCardViewModel(model, null)
     } catch (error) {
       console.error('Erro ao criar PropertyCardModel:', error)
       return null
     }
   })
 
-  // Busca as imagens da API quando o ID estiver disponível
-  useEffect(() => {
-    const propertyId = props.id
+  if (viewModel && !viewModel.navigate) {
+    viewModel.navigate = navigate
+  }
 
+  // ✅ ADICIONADO - useEffect para buscar imagens da API
+  useEffect(() => {
     if (!viewModel || !props.id) {
-      console.log('[PropertyCardViewModel] Skipping image fetch - no valid ID in props')
       return
     }
 
@@ -314,33 +253,20 @@ export function usePropertyCardViewModel(props) {
     const fetchImages = async () => {
       setIsLoadingImages(true)
       try {
-        console.log('[PropertyCardViewModel] Fetching images for property ID:', propertyId)
-        const response = await getAnuncioById(propertyId)
+        const response = await getAnuncioById(props.id)
         const data = response?.data
 
-        if (!data) {
-          console.warn('[PropertyCardViewModel] No data returned from API')
+        if (data) {
+          const property = data.property || {}
+          const rawImages = property.images || []
+
           if (mounted) {
-            viewModel.setImages([])
-            // ✅ Criar NOVO objeto para forçar re-render
+            viewModel.setImages(rawImages)
             setImagesState({ ...viewModel.images })
           }
-          return
-        }
-
-        const property = data.property || {}
-        const rawImages = property.images || []
-
-        console.log('[PropertyCardViewModel] Raw images from API:', rawImages)
-
-        if (mounted) {
-          viewModel.setImages(rawImages)
-          // ✅ Criar NOVO objeto para forçar re-render
-          setImagesState({ ...viewModel.images })
-          console.log('✅ [PropertyCardViewModel] State updated with images:', viewModel.images)
         }
       } catch (error) {
-        console.error('[PropertyCardViewModel] Error fetching images:', error)
+        console.error('Erro ao buscar imagens:', error)
         if (mounted) {
           viewModel.setImages([])
           setImagesState({ ...viewModel.images })
@@ -361,9 +287,8 @@ export function usePropertyCardViewModel(props) {
 
   const handleButtonClick = useCallback((action) => {
     if (!viewModel) return
-    console.log('Button clicked with action:', action)
     viewModel.handleButtonClick(action, props.onButtonClick)
-  }, [viewModel, props.onButtonClick])
+  }, [viewModel, props.onButtonClick, navigate])
 
   if (!viewModel) {
     return {
@@ -383,15 +308,13 @@ export function usePropertyCardViewModel(props) {
       handleButtonClick: () => {},
       hasError: true,
       model: null,
-      images: null,
-      mainImage: '',
-      galleryImages: [],
-      floorplanImages: [],
-      videoImages: [],
-      hasGalleryImages: false,
-      hasFloorplanImages: false,
-      hasVideoImages: false,
-      isLoadingImages: false
+      galleryImages: [], // ✅ ADICIONADO
+      floorplanImages: [], // ✅ ADICIONADO
+      videoImages: [], // ✅ ADICIONADO
+      hasGalleryImages: false, // ✅ ADICIONADO
+      hasFloorplanImages: false, // ✅ ADICIONADO
+      hasVideoImages: false, // ✅ ADICIONADO
+      isLoadingImages: false // ✅ ADICIONADO
     }
   }
 
@@ -412,25 +335,15 @@ export function usePropertyCardViewModel(props) {
     handleButtonClick,
     hasError: false,
     model: viewModel.model,
-    // ✅ Usar o estado ao invés dos getters diretos
-    images: imagesState,
-    mainImage: imagesState.main || '',
+    setViewModel,
+    // ✅ ADICIONADO - Propriedades de imagens
     galleryImages: imagesState.gallery || [],
     floorplanImages: imagesState.floorplan || [],
     videoImages: imagesState.video || [],
     hasGalleryImages: (imagesState.gallery || []).length > 0,
     hasFloorplanImages: (imagesState.floorplan || []).length > 0,
     hasVideoImages: (imagesState.video || []).length > 0,
-    isLoadingImages,
-    // 🔍 Debug
-    _debug: {
-      propsId: props.id,
-      modelId: viewModel.model?.id,
-      imagesProcessed: imagesState.hasImages,
-      rawImages: imagesState,
-      galleryCount: imagesState.gallery?.length || 0,
-      floorplanCount: imagesState.floorplan?.length || 0
-    }
+    isLoadingImages
   }
 }
 
