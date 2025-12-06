@@ -4,7 +4,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { CardImageView } from '@shared/components/ui/CardImage/CardImageView'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import AboutImage from '@institutional/assets/woman-holding-keys.jpg'
-import PenelopeImage from '@institutional/assets/penelope.png'
+import PenelopeImage from '@institutional/assets/foto-penelope.jpg'
 import CuryAbout from '@institutional/assets/logo-cury.jpg'
 import PenelopeCuryImage from '@institutional/assets/happy-couple-dancing.jpg'
 
@@ -29,9 +29,12 @@ export function AboutView() {
 
       <SectionView className="bg-distac-gradient">
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
-          <img src={PenelopeImage} alt="Corretora Penélope" />
-        </div>
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
+          <img
+            src={PenelopeImage}
+            alt="Corretora Penélope"
+            className="h-[81%] object-cover rounded-[10%]"
+          />
+        </div>        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
           <HeadingView level={1} className="text-left text-default-light">
             Penélope ou Isabella?
           </HeadingView>
@@ -46,7 +49,7 @@ export function AboutView() {
 
       <SectionView>
         <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={2}  className="text-left text-distac-primary">
+          <HeadingView level={2} className="text-left text-distac-primary">
             Imóveis Com a qualidade Cury
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md">
