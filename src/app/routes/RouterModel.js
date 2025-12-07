@@ -1,9 +1,12 @@
 /**
- * RouterModel - Modelo central de roteamento da aplicação
- * Implementa Singleton para garantir uma única fonte de verdade
- * Gerencia rotas, histórico e permissões
- */
-// @shared/model/components/RouterModel.js
+ * RouterModel - Modelo de dados de roteamento (Camada de Dados)
+ *
+ * RESPONSABILIDADES:
+ * - Armazenar definições de rotas
+ * - Manter estado atual da rota
+ * - Gerenciar histórico de navegação
+ * - Notificar mudanças (Observer Pattern)
+ **/
 export class RouterModel {
   static instance = null
 
@@ -16,16 +19,14 @@ export class RouterModel {
     this.listeners = []
     this.history = []
 
-    // Todas as rotas da aplicação
+    // Definição de todas as rotas
     this.routes = {
       // Rotas públicas
       HOME: '/',
       PROPERTIES: '/imoveis',
-      PROPERTY_DETAIL: '/imovel/:id',
-      PROPERTY_SEARCH: '/imoveis/busca',
+      PROPERTY_DETAIL: '/imoveis/:id',
       ABOUT: '/sobre',
       CONTACTS: '/contatos',
-      CONTACT_FORM: '/contatos/formulario',
 
       // Rotas de autenticação
       LOGIN: '/login',
@@ -34,23 +35,63 @@ export class RouterModel {
       VERIFICATION_CODE: '/verificacao',
       RESET_PASSWORD: '/redefinir-senha',
 
-      // Rotas autenticadas - usuário comum
-      PROFILE: '/perfil',
-      PROFILE_EDIT: '/perfil/editar',
+      // Rotas protegidas - usuário comum
       SCHEDULE: '/agenda',
-      MY_APPOINTMENTS: '/meus-agendamentos',
+      SCHEDULE_PROPERTY: '/agenda/:title',
+      PROFILE: '/meu-perfil',
+      ACCOUNT: '/minha-conta',
 
-      // Rotas autenticadas - admin/gestão
-      ADMIN_DASHBOARD: '/admin',
-      ADMIN_PROPERTIES: '/admin/imoveis',
+      // Rotas protegidas - admin
+      ADMIN: '/admin',
+      ADMIN_PROFILE: '/admin/meu-perfil',
+      ADMIN_ACCOUNT: '/admin/minha-conta',
       ADMIN_USERS: '/admin/usuarios',
-      ADMIN_REPORTS: '/admin/relatorios',
-      SETTINGS: '/configuracoes',
+      ADMIN_USER_ADD: '/admin/usuarios/adicionar',
+      ADMIN_USER_EDIT: '/admin/usuarios/:id/editar',
+      ADMIN_PROPERTIES: '/admin/gerenciar-imoveis',
+      ADMIN_PROPERTIES_CONFIG: '/admin/gerenciar-imoveis/:id',
+      ADMIN_SCHEDULE: '/admin/agenda',
 
       // Rotas de erro
       NOT_FOUND: '/404',
       UNAUTHORIZED: '/401',
       SERVER_ERROR: '/500',
+    }
+
+    // Configuração de permissões por rota
+    this.routeConfig = {
+      publicRoutes: [
+        this.routes.HOME,
+        this.routes.PROPERTIES,
+        this.routes.PROPERTY_DETAIL,
+        this.routes.ABOUT,
+        this.routes.CONTACTS,
+        this.routes.LOGIN,
+        this.routes.REGISTER,
+        this.routes.FORGOT_PASSWORD,
+        this.routes.VERIFICATION_CODE,
+        this.routes.RESET_PASSWORD,
+        this.routes.NOT_FOUND,
+        this.routes.UNAUTHORIZED,
+        this.routes.SERVER_ERROR,
+      ],
+      authRequiredRoutes: [
+        this.routes.SCHEDULE,
+        this.routes.SCHEDULE_PROPERTY,
+        this.routes.PROFILE,
+        this.routes.ACCOUNT,
+      ],
+      adminRequiredRoutes: [
+        this.routes.ADMIN,
+        this.routes.ADMIN_PROFILE,
+        this.routes.ADMIN_ACCOUNT,
+        this.routes.ADMIN_USERS,
+        this.routes.ADMIN_USER_ADD,
+        this.routes.ADMIN_USER_EDIT,
+        this.routes.ADMIN_PROPERTIES,
+        this.routes.ADMIN_PROPERTIES_CONFIG,
+        this.routes.ADMIN_SCHEDULE,
+      ],
     }
 
     RouterModel.instance = this
@@ -63,7 +104,7 @@ export class RouterModel {
     return RouterModel.instance
   }
 
-  // ===== Gerenciamento de estado =====
+  // ===== Estado =====
   setCurrentRoute(route) {
     const previousRoute = this.currentRoute
     this.currentRoute = route
@@ -79,17 +120,12 @@ export class RouterModel {
     return [...this.history]
   }
 
-  canGoBack() {
-    return this.history.length > 1
-  }
-
-  // ===== Sistema de listeners =====
+  // ===== Listeners (Observer Pattern) =====
   addListener(callback) {
     this.listeners.push(callback)
   }
 
   removeListener(callback) {
-    const _initialLength = this.listeners.length
     this.listeners = this.listeners.filter(listener => listener !== callback)
   }
 
@@ -102,8 +138,8 @@ export class RouterModel {
     })
   }
 
-  // ===== Métodos de rotas =====
-  get(routeName) {
+  // ===== Getters de Rotas =====
+  getRoute(routeName) {
     return this.routes[routeName]
   }
 
@@ -124,7 +160,7 @@ export class RouterModel {
   getUserActionRoutes() {
     return {
       PROFILE: this.routes.PROFILE,
-      SETTINGS: this.routes.SETTINGS,
+      ACCOUNT: this.routes.ACCOUNT,
     }
   }
 
@@ -139,44 +175,44 @@ export class RouterModel {
 
   getAdminRoutes() {
     return {
-      ADMIN_DASHBOARD: this.routes.ADMIN_DASHBOARD,
-      ADMIN_PROPERTIES: this.routes.ADMIN_PROPERTIES,
+      ADMIN: this.routes.ADMIN,
+      ADMIN_PROFILE: this.routes.ADMIN_PROFILE,
+      ADMIN_ACCOUNT: this.routes.ADMIN_ACCOUNT,
       ADMIN_USERS: this.routes.ADMIN_USERS,
-      ADMIN_REPORTS: this.routes.ADMIN_REPORTS,
+      ADMIN_USER_ADD: this.routes.ADMIN_USER_ADD,
+      ADMIN_USER_EDIT: this.routes.ADMIN_USER_EDIT,
+      ADMIN_PROPERTIES: this.routes.ADMIN_PROPERTIES,
+      ADMIN_PROPERTIES_CONFIG: this.routes.ADMIN_PROPERTIES_CONFIG,
+      ADMIN_SCHEDULE: this.routes.ADMIN_SCHEDULE,
     }
   }
 
-  requiresAuth(route) {
-    const publicRoutes = [
-      this.routes.HOME,
-      this.routes.PROPERTIES,
-      this.routes.PROPERTY_DETAIL,
-      this.routes.PROPERTY_SEARCH,
-      this.routes.ABOUT,
-      this.routes.CONTACTS,
-      this.routes.CONTACT_FORM,
-      this.routes.LOGIN,
-      this.routes.REGISTER,
-      this.routes.FORGOT_PASSWORD,
-      this.routes.RESET_PASSWORD,
-      this.routes.NOT_FOUND,
-      this.routes.UNAUTHORIZED,
-      this.routes.SERVER_ERROR,
-    ]
-
-    return !publicRoutes.includes(route)
+  // ===== Configurações de Permissão =====
+  getPublicRoutes() {
+    return [...this.routeConfig.publicRoutes]
   }
 
-  requiresAdmin(route) {
-    const adminRoutes = Object.values(this.getAdminRoutes())
-    return adminRoutes.includes(route)
+  getAuthRequiredRoutes() {
+    return [...this.routeConfig.authRequiredRoutes]
   }
 
+  getAdminRequiredRoutes() {
+    return [...this.routeConfig.adminRequiredRoutes]
+  }
+
+  // ===== Route Generation =====
+  /**
+   * Generate route with parameters
+   * @param {string} routeName - Name of the route
+   * @param {Object} params - Parameters to replace in route
+   * @returns {string} Generated route
+   */
   generateRoute(routeName, params = {}) {
-    let route = this.routes[routeName]
+    let route = this.getRoute(routeName)
 
     if (!route) {
-      throw new Error(`Rota ${routeName} não encontrada`)
+      console.error(`Rota ${routeName} não encontrada`)
+      return '/'
     }
 
     Object.keys(params).forEach(param => {
@@ -186,6 +222,12 @@ export class RouterModel {
     return route
   }
 
+  /**
+   * Extract parameters from current route based on pattern
+   * @param {string} routePattern - Route pattern with :param syntax
+   * @param {string} actualRoute - Actual route path
+   * @returns {Object} Parameters object
+   */
   extractParams(routePattern, actualRoute) {
     const patternParts = routePattern.split('/')
     const routeParts = actualRoute.split('/')

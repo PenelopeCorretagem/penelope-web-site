@@ -43,7 +43,7 @@ export class InputModel {
     this.readOnly = Boolean(readOnly)
   }
 
-  static TYPES = ['text', 'email', 'password', 'number', 'tel', 'url', 'search']
+  static TYPES = ['text', 'email', 'password', 'number', 'tel', 'url', 'search', 'date', 'checkbox']
 
   validateType(type) {
     return InputModel.TYPES.includes(type) ? type : InputModel.DEFAULTS.type

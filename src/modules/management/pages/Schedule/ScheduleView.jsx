@@ -1,3 +1,135 @@
+import { useScheduleViewModel } from './useScheduleViewModel'
+import Cal from "@calcom/embed-react";
+import { useSearchParams } from 'react-router-dom'
+
 export function ScheduleView() {
-  return <div>ScheduleView</div>
+  const {
+    selectedDate,
+    setSelectedDate,
+    appointmentsForSelectedDate,
+    totalAppointments,
+    totalAppointmentsToday,
+    loading,
+    error,
+    upcomingAppointments,
+    monthCount,
+  } = useScheduleViewModel()
+
+  // Captura o slug do título do imóvel da URL (se existir)
+  const [searchParams] = useSearchParams()
+  const propertySlug = searchParams.get('property')
+  const calLink = propertySlug ? `penelope-corretagem/${propertySlug}` : 'penelope-corretagem'
+
+  return (
+    <div className="flex flex-col min-h-screen bg-page">
+      <main className="flex-1 px-header-x md:px-header-x-md py-8">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold">Agenda</h1>
+
+            {/* Seletor de data para testes */}
+            <div className="flex items-center gap-3">
+              <label htmlFor="date-picker" className="text-sm font-medium text-muted">
+                Selecionar data:
+              </label>
+              <input
+                id="date-picker"
+                type="date"
+                value={selectedDate.toISOString().split('T')[0]}
+                onChange={(e) => setSelectedDate(new Date(e.target.value + 'T00:00:00'))}
+                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-distac-primary"
+              />
+            </div>
+          </div>
+
+          {/* Loading e Error States */}
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-muted">Carregando agendamentos...</p>
+            </div>
+          )}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <p className="font-bold">Erro ao carregar agendamentos</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="flex flex-col md:flex-row gap-6">
+      <div className="w-full md:w-[65%]">
+        <div className="bg-white rounded-lg shadow overflow-hidden h-full p-0">
+          <Cal
+            calLink={calLink}
+            style={{ width: "100%", height: "100%" }}
+            config={{ layout: 'month_view' }}
+          />
+        </div>
+      </div>
+
+            <aside className="w-full md:w-[35%] flex flex-col gap-4">
+              {/* Overview Agendamentos (KPIs) */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="font-semibold text-lg mb-3">OVERVIEW AGENDAMENTOS</h3>
+                <div className="grid grid-cols-2 gap-4 text-default-light">
+                  <div className="bg-distac-secondary-light rounded p-3 text-center">
+                    <div className="text-xs text-muted">
+                      AGENDAMENTOS DO DIA
+                      </div>
+                    <div className="text-2xl font-bold">{totalAppointmentsToday}</div>
+                  </div>
+                  <div className="bg-distac-secondary-light rounded p-3 text-center">
+                    <div className="text-xs text-muted">AGENDAMENTOS DO MÊS</div>
+                    <div className="text-2xl font-bold">{monthCount}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Agendamentos do dia */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="font-semibold text-lg mb-3">AGENDAMENTOS DO DIA</h3>
+                <div className="text-sm text-muted mb-3">Data selecionada: {selectedDate.toLocaleDateString()}</div>
+
+                <div className="space-y-2">
+                  {appointmentsForSelectedDate.length === 0 ? (
+                    <div className="text-sm text-muted">Nenhum agendamento para este dia.</div>
+                  ) : (
+                    appointmentsForSelectedDate.map(appt => (
+                      <div key={appt.id} className="p-3 border rounded flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">{appt.title}</div>
+                          <div className="text-sm text-muted">{appt.client}</div>
+                        </div>
+                        <div className="text-sm">{appt.date instanceof Date ? appt.date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : appt.time}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Próximos agendamentos (cartão separado) */}
+              <div className="bg-white rounded-lg shadow p-4 flex-1 overflow-auto">
+                <h3 className="font-medium mb-3">PRÓXIMOS AGENDAMENTOS</h3>
+
+                <div className="space-y-2">
+                  {upcomingAppointments.length === 0 ? (
+                    <div className="text-sm text-muted">Nenhum próximo agendamento.</div>
+                  ) : (
+                    upcomingAppointments.map(appt => (
+                      <div key={appt.id} className="p-3 border rounded flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">{appt.title}</div>
+                          <div className="text-sm text-muted">{appt.client}</div>
+                        </div>
+                        <div className="text-sm">{appt.date instanceof Date ? appt.date.toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : ''}</div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
 }

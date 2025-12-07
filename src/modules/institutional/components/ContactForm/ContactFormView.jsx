@@ -1,10 +1,10 @@
 import { FormView } from '@shared/components/ui/Form/FormView'
-import { contactUs } from '@app/services/apiService'
+import { sendContactMessage } from '@app/services/api/contactUsApi'
 
 export function ContactFormView() {
   const fields = [
     {
-      name: 'name',
+      name: 'nome',
       label: 'Nome completo',
       placeholder: 'Digite seu nome',
       type: 'text',
@@ -21,7 +21,7 @@ export function ContactFormView() {
       errorMessage: 'E-mail inválido',
     },
     {
-      name: 'subject',
+      name: 'assunto',
       label: 'Assunto',
       placeholder: 'Qual é o motivo do contato?',
       type: 'text',
@@ -29,7 +29,7 @@ export function ContactFormView() {
       hasLabel: true,
     },
     {
-      name: 'message',
+      name: 'mensagem',
       label: 'Mensagem',
       placeholder: 'Escreva sua mensagem...',
       type: 'textarea',
@@ -45,7 +45,7 @@ export function ContactFormView() {
 
   const handleSubmit = async (formData) => {
     try {
-      await contactUs(formData.name, formData.email, formData.subject, formData.message)
+      await sendContactMessage(formData)
 
       return {
         success: true,
@@ -57,7 +57,6 @@ export function ContactFormView() {
       return { success: false, error: errorMessage }
     }
   }
-
 
   return (
     <FormView

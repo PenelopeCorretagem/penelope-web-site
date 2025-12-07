@@ -44,7 +44,7 @@ export class NavMenuModel {
 
   // Configuração de menu items
   #getPublicMenuItems() {
-    const routes = this.routerModel.getMenuRoutes()
+    const routes = this.routerModel.getAllRoutes()
 
     return [
       this.#createMenuItem({
@@ -73,7 +73,7 @@ export class NavMenuModel {
   }
 
   #getAuthenticatedMenuItems() {
-    const routes = this.routerModel.getMenuRoutes()
+    const routes = this.routerModel.getAllRoutes()
 
     return [
       this.#createMenuItem({
@@ -86,41 +86,41 @@ export class NavMenuModel {
   }
 
   #getGuestUserActions() {
-    const authRoutes = this.routerModel.getAuthRoutes()
+    const routes = this.routerModel.getAllRoutes()
 
     return [
       this.#createUserAction({
         id: 'login',
         label: 'Login',
         icon: 'User',
-        route: authRoutes.LOGIN,
+        route: routes.LOGIN,
       }),
     ]
   }
 
   #getAuthenticatedUserActions() {
-    const userRoutes = this.routerModel.getUserActionRoutes()
+    const routes = this.routerModel.getAllRoutes()
 
     return [
       this.#createUserAction({
         id: 'profile',
         label: 'Perfil',
         icon: 'User',
-        route: userRoutes.PROFILE,
+        route: routes.PROFILE,
         requiresAuth: true,
       }),
       this.#createUserAction({
         id: 'settings',
         label: 'Configurações',
         icon: 'Settings',
-        route: userRoutes.SETTINGS,
+        route: routes.SETTINGS,
         requiresAuth: true,
       }),
       this.#createUserAction({
         id: 'logout',
         label: 'Logout',
         icon: 'LogOut',
-        route: '/',
+        route: routes.HOME,
         requiresAuth: true,
         isLogoutAction: true,
       }),
@@ -209,19 +209,17 @@ export class NavMenuModel {
    * // → [{ id: 'properties', text: 'Imóveis', to: '/properties' }, ...]
    */
   getFooterSections() {
-    const routes = this.routerModel.getMenuRoutes()
-    const authRoutes = this.routerModel.getAuthRoutes()
-    const userRoutes = this.routerModel.getUserActionRoutes()
-
     return {
-      geral: this.#getGeneralFooterLinks(routes, userRoutes),
-      vendas: this.#getSalesFooterLinks(routes),
-      acesso: this.#getAccessFooterLinks(authRoutes),
+      geral: this.#getGeneralFooterLinks(),
+      vendas: this.#getSalesFooterLinks(),
+      acesso: this.#getAccessFooterLinks(),
       contatos: this.#getContactFooterLinks()
     }
   }
 
-  #getGeneralFooterLinks(routes, userRoutes) {
+  #getGeneralFooterLinks() {
+    const routes = this.routerModel.getAllRoutes()
+
     const links = [
       { id: 'home', text: 'Home', to: routes.HOME },
       { id: 'about', text: 'Sobre', to: routes.ABOUT }
@@ -229,15 +227,17 @@ export class NavMenuModel {
 
     if (this.isAuthenticated) {
       links.push(
-        { id: 'profile', text: 'Perfil', to: userRoutes.PROFILE },
-        { id: 'settings', text: 'Configurações', to: userRoutes.SETTINGS }
+        { id: 'profile', text: 'Perfil', to: routes.PROFILE },
+        { id: 'settings', text: 'Configurações', to: routes.SETTINGS }
       )
     }
 
     return links.map(link => ({ ...link, onClick: () => {} }))
   }
 
-  #getSalesFooterLinks(routes) {
+  #getSalesFooterLinks() {
+    const routes = this.routerModel.getAllRoutes()
+
     const links = [
       { id: 'properties', text: 'Imóveis', to: routes.PROPERTIES }
     ]
@@ -251,10 +251,12 @@ export class NavMenuModel {
     return links.map(link => ({ ...link, onClick: () => {} }))
   }
 
-  #getAccessFooterLinks(authRoutes) {
+  #getAccessFooterLinks() {
+    const routes = this.routerModel.getAllRoutes()
+
     return [
-      { id: 'login', text: 'Acessar', to: authRoutes.LOGIN, onClick: () => {} },
-      { id: 'register', text: 'Cadastrar', to: authRoutes.REGISTER, onClick: () => {} }
+      { id: 'login', text: 'Acessar', to: routes.LOGIN, onClick: () => {} },
+      { id: 'register', text: 'Cadastrar', to: routes.REGISTER, onClick: () => {} }
     ]
   }
 

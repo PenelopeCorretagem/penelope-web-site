@@ -159,16 +159,7 @@ export function FormView({
         </div>
       )}
 
-      {/* Erros gerais */}
-      {hasErrors && errorMessages.length > 0 && (
-        <div className={errorContainerClasses}>
-          <ErrorDisplayView
-            messages={errorMessages}
-            position="inline"
-            variant="prominent"
-          />
-        </div>
-      )}
+
 
       {/* Botão de submit – só aparece se submitText for válido */}
       {submitText?.trim() && (

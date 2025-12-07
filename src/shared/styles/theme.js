@@ -125,7 +125,9 @@ export const theme = {
         'transition-colors duration-200',
         'placeholder:text-default-dark-muted',
         'placeholder:text-[12px] md:placeholder:text-[16px]',
-        'placeholder:uppercase placeholder:font-default'
+        'placeholder:uppercase placeholder:font-default',
+        'text-[12px] md:text-[16px]',
+        'leading-normal'
       ].join(' '),
       state: {
         active: 'bg-distac-primary-light focus:bg-default-light focus:ring-2 focus:ring-distac-primary focus:outline-none',
@@ -290,15 +292,6 @@ export const theme = {
         'uppercase cursor-pointer'
       ].join(' '),
       disabledLink: 'cursor-not-allowed opacity-50 text-gray-500'
-    }
-  },
-  section: {
-    base: 'section flex w-full h-fit bg-default-light',
-    padding: {
-      default: 'p-section md:p-section-md',
-    },
-    gap: {
-      default: 'gap-section md:gap-section-md',
     }
   },
   auth: {
@@ -912,15 +905,6 @@ export function getNavMenuActionThemeClasses({
     ...stateClasses,
     ...variantClasses,
     className
-  ].filter(Boolean).join(' ')
-}
-
-// Helper para montar classes do Section
-export function getSectionThemeClasses() {
-  const t = theme.section
-  return [t.base
-    , t.padding.default
-    , t.gap.default
   ].filter(Boolean).join(' ')
 }
 

@@ -1,65 +1,173 @@
+/**
+ * ButtonModel - Representa o modelo de dados e comportamento de um botão.
+ *
+ * Responsável por armazenar e validar os atributos do botão,
+ * como cor, tipo, rota, estado ativo e desabilitado.
+ *
+ * Implementa a camada **Model** do padrão **MVVM (Model–View–ViewModel)**.
+ */
 export class ButtonModel {
-  static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'transparent']
-  static TYPES = ['button', 'submit', 'reset', 'link']
+  /**
+   * Cria uma nova instância do modelo de botão.
+   * @param {string} [text=''] - Texto exibido no botão.
+   * @param {string} [color='pink'] - Cor do botão.
+   * @param {string} [type='button'] - Tipo do botão (button, submit, reset, link).
+   * @param {string|null} [to=null] - Rota interna, usada se o tipo for 'link'.
+   * @param {string} [shape='rectangle'] - Forma do botão (rectangle, square, circle).
+   * @param {string} [title=''] - Título do botão (tooltip/acessibilidade).
+   */
 
-  constructor(text = '', color = 'pink', type = 'button', to = null, action = null, fullWidth = false) {
+  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '', action = null, fullWidth = false) {
     this.text = text
     this.color = color
     this.type = type
     this.to = to
-    this.action = action     // ✅ adiciona a ação
-    this.fullWidth = fullWidth // ✅ adiciona fullWidth
+    this.shape = shape
+    this.title = title
+    this.action = action
+    this.fullWidth = fullWidth
     this.active = false
+    this.disabled = false
   }
 
-  /* ===== Validations ===== */
 
+  /** @static {string[]} Lista de cores válidas do botão. */
+  static COLORS = ['pink', 'brown', 'white', 'border-white', 'soft-brown', 'gray', 'soft-gray', 'transparent']
+
+  /** @static {string[]} Lista de tipos válidos do botão. */
+  static TYPES = ['button', 'submit', 'reset', 'link']
+
+  /** @static {string[]} Lista de formas válidas do botão. */
+  static SHAPES = ['rectangle', 'square', 'circle']
+
+  /**
+   * Valida se o modelo do botão está em um estado coerente.
+   * @returns {boolean} `true` se todas as validações forem aprovadas.
+   */
   isValid() {
-    return this.isValidColor() && this.isValidType() && this.hasValidRoute()
+    return this.isValidColor() && this.isValidType() && this.hasValidRoute() && this.isValidShape()
   }
 
+  /**
+   * Valida se a cor atual do botão é válida.
+   * @returns {boolean}
+   */
   isValidColor() {
     return ButtonModel.COLORS.includes(this.color)
   }
 
+  /**
+   * Valida se o tipo atual do botão é válido.
+   * @returns {boolean}
+   */
   isValidType() {
     return ButtonModel.TYPES.includes(this.type)
   }
 
+  /**
+   * Valida se a forma atual do botão é válida.
+   * @returns {boolean}
+   */
+  isValidShape() {
+    return ButtonModel.SHAPES.includes(this.shape)
+  }
+
+  /**
+   * Verifica se o botão possui uma rota válida (para tipo 'link').
+   * @returns {boolean}
+   */
   hasValidRoute() {
     return this.isLink() ? !!this.to : true
   }
 
+  /**
+   * Verifica se o botão representa um link interno.
+   * @returns {boolean}
+   */
   isLink() {
     return this.type === 'link'
   }
 
-  /* ===== Mutations ===== */
+  /**
+   * Retorna a função de ação do botão (alias para action).
+   * @returns {Function|null}
+   */
+  get onClick() {
+    return this.action
+  }
 
+  /**
+   * Atualiza a cor do botão, validando o valor recebido.
+   * @param {string} newColor - Nova cor.
+   * @throws {Error} Se a cor não estiver entre as válidas.
+   */
   updateColor(newColor) {
     if (!ButtonModel.COLORS.includes(newColor)) {
-      throw new Error(`Invalid color: ${newColor}`)
+      throw new Error(`Invalid color. Must be one of: ${ButtonModel.COLORS.join(', ')}`)
     }
     this.color = newColor
   }
 
+  /**
+   * Atualiza o texto exibido no botão.
+   * @param {string} newText - Novo texto.
+   */
   updateText(newText) {
     this.text = newText
   }
 
+  /**
+   * Atualiza o título do botão.
+   * @param {string} newTitle - Novo título.
+   */
+  updateTitle(newTitle) {
+    this.title = newTitle
+  }
+
+  /**
+   * Define o tipo do botão.
+   * @param {string} newType - Novo tipo (button, submit, reset, link).
+   * @throws {Error} Se o tipo for inválido.
+   */
   setType(newType) {
     if (!ButtonModel.TYPES.includes(newType)) {
-      throw new Error(`Invalid type: ${newType}`)
+      throw new Error(`Invalid type. Must be one of: ${ButtonModel.TYPES.join(', ')}`)
     }
     this.type = newType
   }
 
+  /**
+   * Define a rota associada (para botões do tipo link).
+   * @param {string|null} newTo - Caminho de destino.
+   */
   setTo(newTo) {
     this.to = newTo
   }
 
+  /**
+   * Define a forma do botão.
+   * @param {string} newShape - Nova forma (rectangle, square, circle).
+   * @throws {Error} Se a forma for inválida.
+   */
+  setShape(newShape) {
+    if (!ButtonModel.SHAPES.includes(newShape)) {
+      throw new Error(`Invalid shape. Must be one of: ${ButtonModel.SHAPES.join(', ')}`)
+    }
+    this.shape = newShape
+  }
+
+  /**
+   * Alterna o estado de ativo/inativo do botão.
+   */
   toggle() {
     this.active = !this.active
-    return this.active
+  }
+
+  /**
+   * Define se o botão está desabilitado.
+   * @param {boolean} disabled - Novo estado de desabilitação.
+   */
+  setDisabled(disabled) {
+    this.disabled = disabled
   }
 }
