@@ -10,6 +10,8 @@
  * @property {string} children - The text content of the model.
  * @property {string} className - The CSS class associated with the text.
  * @property {boolean} hasContent - Indicates whether the text content is non-empty.
+ * @property {string} as - The HTML element type.
+ * @property {boolean} isInline - Whether the element is inline (span).
  *
  * @example
  * const textModel = new TextModel({ children: 'Hello', className: 'text-lg' });

@@ -1,218 +1,29 @@
 import { useState, useEffect } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { PropertiesCarouselView } from '@domains/property/PropertiesCarousel/PropertiesCarouselView'
-import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
-import { ResultTitleView } from '@institutional/components/ResultTitle/ResultTitleView'
+import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { TextView } from '@shared/components/ui/Text/TextView'
+import { usePropertiesViewModel } from './usePropertiesViewModel'
+import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 
-export function PropertiesView() {
+export const PropertiesView = () => {
   const [headerHeight, setHeaderHeight] = useState(0)
 
-  const [pendingFilters, setPendingFilters] = useState({
-    city: '',
-    region: '',
-    type: '',
-    bedrooms: '',
+  const {
+    isLoading,
+    error,
+    lancamentos,
+    disponiveis,
+    emObras,
+    totalResults,
+    filterConfigs,
+    defaultFilters,
+    handleFiltersChange,
+    refresh
+  } = usePropertiesViewModel({
+    onError: (error) => console.error('Error loading properties:', error)
   })
-
-  const [appliedFilters, setAppliedFilters] = useState({})
-
-  const updatePendingFilter = (key, value) => {
-    setPendingFilters(prev => ({ ...prev, [key]: value }))
-  }
-
-  const applyFilters = () => {
-    setAppliedFilters({ ...pendingFilters })
-  }
-
-  const fakeRequest = [
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      bedrooms: 2,
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      bedrooms: 3,
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      bedrooms: 1,
-      category: 'lancamento',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      bedrooms: 2,
-      category: 'lancamento',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    }
-  ]
-  const fakeRequest2 = [
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      bedrooms: 3,
-      category: 'disponivel',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      bedrooms: 1,
-      category: 'disponivel',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      bedrooms: 2,
-      category: 'disponivel',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      bedrooms: 3,
-      category: 'disponivel',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    }
-  ]
-  const fakeRequest3 = [
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      description: '1 dormitório com vista para o mar',
-      bedrooms: 1,
-      category: 'em_obras',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Guarulhos',
-      subtitle: 'Interlagos',
-      description: '2 dormitórios com opção de terraço',
-      bedrooms: 2,
-      category: 'em_obras',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'São Paulo',
-      subtitle: 'Vila Mariana',
-      description: '3 dormitórios com varanda gourmet',
-      bedrooms: 3,
-      category: 'em_obras',
-      differences: ['2 vagas', '1 suíte', '48m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-    {
-      title: 'Rio de Janeiro',
-      subtitle: 'Copacabana',
-      bedrooms: 1,
-      description: '1 dormitório com vista para o mar',
-      category: 'em_obras',
-      differences: ['1 vaga', '1 suíte', '38m²'],
-      imageLink: 'https://admin.mac.com.br/wp-content/uploads/2025/01/Blog-fachada-de-predio-imagem-padrao.webp',
-    },
-  ]
-
-  const gatherOptions = (lists) => {
-    const cities = new Set()
-    const regions = new Set()
-    const types = new Set()
-    const bedrooms = new Set()
-
-    lists.forEach(list => {
-      list.forEach(p => {
-        if (p.title) cities.add(p.title)
-        if (p.subtitle) regions.add(p.subtitle)
-        if (p.category) types.add(p.category)
-        const desc = p.description || ''
-        const dormMatch = desc.match(/(\d+)\s*dormi/i)
-        if (p.bedrooms) {
-          const n = Number(p.bedrooms)
-          const label = `${n} Dormitório${n > 1 ? 's' : ''}`
-          bedrooms.add(label)
-        } else if (dormMatch) {
-          const n = parseInt(dormMatch[1], 10)
-          const label = `${n} Dormitório${n > 1 ? 's' : ''}`
-          bedrooms.add(label)
-        } else if (Array.isArray(p.differences)) {
-          p.differences.forEach(d => {
-            const m = d.match(/(\d+)\s*dormi/i)
-            if (m) {
-              const n = parseInt(m[1], 10)
-              const label = `${n} Dormitório${n > 1 ? 's' : ''}`
-              bedrooms.add(label)
-            }
-          })
-        }
-      })
-    })
-
-    return {
-      cities: Array.from(cities),
-      regions: Array.from(regions),
-      types: Array.from(types),
-      bedrooms: Array.from(bedrooms),
-    }
-  }
-
-  const options = gatherOptions([fakeRequest, fakeRequest2, fakeRequest3])
-
-  const optionsWithPlaceholders = {
-    cities: [{ label: 'Cidade', value: '' }, ...options.cities],
-    regions: [{ label: 'Região', value: '' }, ...options.regions],
-    types: [{ label: 'Estagio da Obra', value: '' }, ...options.types],
-    bedrooms: [{ label: 'Dormitórios', value: '' }, ...options.bedrooms],
-  }
-
-  const filterPredicate = (p) => (
-    (Object.keys(appliedFilters).length === 0 ? true : (
-      (appliedFilters.city ? p.title === appliedFilters.city : true) &&
-      (appliedFilters.region ? p.subtitle === appliedFilters.region : true) &&
-      (appliedFilters.type ? p.category === appliedFilters.type : true) &&
-      (appliedFilters.bedrooms ? (
-        (() => {
-          const m = String(appliedFilters.bedrooms).match(/(\d+)/)
-          if (!m) return true
-          const n = Number(m[1])
-          return p.bedrooms ? p.bedrooms === n : (
-            Array.isArray(p.differences) ? p.differences.some(d => d.includes(`${n}`)) : true
-          )
-        })()
-      ) : true)
-    ))
-  )
-
-  const filtered1 = fakeRequest.filter(filterPredicate)
-  const filtered2 = fakeRequest2.filter(filterPredicate)
-  const filtered3 = fakeRequest3.filter(filterPredicate)
-
-  const totalResults = filtered1.length + filtered2.length + filtered3.length
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -224,52 +35,95 @@ export function PropertiesView() {
 
     updateHeaderHeight()
     window.addEventListener('resize', updateHeaderHeight)
-
     return () => window.removeEventListener('resize', updateHeaderHeight)
   }, [])
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <SectionView className="flex items-center justify-center min-h-[50vh]">
+        <TextView>Carregando propriedades...</TextView>
+      </SectionView>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+        <TextView className="text-red-500">Erro: {error}</TextView>
+        <ButtonView color="brown" onClick={refresh}>
+          Tentar Novamente
+        </ButtonView>
+      </SectionView>
+    )
+  }
+
   return (
-    <>
-      <div
-        className="sticky z-40 bg-default-light shadow-md"
-        style={{ top: `${headerHeight}px` }}
-      >
-        <SearchFilterView
-          filters={pendingFilters}
-          updateFilter={updatePendingFilter}
-          handleSearch={() => { /* opcional: acionar busca global */ }}
-          onApply={applyFilters}
-          options={optionsWithPlaceholders}
-        />
-      </div>
-      <ResultTitleView
-        results={totalResults}
-        filters={appliedFilters}
+    <div className="min-h-screen">
+      {/* Filtros fixos */}
+
+      <FilterView
+        className={`sticky top-[${headerHeight}px] z-10 bg-default-light-alt p-filter md:p-filter-md`}
+        searchPlaceholder="Buscar por título, cidade ou descrição..."
+        filterConfigs={filterConfigs}
+        defaultFilters={defaultFilters}
+        onFiltersChange={handleFiltersChange}
       />
-      {filtered1.length > 0 && (
+
+
+      {/* Título com resultados */}
+      <SectionView className="!pb-0">
+        <HeadingView level={3}>
+          {totalResults} {totalResults === 1 ? 'propriedade encontrada' : 'propriedades encontradas'}
+        </HeadingView>
+      </SectionView>
+
+      {/* Seções de propriedades */}
+      {lancamentos.length > 0 && (
         <SectionView>
-          <PropertiesCarouselView
-            properties={filtered1}
-            titleCarousel="Lançamentos"
-          />
+          <div className="container mx-auto">
+            <PropertiesCarouselView
+              realEstateAdvertisements={lancamentos}
+              titleCarousel="Lançamentos"
+            />
+          </div>
         </SectionView>
       )}
-      {filtered2.length > 0 && (
-        <SectionView className="bg-default-light-alt">
-          <PropertiesCarouselView
-            properties={filtered2}
-            titleCarousel="Disponível"
-          />
+
+      {disponiveis.length > 0 && (
+        <SectionView className="bg-gray-100">
+          <div className="container mx-auto">
+            <PropertiesCarouselView
+              realEstateAdvertisements={disponiveis}
+              titleCarousel="Disponíveis"
+            />
+          </div>
         </SectionView>
       )}
-      {filtered3.length > 0 && (
+
+      {emObras.length > 0 && (
         <SectionView>
-          <PropertiesCarouselView
-            properties={filtered3}
-            titleCarousel="Em Obras"
-          />
+          <div className="container mx-auto">
+            <PropertiesCarouselView
+              realEstateAdvertisements={emObras}
+              titleCarousel="Em Obras"
+            />
+          </div>
         </SectionView>
       )}
-    </>
+
+      {/* Estado sem resultados */}
+      {totalResults === 0 && (
+        <SectionView className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+          <TextView className="text-center text-gray-600">
+            Nenhuma propriedade encontrada com os filtros aplicados.
+          </TextView>
+          <ButtonView color="brown" onClick={refresh}>
+            Limpar Filtros
+          </ButtonView>
+        </SectionView>
+      )}
+    </div>
   )
 }

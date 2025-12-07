@@ -59,6 +59,7 @@ export function NavMenuView({
   isAuthenticated = false,
   className = '',
   variant = 'navigation',
+  hideLogo = false,
 }) {
   const viewModel = useNavMenuViewModel(isAuthenticated)
 
@@ -71,45 +72,54 @@ export function NavMenuView({
 
   const renderMenuItem = (item) => {
     const isActive = viewModel.isItemActive(item.route)
+    const isDisabled = item.requiresAuth && !viewModel.isAuthenticated
+
+    if (isDisabled) {
+      return (
+        <span
+          key={item.id}
+          className="px-4 py-2 text-default-dark cursor-not-allowed opacity-50 flex items-center gap-2"
+        >
+          {renderIcon(item.icon)}
+          <span className="hidden lg:inline">{item.label}</span>
+        </span>
+      )
+    }
 
     return (
-      <ButtonView
+      <Link
         key={item.id}
-        color={item.variant === 'destac' ? 'brown' : 'white'}
-        type={item.route ? 'link' : 'button'}
         to={item.route}
-        width='fit'
-        shape='square'
-        disabled={item.requiresAuth && !viewModel.isAuthenticated}
-        active={isActive}
         onClick={viewModel.handleItemClick}
-        className={viewModel.getItemClasses(item, isActive)}
+        className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg ${
+          isActive
+            ? 'text-distac-primary underline underline-offset-4 decoration-2'
+            : 'text-default-dark hover:text-distac-primary'
+        }`}
       >
         {renderIcon(item.icon)}
-        {!item.iconOnly && item.label}
-      </ButtonView>
+        {item.label}
+      </Link>
     )
   }
 
   const renderUserAction = (action) => {
-    // Logout não deve usar estado ativo baseado em rota
     const isActive = action.isLogoutAction ? false : viewModel.isItemActive(action.route)
 
     return (
       <ButtonView
         key={action.id}
-        color={action.variant === 'destac' ? 'brown' : 'white'}
-        type={action.isLogoutAction ? 'button' : (action.route ? 'link' : 'button')}
+        color='brown'
+        type={action.isLogoutAction ? 'button' : 'link'}
         to={action.isLogoutAction ? undefined : action.route}
         width='fit'
-        shape={action.shape || 'square'}
+        shape='circle'
         disabled={action.requiresAuth && !viewModel.isAuthenticated}
         active={isActive}
         onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
         title={action.label}
       >
         {renderIcon(action.icon)}
-        {!action.iconOnly && action.label}
       </ButtonView>
     )
   }
@@ -178,20 +188,29 @@ export function NavMenuView({
       >
         {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
       </button>
-      <Link
-        to='/'
-        className={`inline-block transform transition-transform duration-300 hover:scale-110`}
-      >
-        <LogoView height={'40'} className='text-distac-primary fill-current' />
-      </Link>
+      {!hideLogo && (
+        <Link
+          to='/'
+          className={`inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
+            hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+          }`}
+        >
+          <LogoView height={'40'} className='text-distac-primary fill-current' />
+        </Link>
+      )}
 
       <div className={viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen)}>
         {viewModel.menuItems.map(renderMenuItem)}
       </div>
 
-      <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
-        {viewModel.userActions.map(renderUserAction)}
-      </div>
+      {!isAuthenticated && (
+        <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
+          {viewModel.userActions
+            .filter(action => action.id === 'login' || action.route === '/login')
+            .map(renderUserAction)
+          }
+        </div>
+      )}
 
       <ErrorDisplayView
         messages={[]}

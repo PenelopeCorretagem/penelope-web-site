@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { NavMenuModel } from '@shared/components/layout/NavMenu/NavMenuModel'
+import { RouterModel } from '@routes/RouterModel'
 import {
   getNavMenuThemeClasses,
   getNavMenuItemsThemeClasses,
@@ -35,6 +36,7 @@ import {
 export function useNavMenuViewModel(isAuthenticated = false) {
   /** @type {NavMenuModel} Instância do modelo do menu. */
   const [model] = useState(() => new NavMenuModel(isAuthenticated))
+  const [routerModel] = useState(() => RouterModel.getInstance())
   const [, forceUpdate] = useState(0)
   const location = useLocation()
 
@@ -104,10 +106,11 @@ export function useNavMenuViewModel(isAuthenticated = false) {
   const handleLogout = useCallback(() => {
     window.scrollTo(0, 0)
     localStorage.removeItem('jwtToken')
+    localStorage.removeItem('userRole')
     model.setAuthenticationStatus(false)
     model.closeMobileMenu()
-    window.location.href = '/'
-  }, [model])
+    window.location.href = routerModel.get('HOME')
+  }, [model, routerModel])
 
   /**
    * Alterna o estado de abertura do menu mobile.

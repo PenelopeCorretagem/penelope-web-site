@@ -1,15 +1,9 @@
 import { useState, useCallback } from 'react'
 import { InputModel } from '@shared/components/ui/Input/InputModel'
-import {
-  getInputThemeClasses,
-  getInputLabelThemeClasses,
-  getInputContainerThemeClasses,
-  getInputErrorThemeClasses
-} from '@shared/styles/theme'
 
 /**
- * InputViewModel - Gerencia a lógica e apresentação do Input
- * Centraliza a lógica de CSS e comportamento de campos de entrada
+ * InputViewModel - Gerencia a lógica e comportamento do Input
+ * NÃO contém lógica de estilização - isso é responsabilidade da View
  */
 class InputViewModel {
   constructor(model = new InputModel()) {
@@ -88,33 +82,6 @@ class InputViewModel {
 
   get isValid() {
     return this.model.isValid && !this.hasErrors
-  }
-
-  // Lógica de CSS - centralizada no ViewModel usando theme
-  get inputClasses() {
-    return getInputThemeClasses({
-      isActive: this.isActive,
-      disabled: this.disabled,
-      hasErrors: this.hasErrors,
-      withToggle: false, // será ajustado pelo componente quando necessário
-      className: '',
-    })
-  }
-
-  get labelClasses() {
-    return getInputLabelThemeClasses({
-      hasErrors: this.hasErrors,
-      required: this.required,
-      className: '',
-    })
-  }
-
-  get containerClasses() {
-    return getInputContainerThemeClasses()
-  }
-
-  get errorClasses() {
-    return getInputErrorThemeClasses()
   }
 
   // Métodos de ação
@@ -236,8 +203,6 @@ class InputViewModel {
     this.updateValue(newValue)
   }
 
-
-
   // Validação básica
   validateInput() {
     this.clearErrors()
@@ -273,23 +238,17 @@ class InputViewModel {
       ...this.model.toJSON(),
       hasErrors: this.hasErrors,
       errorMessages: this.errorMessages,
-      classes: {
-        container: this.containerClasses,
-        label: this.labelClasses,
-        input: this.inputClasses,
-      }
     }
   }
 
   focus() {
-    // Retorna referência para focar o input
     return { focus: true }
   }
 }
 
 /**
  * Hook para gerenciar estado e interações do Input
- * Factory Pattern - cria o modelo internamente
+ * Retorna apenas dados e comportamento - SEM lógica de estilo
  */
 export function useInputViewModel(initialProps = {}) {
   const [viewModel] = useState(() => {
@@ -371,15 +330,16 @@ export function useInputViewModel(initialProps = {}) {
   }, [viewModel, refresh])
 
   const handleFocus = useCallback((event) => {
-    viewModel.handleFocus(event)
+    viewModel.handleFocus?.(event)
     refresh()
   }, [viewModel, refresh])
 
   const handleBlur = useCallback((event) => {
-    viewModel.handleBlur(event)
+    viewModel.handleBlur?.(event)
     refresh()
   }, [viewModel, refresh])
 
+  // Retorna apenas dados e comportamento
   return {
     // Data
     value: viewModel.value,
@@ -400,12 +360,6 @@ export function useInputViewModel(initialProps = {}) {
     hasErrors: viewModel.hasErrors,
     errorMessages: viewModel.errorMessages,
     isValid: viewModel.isValid,
-
-    // CSS Classes
-    containerClasses: viewModel.containerClasses,
-    labelClasses: viewModel.labelClasses,
-    inputClasses: viewModel.inputClasses,
-    errorClasses: viewModel.errorClasses,
 
     // Event Handlers
     handleChange,

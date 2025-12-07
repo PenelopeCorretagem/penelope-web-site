@@ -14,6 +14,12 @@
   --color-default-dark-muted: #3c3b3c;      /* Cinza escuro */
   --color-default-dark-light: #777676;      /* Cinza claro */
 
+  --text-form-control: 12px;
+  --text-form-control-md: 16px;
+
+  --text-button: 12px;
+  --text-button-md: 16px;
+
   --padding-section-y: 48px;
   --padding-section-x: 80px;
   --padding-section: 48px 80px;
@@ -23,16 +29,51 @@
 
   --padding-header: 16px 80px;
   --padding-header-md: 24px 104px;
+  --padding-header-y: 16px;
+  --padding-header-x: 80px;
+  --padding-header-y-md: 24px;
+  --padding-header-x-md: 104px;
 
-  --padding-button: 8px 16px;
-  --padding-button-x: 16px;
-  --padding-button-y: 8px;
-  --padding-button-md: 12px 24px;
-  --padding-button-x-md: 24px;
-  --padding-button-y-md: 12px;
+  --padding-filter: 16px 80px;
+  --padding-filter-md: 24px 104px;
+  --padding-filter-y: 16px;
+  --padding-filter-x: 80px;
+  --padding-filter-y-md: 24px;
+  --padding-filter-x-md: 104px;
+
+  --padding-button-rectangle: 8px 12px;
+  --padding-button-rectangle-x: 12px;
+  --padding-button-rectangle-y: 8px;
+  --padding-button-rectangle-md: 12px 20px;
+  --padding-button-rectangle-x-md: 20px;
+  --padding-button-rectangle-y-md: 12px;
+
+  --padding-button-square: 8px;
+  --padding-button-square-md: 12px;
+
+  --padding-button-circle: 8px;
+  --padding-button-circle-md: 12px;
+
+  --padding-input: 6px 12px;
+  --padding-input-x: 12px;
+  --padding-input-y: 6px;
+  --padding-input-md: 10px 20px;
+  --padding-input-x-md: 20px;
+  --padding-input-y-md: 10px;
+
+  --padding-select: 8px 12px;
+  --padding-select-x: 12px;
+  --padding-select-y: 8px;
+  --padding-select-md: 12px 20px;
+  --padding-select-x-md: 20px;
+  --padding-select-y-md: 12px;
+
 
   --gap-button: 8px;
   --gap-button-md: 12px;
+
+  --gap-select: 8px;
+  --gap-select-md: 12px;
 
   --padding-card: 16px;
   --padding-card-md: 24px;
@@ -43,8 +84,15 @@
   --gap-section: 100px;
   --gap-section-md: 120px;
 
+  --gap-section-row: 100px;
+  --gap-section-row-md: 120px;
+
+  --gap-section-col: 50px;
+  --gap-section-col-md: 60px;
+
   --gap-subsection: 24px;
   --gap-subsection-md: 36px;
+
 }
 
 /* Fontes personalizadas */
@@ -60,6 +108,33 @@
 @layer base {
   :where(*) {
     box-sizing: border-box;
+    line-height: 1;
+  }
+
+  :where(button){
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :where(input){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :where(select){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+     accent-color: #ff69b4; /* rosa */
+  }
+
+  :where(textarea){
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
   }
 }
 
@@ -86,6 +161,23 @@
   .animate-slideIn {
     animation: slideIn 0.7s;
   }
+
+  /* Animações de slide para o wizard */
+  .animate-slideInFromRight {
+    animation: slideInFromRight 0.3s ease-out forwards;
+  }
+
+  .animate-slideInFromLeft {
+    animation: slideInFromLeft 0.3s ease-out forwards;
+  }
+
+  .animate-slideOutToRight {
+    animation: slideOutToRight 0.3s ease-in forwards;
+  }
+
+  .animate-slideOutToLeft {
+    animation: slideOutToLeft 0.3s ease-in forwards;
+  }
 }
 
 @utility bg-distac-gradient {
@@ -103,6 +195,51 @@
   50%, 100% {
     opacity: 1;
     z-index: 50;
+  }
+}
+
+/* Wizard form animations */
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutToLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
   }
 }
 
@@ -128,4 +265,59 @@
   transition:
     padding-top 500ms ease-in-out,
     padding-bottom 500ms ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.35s ease-out;
+}
+
+/* Marquee Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* marquee track for property features */
+.property-features-marquee {
+  display: flex;
+  gap: var(--gap-card);
+  align-items: center;
+  /* start stopped — animation applied only on hover */
+  transform: translateX(0);
+  transition: transform 0.6s ease-out; /* volta suave ao estado inicial ao sair do hover */
+  will-change: transform;
+}
+
+/* ensure child items keep their intrinsic width for smooth scrolling */
+.property-features-marquee > * {
+  flex: 0 0 auto;
+}
+
+/* Only run the marquee on devices that support hover, and only while hovered.
+   Apply the animation on hover; when hover ends animation is removed and the
+   transition above smoothly returns the track to translateX(0). */
+@media (hover: hover) {
+  .group:hover .property-features-marquee {
+    animation: marquee 6s linear infinite;
+  }
+}
+
+/* mobile/medium spacing fallback (respect md:gap-card-md applied in markup) */
+@media (min-width: 768px) {
+  .property-features-marquee { gap: var(--gap-card-md); }
 }

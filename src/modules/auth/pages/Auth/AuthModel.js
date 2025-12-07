@@ -1,19 +1,26 @@
+import { RouterModel } from '@app/routes/RouterModel'
+import { validateEmail } from '@shared/utils/validateEmailUtil'
+import { validatePassword, validatePasswordConfirmation } from '@shared/utils/validatePasswordUtil'
+
 /**
  * AuthModel - Modelo de dados para autenticação
  * Gerencia os campos dos formulários e configurações de cada tipo de auth
  */
 export class AuthModel {
   constructor() {
+    this.routerModel = RouterModel.getInstance()
+
     this.authTypes = {
       LOGIN: 'login',
       REGISTER: 'register',
       FORGOT_PASSWORD: 'forgot_password'
     }
 
+    // Usar rotas do RouterModel em vez de hardcoded
     this.routes = {
-      [this.authTypes.LOGIN]: '/login',
-      [this.authTypes.REGISTER]: '/registro',
-      [this.authTypes.FORGOT_PASSWORD]: '/esqueci-senha'
+      [this.authTypes.LOGIN]: this.routerModel.getRoute('LOGIN'),
+      [this.authTypes.REGISTER]: this.routerModel.getRoute('REGISTER'),
+      [this.authTypes.FORGOT_PASSWORD]: this.routerModel.getRoute('FORGOT_PASSWORD')
     }
   }
 
@@ -24,6 +31,7 @@ export class AuthModel {
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        validate: validateEmail
       },
       {
         name: 'senha',
@@ -42,12 +50,26 @@ export class AuthModel {
         type: 'text',
         placeholder: 'Nome Completo:',
         required: true,
+        validate: (value) => {
+          if (!value || value.trim().length < 2) {
+            return 'Nome completo deve ter pelo menos 2 caracteres'
+          }
+          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value.trim())) {
+            return 'Nome deve conter apenas letras e espaços'
+          }
+          const nameParts = value.trim().split(/\s+/)
+          if (nameParts.length < 2) {
+            return 'Informe nome e sobrenome'
+          }
+          return true
+        }
       },
       {
         name: 'email',
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        validate: validateEmail
       },
       {
         name: 'senha',
@@ -55,20 +77,7 @@ export class AuthModel {
         placeholder: 'Senha:',
         required: true,
         showPasswordToggle: true,
-        // Validação robusta: min 8, uppercase, lowercase, digit, special char, no spaces
-        validate: (value) => {
-          if (!value) return false
-          const rules = []
-          if (value.length < 8) rules.push('pelo menos 8 caracteres')
-          if (!/[A-Z]/.test(value)) rules.push('uma letra maiúscula')
-          if (!/[a-z]/.test(value)) rules.push('uma letra minúscula')
-          if (!/\d/.test(value)) rules.push('um número')
-          if (!/[!@#$%^&*(),.?"':{}|<>\[\]\\/`~\-_=+;]/.test(value)) rules.push('um caractere especial')
-          if (/\s/.test(value)) rules.push('sem espaços em branco')
-
-          if (rules.length === 0) return true
-          return `A senha deve conter ${rules.join(', ')}`
-        },
+        validate: validatePassword
       },
       {
         name: 'confirmSenha',
@@ -77,9 +86,7 @@ export class AuthModel {
         required: true,
         showPasswordToggle: true,
         validate: (value, formData) => {
-          if (!value) return false
-          if (value !== formData.senha) return 'As senhas não coincidem.'
-          return true
+          return validatePasswordConfirmation(formData?.senha, value)
         }
       }
     ]
@@ -92,6 +99,7 @@ export class AuthModel {
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        validate: validateEmail
       }
     ]
   }
@@ -166,5 +174,30 @@ export class AuthModel {
 
   getRouteFromAuthType(authType) {
     return this.routes[authType] || this.routes[this.authTypes.LOGIN]
+  }
+
+  // Novos métodos para integração com RouterModel
+  getHomeRoute() {
+    return this.routerModel.getRoute('HOME')
+  }
+
+  getProfileRoute() {
+    return this.routerModel.getRoute('PROFILE')
+  }
+
+  getAdminPropertiesRoute() {
+    return this.routerModel.getRoute('ADMIN_PROPERTIES')
+  }
+
+  isPublicRoute(route) {
+    return this.routerModel.getPublicRoutes().includes(route)
+  }
+
+  isAuthRequiredRoute(route) {
+    return this.routerModel.getAuthRequiredRoutes().includes(route)
+  }
+
+  isAdminRequiredRoute(route) {
+    return this.routerModel.getAdminRequiredRoutes().includes(route)
   }
 }

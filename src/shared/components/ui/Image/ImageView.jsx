@@ -1,75 +1,48 @@
 import { Image } from 'lucide-react'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import {
-  getImageThemeClasses,
-  getImageContainerThemeClasses,
-  getImagePlaceholderThemeClasses,
-  getImagePlaceholderIconThemeClasses,
-  getImageDescriptionThemeClasses
-} from '@shared/styles/theme'
 
 /**
- * ImageView component renders an image with optional description and supports
- * multiple display modes: standard image or background image.
+ * ImageView component renders an image with optional description.
  * If no image source is provided, a placeholder with an icon is displayed.
  *
  * @param {Object} props - Component props.
  * @param {string} props.src - The URL of the image to display.
  * @param {string} [props.alt=''] - Alternative text describing the image for accessibility.
  * @param {string} [props.description] - Optional description text displayed below the image.
- * @param {string} [props.mode='auto'] - Display mode: 'image', 'background', or 'auto'.
- *   - 'image': renders a standard <img> element.
- *   - 'background': renders a <div> with the image as CSS background.
- *   - 'auto': decides automatically based on className patterns.
- * @param {string} [props.className=''] - Additional CSS classes for styling the image or container.
+ * @param {string} [props.className=''] - Additional CSS classes for styling the image.
  *
- * @returns {JSX.Element} - Returns an image, a background container, or a placeholder if no image is provided.
+ * @returns {JSX.Element} - Returns an image or a placeholder if no image is provided.
  *
  * @example
  * <ImageView src="photo.jpg" alt="A beautiful scenery" description="Sunset view" />
- * <ImageView mode="background" src="banner.jpg" className="bg-cover flex-1" />
  * <ImageView /> // Renders placeholder
  */
-export function ImageView({ src, alt = '', description, mode = 'auto', className = '' }) {
+export function ImageView({ src, alt = '', description, className = '' }) {
   const hasImage = !!src
   const hasDescription = description?.trim() !== ''
 
-  const isBackgroundMode =
-    mode === 'background' ||
-    (mode === 'auto' && (className.includes('bg-cover') || className.includes('flex-1')))
-
   if (!hasImage) {
     return (
-      <div className={getImagePlaceholderThemeClasses({ className })}>
-        <Image className={getImagePlaceholderIconThemeClasses()} />
+      <div className={`flex-1 flex items-center justify-center bg-default-light-secondary ${className}`}>
+        <Image className="w-[100px] h-[100px] text-default-light-tertiary" />
       </div>
     )
   }
 
-  if (isBackgroundMode) {
-    return (
-      <div
-        className={getImageThemeClasses({ mode: 'background', className })}
-        style={{ backgroundImage: `url(${src})` }}
-        role="img"
-        aria-label={alt}
-      />
-    )
-  }
-
   return (
-    <div className={getImageContainerThemeClasses()}>
+
+    <div className="flex flex-col gap-card md:gap-card-md bg-distac-gradient p-1 rounded-sm h-fit">
       <img
         src={src}
         alt={alt}
-        className={getImageThemeClasses({ mode: 'image', className })}
-        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+        className={`object-cover rounded-[2px] ${className}`}
       />
-      {hasDescription && (
-        <TextView className={getImageDescriptionThemeClasses()}>
-          {description}
-        </TextView>
-      )}
+      {hasDescription ?? (
+      <TextView className="text-default-dark-muted">
+        {description}
+      </TextView>
+      )
+      }
     </div>
   )
 }
