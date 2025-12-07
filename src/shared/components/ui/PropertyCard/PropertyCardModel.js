@@ -6,6 +6,7 @@ import { RouterModel } from '@app/routes/RouterModel'
 import { softDeleteAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
+import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 
@@ -27,15 +28,20 @@ const editButton = (realEstateAdvertisementId) => new ButtonModel(
   'Editar Imóvel'
 )
 
-const scheduleButton = (onClick = null) => new ButtonModel(
-  'Agendar Visita',
-  'brown',
-  'button',
-  null,
-  'rectangle',
-  'Agendar Visita',
-  onClick
-)
+const scheduleButton = (realEstateAdvertisement) => {
+  const propertyTitle = realEstateAdvertisement.estate?.title || 'imovel';
+  const propertySlug = generateSlug(propertyTitle);
+  const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?property=${propertySlug}`;
+
+  return new ButtonModel(
+    'Agendar Visita',
+    'brown',
+    'link',
+    scheduleUrl,
+    'rectangle',
+    'Agendar Visita'
+  );
+};
 
 const whatsAppButton = (onWhatsAppClick = null) => new ButtonModel(
   'Conversar pelo WhatsApp',
@@ -232,7 +238,7 @@ export class PropertyCardModel {
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))
-      buttons.push(scheduleButton())
+      buttons.push(scheduleButton(this.#realEstateAdvertisement))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.DETAILS) {
       buttons.push(galleryButton(this.#onGalleryClick))
       buttons.push(floorplanButton(this.#onFloorplanClick))

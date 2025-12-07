@@ -1,7 +1,6 @@
 import { useScheduleViewModel } from './useScheduleViewModel'
 import Cal from "@calcom/embed-react";
-import { useSearchParams, useLocation } from 'react-router-dom'
-import { generateSlug } from '@shared/utils/generateSlugUtil'
+import { useSearchParams } from 'react-router-dom'
 
 export function ScheduleView() {
   const {
@@ -16,14 +15,10 @@ export function ScheduleView() {
     monthCount,
   } = useScheduleViewModel()
 
-  // Busca possível slug do query param ou do state (quando navegando a partir do imóvel)
+  // Captura o slug do título do imóvel da URL (se existir)
   const [searchParams] = useSearchParams()
-  const location = useLocation()
-  const propertyParam = searchParams.get('property')
-  const propertyTitleFromState = location.state && location.state.propertyTitle
-  const propertySlug = propertyParam || (propertyTitleFromState ? generateSlug(propertyTitleFromState) : null)
-
-  const calLink = propertySlug ? `penelope-corretagem/${propertySlug}` : 'penelope-corretagem/'
+  const propertySlug = searchParams.get('property')
+  const calLink = propertySlug ? `penelope-corretagem/${propertySlug}` : 'penelope-corretagem'
 
   return (
     <div className="flex flex-col min-h-screen bg-page">

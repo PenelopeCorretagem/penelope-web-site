@@ -15,6 +15,7 @@ export const ROUTES = {
 
   // Protegidas - usuário comum
   SCHEDULE: { key: 'SCHEDULE', path: '/agenda', friendlyName: 'Agenda' },
+  SCHEDULE_PROPERTY: { key: 'SCHEDULE_PROPERTY', path: '/agenda/:title', friendlyName: 'Agendar Visita' },
   PROFILE: { key: 'PROFILE', path: '/meu-perfil', friendlyName: 'Meu Perfil' },
   ACCOUNT: { key: 'ACCOUNT', path: '/minha-conta', friendlyName: 'Minha Conta' },
 
