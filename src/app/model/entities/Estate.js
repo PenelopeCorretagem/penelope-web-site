@@ -112,6 +112,14 @@ export class Estate {
     )
   }
 
+  getImagesByType(typeDescription) {
+    if (!typeDescription) return []
+
+    return this.#images.filter(img =>
+      img.type?.description?.toLowerCase() === typeDescription.toLowerCase()
+    )
+  }
+
   /** Retorna a imagem de capa */
   getCoverImage() {
     return this.getImageByType(IMAGE_TYPES.COVER.description)
@@ -124,12 +132,12 @@ export class Estate {
 
   /** Retorna imagens de galeria */
   getGalleryImages() {
-    return this.getImageByType(IMAGE_TYPES.GALLERY.description)
+    return this.getImagesByType(IMAGE_TYPES.GALLERY.description)
   }
 
   /** Retorna imagens de planta */
   getFloorPlanImages() {
-    return this.getImageByType(IMAGE_TYPES.FLOOR_PLAN.description)
+    return this.getImagesByType(IMAGE_TYPES.FLOOR_PLAN.description)
   }
 
   isRealEstateInstance(object){

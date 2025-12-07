@@ -230,11 +230,12 @@ export function PropertyCardView({
         </div>
       ) : null}
 
-      {/* ✅ ADICIONADO - Lightbox com imagens da API */}
-      {showLightbox && (
+      {/* ✅ Lightbox com imagens da API */}
+      {viewModel.showLightbox && (
         <MediaLightboxView
-          onClose={() => setShowLightbox(false)}
-          medias={medias}
+          isOpen={viewModel.showLightbox}
+          medias={viewModel.medias}
+          onClose={() => viewModel.setShowLightbox(false)}
         />
       )}
     </div>

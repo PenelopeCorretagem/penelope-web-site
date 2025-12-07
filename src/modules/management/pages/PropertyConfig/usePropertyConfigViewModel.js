@@ -4,16 +4,19 @@ import { PropertyConfigModel } from './PropertyConfigModel'
 import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { uploadImages } from '@app/services/api/imageApi'
 import { getUsersWithCreci } from '@app/services/api/userApi'
+import { listAllFeatures } from '@app/services/api/featureAPI'
 
 export function usePropertyConfigViewModel(id) {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
   const [loadingUsers, setLoadingUsers] = useState(true)
+  const [loadingFeatures, setLoadingFeatures] = useState(true)
   const [error, setError] = useState(null)
   const [initialData, setInitialData] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [usersWithCreci, setUsersWithCreci] = useState([])
+  const [features, setFeatures] = useState([])
 
   const isNew = !id || id === 'novo' || id === 'new'
 
@@ -50,6 +53,29 @@ export function usePropertyConfigViewModel(id) {
     }
 
     loadUsers()
+  }, [])
+
+  // Carregar features
+  useEffect(() => {
+    const loadFeatures = async () => {
+      try {
+        setLoadingFeatures(true)
+        console.log('🔄 [PROPERTY CONFIG VM] Loading features...')
+
+        const featuresList = await listAllFeatures()
+
+        console.log('✅ [PROPERTY CONFIG VM] Features loaded:', featuresList.length)
+        setFeatures(featuresList)
+      } catch (err) {
+        console.error('❌ [PROPERTY CONFIG VM] Failed to load features:', err)
+        showToast('error', 'Erro ao carregar diferenciais')
+        setFeatures([])
+      } finally {
+        setLoadingFeatures(false)
+      }
+    }
+
+    loadFeatures()
   }, [])
 
   // Carregar dados da propriedade (se editando)
@@ -240,11 +266,13 @@ export function usePropertyConfigViewModel(id) {
   return {
     loading,
     loadingUsers,
+    loadingFeatures,
     error,
     initialData: initialData?.toFormData(),
     submitting,
     isNew,
     usersWithCreci,
+    features,
     handleSubmit,
     handleDelete: isNew ? undefined : handleDelete, // Only provide delete for existing items
     handleClear,

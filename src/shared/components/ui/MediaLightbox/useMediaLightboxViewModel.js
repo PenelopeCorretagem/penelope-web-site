@@ -33,7 +33,9 @@ export function useMediaLightboxViewModel({ isOpen, medias = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
-    if (isOpen) setCurrentIndex(0)
+    if (isOpen) {
+      setCurrentIndex(0)
+    }
   }, [isOpen])
 
   const handleNext = useCallback(() => {
@@ -44,11 +46,9 @@ export function useMediaLightboxViewModel({ isOpen, medias = [] }) {
     setCurrentIndex(i => (i - 1 + medias.length) % medias.length)
   }, [medias.length])
 
-  // prepara a mídia atual: converte youtube para embed
   const rawCurrent = medias[currentIndex]
   const currentMedia = isYouTubeUrl(rawCurrent) ? toYouTubeEmbed(rawCurrent) : rawCurrent
 
-  // isCurrentVideo true para mp4 ou youtube
   const isCurrentVideo = typeof currentMedia === 'string' && (
     (currentMedia.toLowerCase().endsWith('.mp4')) ||
     isYouTubeUrl(rawCurrent)

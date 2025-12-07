@@ -51,6 +51,7 @@ const galleryButton = (onClick = null) => new ButtonModel(
   'Galeria',
   'white',
   'button',
+  null,
   'rectangle',
   'Galeria',
   onClick
@@ -60,6 +61,7 @@ const floorplanButton = (onClick = null) => new ButtonModel(
   'Planta',
   'white',
   'button',
+  null,
   'rectangle',
   'Planta',
   onClick
@@ -69,6 +71,7 @@ const videoButton = (onClick = null) => new ButtonModel(
   'Vídeo',
   'white',
   'button',
+  null,
   'rectangle',
   'Vídeo',
   onClick
@@ -111,12 +114,14 @@ export class PropertyCardModel {
   #onVideoClick
   #onGalleryClick
   #onFloorplanClick
-  #showMediaLightbox
 
   constructor({
     realEstateAdvertisement,
     realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
-    onWhatsAppClick = null
+    onWhatsAppClick = null,
+    onGalleryClick = null,
+    onFloorplanClick = null,
+    onVideoClick = null
   }) {
     validateRealEstateAdvertisementInstance(realEstateAdvertisement)
     validateRealStateCardMode(realStateCardMode)
@@ -124,6 +129,9 @@ export class PropertyCardModel {
     this.#realEstateAdvertisement = realEstateAdvertisement
     this.#realStateCardMode = realStateCardMode
     this.#onWhatsAppClick = onWhatsAppClick
+    this.#onGalleryClick = onGalleryClick
+    this.#onFloorplanClick = onFloorplanClick
+    this.#onVideoClick = onVideoClick
     this.#realStateCardCategory = new LabelModel(
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
@@ -153,10 +161,6 @@ export class PropertyCardModel {
   get renderRealStateCardCategoryLabel() { return this.#renderRealStateCardCategoryLabel }
   get renderRealStateCardCoverImage() { return this.#renderRealStateCardCoverImage }
   get renderRealStateCardFeatures() { return this.#renderRealStateCardFeatures }
-  get showMediaLightbox() { return this.#showMediaLightbox }
-  get onVideoClick() { return this.#onVideoClick }
-  get onGalleryClick() { return this.#onGalleryClick }
-  get onFloorplanClick() { return this.#onFloorplanClick }
 
   // ===== SETTERS =====
   set realEstateAdvertisement(value) {
@@ -191,10 +195,6 @@ export class PropertyCardModel {
   set realStateCardDescription(value) { this.#realStateCardDescription = value }
   set realStateCardFeatures(value) { this.#realStateCardFeatures = value }
   set realStateCardCoverImageUrl(value) { this.#realStateCardCoverImageUrl = value }
-  set showMediaLightbox(value) { this.#showMediaLightbox = value }
-  set onVideoClick(value) { this.#onVideoClick = value}
-  set onGalleryClick(value) { this.#onGalleryClick = value}
-  set onFloorplanClick(value) { this.#onFloorplanClick = value}
 
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
   async softDelete() {
@@ -220,7 +220,6 @@ export class PropertyCardModel {
     const buttons = []
     if (this.#realStateCardMode === REAL_STATE_CARD_MODES.CONFIG) {
       buttons.push(editButton(this.#realEstateAdvertisement.id))
-      // cria o botão de exclusão com handler ligado à instância do modelo
       buttons.push(new ButtonModel(
         'Excluir Imóvel',
         'soft-brown',

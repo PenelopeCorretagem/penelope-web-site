@@ -10,10 +10,19 @@ export function usePropertyCardViewModel(
 ) {
   const navigate = useNavigate()
   const [showLightbox, setShowLightbox] = useState(false)
-  let medias
-  // const onVideoClick =
-  const onGalleryClick = ()=>{ setShowLightbox(true), medias = realEstateAdvertisement?.estate?.getGalleryImages(), console.log('galeria foi')}
-  const onFloorplanClick = ()=>{ setShowLightbox(true), medias = realEstateAdvertisement?.estate?.getFloorPlanImages(), console.log('planta foi')}
+  const [medias, setMedias] = useState([])
+
+  const onGalleryClick = () => {
+    const galleryImages = realEstateAdvertisement?.estate?.getGalleryImages?.() || []
+    setMedias(Array.isArray(galleryImages) ? galleryImages : [galleryImages])
+    setShowLightbox(true)
+  }
+
+  const onFloorplanClick = () => {
+    const floorplanImages = realEstateAdvertisement?.estate?.getFloorPlanImages?.() || []
+    setMedias(Array.isArray(floorplanImages) ? floorplanImages : [floorplanImages])
+    setShowLightbox(true)
+  }
 
   const onScheduleClick = useMemo(() => {
     if (realStateCardMode !== REAL_STATE_CARD_MODES.REDIRECTION) return null
@@ -37,9 +46,8 @@ export function usePropertyCardViewModel(
       onWhatsAppClick,
       onFloorplanClick,
       onGalleryClick
-
     }),
-    [realEstateAdvertisement, realStateCardMode, onWhatsAppClick]
+    [realEstateAdvertisement, realStateCardMode, onWhatsAppClick, onFloorplanClick, onGalleryClick]
   )
 
   return {

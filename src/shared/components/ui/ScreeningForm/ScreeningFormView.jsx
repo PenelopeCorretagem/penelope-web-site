@@ -9,14 +9,14 @@ import { LogoView } from '@shared/components/ui/Logo/LogoView'
 
 import { useScreeningFormViewModel } from './useScreeningFormViewModel'
 
-export function ScreeningFormView({ onClose, property = null }) {
+export function ScreeningFormView({ onClose, realEstateAdvertisement = null }) {
 
   const {
     fieldsColumn1,
     fieldsColumn2,
     handleFieldChange,
     enviarWhatsApp
-  } = useScreeningFormViewModel(property)
+  } = useScreeningFormViewModel(realEstateAdvertisement)
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
