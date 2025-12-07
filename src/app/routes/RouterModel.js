@@ -37,6 +37,7 @@ export class RouterModel {
 
       // Rotas protegidas - usuário comum
       SCHEDULE: '/agenda',
+      SCHEDULE_PROPERTY: '/agenda/:title',
       PROFILE: '/meu-perfil',
       ACCOUNT: '/minha-conta',
 
@@ -76,6 +77,7 @@ export class RouterModel {
       ],
       authRequiredRoutes: [
         this.routes.SCHEDULE,
+        this.routes.SCHEDULE_PROPERTY,
         this.routes.PROFILE,
         this.routes.ACCOUNT,
       ],
