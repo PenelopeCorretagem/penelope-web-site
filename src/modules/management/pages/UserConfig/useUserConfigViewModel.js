@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
 import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+import { registerUser, updateUser, deleteUser, getUserById }  from '@app/services/api/userApi'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()
@@ -22,34 +23,19 @@ export function useUserConfigViewModel() {
       setLoading(true)
       // TODO: Replace with actual API call
       setTimeout(() => {
-        const mockUser = {
-          id: id,
-          name: 'Usuário Exemplo',
-          email: 'usuario@exemplo.com',
-          phone: '11987654321',
-          cpf: '12345678909',
-          dateBirth: '1990-01-01',
-          monthlyIncome: 5000,
-          accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
-          creci: id === '1' ? '123456' : ''
-        }
-
-        const userModel = UserConfigModel.fromApiData(mockUser)
-        setModel(userModel)
-
-        // Format data for form display
-        setFormData({
-          name: userModel.name,
-          email: userModel.email,
-          phone: userModel.phone,
-          creci: userModel.creci,
-          cpf: userModel.cpf,
-          dateBirth: userModel.dateBirth,
-          monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
-          accessLevel: userModel.accessLevel,
-          passowrd: '' // Sempre vazio por segurança no modo edição
+        getUserById(id).then((userData) => {
+          setFormData({
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            creci: userData.creci || '',
+            cpf: userData.cpf || '',
+            dateBirth: userData.dateBirth || '',
+            monthlyIncome: userData.monthlyIncome || '',
+            accessLevel: userData.accessLevel || 'CLIENTE',
+            password: ''
+          })
         })
-
         setLoading(false)
       }, 500)
     } else {
@@ -88,14 +74,12 @@ export function useUserConfigViewModel() {
       // Convert to API format
       const apiData = userModel.toApiFormat()
 
-      // Só incluir senha na API se foi fornecida no modo edição
-      if (isEditMode && data.senha && data.senha.trim() !== '') {
-        apiData.senha = data.senha.trim()
+      // Call API
+      if (isEditMode) {
+        await updateUser(id, apiData)
+      } else {
+        await registerUser(apiData)
       }
-
-      // TODO: Replace with actual API calls
-      console.log('Saving user data:', apiData)
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
       setAlertConfig({
         type: 'success',
@@ -111,8 +95,6 @@ export function useUserConfigViewModel() {
         message: isEditMode ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!'
       }
     } catch (error) {
-      console.error('Erro ao salvar usuário:', error)
-
       setAlertConfig({
         type: 'error',
         message: error.message || 'Erro ao salvar usuário'
@@ -133,9 +115,7 @@ export function useUserConfigViewModel() {
     try {
       setLoading(true)
 
-      // TODO: Replace with actual API call
-      console.log('Deleting user:', id)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await deleteUser(id)
 
       setAlertConfig({
         type: 'success',
@@ -146,8 +126,6 @@ export function useUserConfigViewModel() {
         navigateTo(routes.ADMIN_USERS)
       }, 2000)
     } catch (error) {
-      console.error('Erro ao excluir usuário:', error)
-
       setAlertConfig({
         type: 'error',
         message: error.message || 'Erro ao excluir usuário'
