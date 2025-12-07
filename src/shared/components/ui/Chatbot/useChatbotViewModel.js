@@ -20,9 +20,7 @@ export function useChatbotViewModel() {
     setMessages((prev) => [...prev, { sender: 'user', text: option }])
     setIsTyping(true)
 
-    const nextStep = chatbotModel.stepMap[option]
-
-    if (!nextStep) return
+    const nextStep = chatbotModel.stepMap[option] || 'falha'
 
     const botText = chatbotModel.responses[nextStep].botResponse
 
