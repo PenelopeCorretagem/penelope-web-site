@@ -13,9 +13,8 @@ import { validatePassword } from '@shared/utils/validatePasswordUtil'
 export class AccountModel {
   constructor(accountData = {}) {
     this.email = accountData.email || ''
-    // Senhas NUNCA são preenchidas automaticamente por segurança
-    this.currentPassword = ''
-    this.newPassword = ''
+    this.currentPassword = accountData.currentPassword || ''
+    this.newPassword = accountData.newPassword || ''
   }
 
   /**

@@ -24,7 +24,7 @@ export class UserConfigModel {
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
     this.accessLevel = userData.accessLevel || 'CLIENTE'
-    this.senha = '' // Sempre vazio por segurança
+    this.senha = userData.senha || ''
   }
 
   /**
