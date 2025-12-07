@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 
+const DEFAULT_VIDEO = 'https://www.youtube.com/embed/NA0u8QCrZfY'
+
 export function usePropertyCardViewModel(
   realEstateAdvertisement,
   realStateCardMode,
@@ -21,6 +23,16 @@ export function usePropertyCardViewModel(
   const onFloorplanClick = () => {
     const floorplanImages = realEstateAdvertisement?.estate?.getFloorPlanImages?.() || []
     setMedias(Array.isArray(floorplanImages) ? floorplanImages : [floorplanImages])
+    setShowLightbox(true)
+  }
+
+  const onVideoClick = () => {
+    setMedias([
+      {
+        type: 'video',
+        url: DEFAULT_VIDEO
+      }
+    ])
     setShowLightbox(true)
   }
 
@@ -45,9 +57,16 @@ export function usePropertyCardViewModel(
       realStateCardMode,
       onWhatsAppClick,
       onFloorplanClick,
-      onGalleryClick
+      onGalleryClick,
+      onVideoClick, // ✅ injeta o mock no model
     }),
-    [realEstateAdvertisement, realStateCardMode, onWhatsAppClick, onFloorplanClick, onGalleryClick]
+    [
+      realEstateAdvertisement,
+      realStateCardMode,
+      onWhatsAppClick,
+      onFloorplanClick,
+      onGalleryClick
+    ]
   )
 
   return {
