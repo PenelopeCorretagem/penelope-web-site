@@ -58,19 +58,19 @@ export const userMapper = {
     }
 
     const payload = {
-      nomeCompleto: user.name || user.nomeCompleto,
+      name: user.name || user.nomeCompleto,
       email: user.email,
       cpf: user.cpf,
-      dtNascimento: user.dateBirth || user.dtNascimento,
+      dateBirth: user.dateBirth || user.dtNascimento,
       phone: user.phone,
       creci: user.creci,
-      rendaMensal: user.monthlyIncome || user.rendaMensal,
+      monthlyIncome: user.monthlyIncome || user.rendaMensal,
       accessLevel: user.accessLevel,
     }
 
     // Incluir senha se estiver presente
     if (user.senha) {
-      payload.senha = user.senha
+      payload.password = user.senha
     }
 
     return payload

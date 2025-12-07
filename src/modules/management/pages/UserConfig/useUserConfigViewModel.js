@@ -23,31 +23,19 @@ export function useUserConfigViewModel() {
       setLoading(true)
       // TODO: Replace with actual API call
       setTimeout(() => {
-        const mockUser = {
-          id: id,
-          name: 'Usuário Exemplo',
-          email: 'usuario@exemplo.com',
-          phone: '11987654321',
-          cpf: '12345678909',
-          dateBirth: '1990-01-01',
-          monthlyIncome: 5000,
-          accessLevel: id === '1' ? 'ADMINISTRADOR' : 'CLIENTE',
-          creci: id === '1' ? '123456' : ''
-        }
-      } else {
-        // Initialize empty form for add mode
-        setFormData({
-          name: userModel.name,
-          email: userModel.email,
-          phone: userModel.phone,
-          creci: userModel.creci,
-          cpf: userModel.cpf,
-          dateBirth: userModel.dateBirth,
-          monthlyIncome: formatCurrencyForDisplay(userModel.monthlyIncome),
-          accessLevel: userModel.accessLevel,
-          passowrd: '' // Sempre vazio por segurança no modo edição
+        getUserById(id).then((userData) => {
+          setFormData({
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            creci: userData.creci || '',
+            cpf: userData.cpf || '',
+            dateBirth: userData.dateBirth || '',
+            monthlyIncome: userData.monthlyIncome || '',
+            accessLevel: userData.accessLevel || 'CLIENTE',
+            password: ''
+          })
         })
-
         setLoading(false)
       }, 500)
     } else {
@@ -64,8 +52,6 @@ export function useUserConfigViewModel() {
         password: ''
       })
     }
-
-    loadUserData()
   }, [isEditMode, id])
 
   // Get form fields based on mode and user access level
