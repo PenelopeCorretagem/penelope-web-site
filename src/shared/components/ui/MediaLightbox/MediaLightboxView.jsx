@@ -25,7 +25,7 @@ export function MediaLightboxView({ isOpen = true, medias = [], onClose }) {
 
   return createPortal(
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[99999]">
-      <div className="relative bg-black rounded-lg border-4 border-distac-primary w-5/6 max-w-6xl h-4/5 flex flex-col items-center justify-center shadow-2xl">
+      <div className="relative bg-default-dark rounded-lg border-4 border-distac-primary w-5/6 max-w-6xl h-4/5 flex flex-col items-center justify-center shadow-2xl">
         <ButtonView
           shape="square"
           width="fit"
@@ -98,7 +98,7 @@ export function MediaLightboxView({ isOpen = true, medias = [], onClose }) {
         </div>
 
 
-        <div className="absolute bottom-6 text-white text-lg font-medium">
+        <div className="absolute bottom-6 text-default-light text-lg font-medium">
           {currentIndex + 1}/{normalizedMedias.length}
         </div>
       </div>
