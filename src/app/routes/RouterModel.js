@@ -242,4 +242,16 @@ export class RouterModel {
 
     return params
   }
+
+  navigateTo(routeName, params = {}) {
+    const path = this.generateRoute(routeName, params)
+
+    if (!path) return
+
+    window.history.pushState({}, '', path)
+    this.setCurrentRoute(path)
+
+    // Dispara evento para o React Router reagir
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
 }
