@@ -63,10 +63,13 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
 
     const route = getRouteOrFallback(actionRoute, actionRouteParams)
     try {
-      router.navigateTo(route)
+      window.history.pushState({}, '', route)
+      router.setCurrentRoute(route)
+      window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (e) {
       console.error('Erro ao navegar:', e)
     }
+
   }
 
   if (!realEstateAdvertisements || realEstateAdvertisements.length === 0) {

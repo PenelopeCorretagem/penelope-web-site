@@ -86,6 +86,7 @@ export const PropertiesView = () => {
             <PropertiesCarouselView
               realEstateAdvertisements={lancamentos}
               titleCarousel="Lançamentos"
+              showActionButton={false}
             />
           </div>
         </SectionView>
@@ -97,6 +98,7 @@ export const PropertiesView = () => {
             <PropertiesCarouselView
               realEstateAdvertisements={disponiveis}
               titleCarousel="Disponíveis"
+              showActionButton={false}
             />
           </div>
         </SectionView>
@@ -108,6 +110,7 @@ export const PropertiesView = () => {
             <PropertiesCarouselView
               realEstateAdvertisements={emObras}
               titleCarousel="Em Obras"
+              showActionButton={false}
             />
           </div>
         </SectionView>
