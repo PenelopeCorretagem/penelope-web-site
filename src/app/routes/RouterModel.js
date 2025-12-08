@@ -251,7 +251,6 @@ export class RouterModel {
     window.history.pushState({}, '', path)
     this.setCurrentRoute(path)
 
-    // Dispara evento para o React Router reagir
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 }
