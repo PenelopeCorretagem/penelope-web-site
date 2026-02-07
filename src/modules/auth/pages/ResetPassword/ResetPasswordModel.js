@@ -140,14 +140,14 @@ export class ResetPasswordModel {
   }
 
   getResetPasswordRoute() {
-    return this.routerModel.get('RESET_PASSWORD')
+    return this.routerModel.getRoute('RESET_PASSWORD')
   }
 
   getLoginRoute() {
-    return this.routerModel.get('LOGIN')
+    return this.routerModel.getRoute('LOGIN')
   }
 
   getForgotPasswordRoute() {
-    return this.routerModel.get('FORGOT_PASSWORD')
+    return this.routerModel.getRoute('FORGOT_PASSWORD')
   }
 }

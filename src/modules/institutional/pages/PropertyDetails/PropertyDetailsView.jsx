@@ -240,7 +240,7 @@ export function PropertyDetailsView() {
                 <X size={24} />
               </button>
             </div>
-            <ScreeningFormView onClose={() => setIsScreeningFormOpen(false)} />
+            <ScreeningFormView realEstateAdvertisement={realEstateAdvertisement} onClose={() => setIsScreeningFormOpen(false)} />
           </div>
         </div>
       )}

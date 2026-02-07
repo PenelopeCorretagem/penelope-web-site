@@ -357,7 +357,7 @@ export function WizardFormView(props) {
             </label>
           )}
           <div className="w-full bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200">
-            <div className="flex !w-fit gap-3">
+            <div className={field.groupClassName || 'flex flex-wrap gap-3 md:gap-4'}>
               {(field.options || []).map(option => (
                 <InputView
                   key={option.value}

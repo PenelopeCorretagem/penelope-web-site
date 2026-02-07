@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ScreeningFormModel } from './ScreeningFormModel'
 import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
 
-export function useScreeningFormViewModel(property) {
+export function useScreeningFormViewModel(realEstateAdvertisement) {
 
   const [formData, setFormData] = useState(ScreeningFormModel.defaultFormData)
 
@@ -21,14 +21,14 @@ export function useScreeningFormViewModel(property) {
       return
     }
 
-    let propertyInfo = ''
-    if (property && property.title) {
-      propertyInfo = `Imóvel: ${property.title}\n\n`
+    let realEstateAdvertisementInfo = ''
+    if (realEstateAdvertisement && realEstateAdvertisement?.estate?.title) {
+      realEstateAdvertisementInfo = `Imóvel: ${realEstateAdvertisement.estate.title}\n\n`
     }
 
     const mensagem = [
       'Olá! Segue minha triagem:',
-      propertyInfo,
+      realEstateAdvertisementInfo,
       `Nome: ${nome || ''} ${sobrenome || ''}`,
       `Cpf: ${cpf || ''}`,
       `E-mail: ${email || ''}`,
@@ -36,7 +36,7 @@ export function useScreeningFormViewModel(property) {
       `Renda média mensal: ${rendaMed || ''}`
     ].join('\n')
 
-    const numero = '5511985600810'
+    const numero = '5511927419606'
     const url = generateWhatsAppLink(numero, mensagem)
 
     window.open(url, '_blank')

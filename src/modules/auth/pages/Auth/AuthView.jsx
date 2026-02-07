@@ -50,11 +50,11 @@ export function AuthView() {
 
   return (
     <SectionView className="h-screen w-screen flex items-center justify-center overflow-hidden !p-0 !gap-0 md:!p-0 md:!gap-0">
-      <div className={getAuthContainerThemeClasses({ isActive })}>
+      <div className={getAuthContainerThemeClasses({ isActive: isActive || isForgotPassword })}>
 
         {/* Sign In Form */}
         <SignInPanel
-          isActive={isActive}
+          isActive={isActive || isForgotPassword}
           signInFormConfig={signInFormConfig}
           isLoading={isLoading}
           onForgotPassword={handleForgotPasswordClick}
@@ -63,7 +63,7 @@ export function AuthView() {
 
         {/* Sign Up Form / Forgot Password Form */}
         <SignUpPanel
-          isActive={isActive}
+          isActive={isActive || isForgotPassword}
           signUpFormConfig={signUpFormConfig}
           isLoading={isLoading}
           isForgotPassword={isForgotPassword}
@@ -75,22 +75,22 @@ export function AuthView() {
         />
 
         {/* Toggle Container */}
-        <div className={getAuthToggleContainerThemeClasses({ isActive })}>
-          <div className={getAuthGradientThemeClasses({ isActive })}>
+        <div className={getAuthToggleContainerThemeClasses({ isActive: isActive || isForgotPassword })}>
+          <div className={getAuthGradientThemeClasses({ isActive: isActive || isForgotPassword })}>
 
             {/* Toggle Left Panel */}
             <TogglePanelLeft
               content={leftPanelContent}
               onRegister={handleRegisterClick}
               onLogin={handleLoginClick}
-              isActive={isActive}
+              isActive={isActive || isForgotPassword}
             />
 
             {/* Toggle Right Panel */}
             <TogglePanelRight
               content={rightPanelContent}
               onRegister={handleRegisterClick}
-              isActive={isActive}
+              isActive={isActive || isForgotPassword}
               variant="auth"
             />
 

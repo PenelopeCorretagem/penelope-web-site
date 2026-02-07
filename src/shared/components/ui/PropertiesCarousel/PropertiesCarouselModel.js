@@ -7,15 +7,7 @@ import { ESTATE_TYPES } from '@constant/estateTypes'
 const generateRoute = (routeName, param) =>
   RouterModel.getInstance().generateRoute(routeName, param)
 
-/**
- * @summary Model responsável pelo estado e lógica do carrossel de imóveis.
- *
- * - Gerencia anúncios exibidos.
- * - Controla o modo do card, scroll, índice atual e título dinâmico.
- * - Encapsula toda lógica de navegação e cálculo de progresso.
- */
 export class PropertiesCarouselModel {
-  // Campos privados
   #realEstateAdvertisements = []
   #realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT
   #currentIndex = 0
@@ -34,16 +26,9 @@ export class PropertiesCarouselModel {
     this.realEstateAdvertisements = realEstateAdvertisements
     this.realStateCardMode = realStateCardMode
     this.containerRef = containerRef
-
     this.#callToActionButton = this.#createDefaultCTAButton()
-
-    // Se não veio título, gera automaticamente
     this.titleCarousel = titleCarousel
   }
-
-  // ========================================================================
-  // UTILITÁRIOS PRIVADOS
-  // ========================================================================
 
   #createDefaultCTAButton() {
     return new ButtonModel(
@@ -56,18 +41,12 @@ export class PropertiesCarouselModel {
     )
   }
 
-  /**
-   * Conta quantos itens possuem um determinado tipo de imóvel.
-   */
   #countByEstateType(type) {
     return this.#realEstateAdvertisements.filter(
       ad => ad?.estate?.type === type
     ).length
   }
 
-  /**
-   * Gera automaticamente um título baseado no tipo predominante.
-   */
   #generateAutoTitle() {
     const total = this.#realEstateAdvertisements.length
     if (total === 0) return ''
@@ -95,7 +74,6 @@ export class PropertiesCarouselModel {
 
   set realEstateAdvertisements(value) {
     this.#realEstateAdvertisements = Array.isArray(value) ? value : []
-    // Atualiza título se estiver automático
     if (!this.#titlePassedManually) {
       this.#titleCarousel = this.#generateAutoTitle()
     }
@@ -106,19 +84,16 @@ export class PropertiesCarouselModel {
   }
 
   set realStateCardMode(value) {
-    // aceita string chave ou já o objeto enum; tenta normalizar
     if (!value) {
       this.#realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT
       return
     }
 
-    // se foi passado o objeto (assumindo já mapeado)
     if (Object.values(REAL_STATE_CARD_MODES).includes(value)) {
       this.#realStateCardMode = value
       return
     }
 
-    // se foi passado a chave (string)
     this.#realStateCardMode =
       REAL_STATE_CARD_MODES[value] || REAL_STATE_CARD_MODES.DEFAULT
   }
@@ -165,7 +140,6 @@ export class PropertiesCarouselModel {
       typeof value === 'string'
 
     this.#titlePassedManually = hasValue
-
     this.#titleCarousel = hasValue ? value : this.#generateAutoTitle()
   }
 
@@ -212,7 +186,7 @@ export class PropertiesCarouselModel {
   }
 
   // ========================================================================
-  // SCROLL E NAVEGAÇÃO
+  // SCROLL E NAVEGAÇÃO - VERSÃO CORRIGIDA
   // ========================================================================
 
   checkScrollProgress = () => {
@@ -231,52 +205,144 @@ export class PropertiesCarouselModel {
     this.#scrollProgress = Math.round(progress)
   }
 
+  // ✅ CORREÇÃO 1: Scroll baseado em largura calculada ao invés de buscar elementos
   scrollToLeft = () => {
     const container = this.#containerRef?.current
     if (!container) return
 
-    const targetCard = this.#getAdjacentCard(-1)
-    if (!targetCard) return
+    const { scrollLeft, clientWidth } = container
 
-    container.scrollTo({ left: targetCard.offsetLeft, behavior: 'smooth' })
+    // Calcula quanto scrollar (aproximadamente 1 card + gap)
+    const scrollAmount = clientWidth * 0.8 // 80% da largura visível
+
+    const targetScroll = Math.max(0, scrollLeft - scrollAmount)
+
+    container.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    })
   }
 
   scrollToRight = () => {
     const container = this.#containerRef?.current
     if (!container) return
 
-    const targetCard = this.#getAdjacentCard(1)
-    if (!targetCard) return
+    const { scrollLeft, scrollWidth, clientWidth } = container
+    const maxScroll = scrollWidth - clientWidth
 
-    container.scrollTo({ left: targetCard.offsetLeft, behavior: 'smooth' })
+    // Calcula quanto scrollar (aproximadamente 1 card + gap)
+    const scrollAmount = clientWidth * 0.8 // 80% da largura visível
+
+    const targetScroll = Math.min(maxScroll, scrollLeft + scrollAmount)
+
+    container.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    })
   }
 
-  // Utilitário central para achar card anterior / próximo
-  #getAdjacentCard(direction) {
+  // ✅ CORREÇÃO 2: Método alternativo que tenta encontrar cards reais
+  // Use este se preferir scroll baseado em cards específicos
+  scrollToLeftByCard = () => {
+    const container = this.#containerRef?.current
+    if (!container) return
+
+    const cards = this.#getAllCards()
+    if (cards.length === 0) {
+      // Fallback para scroll fixo
+      this.scrollToLeft()
+      return
+    }
+
+    const targetCard = this.#getAdjacentCard(-1, cards)
+    if (!targetCard) return
+
+    container.scrollTo({
+      left: targetCard.offsetLeft - 32, // 32px de padding/margem
+      behavior: 'smooth'
+    })
+  }
+
+  scrollToRightByCard = () => {
+    const container = this.#containerRef?.current
+    if (!container) return
+
+    const cards = this.#getAllCards()
+    if (cards.length === 0) {
+      // Fallback para scroll fixo
+      this.scrollToRight()
+      return
+    }
+
+    const targetCard = this.#getAdjacentCard(1, cards)
+    if (!targetCard) return
+
+    container.scrollTo({
+      left: targetCard.offsetLeft - 32, // 32px de padding/margem
+      behavior: 'smooth'
+    })
+  }
+
+  // ✅ CORREÇÃO 3: Método robusto para encontrar todos os cards
+  #getAllCards() {
+    const container = this.#containerRef?.current
+    if (!container) return []
+
+    // Tenta múltiplos seletores para encontrar os cards
+    const selectors = [
+      '.flex-shrink-0',
+      '[role="group"]',
+      '[data-card]',
+      '> div > *' // Filhos diretos do container interno
+    ]
+
+    for (const selector of selectors) {
+      const cards = container.querySelectorAll(selector)
+      if (cards.length > 0) {
+        return Array.from(cards)
+      }
+    }
+
+    // Último recurso: pega todos os filhos diretos
+    const innerContainer = container.querySelector('div')
+    if (innerContainer) {
+      return Array.from(innerContainer.children)
+    }
+
+    return []
+  }
+
+  // ✅ CORREÇÃO 4: Método melhorado para achar card adjacente
+  #getAdjacentCard(direction, cards = null) {
     const container = this.#containerRef?.current
     if (!container) return null
 
-    const cards = container.querySelectorAll('.flex-shrink-0')
-    if (cards.length === 0) return null
+    const allCards = cards || this.#getAllCards()
+    if (allCards.length === 0) return null
 
     const currentScrollLeft = container.scrollLeft
+    const containerCenter = currentScrollLeft + (container.clientWidth / 2)
 
     let closestIndex = 0
     let minDistance = Infinity
 
-    for (let i = 0; i < cards.length; i++) {
-      const distance = Math.abs(cards[i].offsetLeft - currentScrollLeft)
+    // Encontra o card mais próximo do centro da viewport
+    for (let i = 0; i < allCards.length; i++) {
+      const cardCenter = allCards[i].offsetLeft + (allCards[i].offsetWidth / 2)
+      const distance = Math.abs(cardCenter - containerCenter)
+
       if (distance < minDistance) {
         minDistance = distance
         closestIndex = i
       }
     }
 
+    // Calcula o índice alvo
     const targetIndex = Math.min(
-      cards.length - 1,
+      allCards.length - 1,
       Math.max(0, closestIndex + direction)
     )
 
-    return cards[targetIndex] || null
+    return allCards[targetIndex] || null
   }
 }

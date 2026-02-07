@@ -1,4 +1,5 @@
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { useState } from 'react'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
@@ -6,17 +7,21 @@ import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 import { Pencil, X, Check } from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { PropertyFeatureView } from '@shared/components/ui//PropertyFeature/PropertyFeatureView'
+import { MediaLightboxView } from '@shared/components/ui//MediaLightbox/MediaLightboxView'
 
 export function PropertyCardView({
   realEstateAdvertisement,
   realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
   className = '',
   onWhatsAppClick = null,
+  medias,
+  showLightbox,
+  setShowLightbox,
 }) {
   const viewModel = usePropertyCardViewModel(
     realEstateAdvertisement,
     realStateCardMode,
-    onWhatsAppClick
+    onWhatsAppClick,
   )
 
   const containerClasses = () => {
@@ -224,6 +229,15 @@ export function PropertyCardView({
           )}
         </div>
       ) : null}
+
+      {/* ✅ Lightbox com imagens da API */}
+      {viewModel.showLightbox && (
+        <MediaLightboxView
+          isOpen={viewModel.showLightbox}
+          medias={viewModel.medias}
+          onClose={() => viewModel.setShowLightbox(false)}
+        />
+      )}
     </div>
   )
 }

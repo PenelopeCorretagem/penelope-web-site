@@ -6,6 +6,7 @@ import { RouterModel } from '@app/routes/RouterModel'
 import { softDeleteAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
+import { generateSlug } from '@shared/utils/generateSlugUtil'
 
 const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 
@@ -27,15 +28,20 @@ const editButton = (realEstateAdvertisementId) => new ButtonModel(
   'Editar Imóvel'
 )
 
-const scheduleButton = (onClick = null) => new ButtonModel(
-  'Agendar Visita',
-  'brown',
-  'button',
-  null,
-  'rectangle',
-  'Agendar Visita',
-  onClick
-)
+const scheduleButton = (realEstateAdvertisement) => {
+  const propertyTitle = realEstateAdvertisement.estate?.title || 'imovel';
+  const propertySlug = generateSlug(propertyTitle);
+  const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?property=${propertySlug}`;
+
+  return new ButtonModel(
+    'Agendar Visita',
+    'brown',
+    'link',
+    scheduleUrl,
+    'rectangle',
+    'Agendar Visita'
+  );
+};
 
 const whatsAppButton = (onWhatsAppClick = null) => new ButtonModel(
   'Conversar pelo WhatsApp',
@@ -47,28 +53,34 @@ const whatsAppButton = (onWhatsAppClick = null) => new ButtonModel(
   onWhatsAppClick
 )
 
-const galleryButton = () => new ButtonModel(
+const galleryButton = (onClick = null) => new ButtonModel(
   'Galeria',
   'white',
   'button',
+  null,
   'rectangle',
   'Galeria',
+  onClick
 )
 
-const floorplanButton = () => new ButtonModel(
+const floorplanButton = (onClick = null) => new ButtonModel(
   'Planta',
   'white',
   'button',
+  null,
   'rectangle',
   'Planta',
+  onClick
 )
 
-const videoButton = () => new ButtonModel(
+const videoButton = (onClick = null) => new ButtonModel(
   'Vídeo',
   'white',
   'button',
+  null,
   'rectangle',
   'Vídeo',
+  onClick
 )
 
 /** Valida se o modo do card é válido */
@@ -105,11 +117,17 @@ export class PropertyCardModel {
   #renderRealStateCardCoverImage
   #renderRealStateCardFeatures
   #onWhatsAppClick
+  #onVideoClick
+  #onGalleryClick
+  #onFloorplanClick
 
   constructor({
     realEstateAdvertisement,
     realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
-    onWhatsAppClick = null
+    onWhatsAppClick = null,
+    onGalleryClick = null,
+    onFloorplanClick = null,
+    onVideoClick = null
   }) {
     validateRealEstateAdvertisementInstance(realEstateAdvertisement)
     validateRealStateCardMode(realStateCardMode)
@@ -117,6 +135,9 @@ export class PropertyCardModel {
     this.#realEstateAdvertisement = realEstateAdvertisement
     this.#realStateCardMode = realStateCardMode
     this.#onWhatsAppClick = onWhatsAppClick
+    this.#onGalleryClick = onGalleryClick
+    this.#onFloorplanClick = onFloorplanClick
+    this.#onVideoClick = onVideoClick
     this.#realStateCardCategory = new LabelModel(
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
@@ -205,7 +226,6 @@ export class PropertyCardModel {
     const buttons = []
     if (this.#realStateCardMode === REAL_STATE_CARD_MODES.CONFIG) {
       buttons.push(editButton(this.#realEstateAdvertisement.id))
-      // cria o botão de exclusão com handler ligado à instância do modelo
       buttons.push(new ButtonModel(
         'Excluir Imóvel',
         'soft-brown',
@@ -217,11 +237,11 @@ export class PropertyCardModel {
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))
-      buttons.push(scheduleButton())
+      buttons.push(scheduleButton(this.#realEstateAdvertisement))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.DETAILS) {
-      buttons.push(galleryButton())
-      buttons.push(floorplanButton())
-      buttons.push(videoButton())
+      buttons.push(galleryButton(this.#onGalleryClick))
+      buttons.push(floorplanButton(this.#onFloorplanClick))
+      buttons.push(videoButton(this.#onVideoClick))
     } else {
       buttons.push(defaultButton(this.#realEstateAdvertisement.id))
     }
