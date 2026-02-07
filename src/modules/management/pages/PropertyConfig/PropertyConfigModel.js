@@ -41,14 +41,10 @@ export class PropertyConfigModel {
       endDate: this.displayEndDate
     })
 
-    // Extract differentials from features (not amenities)
-    console.log('🎯 [PROPERTY MODEL] Processing features:', estate?.features?.length || 0)
-    this.differentials = estate?.features?.map(feature => {
-      const normalized = this._normalizeDifferential(feature.description)
-      console.log(`  - Feature "${feature.description}" normalized to "${normalized}"`)
-      return normalized
-    }) || []
-    console.log('🎯 [PROPERTY MODEL] Final differentials:', this.differentials)
+    // Extract differentials from features (keep as Feature objects)
+    console.log('🎯 [PROPERTY MODEL] Processing features (keeping Feature objects):', estate?.features?.length || 0)
+    this.differentials = Array.isArray(estate?.features) ? [...estate.features] : []
+    console.log('🎯 [PROPERTY MODEL] Final differentials (Feature objects):', this.differentials)
 
     // Store original advertisement data for updates
     this.originalAdvertisementData = realEstateAdvertisement
@@ -260,25 +256,6 @@ export class PropertyConfigModel {
   }
 
   /**
-   * Normaliza o nome do diferencial para corresponder aos valores do checkbox
-   */
-  _normalizeDifferential(name) {
-    if (!name) return ''
-
-    const lowerName = String(name).toLowerCase().trim()
-
-    const map = {
-      'pet': 'pet',
-      'floresta': 'floresta',
-      'brinquedo': 'brinquedo',
-      'lounge': 'lounge',
-      'yoga': 'yoga',
-    }
-
-    return map[lowerName] || lowerName.replace(/\s+/g, '_')
-  }
-
-  /**
    * Formata data para o formato do input date (YYYY-MM-DD)
    */
   _formatDate(dateString) {
@@ -312,7 +289,15 @@ export class PropertyConfigModel {
       propertyDescription: this.propertyDescription,
       area: formatAreaForDisplay(this.area),
       numberOfRooms: this.numberOfRooms,
-      differentials: this.differentials,
+      // differentials for the form must be an array of normalized keys (strings),
+      // but internally we keep Feature objects. Map accordingly.
+      differentials: Array.isArray(this.differentials)
+        ? this.differentials.map(d => {
+          if (!d) return ''
+          if (typeof d === 'string') return this._normalizeDifferentialKey(d)
+          return this._normalizeDifferentialKey(d.description || d.name || '')
+        }).filter(Boolean)
+        : [],
       cep: this.address.cep,
       number: this.address.number,
       region: this.address.region,
@@ -346,6 +331,21 @@ export class PropertyConfigModel {
     })
 
     return formData
+  }
+
+  /**
+   * Normaliza a descrição de um diferencial para uma "key" usada no formulário
+   * Ex: "Pet Friendly" -> "pet_friendly"
+   */
+  _normalizeDifferentialKey(text) {
+    if (!text) return ''
+    return String(text)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '_')
+      .replace(/[^\w_]/g, '')
   }
 
   /**
@@ -463,16 +463,45 @@ export class PropertyConfigModel {
     const mapDifferentialsToIds = (differentials) => {
       if (!Array.isArray(differentials)) return []
 
+      // Mapping completo fornecido — chaves normalizadas -> ids
+      // Ex: 'Quadra Basquete' => 'quadra_basquete'
       const differentialMap = {
-        'pet': 1,
-        'floresta': 2,
-        'brinquedo': 3,
-        'lounge': 4,
-        'yoga': 5,
+        'brinde': 11,
+        'brinquedo': 7,
+        'cesta': 2,
+        'churrasqueira': 16,
+        'cinema': 3,
+        'floresta': 6,
+        'games': 18,
+        'horta': 17,
+        'lavanderia': 12,
+        'lounge': 8,
+        'meditacao': 10,
+        'mercado': 14,
+        'oficina': 4,
+        'pet': 5,
+        'quadra_basquete': 1,
+        'solario': 13,
+        'tenis': 15,
+        'yoga': 9,
       }
 
       return differentials
-        .map(diff => differentialMap[diff])
+        .map(diff => {
+          // If it's an object with id, use it directly
+          if (diff && typeof diff === 'object') {
+            if (diff.id) return Number(diff.id)
+            const desc = diff.description || diff.name || ''
+            return differentialMap[this._normalizeDifferentialKey(desc)] || undefined
+          }
+
+          // If it's a string key, normalize and map
+          if (typeof diff === 'string') {
+            return differentialMap[this._normalizeDifferentialKey(diff)] || undefined
+          }
+
+          return undefined
+        })
         .filter(id => id !== undefined)
     }
 

@@ -195,8 +195,13 @@ export const usePropertiesConfigViewModel = () => {
       )
     }
 
-    // City filter
-    if (cityFilter !== 'TODAS') {
+    // Region filter - FIXED: check for 'TODAS'
+    if (regionFilter && regionFilter !== 'TODAS' && regionFilter !== 'ALL') {
+      filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.region ?? '').toLowerCase() === regionFilter.toLowerCase())
+    }
+
+    // City filter - FIXED: check for 'TODAS'
+    if (cityFilter && cityFilter !== 'TODAS' && cityFilter !== 'ALL') {
       filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.city ?? '').toLowerCase() === cityFilter.toLowerCase())
     }
 
@@ -208,7 +213,7 @@ export const usePropertiesConfigViewModel = () => {
     }
 
     return filtered
-  }, [searchTerm, cityFilter, sortOrder])
+  }, [searchTerm, regionFilter, cityFilter, sortOrder])
 
   // Apply filters to each category
   const filteredLancamentos = useMemo(() => {

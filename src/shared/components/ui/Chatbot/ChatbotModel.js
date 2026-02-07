@@ -41,6 +41,14 @@ export const chatbotModel = {
         'Voltar para o inicio',
       ],
     },
+
+    falha: {
+      botResponse:
+        'Infelizmente eu não posso te ajudar com isso no momento.',
+      options: [
+        'Voltar para o inicio',
+      ],
+    },
   },
 
   stepMap: {
@@ -48,5 +56,9 @@ export const chatbotModel = {
     'Falar sobre agendamento': 'agendamento',
     'Falar sobre financiamento': 'financiamento',
     'Voltar para o inicio': 'inicio',
+  },
+
+  getNextStep(userMessage) {
+    return this.stepMap[userMessage] || 'falha'
   },
 }

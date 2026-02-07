@@ -52,10 +52,11 @@ export function PropertiesConfigView() {
 
   const regionOptions = useMemo(() => [
     { value: 'TODAS', label: 'Todas as Regiões' },
-    { value: 'GRANDE_SP', label: 'Grande São Paulo' },
-    { value: 'INTERIOR', label: 'Interior' },
-    { value: 'LITORAL', label: 'Litoral' },
-    { value: 'VALE_PARAIBA', label: 'Vale do Paraíba' }
+    { value: 'Norte', label: 'Norte' },
+    { value: 'Sul', label: 'Sul' },
+    { value: 'Leste', label: 'Leste' },
+    { value: 'Oeste', label: 'Oeste' },
+    { value: 'Centro', label: 'Centro' }
   ], [])
 
   const cityOptions = useMemo(() => [

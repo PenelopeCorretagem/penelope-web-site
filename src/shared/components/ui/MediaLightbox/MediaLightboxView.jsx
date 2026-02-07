@@ -4,26 +4,28 @@ import { createPortal } from 'react-dom'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useMediaLightboxViewModel } from './useMediaLightboxViewModel'
 
-export function MediaLightboxView({ isOpen = true, medias = [], onClose = () => {} }) {
+export function MediaLightboxView({ isOpen = true, medias = [], onClose }) {
+  // Extrair URLs dos objetos ImageEstate
+  const normalizedMedias = Array.isArray(medias) ? medias.map(m => m?.url || m).filter(m => typeof m === 'string') : []
+
   const {
     currentIndex,
     currentMedia,
     isCurrentVideo,
     handleNext,
     handlePrev
-  } = useMediaLightboxViewModel({ isOpen, medias })
+  } = useMediaLightboxViewModel({ isOpen, medias: normalizedMedias })
 
-  if (!isOpen || !medias.length) return null
-
-  // Opção de debug — descomente pra inspecionar
-  // console.log({ currentIndex, currentMedia, isCurrentVideo });
+  if (!isOpen || !normalizedMedias.length) {
+    return null
+  }
 
   // helper detecta youtube embed
   const isYouTube = typeof currentMedia === 'string' && (currentMedia.includes('youtube.com') || currentMedia.includes('youtu.be'))
 
   return createPortal(
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[99999]">
-      <div className="relative bg-black rounded-lg border-4 border-distac-primary w-5/6 max-w-6xl h-4/5 flex flex-col items-center justify-center shadow-2xl">
+      <div className="relative bg-default-dark rounded-lg border-4 border-distac-primary w-5/6 max-w-6xl h-4/5 flex flex-col items-center justify-center shadow-2xl">
         <ButtonView
           shape="square"
           width="fit"
@@ -96,8 +98,8 @@ export function MediaLightboxView({ isOpen = true, medias = [], onClose = () => 
         </div>
 
 
-        <div className="absolute bottom-6 text-white text-lg font-medium">
-          {currentIndex + 1}/{medias.length}
+        <div className="absolute bottom-6 text-default-light text-lg font-medium">
+          {currentIndex + 1}/{normalizedMedias.length}
         </div>
       </div>
     </div>,

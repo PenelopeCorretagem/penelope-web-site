@@ -37,6 +37,7 @@ export class RouterModel {
 
       // Rotas protegidas - usuário comum
       SCHEDULE: '/agenda',
+      SCHEDULE_PROPERTY: '/agenda/:title',
       PROFILE: '/meu-perfil',
       ACCOUNT: '/minha-conta',
 
@@ -76,6 +77,7 @@ export class RouterModel {
       ],
       authRequiredRoutes: [
         this.routes.SCHEDULE,
+        this.routes.SCHEDULE_PROPERTY,
         this.routes.PROFILE,
         this.routes.ACCOUNT,
       ],
@@ -239,5 +241,16 @@ export class RouterModel {
     })
 
     return params
+  }
+
+  navigateTo(routeName, params = {}) {
+    const path = this.generateRoute(routeName, params)
+
+    if (!path) return
+
+    window.history.pushState({}, '', path)
+    this.setCurrentRoute(path)
+
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 }

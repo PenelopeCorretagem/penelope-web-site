@@ -63,10 +63,13 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
 
     const route = getRouteOrFallback(actionRoute, actionRouteParams)
     try {
-      router.navigateTo(route)
+      window.history.pushState({}, '', route)
+      router.setCurrentRoute(route)
+      window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (e) {
       console.error('Erro ao navegar:', e)
     }
+
   }
 
   if (!realEstateAdvertisements || realEstateAdvertisements.length === 0) {
@@ -80,7 +83,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
           {modelTitle || titleCarousel}
         </HeadingView>
 
-        {/* {showActionButton && (
+        {showActionButton && (
           <ButtonView
             color="brown"
             size="medium"
@@ -91,7 +94,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
           >
             {actionButtonText}
           </ButtonView>
-        )} */}
+        )}
       </div>
 
       <div className="relative w-full">

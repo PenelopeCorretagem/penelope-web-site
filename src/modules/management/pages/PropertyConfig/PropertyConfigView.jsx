@@ -17,6 +17,8 @@ export function PropertyConfigView() {
     isNew,
     usersWithCreci,
     loadingUsers,
+    loadingFeatures,
+    features,
     handleSubmit,
     handleDelete,
     handleClear,
@@ -80,11 +82,11 @@ export function PropertyConfigView() {
     })
   }
 
-  // Só monta o formulário quando os usuários estiverem carregados
-  if (loading || loadingUsers) {
+  // Só monta o formulário quando os usuários e features estiverem carregados
+  if (loading || loadingUsers || loadingFeatures) {
     return (
       <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        {loading ? 'Carregando dados da propriedade...' : 'Carregando usuários...'}
+        {loading ? 'Carregando dados da propriedade...' : loadingUsers ? 'Carregando usuários...' : 'Carregando diferenciais...'}
       </SectionView>
     )
   }
@@ -114,6 +116,14 @@ export function PropertyConfigView() {
   ]
 
   console.log('🎨 [PROPERTY CONFIG VIEW] Responsible options:', responsibleOptions.map(opt => ({ value: opt.value, label: opt.label })))
+
+  // Converter features em opções de checkbox
+  const featureOptions = features.map(feature => ({
+    value: feature.description.toLowerCase().replace(/\s+/g, '_'),
+    label: feature.description
+  }))
+
+  console.log('🎨 [PROPERTY CONFIG VIEW] Feature options:', featureOptions)
 
   const steps = [
     {
@@ -212,7 +222,7 @@ export function PropertyConfigView() {
             {
               name: 'area',
               label: 'Área (m²)',
-              type: 'text', // Mudado de 'number' para 'text' para permitir formatação
+              type: 'text',
               required: true,
               containerClassName: 'w-full md:w-1/2',
             },
@@ -225,6 +235,12 @@ export function PropertyConfigView() {
             },
           ],
         },
+      ],
+    },
+    {
+      title: 'Etapa 3',
+      className: 'w-full flex flex-col gap-card md:gap-card-md',
+      groups: [
         {
           className: 'w-full',
           fields: [
@@ -232,20 +248,16 @@ export function PropertyConfigView() {
               name: 'differentials',
               label: 'Diferenciais',
               type: 'checkbox-group',
-              options: [
-                { value: 'pet', label: 'Pet' },
-                { value: 'floresta', label: 'Floresta' },
-                { value: 'brinquedo', label: 'Brinquedo' },
-                { value: 'lounge', label: 'Lounge' },
-                { value: 'yoga', label: 'Yoga' },
-              ],
+              options: featureOptions,
+              containerClassName: 'w-full',
+              groupClassName: 'grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4',
             },
           ],
         },
       ],
     },
     {
-      title: 'Etapa 3',
+      title: 'Etapa 4',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -342,7 +354,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 4',
+      title: 'Etapa 5',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -440,7 +452,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 5',
+      title: 'Etapa 6',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -467,7 +479,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 6',
+      title: 'Etapa 7',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
