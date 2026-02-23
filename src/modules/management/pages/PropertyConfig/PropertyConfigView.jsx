@@ -127,7 +127,7 @@ export function PropertyConfigView() {
 
   const steps = [
     {
-      title: 'Etapa 1',
+      title: 'Informações Gerais',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -199,7 +199,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 2',
+      title: 'Descrição e Características',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -238,7 +238,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 3',
+      title: 'Diferenciais do Imóvel',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -257,7 +257,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 4',
+      title: 'Localização do Imóvel',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -354,7 +354,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 5',
+      title: 'Localização do Stand',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -452,7 +452,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 6',
+      title: 'Vídeo e Capa',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -479,7 +479,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 7',
+      title: 'Galeria de Imagens',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
