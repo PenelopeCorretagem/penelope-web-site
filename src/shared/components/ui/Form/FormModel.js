@@ -34,7 +34,11 @@ export class FormModel {
 
   initializeFieldValues() {
     this.fields.forEach(field => {
-      this.fieldValues[field.name] = field.defaultValue || ''
+      if (field.type === 'checkbox') {
+        this.fieldValues[field.name] = field.defaultValue !== undefined ? field.defaultValue : false
+      } else {
+        this.fieldValues[field.name] = field.defaultValue || ''
+      }
     })
   }
 
@@ -76,9 +80,23 @@ export class FormModel {
   isFieldValid(field) {
     const value = this.fieldValues[field.name]
 
+    // Para checkboxes, validar diretamente
+    if (field.type === 'checkbox') {
+      if (field.validate && typeof field.validate === 'function') {
+        try {
+          const res = field.validate(value, this.formData)
+          if (typeof res === 'string') return false
+          return Boolean(res)
+        } catch (error) {
+          return false
+        }
+      }
+      return true
+    }
+
     // Para validação em tempo real, só valida se o campo não está vazio
     // ou se está sendo validado explicitamente
-    if (!value || value.trim() === '') {
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
       // Só retorna inválido se o campo for obrigatório E estivermos validando no submit
       return true // Permite campos vazios durante digitação
     }
@@ -122,7 +140,15 @@ export class FormModel {
   getFieldErrorMessage(field) {
     const value = this.fieldValues[field.name]
 
-    if (field.required && (!value || value.trim() === '')) {
+    // Para checkboxes
+    if (field.type === 'checkbox') {
+      if (field.required && !value) {
+        return field.errorMessage || `É obrigatório o aceite dos Termos de LGPD`
+      }
+    }
+
+    // Para outros tipos de campo
+    if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
       return field.errorMessage || `${field.label || field.placeholder} é obrigatório`
     }
 
@@ -149,10 +175,20 @@ export class FormModel {
     this.fields.forEach(field => {
       const value = this.fieldValues[field.name]
 
+      // Tratamento especial para checkboxes
+      if (field.type === 'checkbox') {
+        if (field.required && !value) {
+          this.fieldErrors[field.name] = field.errorMessage || `${field.label || field.placeholder} é obrigatório`
+        } else if (!this.isFieldValid(field)) {
+          this.fieldErrors[field.name] = this.getFieldErrorMessage(field)
+        }
+        return
+      }
+
       // Validação completa no submit - incluindo campos obrigatórios
-      if (field.required && (!value || value.trim() === '')) {
+      if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         this.fieldErrors[field.name] = field.errorMessage || `${field.label || field.placeholder} é obrigatório`
-      } else if (value && value.trim() !== '') {
+      } else if (value && typeof value === 'string' && value.trim() !== '') {
         // Só valida formato se o campo não estiver vazio
         if (!this.isFieldValid(field)) {
           this.fieldErrors[field.name] = this.getFieldErrorMessage(field)

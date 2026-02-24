@@ -242,6 +242,9 @@ export function useAuthViewModel() {
       if (formData.senha !== formData.confirmSenha) {
         throw new Error('As senhas não coincidem.')
       }
+      if (!formData.lgpdConsent) {
+        throw new Error('Você deve aceitar os termos da LGPD para prosseguir.')
+      }
       console.log({ name: formData.nomeCompleto,
         email: formData.email,
         password: formData.senha })

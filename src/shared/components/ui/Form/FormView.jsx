@@ -129,6 +129,7 @@ export function FormView({
               type={field.type || 'text'}
               placeholder={field.placeholder || ''}
               value={getFieldValue(field.name)}
+              checked={field.type === 'checkbox' ? getFieldValue(field.name) : undefined}
               onChange={(value, event) => {
                 handleFieldChange(field.name)(value, event)
                 if (onChange) onChange(field.name, value, event)
@@ -138,6 +139,7 @@ export function FormView({
               required={field.required || false}
               showPasswordToggle={field.showPasswordToggle || false}
               isActive={!isLoading}
+              link={field.link}
             >
               {field.label || ''}
             </InputView>
@@ -147,6 +149,13 @@ export function FormView({
           {hasFieldError(field.name) && (
             <div className="text-red-600 text-sm mt-1">
               {getFieldError(field.name)}
+            </div>
+          )}
+
+          {/* Texto auxiliar/informativo */}
+          {field.helperText && (
+            <div className="text-default-dark-muted text-m mt-2 font-bold">
+              {field.helperText}
             </div>
           )}
         </div>

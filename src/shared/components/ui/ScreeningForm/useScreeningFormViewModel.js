@@ -13,11 +13,17 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
   }
 
   const enviarWhatsApp = () => {
-    const { nome, sobrenome, cpf, celular, email, rendaMed } = formData
+    const { nome, sobrenome, cpf, celular, email, rendaMed, lgpdConsent } = formData
 
     // Validação simples dos campos obrigatórios
     if (!nome || !sobrenome || !email || !cpf) {
       window.alert('Por favor preencha os campos Nome, Sobrenome, Cpf e E-mail antes de enviar.')
+      return
+    }
+
+    // Validação do aceite de LGPD
+    if (!lgpdConsent) {
+      window.alert('Você deve aceitar os termos da LGPD para prosseguir.')
       return
     }
 
@@ -44,11 +50,13 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
 
   const fieldsColumn1 = ScreeningFormModel.fields.filter(f => f.column === 1)
   const fieldsColumn2 = ScreeningFormModel.fields.filter(f => f.column === 2)
+  const fieldsColumn3 = ScreeningFormModel.fields.filter(f => f.column === 3)
 
   return {
     formData,
     fieldsColumn1,
     fieldsColumn2,
+    fieldsColumn3,
     handleFieldChange,
     enviarWhatsApp
   }
