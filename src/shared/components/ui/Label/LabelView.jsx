@@ -11,7 +11,7 @@ export function LabelView({ model, className = '' }) {
   } = useLabelViewModel(model)
 
   // Base classes
-  const baseClasses = 'text-[12px] md:text-[14px] text-center px-2 py-1 md:px-3 md:py-2 inline-block rounded-sm font-medium transition-all duration-200'
+  const baseClasses = 'text-button md:text-button-md text-center p-[var(--padding-button-circle)] md:p-[var(--padding-button-circle-md)] inline-block rounded-sm font-medium transition-all duration-200'
 
   // Variant classes
   const variantClasses = {
