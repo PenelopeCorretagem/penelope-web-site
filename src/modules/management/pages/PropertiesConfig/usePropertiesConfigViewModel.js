@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
+import { listAllFeatures } from '@app/services/api/featureAPI'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 
@@ -111,11 +112,14 @@ export const usePropertiesConfigViewModel = () => {
       const propertyModel = PropertyConfigModel.fromAdvertisementEntity(currentAdvertisement)
       const currentFormData = propertyModel.toFormData()
 
+      // Busca amenities do banco para mapear os diferenciais em IDs
+      const amenities = await listAllFeatures()
+
       // Create update request with active set to false
       const disableRequest = propertyModel.toApiRequest({
         ...currentFormData,
         active: false // Set active to false for soft delete
-      })
+      }, [], amenities)
 
       console.log('🔄 [PROPERTIES CONFIG VM] Disabling advertisement with data:', disableRequest)
 

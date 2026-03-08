@@ -130,22 +130,43 @@ export function NavMenuView({
         {getSectionTitle(sectionName)}
       </HeadingView>
       {items.map(item => (
-        <Link
-          key={item.id}
-          to={item.disabled ? '#' : item.to}
-          onClick={(e) => {
-            if (item.disabled) {
-              e.preventDefault()
-              return
-            }
-            item.onClick?.()
-          }}
-          className={viewModel.getFooterLinkClasses(item.disabled)}
-        >
-          <HeadingView level={6}>
-            {item.text}
-          </HeadingView>
-        </Link>
+        item.openInNewTab ? (
+          <a
+            key={item.id}
+            href={item.disabled ? '#' : item.to}
+            target='_blank'
+            rel='noopener noreferrer'
+            onClick={(e) => {
+              if (item.disabled) {
+                e.preventDefault()
+                return
+              }
+              item.onClick?.()
+            }}
+            className={viewModel.getFooterLinkClasses(item.disabled)}
+          >
+            <HeadingView level={6}>
+              {item.text}
+            </HeadingView>
+          </a>
+        ) : (
+          <Link
+            key={item.id}
+            to={item.disabled ? '#' : item.to}
+            onClick={(e) => {
+              if (item.disabled) {
+                e.preventDefault()
+                return
+              }
+              item.onClick?.()
+            }}
+            className={viewModel.getFooterLinkClasses(item.disabled)}
+          >
+            <HeadingView level={6}>
+              {item.text}
+            </HeadingView>
+          </Link>
+        )
       ))}
     </div>
   )

@@ -175,7 +175,7 @@ export function usePropertyConfigViewModel(id) {
       }
 
       // Convert to API request format
-      const apiRequest = propertyModel.toApiRequest(formData, uploadedImageData)
+      const apiRequest = propertyModel.toApiRequest(formData, uploadedImageData, features)
       console.log('🔄 [PROPERTY CONFIG VM] API request prepared:', apiRequest)
 
       let result
@@ -220,7 +220,7 @@ export function usePropertyConfigViewModel(id) {
       const disableRequest = propertyModel.toApiRequest({
         ...currentFormData,
         active: false // Set active to false for soft delete
-      })
+      }, [], features)
 
       console.log('🔄 [PROPERTY CONFIG VM] Disabling advertisement with full data:', disableRequest)
 

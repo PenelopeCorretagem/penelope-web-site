@@ -413,7 +413,7 @@ export class PropertyConfigModel {
   /**
    * Enhanced API request conversion with better image handling for updates
    */
-  toApiRequest(formData, uploadedImageData = []) {
+  toApiRequest(formData, uploadedImageData = [], availableAmenities = []) {
     console.log('🔄 [PROPERTY MODEL] Converting form data to API request')
 
     // Função para limitar e sanitizar strings
@@ -463,28 +463,19 @@ export class PropertyConfigModel {
     const mapDifferentialsToIds = (differentials) => {
       if (!Array.isArray(differentials)) return []
 
-      // Mapping completo fornecido — chaves normalizadas -> ids
-      // Ex: 'Quadra Basquete' => 'quadra_basquete'
-      const differentialMap = {
-        'brinde': 11,
-        'brinquedo': 7,
-        'cesta': 2,
-        'churrasqueira': 16,
-        'cinema': 3,
-        'floresta': 6,
-        'games': 18,
-        'horta': 17,
-        'lavanderia': 12,
-        'lounge': 8,
-        'meditacao': 10,
-        'mercado': 14,
-        'oficina': 4,
-        'pet': 5,
-        'quadra_basquete': 1,
-        'solario': 13,
-        'tenis': 15,
-        'yoga': 9,
-      }
+      const amenitiesMap = Array.isArray(availableAmenities)
+        ? availableAmenities.reduce((acc, amenity) => {
+          const description = amenity?.description || amenity?.name || ''
+          const id = Number(amenity?.id)
+
+          if (!description || Number.isNaN(id)) {
+            return acc
+          }
+
+          acc[this._normalizeDifferentialKey(description)] = id
+          return acc
+        }, {})
+        : {}
 
       return differentials
         .map(diff => {
@@ -492,12 +483,12 @@ export class PropertyConfigModel {
           if (diff && typeof diff === 'object') {
             if (diff.id) return Number(diff.id)
             const desc = diff.description || diff.name || ''
-            return differentialMap[this._normalizeDifferentialKey(desc)] || undefined
+            return amenitiesMap[this._normalizeDifferentialKey(desc)] || undefined
           }
 
           // If it's a string key, normalize and map
           if (typeof diff === 'string') {
-            return differentialMap[this._normalizeDifferentialKey(diff)] || undefined
+            return amenitiesMap[this._normalizeDifferentialKey(diff)] || undefined
           }
 
           return undefined
