@@ -42,7 +42,7 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
       `Renda média mensal: ${rendaMed || ''}`
     ].join('\n')
 
-    const numero = '5511927419606'
+    const numero = '5511987419606'
     const url = generateWhatsAppLink(numero, mensagem)
 
     window.open(url, '_blank')

@@ -19,19 +19,19 @@ export class ContactIconListModel {
       {
         id: 'whatsapp',
         type: ContactIconListModel.CONTACT_TYPES.WHATSAPP,
-        href: 'https://wa.me/5511999999999',
+        href: 'https://wa.me/5511987419606',
         label: 'WhatsApp'
       },
       {
         id: 'instagram',
         type: ContactIconListModel.CONTACT_TYPES.INSTAGRAM,
-        href: 'https://instagram.com/penelope',
+        href: 'https://www.instagram.com/consultora.penelope/',
         label: 'Instagram'
       },
       {
         id: 'facebook',
         type: ContactIconListModel.CONTACT_TYPES.FACEBOOK,
-        href: 'https://facebook.com/penelope',
+        href: 'https://www.facebook.com/bella.medeiros.562',
         label: 'Facebook'
       },
     ]

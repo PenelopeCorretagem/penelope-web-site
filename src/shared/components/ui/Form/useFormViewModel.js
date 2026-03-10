@@ -214,7 +214,14 @@ class FormViewModel {
         const result = await this.model.onSubmit(this.formData, this.model)
 
         if (result && result.success) {
-          this.setSuccess(result.message || 'Operação realizada com sucesso!')
+          const successMessage = typeof result.message === 'string'
+            ? result.message.trim()
+            : ''
+
+          if (successMessage) {
+            this.setSuccess(successMessage)
+          }
+
           if (result.reset) {
             this.reset()
           }

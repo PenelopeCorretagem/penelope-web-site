@@ -131,33 +131,33 @@ export function PropertyConfigView() {
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
           fields: [
             {
               name: 'propertyTitle',
               label: 'Título',
               type: 'text',
               required: true,
-              containerClassName: 'w-full md:w-1/2',
+              containerClassName: 'w-full md:col-span-6',
             },
             {
               name: 'displayEndDate',
               label: 'Data Término de Exibição',
               type: 'date',
               required: true,
-              containerClassName: 'w-full md:w-1/4',
+              containerClassName: 'w-full md:col-span-3',
             },
             {
               name: 'active',
               label: 'Ativo',
               type: 'checkbox',
               placeholder: 'Propriedade ativa',
-              containerClassName: 'w-full md:w-1/4',
+              containerClassName: 'w-full md:col-span-3',
             },
           ],
         },
         {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
           fields: [
             {
               name: 'propertyType',
@@ -170,7 +170,7 @@ export function PropertyConfigView() {
                 { value: 'LANCAMENTO', label: 'Lançamento' }
               ],
               required: true,
-              containerClassName: 'w-1/2',
+              containerClassName: 'w-full md:col-span-6',
             },
             {
               name: 'responsible',
@@ -178,21 +178,7 @@ export function PropertyConfigView() {
               type: 'select',
               options: responsibleOptions,
               required: true,
-              containerClassName: 'w-1/2',
-            },
-          ],
-        },
-        {
-          className: 'w-full h-full flex-1',
-          fields: [
-            {
-              name: 'cardDescription',
-              label: 'Descritivo do card do imóvel',
-              type: 'textarea',
-              className: 'w-full h-full flex-1',
-              containerClassName: 'w-full h-full flex-1',
-              rows: 3,
-              required: true,
+              containerClassName: 'w-full md:col-span-6',
             },
           ],
         },

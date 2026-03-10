@@ -154,9 +154,11 @@ export function PropertyDetailsView() {
               <HeadingView level={2} className="text-distac-primary mb-10">
                 Diferenciais
               </HeadingView>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr max-w-4xl">
                 {realEstateAdvertisement.estate?.features?.map((feature) => (
-                  <PropertyFeatureView feature={feature} key={feature.id} />
+                  <div key={feature.id} className="h-full">
+                    <PropertyFeatureView feature={feature} />
+                  </div>
                 ))}
               </div>
             </div>
