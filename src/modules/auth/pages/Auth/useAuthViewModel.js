@@ -182,28 +182,16 @@ export function useAuthViewModel() {
         console.log('⚠️ Dados mínimos salvos, preservando role:', sessionStorage.getItem('userRole'))
       }
 
-      setAlertConfig({
-        type: 'success',
-        message: `Bem-vindo de volta${userEntity?.nomeCompleto ? `, ${userEntity.nomeCompleto}` : ''}!`,
-        onClose: () => {
-          setAlertConfig(null)
+      // Limpar alerta e redirecionar automaticamente após 2 segundos
+      setAlertConfig(null)
 
-          // Disparar evento de mudança de auth ANTES do redirect
-          window.dispatchEvent(new CustomEvent('authChanged'))
+      // Disparar evento de mudança de auth ANTES do redirect
+      window.dispatchEvent(new CustomEvent('authChanged'))
 
-          // Pequeno delay para garantir que o estado seja atualizado
-          setTimeout(() => {
-            // Usar RouterModel para redirecionamento
-            if (isAdminUser) {
-              console.log('🔀 Redirecionando para admin properties')
-              navigate(model.getAdminPropertiesRoute())
-            } else {
-              console.log('🔀 Redirecionando para profile')
-              navigate(model.getProfileRoute())
-            }
-          }, 100)
-        }
-      })
+      setTimeout(() => {
+        console.log('🔀 Redirecionando para home')
+        navigate(model.getHomeRoute())
+      }, 2000)
 
       return { success: true }
     } catch (error) {
