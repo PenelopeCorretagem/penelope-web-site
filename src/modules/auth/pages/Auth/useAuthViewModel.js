@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { RouterModel } from '@app/routes/RouterModel'
 import { login, register, forgotPassword } from '@app/services/api/authApi'
 import { getAllUsers } from '@app/services/api/userApi'
 import { userMapper } from '@app/services/mapper/userMapper'
@@ -10,7 +9,6 @@ export function useAuthViewModel() {
   const navigate = useNavigate()
   const location = useLocation()
   const [model] = useState(() => new AuthModel())
-  const [routerModel] = useState(() => RouterModel.getInstance())
 
   const [isActive, setIsActive] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
@@ -182,28 +180,11 @@ export function useAuthViewModel() {
         console.log('⚠️ Dados mínimos salvos, preservando role:', sessionStorage.getItem('userRole'))
       }
 
-      setAlertConfig({
-        type: 'success',
-        message: `Bem-vindo de volta${userEntity?.nomeCompleto ? `, ${userEntity.nomeCompleto}` : ''}!`,
-        onClose: () => {
-          setAlertConfig(null)
-
-          // Disparar evento de mudança de auth ANTES do redirect
-          window.dispatchEvent(new CustomEvent('authChanged'))
-
-          // Pequeno delay para garantir que o estado seja atualizado
-          setTimeout(() => {
-            // Usar RouterModel para redirecionamento
-            if (isAdminUser) {
-              console.log('🔀 Redirecionando para admin properties')
-              navigate(model.getAdminPropertiesRoute())
-            } else {
-              console.log('🔀 Redirecionando para profile')
-              navigate(model.getProfileRoute())
-            }
-          }, 100)
-        }
-      })
+      // Disparar evento de mudança de auth e redirecionar automaticamente para a tela inicial após 2 segundos
+      window.dispatchEvent(new CustomEvent('authChanged'))
+      setTimeout(() => {
+        navigate(model.getHomeRoute())
+      }, 2000)
 
       return { success: true }
     } catch (error) {
