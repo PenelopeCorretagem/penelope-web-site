@@ -10,7 +10,7 @@ export default defineConfig(({ command, mode }) => {
 
   const port = parseInt(env.APP_PORT)
 
-  console.log(`Modo: ${mode} | Porta: ${port}`)
+
 
   return {
     plugins: [react(), tailwindcss()],

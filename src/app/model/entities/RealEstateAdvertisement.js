@@ -6,7 +6,7 @@ export class RealEstateAdvertisement {
   // ===== PRIVATE FIELDS =====
   #id
   #active
-  #emphasis
+  #featured
   #createdAt
   #endDate
   #creator
@@ -16,7 +16,7 @@ export class RealEstateAdvertisement {
   constructor({
     id,
     active,
-    emphasis,
+    featured,
     createdAt,
     endDate,
     creator,
@@ -25,7 +25,7 @@ export class RealEstateAdvertisement {
   }) {
     this.#id = id ?? null
     this.#active = active ?? true
-    this.#emphasis = emphasis ?? false
+    this.#featured = featured ?? false
     this.#createdAt = createdAt ?? new Date().toISOString()
     this.#endDate = endDate ?? null
     this.#creator = creator ?? null
@@ -36,7 +36,7 @@ export class RealEstateAdvertisement {
   // ===== GETTERS =====
   get id() { return this.#id }
   get active() { return this.#active }
-  get emphasis() { return this.#emphasis }
+  get featured() { return this.#featured }
   get createdAt() { return this.#createdAt }
   get endDate() { return this.#endDate }
   get creator() { return this.#creator }
@@ -45,7 +45,7 @@ export class RealEstateAdvertisement {
 
   // ===== SETTERS =====
   set active(v) { this.#active = v }
-  set emphasis(v) { this.#emphasis = v }
+  set featured(v) { this.#featured = v }
   set endDate(v) { this.#endDate = v }
   set creator(v) { this.#creator = v }
   set responsible(v) { this.#responsible = v }

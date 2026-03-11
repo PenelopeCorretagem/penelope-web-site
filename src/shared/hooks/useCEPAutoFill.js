@@ -43,7 +43,7 @@ export function useCEPAutoFill(onAddressFound, options = {}) {
       // Chamar callback com os dados encontrados
       onAddressFound?.(addressData)
 
-      console.log('✅ [CEP AUTO-FILL] Endereço preenchido:', addressData)
+
 
     } catch (err) {
       const errorMessage = err.message || 'Erro ao consultar CEP'

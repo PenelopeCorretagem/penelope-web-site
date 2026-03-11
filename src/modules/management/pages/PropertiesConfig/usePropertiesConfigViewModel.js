@@ -74,7 +74,7 @@ export const usePropertiesConfigViewModel = () => {
   useEffect(() => {
     const onPropertySoftDeleted = (e) => {
       // opcional: log para depuração
-      console.log('🟢 propertySoftDeleted event received for id:', e?.detail?.id)
+
       // Recarregar os anúncios
       fetchAdvertisements()
     }
@@ -83,7 +83,7 @@ export const usePropertiesConfigViewModel = () => {
   }, [fetchAdvertisements])
 
   const handleEdit = useCallback((id) => {
-    console.log('Editing property:', id)
+
     try {
       const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id })
       navigate(route)
@@ -95,7 +95,7 @@ export const usePropertiesConfigViewModel = () => {
   }, [navigate, generateRoute])
 
   const handleDelete = useCallback(async (id) => {
-    console.log('🗑️ [PROPERTIES CONFIG VM] Soft deleting property:', id)
+
 
     if (!window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
       return
@@ -105,7 +105,7 @@ export const usePropertiesConfigViewModel = () => {
       setLoading(true)
 
       // First, get the current advertisement data
-      console.log('🔄 [PROPERTIES CONFIG VM] Fetching current advertisement data for ID:', id)
+
       const currentAdvertisement = await getAdvertisementById(id)
 
       // Convert to PropertyConfigModel to get proper format
@@ -121,11 +121,11 @@ export const usePropertiesConfigViewModel = () => {
         active: false // Set active to false for soft delete
       }, [], amenities)
 
-      console.log('🔄 [PROPERTIES CONFIG VM] Disabling advertisement with data:', disableRequest)
+
 
       await updateAdvertisement(id, disableRequest)
 
-      console.log('✅ [PROPERTIES CONFIG VM] Property deactivated successfully')
+
 
       // Recarregar os dados após exclusão
       await fetchAdvertisements()

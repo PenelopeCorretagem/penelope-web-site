@@ -25,16 +25,16 @@ export class RealEstateAdvertisementMapper {
   static toEntity(data) {
     if (!data) return null
 
-    const estate = data.property
+    const estate = data.estate
       ? new Estate({
-        id: data.property.id,
-        title: data.property.title,
-        description: data.property.description,
-        area: data.property.area,
-        numberOfRooms: data.property.numberOfRooms,
-        type: getEstateTypeByKey(data.property.type),
-        images: data.property.images
-          ? data.property.images.map(
+        id: data.estate.id,
+        title: data.estate.title,
+        description: data.estate.description,
+        area: data.estate.area,
+        numberOfRooms: data.estate.numberOfRooms,
+        type: getEstateTypeByKey(data.estate.type),
+        images: data.estate.images
+          ? data.estate.images.map(
             img =>
               new ImageEstate({
                 id: img.id,
@@ -45,38 +45,39 @@ export class RealEstateAdvertisementMapper {
               })
           )
           : [],
-        address: data.property.address
+        address: data.estate.address
           ? new Address({
-            id: data.property.address.id,
-            street: data.property.address.street,
-            number: data.property.address.number,
-            neighborhood: data.property.address.neighborhood,
-            city: data.property.address.city,
-            uf: data.property.address.uf,
-            region: data.property.address.region,
-            zipCode: data.property.address.cep,
-            complement: data.property.address.complement || null,
+            id: data.estate.address.id,
+            street: data.estate.address.street,
+            number: data.estate.address.number,
+            neighborhood: data.estate.address.neighborhood,
+            city: data.estate.address.city,
+            uf: data.estate.address.uf,
+            region: data.estate.address.region,
+            zipCode: data.estate.address.zipCode,
+            complement: data.estate.address.complement || null,
           })
           : null,
-        standAddress: data.property.addressStand
+        standAddress: data.estate.addressStand
           ? new Address({
-            id: data.property.addressStand.id,
-            street: data.property.addressStand.street,
-            number: data.property.addressStand.number,
-            neighborhood: data.property.addressStand.neighborhood,
-            city: data.property.addressStand.city,
-            uf: data.property.addressStand.uf,
-            region: data.property.addressStand.region,
-            zipCode: data.property.addressStand.cep,
-            complement: data.property.addressStand.complement || null,
+            id: data.estate.addressStand.id,
+            street: data.estate.addressStand.street,
+            number: data.estate.addressStand.number,
+            neighborhood: data.estate.addressStand.neighborhood,
+            city: data.estate.addressStand.city,
+            uf: data.estate.addressStand.uf,
+            region: data.estate.addressStand.region,
+            zipCode: data.estate.addressStand.zipCode,
+            complement: data.estate.addressStand.complement || null,
           })
           : null,
-        features: data.property.amenities
-          ? data.property.amenities.map(
+        features: data.estate.amenitiesIds
+          ? data.estate.amenitiesIds.map(
             feature =>
               new Feature({
                 id: feature.id,
                 description: feature.description,
+                icon: feature.icon,
               })
           )
           : [],
@@ -87,15 +88,15 @@ export class RealEstateAdvertisementMapper {
       ? new User({
         id: data.responsible.id,
         name: data.responsible.name,
-        email: data.responsible.email,
-        phone: data.responsible.phone || data.responsible.cellphone || null,
-        creci: data.responsible.creci || null,
-        cpf: data.responsible.cpf,
-        dateBirth: data.responsible.dateBirth,
-        monthlyIncome: data.responsible.monthlyIncome,
-        accessLevel: data.responsible.accessLevel,
-        active: data.responsible.active,
-        dateCreation: data.responsible.dateCreation,
+        email: null,
+        phone: null,
+        creci: null,
+        cpf: null,
+        dateBirth: null,
+        monthlyIncome: null,
+        accessLevel: null,
+        active: null,
+        dateCreation: null,
       })
       : null
 
@@ -103,22 +104,22 @@ export class RealEstateAdvertisementMapper {
       ? new User({
         id: data.creator.id,
         name: data.creator.name,
-        email: data.creator.email,
-        phone: data.creator.phone || data.creator.cellphone || null,
-        creci: data.creator.creci,
-        cpf: data.creator.cpf,
-        dateBirth: data.creator.dateBirth,
-        monthlyIncome: data.creator.monthlyIncome,
-        accessLevel: data.creator.accessLevel,
-        active: data.creator.active,
-        dateCreation: data.creator.dateCreation,
+        email: null,
+        phone: null,
+        creci: null,
+        cpf: null,
+        dateBirth: null,
+        monthlyIncome: null,
+        accessLevel: null,
+        active: null,
+        dateCreation: null,
       })
       : null
 
     return new RealEstateAdvertisement({
       id: data.id,
       active: data.active,
-      emphasis: data.emphasis,
+      featured: data.featured,
       createdAt: data.createdAt,
       endDate: data.endDate,
       creator,
@@ -155,44 +156,14 @@ export class RealEstateAdvertisementMapper {
     if (!advertisement) return null
 
     return {
-
       id: advertisement.id,
       active: advertisement.active,
-      emphasis: advertisement.emphasis,
+      featured: advertisement.featured,
       createdAt: advertisement.createdAt,
       endDate: advertisement.endDate,
-      creator: advertisement.creator
-        ? {
-          id: advertisement.creator.id,
-          name: advertisement.creator.name,
-          email: advertisement.creator.email,
-          // Use cellphone in API payload to match backend naming
-          cellphone: advertisement.creator.phone,
-          creci: advertisement.creator.creci,
-          cpf: advertisement.creator.cpf,
-          dateBirth: advertisement.creator.dateBirth,
-          monthlyIncome: advertisement.creator.monthlyIncome,
-          accessLevel: advertisement.creator.accessLevel,
-          active: advertisement.creator.active,
-          dateCreation: advertisement.creator.dateCreation,
-        }
-        : null,
-      responsible: advertisement.responsible
-        ? {
-          id: advertisement.responsible.id,
-          name: advertisement.responsible.name,
-          email: advertisement.responsible.email,
-          cellphone: advertisement.responsible.phone,
-          creci: advertisement.responsible.creci,
-          cpf: advertisement.responsible.cpf,
-          dateBirth: advertisement.responsible.dateBirth,
-          monthlyIncome: advertisement.responsible.monthlyIncome,
-          accessLevel: advertisement.responsible.accessLevel,
-          active: advertisement.responsible.active,
-          dateCreation: advertisement.responsible.dateCreation,
-        }
-        : null,
-      property: advertisement.estate
+      creatorId: advertisement.creator?.id || null,
+      responsibleId: advertisement.responsible?.id || null,
+      estate: advertisement.estate
         ? {
           id: advertisement.estate.id,
           title: advertisement.estate.title,

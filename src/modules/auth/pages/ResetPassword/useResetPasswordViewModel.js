@@ -39,7 +39,7 @@ export function useResetPasswordViewModel() {
         try {
           const trimmed = (tokenFromUrl || '').trim()
           const response = await validateResetToken(trimmed)
-          console.log('Token validation response:', response)
+
           setValidToken(trimmed)
 
           try { sessionStorage.setItem('resetToken', trimmed) } catch (e) { /* ignore */ }
@@ -62,18 +62,18 @@ export function useResetPasswordViewModel() {
 
   // Handler para o formulário de verificação
   const handleVerificationSubmit = useCallback(async (formData) => {
-    console.log('🔘 [ResetPassword] handleVerificationSubmit called with:', formData)
+
     setIsLoading(true)
     setError('')
     try {
       const trimmed = (formData.token || '').trim()
-      console.log('🔍 [ResetPassword] Validating token:', trimmed)
+
       const response = await validateResetToken(trimmed)
-      console.log('✅ [ResetPassword] Token validation response:', response)
+
       setValidToken(trimmed)
       try { sessionStorage.setItem('resetToken', trimmed) } catch (e) { }
       const resetRoute = resetPasswordModel.getResetPasswordRoute()
-      console.log('➡️ [ResetPassword] Navigating to:', `${resetRoute}?token=${trimmed}`)
+
       navigate(`${resetRoute}?token=${trimmed}`, { replace: true, state: { token: trimmed } })
     } catch (err) {
       console.error('❌ [ResetPassword] validateResetToken error (form):', err.response ?? err)
@@ -108,7 +108,7 @@ export function useResetPasswordViewModel() {
 
     try {
       const response = await resetPassword(token, formData.newPassword)
-      console.log('Password reset response:', response)
+
       setAlertConfig({
         type: 'success',
         message: 'Senha redefinida com sucesso!',

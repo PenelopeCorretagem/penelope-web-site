@@ -7,7 +7,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 export function PropertyConfigView() {
   const { id } = useRouteParams()
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] Mounted with ID:', id)
+
 
   const {
     loading,
@@ -25,61 +25,10 @@ export function PropertyConfigView() {
     handleCancel
   } = usePropertyConfigViewModel(id)
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] State updated:', {
-    loading,
-    error,
-    isNew,
-    hasInitialData: !!initialData,
-    initialDataKeys: initialData ? Object.keys(initialData) : [],
-    usersCount: usersWithCreci.length,
-    loadingUsers
-  })
+
 
   if (initialData) {
-    console.log('🎨 [PROPERTY CONFIG VIEW] Received initialData:', {
-      propertyTitle: initialData.propertyTitle,
-      propertyType: initialData.propertyType,
-      responsible: initialData.responsible,
-      address: {
-        street: initialData.street,
-        city: initialData.city,
-        cep: initialData.cep
-      },
-      differentials: initialData.differentials,
-      // Log detalhado de imagens
-      images: {
-        video: {
-          exists: !!initialData.video,
-          preview: initialData.video?.preview?.substring(0, 100),
-          name: initialData.video?.name,
-          isExisting: initialData.video?.isExisting,
-          url: initialData.video?.url?.substring(0, 100)
-        },
-        cover: {
-          exists: !!initialData.cover,
-          preview: initialData.cover?.preview?.substring(0, 100),
-          name: initialData.cover?.name,
-          isExisting: initialData.cover?.isExisting,
-          url: initialData.cover?.url?.substring(0, 100)
-        },
-        gallery: {
-          count: initialData.gallery?.length || 0,
-          items: initialData.gallery?.map(item => ({
-            name: item?.name,
-            preview: item?.preview?.substring(0, 50),
-            isExisting: item?.isExisting
-          }))
-        },
-        floorPlans: {
-          count: initialData.floorPlans?.length || 0,
-          items: initialData.floorPlans?.map(item => ({
-            name: item?.name,
-            preview: item?.preview?.substring(0, 50),
-            isExisting: item?.isExisting
-          }))
-        }
-      }
-    })
+
   }
 
   // Só monta o formulário quando os usuários e features estiverem carregados
@@ -115,7 +64,7 @@ export function PropertyConfigView() {
     }))
   ]
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] Responsible options:', responsibleOptions.map(opt => ({ value: opt.value, label: opt.label })))
+
 
   // Converter features em opções de checkbox
   const featureOptions = features.map(feature => ({
@@ -123,7 +72,7 @@ export function PropertyConfigView() {
     label: feature.description
   }))
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] Feature options:', featureOptions)
+
 
   const steps = [
     {
@@ -502,7 +451,7 @@ export function PropertyConfigView() {
         steps={steps}
         initialData={initialData}
         onSubmit={(formData) => {
-          console.log('🎯 [PROPERTY CONFIG VIEW] onSubmit called with formData images:', {
+
             videoExists: !!formData.video,
             coverExists: !!formData.cover,
             galleryCount: formData.gallery?.length,

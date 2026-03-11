@@ -1,5 +1,5 @@
 import { useScheduleViewModel } from './useScheduleViewModel'
-import Cal from "@calcom/embed-react";
+import Cal from '@calcom/embed-react'
 import { useSearchParams } from 'react-router-dom'
 
 export function ScheduleView() {
@@ -36,7 +36,7 @@ export function ScheduleView() {
                 id="date-picker"
                 type="date"
                 value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value + 'T00:00:00'))}
+                onChange={(e) => setSelectedDate(new Date(`${e.target.value  }T00:00:00`))}
                 className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-distac-primary"
               />
             </div>
@@ -56,15 +56,15 @@ export function ScheduleView() {
           )}
 
           <div className="flex flex-col md:flex-row gap-6">
-      <div className="w-full md:w-[65%]">
-        <div className="bg-white rounded-lg shadow overflow-hidden h-full p-0">
-          <Cal
-            calLink={calLink}
-            style={{ width: "100%", height: "100%" }}
-            config={{ layout: 'month_view' }}
-          />
-        </div>
-      </div>
+            <div className="w-full md:w-[65%]">
+              <div className="bg-white rounded-lg shadow overflow-hidden h-full p-0">
+                <Cal
+                  calLink={calLink}
+                  style={{ width: '100%', height: '100%' }}
+                  config={{ layout: 'month_view' }}
+                />
+              </div>
+            </div>
 
             <aside className="w-full md:w-[35%] flex flex-col gap-4">
               {/* Overview Agendamentos (KPIs) */}
@@ -74,7 +74,7 @@ export function ScheduleView() {
                   <div className="bg-distac-secondary-light rounded p-3 text-center">
                     <div className="text-xs text-muted">
                       AGENDAMENTOS DO DIA
-                      </div>
+                    </div>
                     <div className="text-2xl font-bold">{totalAppointmentsToday}</div>
                   </div>
                   <div className="bg-distac-secondary-light rounded p-3 text-center">

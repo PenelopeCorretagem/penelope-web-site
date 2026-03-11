@@ -8,13 +8,7 @@ export const userMapper = {
   toEntity: (data) => {
     if (!data) return null
 
-    console.log('🔍 [USER MAPPER] User data:', {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      creci: data.creci,
-      active: data.active
-    })
+
 
     return new User({
       id: data.id,
@@ -42,7 +36,7 @@ export const userMapper = {
 
     const mapped = dataList.map((data) => userMapper.toEntity(data)).filter(Boolean)
 
-    console.log(`✅ [USER MAPPER] ${mapped.length}/${dataList.length} usuários mapeados`)
+
 
     return mapped
   },

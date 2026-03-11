@@ -38,14 +38,14 @@ export function useUsersViewModel() {
   }
 
   const handleEdit = useCallback((userId) => {
-    console.log('Edit user:', userId) // Debug log
+
     const editRoute = generateRoute('ADMIN_USER_EDIT', { id: userId })
-    console.log('Generated route:', editRoute) // Debug log
+
     navigateTo(editRoute)
   }, [navigateTo, generateRoute])
 
   const handleAdd = useCallback(() => {
-    console.log('Add user') // Debug log
+
     navigateTo(routes.ADMIN_USER_ADD)
   }, [navigateTo, routes.ADMIN_USER_ADD])
 
@@ -140,7 +140,7 @@ export function useUsersViewModel() {
   const handleSortOrderChange = useCallback(() => {
     setSortOrder(prev => {
       const newOrder = prev === 'none' ? 'asc' : prev === 'asc' ? 'desc' : 'none'
-      console.log('Sort order changed from', prev, 'to', newOrder) // Debug
+
       return newOrder
     })
   }, [])
@@ -149,12 +149,12 @@ export function useUsersViewModel() {
   const userFormFields = model.getUserFormFields(selectedUser)
 
   const filteredUsers = useMemo(() => {
-    console.log('Filtering users...', { searchTerm, userTypeFilter, sortOrder, usersCount: users.length }) // Debug
+
     model.setUsers(users)
     const filtered = model.filterUsers(searchTerm, userTypeFilter, sortOrder)
-    console.log('Filtered result:', filtered.length, 'users') // Debug
+
     if (sortOrder !== 'none') {
-      console.log('First few users after sorting:', filtered.slice(0, 3).map(u => u.nomeCompleto || u.name)) // Debug
+
     }
     return filtered
   }, [searchTerm, userTypeFilter, sortOrder, users, model])

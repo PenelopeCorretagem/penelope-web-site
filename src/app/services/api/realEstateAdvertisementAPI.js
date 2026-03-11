@@ -11,15 +11,12 @@ import { RealEstateAdvertisementMapper } from '@mapper/RealEstateAdvertisementMa
  * @param {boolean} filters.active
  * @param {number} filters.area
  * @param {string} filters.title
- * @param {string} filters.description
- * @param {string|Date} filters.createdAt
- * @param {string|Date} filters.createdAtMin
- * @param {string|Date} filters.createdAtMax
- * @param {string|Date} filters.endDate
- * @param {string|Date} filters.endDateMin
- * @param {string|Date} filters.endDateMax
+ * @param {string} filters.createdAt
+ * @param {string} filters.displayEndDate
+ * @param {boolean} filters.featured
+ * @returns {Promise<RealEstateAdvertisement[]>} Lista de entidades Advertisement.
  */
-export const listAllAdvertisements  = async (filters = {}) => {
+export const getAllAdvertisements = async (filters = {}) => {
   const params = {
     city: filters.city,
     region: filters.region,
@@ -28,144 +25,83 @@ export const listAllAdvertisements  = async (filters = {}) => {
     active: filters.active,
     area: filters.area,
     title: filters.title,
-    description: filters.description,
-
-    // === CreatedAt filters ===
     createdAt: filters.createdAt,
-    createdAtMin: filters.createdAtMin,
-    createdAtMax: filters.createdAtMax,
-
-    // === EndDate filters ===
-    endDate: filters.endDate,
-    endDateMin: filters.endDateMin,
-    endDateMax: filters.endDateMax
+    displayEndDate: filters.displayEndDate,
+    featured: filters.featured,
   }
 
-  const response = await axiosInstance.get('/advertisement', { params })
-  console.log(response)
-
+  const response = await axiosInstance.get('/advertisements', { params })
   return RealEstateAdvertisementMapper.toEntityList(response.data)
-}
-
-/**
- * Busca o anúncio mais recente.
- * @returns {Promise<Advertisement>} Entidade Advertisement.
- */
-export const getLatestAdvertisement = async () => {
-  const response = await axiosInstance.get('/advertisement/latest')
-  console.log(response)
-  return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
 /**
  * Busca um anúncio específico por ID.
  * @param {number} id - O ID do anúncio.
- * @returns {Promise<Advertisement>} Entidade Advertisement.
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement.
  */
 export const getAdvertisementById = async (id) => {
-  const response = await axiosInstance.get(`/advertisement/${id}`)
-  console.log(response)
+  const response = await axiosInstance.get(`/advertisements/${id}`)
   return RealEstateAdvertisementMapper.toEntity(response.data)
 }
 
 /**
- * Cria um novo anúncio com dados completos (incluindo URLs de imagens pré-uploadadas).
+ * Cria um novo anúncio com dados completos.
  * @param {object} advertisementRequest - Dados completos para criação do anúncio
- * @returns {Promise<any>}
+ * @returns {Promise<RealEstateAdvertisement>}
  */
 export const createAdvertisement = async (advertisementRequest) => {
   try {
-    // Token é adicionado automaticamente pelo interceptor
-    const response = await axiosInstance.post('/advertisement', advertisementRequest, {
+    const response = await axiosInstance.post('/advertisements', advertisementRequest, {
       headers: {
         'Content-Type': 'application/json'
       }
     })
-    // Backend pode retornar diferentes formatos dependendo do sucesso
-    if (response.status === 201) {
-      return {
-        success: true,
-        message: 'Advertisement created successfully',
-        data: response.data || null,
-        created: true
-      }
-    }
-
-    console.log(response)
-    return response.data
+    return RealEstateAdvertisementMapper.toEntity(response.data)
   } catch (error) {
     if (error.response?.status === 400) {
       const message = error.response.data?.message || 'Dados inválidos fornecidos'
       throw new Error(`Erro de validação: ${message}`)
     } else if (error.response?.status === 500) {
-      throw new Error('Erro interno do servidor. Tente novamente mais tarde.')
+      throw new Error('Erro interno do servidor')
     }
-
     throw error
   }
 }
 
 /**
- * Atualiza um anúncio existente.
+ * Atualiza um anúncio completamente.
  * @param {number} id - O ID do anúncio.
- * @param {object} advertisementRequest - Dados para atualização do anúncio
- * @returns {Promise<Advertisement>} Entidade Advertisement atualizada.
+ * @param {object} advertisementData - Dados atualizados do anúncio.
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada.
  */
-export const updateAdvertisement = async (id, advertisementRequest) => {
+export const updateAdvertisement = async (id, advertisementData) => {
   try {
-    // Token é adicionado automaticamente pelo interceptor
-    const response = await axiosInstance.put(`/advertisement/${id}`, advertisementRequest, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-
-    // Handle different response formats from backend
-    if (response.status === 204) {
-      // No Content response - update was successful
-      return {
-        success: true,
-        message: 'Advertisement updated successfully',
-        data: null,
-        updated: true
-      }
-    }
-
-    return RealEstateAdvertisementMapper.toEntity(response.data) || {
-      success: true,
-      message: 'Advertisement updated successfully',
-      updated: true
-    }
+    const response = await axiosInstance.put(`/advertisements/${id}`, advertisementData)
+    return RealEstateAdvertisementMapper.toEntity(response.data)
   } catch (error) {
-    // Better error handling for specific cases
-    if (error.response?.status === 400) {
-      const message = error.response.data?.message || 'Dados inválidos fornecidos'
-      throw new Error(`Erro de validação: ${message}`)
-    } else if (error.response?.status === 404) {
-      throw new Error('Propriedade não encontrada')
-    } else if (error.response?.status === 500) {
-      throw new Error('Erro interno do servidor. Tente novamente mais tarde.')
-    }
-
+    console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar anúncio ${id}:`, error)
     throw error
   }
 }
 
 /**
- * Desativa um anúncio.
+ * Ativa ou desativa um anúncio.
  * @param {number} id - O ID do anúncio.
- * @param {boolean} value - Valor a ser enviado no corpo (true/false)
- * @returns {Promise<void>}
+ * @param {boolean} active - Status ativo/inativo.
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada.
  */
-export const softDeleteAdvertisement = async (id, value) => {
-  // Token é adicionado automaticamente pelo interceptor
-  await axiosInstance.patch(`/advertisement/${id}`, value)
+export const updateAdvertisementStatus = async (id, active) => {
+  try {
+    const response = await axiosInstance.patch(`/advertisements/${id}`, { active })
+    return RealEstateAdvertisementMapper.toEntity(response.data)
+  } catch (error) {
+    console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar status do anúncio ${id}:`, error)
+    throw error
+  }
 }
 
-/**
- * Cria um anúncio completo: upload de imagens + criação (DEPRECATED - usar createAdvertisement diretamente)
- * @deprecated Use uploadImages + createAdvertisement separadamente para melhor controle
- */
+// Alias para compatibilidade
+export const listAllAdvertisements = getAllAdvertisements
 export const createAdvertisementWithImages = async (advertisementData, imageFiles = []) => {
   try {
     let imageUrls = []

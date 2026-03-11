@@ -1,13 +1,15 @@
 import axiosInstance from './axiosInstance'
 import { userMapper } from '../mapper/userMapper'
+import { User } from '../../model/entities/User'
 
 /**
- * Registra um novo usuário.
- * @param {object} userData - Dados do usuário { nomeCompleto, email, senha, cpf, dtNascimento, phone }
+ * Cria um novo usuário.
+ * @param {object} userData - Dados do usuário
  * @returns {Promise<User>} Entidade User.
  */
-export const registerUser = async (userData) => {
-  const payload = userMapper.toRequestPayload(userData)
+export const createUser = async (userData) => {
+  const userEntity = new User(userData)
+  const payload = userEntity.toRequestPayload()
   const response = await axiosInstance.post('/users', payload)
   return userMapper.toEntity(response.data)
 }
@@ -19,7 +21,6 @@ export const registerUser = async (userData) => {
 export const getAllUsers = async () => {
   try {
     const response = await axiosInstance.get('/users')
-
     return userMapper.toEntityList(response.data)
   } catch (error) {
     console.error('❌ [USERS API] Erro ao buscar usuários:', error.message)
@@ -49,7 +50,8 @@ export const getUserById = async (id) => {
  * @returns {Promise<User>} Entidade User atualizada.
  */
 export const updateUser = async (id, userData) => {
-  const payload = userMapper.toRequestPayload(userData)
+  const userEntity = new User(userData)
+  const payload = userEntity.toRequestPayload()
   const response = await axiosInstance.patch(`/users/${id}`, payload)
   return userMapper.toEntity(response.data)
 }
@@ -78,7 +80,10 @@ export const getUsersWithCreci = async () => {
     })
 
     return usersWithCreci
-  } catch (error) {
+  } catch {
     return []
   }
 }
+
+// Alias para compatibilidade
+export const registerUser = createUser

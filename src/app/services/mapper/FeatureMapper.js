@@ -18,6 +18,7 @@ export class FeatureMapper {
     return new Feature({
       id: data.id,
       description: data.description,
+      icon: data.icon,
     })
   }
 
@@ -42,6 +43,7 @@ export class FeatureMapper {
     return {
       id: feature.id,
       description: feature.description,
+      icon: feature.icon,
     }
   }
 }

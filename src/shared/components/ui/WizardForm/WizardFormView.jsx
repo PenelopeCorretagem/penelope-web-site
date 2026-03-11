@@ -612,7 +612,7 @@ export function WizardFormView(props) {
       <form
         className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md"
         onSubmit={(e) => {
-          console.log('🚀 [FORM] Form onSubmit triggered')
+
           vm.handleSubmit(e)
         }}
       >
@@ -667,7 +667,7 @@ export function WizardFormView(props) {
               width="fit"
               color="brown"
               onClick={(e) => {
-                console.log('🔄 [FORM] VOLTAR button clicked')
+
                 handlePrevious(e)
               }}
             >
@@ -683,7 +683,7 @@ export function WizardFormView(props) {
               width="fit"
               color="gray"
               onClick={(e) => {
-                console.log('❌ [FORM] CANCELAR button clicked')
+
                 vm.handleCancel()
               }}
             >
@@ -706,7 +706,7 @@ export function WizardFormView(props) {
                 color="pink"
                 disabled={vm.isLoading}
                 onClick={(e) => {
-                  console.log('➡️ [FORM] CONTINUAR button clicked')
+
                   handleNext(e)
                 }}
               >

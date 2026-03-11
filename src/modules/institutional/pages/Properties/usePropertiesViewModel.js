@@ -51,7 +51,7 @@ export const usePropertiesViewModel = ({ onError }) => {
 
   // Handler quando filtros mudam
   const handleFiltersChange = useCallback((filterModel) => {
-    console.log('Filters changed:', {
+
       search: filterModel.searchTerm,
       region: filterModel.getFilter('regionFilter'),
       city: filterModel.getFilter('cityFilter'),
