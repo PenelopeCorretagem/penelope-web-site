@@ -31,6 +31,7 @@ export default defineConfig(({ command, mode }) => {
       'import.meta.env.MODE': JSON.stringify(mode),
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
       'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(env.VITE_VIACEP_BASE_URL),
+      'import.meta.env.APP_MODEL': JSON.stringify(env.APP_MODEL || 'development'),
     },
 
     resolve: {

@@ -32,6 +32,8 @@
   "scripts": {
     "// === DESENVOLVIMENTO ===": "",
     "dev": "vite --mode development",
+    "mock": "vite --mode mock",
+    "msw:init": "msw init public/ --save-dev",
     "// === HOMOLOGAÇÃO ===": "",
     "homol": "vite --mode homologation",
     "homol:build": "vite build --mode homologation",
@@ -63,6 +65,7 @@
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
+    "msw": "^1.2.1",
     "@eslint/js": "^9.33.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
