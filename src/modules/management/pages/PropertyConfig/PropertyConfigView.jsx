@@ -24,13 +24,7 @@ export function PropertyConfigView() {
     handleClear,
     handleCancel
   } = usePropertyConfigViewModel(id)
-
-
-
-  if (initialData) {
-
-  }
-
+  
   // Só monta o formulário quando os usuários e features estiverem carregados
   if (loading || loadingUsers || loadingFeatures) {
     return (
@@ -451,16 +445,6 @@ export function PropertyConfigView() {
         steps={steps}
         initialData={initialData}
         onSubmit={(formData) => {
-
-            videoExists: !!formData.video,
-            coverExists: !!formData.cover,
-            galleryCount: formData.gallery?.length,
-            floorPlansCount: formData.floorPlans?.length,
-            video: formData.video,
-            cover: formData.cover,
-            gallery: formData.gallery,
-            floorPlans: formData.floorPlans
-          })
           return handleSubmit(formData)
         }}
         onDelete={!isNew ? () => {

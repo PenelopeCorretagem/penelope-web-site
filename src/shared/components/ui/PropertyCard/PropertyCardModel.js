@@ -1,12 +1,12 @@
 import { REAL_STATE_CARD_CATEGORIES } from '@constant/realStateCardCategories'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
-import { updateAdvertisementStatus } from '@app/services/api/realEstateAdvertisementAPI'
+import { updateAdvertisementStatus } from '@api-penelopec/realEstateAdvertisementAPI'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
-import { generateSlug } from '@shared/utils/generateSlugUtil'
+import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 

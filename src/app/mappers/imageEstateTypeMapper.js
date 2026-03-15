@@ -1,4 +1,4 @@
-import { ImageEstateType } from '../../model/entities/ImageEstateType'
+import { ImageEstateType } from '@dtos/ImageEstateType'
 import { imageEstateMapper } from './imageEstateMapper'
 
 export const imageEstateTypeMapper = {

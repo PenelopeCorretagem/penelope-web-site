@@ -1,12 +1,12 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
 import { getEstateTypeByKey } from '@constant/estateTypes'
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
-import { User } from '@entity/User'
-import { Address } from '@entity/Address'
-import { Estate } from '@entity/Estate'
-import { Feature } from '@entity/Feature'
-import { ImageEstate } from '@entity/ImageEstate'
-import { ImageEstateType } from '@entity/ImageEstateType'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
+import { User } from '@dtos/User'
+import { Address } from '@dtos/Address'
+import { Estate } from '@dtos/Estate'
+import { Feature } from '@dtos/Feature'
+import { ImageEstate } from '@dtos/ImageEstate'
+import { ImageEstateType } from '@dtos/ImageEstateType'
 
 /**
 

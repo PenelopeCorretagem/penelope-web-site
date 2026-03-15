@@ -1,4 +1,4 @@
-import { User } from '../../model/entities/User'
+import { User } from '@dtos/User'
 
 export const userMapper = {
   /**

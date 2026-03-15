@@ -1,4 +1,4 @@
-import { Feature } from '@entity/Feature'
+import { Feature } from '@dtos/Feature'
 
 /**
  * FeatureMapper

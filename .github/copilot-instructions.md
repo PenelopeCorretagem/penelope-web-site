@@ -133,10 +133,10 @@ Usar **imports absolutos** via aliases definidos no `vite.config.js`:
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { formatCurrency } from '@utils/formatCurrencyUtil'
 import { ROUTES } from '@constant/routes'
-import axiosInstance from '@api/axiosInstance'
+import axiosInstance from '@penelopec/axiosInstance'
 ```
 
-Aliases disponíveis: `@shared`, `@institutional`, `@auth`, `@management`, `@routes`, `@utils`, `@services`, `@api`, `@mapper`, `@entity`, `@constant`.
+Aliases disponíveis: `@shared`, `@institutional`, `@auth`, `@management`, `@routes`, `@utils`, `@services`, `@penelopec`, `@viacep`, `@mappers`, `@dtos`, `@mocks`, `@constant`.
 
 **Nunca** usar caminhos relativos longos (`../../../`).
 
@@ -232,7 +232,7 @@ export class User {
 9. **Sempre** escrever código e comentários em **Português Brasileiro** quando for texto de negócio/UI
 10. **Sempre** validar acessibilidade (atributos `aria-*`, `alt` em imagens, semântica HTML)
 11. **Nunca** usar Redux, Zustand ou gerenciamento de estado global — usar estado local + sessionStorage
-12. **Nunca** importar Axios diretamente — usar `axiosInstance` configurado em `@api/axiosInstance`
+12. **Nunca** importar Axios diretamente — usar `axiosInstance` configurado em `@penelopec/axiosInstance`
 
 ## Scripts Disponíveis
 

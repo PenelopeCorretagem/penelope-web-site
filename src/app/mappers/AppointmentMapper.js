@@ -1,4 +1,4 @@
-import { Appointment } from '@entity/Appointment'
+import { Appointment } from '@dtos/Appointment'
 
 export class AppointmentMapper {
   /**

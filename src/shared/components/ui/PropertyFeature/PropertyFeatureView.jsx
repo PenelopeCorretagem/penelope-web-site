@@ -1,6 +1,6 @@
 import { featureIconConstant } from '@constant/featureIconConstant'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { Feature } from '@entity/Feature'
+import { Feature } from '@dtos/Feature'
 
 
 export const PropertyFeatureView = ({ feature }) => {

@@ -1,4 +1,4 @@
-import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/formatAreaUtil'
+import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/area/formatAreaUtil'
 
 /**
  * Modelo de dados para configuração de propriedade
@@ -268,16 +268,6 @@ export class PropertyConfigModel {
       floorPlans: this.images.floorPlans
     }
 
-      title: formData.propertyTitle,
-      type: formData.propertyType,
-      images: {
-        video: !!formData.video,
-        cover: !!formData.cover,
-        gallery: formData.gallery.length,
-        floorPlans: formData.floorPlans.length
-      }
-    })
-
     return formData
   }
 
@@ -347,11 +337,6 @@ export class PropertyConfigModel {
         }
       })
     }
-
-      fieldType: f.fieldType,
-      type: f.type,
-      fileName: f.file?.name
-    })))
 
     return newFiles
   }

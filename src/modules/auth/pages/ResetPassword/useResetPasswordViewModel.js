@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { ResetPasswordModel } from './ResetPasswordModel'
-import { validateResetToken, resetPassword } from '@app/services/api/authApi'
+import { validateResetToken, resetPassword } from '@api-penelopec/authApi'
 
 export function useResetPasswordViewModel() {
   const navigate = useNavigate()

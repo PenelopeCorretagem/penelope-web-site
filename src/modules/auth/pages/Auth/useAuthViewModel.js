@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { RouterModel } from '@app/routes/RouterModel'
-import { login, register, forgotPassword } from '@app/services/api/authApi'
-import { getAllUsers } from '@app/services/api/userApi'
-import { userMapper } from '@app/services/mapper/userMapper'
+import { RouterModel } from '@routes/RouterModel'
+import { login, register, forgotPassword } from '@api-penelopec/authApi'
+import { getAllUsers } from '@api-penelopec/userApi'
+import { userMapper } from '@mappers/userMapper'
 
 export function useAuthViewModel() {
   const navigate = useNavigate()

@@ -1,5 +1,5 @@
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword } from '@shared/utils/validatePasswordUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword } from '@shared/utils/password/validatePasswordUtil'
 
 /**
  * AccountModel - Modelo de dados para a conta do usuário

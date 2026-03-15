@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
+import { listAllAdvertisements  } from '@api-penelopec/realEstateAdvertisementAPI'
 import { PropertiesModel } from './PropertiesModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
@@ -51,13 +51,6 @@ export const usePropertiesViewModel = ({ onError }) => {
 
   // Handler quando filtros mudam
   const handleFiltersChange = useCallback((filterModel) => {
-
-      search: filterModel.searchTerm,
-      region: filterModel.getFilter('regionFilter'),
-      city: filterModel.getFilter('cityFilter'),
-      type: filterModel.getFilter('typeFilter'),
-      sort: filterModel.sortOrder
-    })
     setCurrentFilters(filterModel)
   }, [])
 

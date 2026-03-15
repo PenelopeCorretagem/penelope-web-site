@@ -1,7 +1,10 @@
-import axiosInstance from './axiosInstance'
-import { imageEstateMapper } from '../mapper/imageEstateMapper'
-import { imageEstateTypeMapper } from '../mapper/imageEstateTypeMapper'
+import axiosInstance from '@api/axiosInstance'
 import { IMAGE_TYPE_IDS } from '@constant/imageTypes'
+
+/**
+ * Camada de API - Responsável apenas por requisições HTTP
+ * Retorna dados brutos sem transformação de negócio
+ */
 
 /**
  * Faz upload de imagens independentes (sem estateId).
@@ -16,8 +19,7 @@ export const uploadImages = async (files) => {
 
     const formData = new FormData()
 
-    // Adicionar arquivos ao FormData
-    files.forEach((file, _index) => {
+    files.forEach((file) => {
       formData.append('files', file)
     })
 
@@ -25,18 +27,14 @@ export const uploadImages = async (files) => {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      timeout: 60000, // 60 segundos para upload
+      timeout: 60000,
     })
 
-    // Validar resposta
     if (!response.data) {
       throw new Error('Resposta vazia do servidor')
     }
 
-    // O backend retorna List<String> diretamente
     const urls = Array.isArray(response.data) ? response.data : [response.data]
-
-    // Validar URLs
     const validUrls = urls.filter(url => url && typeof url === 'string' && url.trim() !== '')
 
     if (validUrls.length === 0) {
@@ -44,12 +42,11 @@ export const uploadImages = async (files) => {
     }
 
     if (validUrls.length !== files.length) {
-      throw new Error(`[IMAGE API] Expected ${files.length} URLs, got ${validUrls.length}`)
+      throw new Error(`Expected ${files.length} URLs, got ${validUrls.length}`)
     }
 
     return validUrls
   } catch (error) {
-    // Tratar diferentes tipos de erro
     if (error.code === 'ECONNABORTED') {
       throw new Error('Timeout no upload das imagens. Verifique sua conexão e tente novamente.')
     }
@@ -74,16 +71,14 @@ export const uploadImages = async (files) => {
  * Faz upload de imagens para um empreendimento específico.
  * @param {number|null} estateId - ID do empreendimento (null para upload independente)
  * @param {File[]} files - Array de arquivos de imagem
- * @param {number} typeId - ID do tipo de imagem (1=Capa, 2=Galeria, 3=Planta)
- * @returns {Promise<ImageEstate[]|string[]>} Lista de entidades ImageEstate ou URLs
+ * @param {number} typeId - ID do tipo de imagem
+ * @returns {Promise<string[]|object[]>} Lista de URLs ou dados brutos
  */
 export const uploadEstateImages = async (estateId, files, typeId = IMAGE_TYPE_IDS.GALLERY) => {
-  // Se não há estateId, faz upload independente usando a nova rota
   if (!estateId) {
-    return uploadImages(files, typeId)
+    return uploadImages(files)
   }
 
-  // Lógica original para upload com estateId (mantida para compatibilidade)
   const formData = new FormData()
 
   files.forEach(file => {
@@ -98,31 +93,25 @@ export const uploadEstateImages = async (estateId, files, typeId = IMAGE_TYPE_ID
     },
   })
 
-  // Se a resposta for um array de strings (URLs), retornar como objetos
-  if (Array.isArray(response.data) && typeof response.data[0] === 'string') {
-    return response.data.map(url => ({ url }))
-  }
-
-  // Caso contrário, usar o mapper normal
-  return imageEstateMapper.toEntityList(response.data)
+  return response.data
 }
 
 /**
  * Faz upload de uma imagem de capa para um empreendimento.
  * @param {number} estateId - ID do empreendimento
  * @param {File} file - Arquivo de imagem
- * @returns {Promise<ImageEstate>} Entidade ImageEstate criada
+ * @returns {Promise<object>} Dados brutos da imagem
  */
 export const uploadCoverImage = async (estateId, file) => {
   const result = await uploadEstateImages(estateId, [file], IMAGE_TYPE_IDS.COVER)
-  return result[0] || null
+  return Array.isArray(result) ? result[0] : result
 }
 
 /**
  * Faz upload de imagens da galeria para um empreendimento.
  * @param {number} estateId - ID do empreendimento
  * @param {File[]} files - Array de arquivos de imagem
- * @returns {Promise<ImageEstate[]>} Lista de entidades ImageEstate criadas
+ * @returns {Promise<object[]>} Dados brutos das imagens
  */
 export const uploadGalleryImages = async (estateId, files) => {
   return uploadEstateImages(estateId, files, IMAGE_TYPE_IDS.GALLERY)
@@ -132,7 +121,7 @@ export const uploadGalleryImages = async (estateId, files) => {
  * Faz upload de imagens de planta para um empreendimento.
  * @param {number} estateId - ID do empreendimento
  * @param {File[]} files - Array de arquivos de imagem
- * @returns {Promise<ImageEstate[]>} Lista de entidades ImageEstate criadas
+ * @returns {Promise<object[]>} Dados brutos das imagens
  */
 export const uploadFloorPlanImages = async (estateId, files) => {
   return uploadEstateImages(estateId, files, IMAGE_TYPE_IDS.FLOOR_PLAN)
@@ -141,12 +130,13 @@ export const uploadFloorPlanImages = async (estateId, files) => {
 /**
  * Lista todas as imagens de um empreendimento.
  * @param {number} estateId - ID do empreendimento
- * @returns {Promise<ImageEstate[]>} Lista de entidades ImageEstate
+ * @returns {Promise<object[]>} Dados brutos das imagens
  */
 export const getEstateImages = async (estateId) => {
   const response = await axiosInstance.get(`/empreendimentos/${estateId}/imagens`)
-  return imageEstateMapper.toEntityList(response.data)
+  return response.data
 }
+
 
 /**
  * Busca uma imagem específica por ID.

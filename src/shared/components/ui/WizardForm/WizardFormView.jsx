@@ -6,8 +6,8 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
-import { formatArea } from '@shared/utils/formatAreaUtil'
-import { formatCEP } from '@shared/utils/formatCEPUtil'
+import { formatArea } from '@shared/utils/area/formatAreaUtil'
+import { formatCEP } from '@shared/utils/CEP/formatCEPUtil'
 import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 
 export function WizardFormView(props) {

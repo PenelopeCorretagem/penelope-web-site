@@ -1,4 +1,4 @@
-import { ContactUs } from '../../model/entities/ContactUs'
+import { ContactUs } from '@dtos/ContactUs'
 
 export const contactUsMapper = {
   /**

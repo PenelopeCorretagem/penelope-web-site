@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
+import { getAdvertisementById, listAllAdvertisements  } from '@api-penelopec/realEstateAdvertisementAPI'
 import { RealStateDetailsModel } from './RealStateDetailsModel'
 
 /**

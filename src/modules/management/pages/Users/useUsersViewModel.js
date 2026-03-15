@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { getAllUsers, updateUser, deleteUser } from '@app/services/api/userApi'
+import { getAllUsers, updateUser, deleteUser } from '@api-penelopec/userApi'
 import { UsersModel } from './UsersModel'
 import { useRouter } from '@app/routes/useRouterViewModel'
 

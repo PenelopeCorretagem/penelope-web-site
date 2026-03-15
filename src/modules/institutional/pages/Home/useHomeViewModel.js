@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { getAllAdvertisements } from '@api/realEstateAdvertisementAPI'
+import { getAllAdvertisements } from '@api-penelopec/realEstateAdvertisementAPI'
 import { HomeModel } from './HomeModel'
 import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'

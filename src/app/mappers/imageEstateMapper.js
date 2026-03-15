@@ -1,5 +1,5 @@
-import { ImageEstate } from '../../model/entities/ImageEstate'
-import { ImageEstateType } from '../../model/entities/ImageEstateType'
+import { ImageEstate } from '@dtos/ImageEstate'
+import { ImageEstateType } from '@dtos/ImageEstateType'
 
 export const imageEstateMapper = {
   /**

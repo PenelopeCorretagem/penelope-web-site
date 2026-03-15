@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
-import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
-import { registerUser, updateUser, deleteUser, getUserById }  from '@app/services/api/userApi'
+import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
+import { registerUser, updateUser, deleteUser, getUserById }  from '@api-penelopec/userApi'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()

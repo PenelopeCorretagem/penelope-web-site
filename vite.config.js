@@ -36,19 +36,32 @@ export default defineConfig(({ command, mode }) => {
 
     resolve: {
       alias: {
+        // Módulos de aplicação
         '@shared': path.resolve(__dirname, './src/shared'),
         '@institutional': path.resolve(__dirname, './src/modules/institutional'),
         '@auth': path.resolve(__dirname, './src/modules/auth'),
         '@management': path.resolve(__dirname, './src/modules/management'),
-        '@routes': path.resolve(__dirname, './src/app/routes'),
-        '@domains': path.resolve(__dirname, './src/domains'),
+
+        // Shared (utils, constants, hooks, components)
+        '@constant': path.resolve(__dirname, './src/shared/constants'),
         '@utils': path.resolve(__dirname, './src/shared/utils'),
-        '@services': path.resolve(__dirname, './src/app/services'),
+
+        // App core (API, Services, Mappers, DTOs, Routes)
         '@app': path.resolve(__dirname, './src/app'),
-        '@api': path.resolve(__dirname, './src/app/services/api'),
-        '@mapper': path.resolve(__dirname, './src/app/services/mapper'),
-        '@entity': path.resolve(__dirname, './src/app/model/entities'),
-        '@constant': path.resolve(__dirname, './src/constants'),
+        '@routes': path.resolve(__dirname, './src/app/routes'),
+        '@api': path.resolve(__dirname, './src/app/api'),
+        '@services': path.resolve(__dirname, './src/app/services'),
+        '@mappers': path.resolve(__dirname, './src/app/mappers'),
+        '@dtos': path.resolve(__dirname, './src/app/dtos'),
+        '@mocks': path.resolve(__dirname, './src/app/mocks'),
+
+        // Convenience aliases para domínios/integrações específicas
+        // Services
+        '@service-penelopec': path.resolve(__dirname, './src/app/services/penelopec'),
+        '@service-viacep': path.resolve(__dirname, './src/app/services/viacep'),
+        // APIs
+        '@api-penelopec': path.resolve(__dirname, './src/app/api/penelopec'),
+        '@api-viacep': path.resolve(__dirname, './src/app/api/viacep'),
       },
     },
 

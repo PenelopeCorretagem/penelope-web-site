@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ScreeningFormModel } from './ScreeningFormModel'
-import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
+import { generateWhatsAppLink } from '@shared/utils/WhatsApp/generateWhatsAppLinkUtil'
 
 export function useScreeningFormViewModel(realEstateAdvertisement) {
 

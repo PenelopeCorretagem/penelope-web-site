@@ -1,5 +1,5 @@
 import { ESTATE_TYPES } from '@constant/estateTypes'
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
 
 export class HomeModel {
   // ===== PRIVATE FIELDS =====

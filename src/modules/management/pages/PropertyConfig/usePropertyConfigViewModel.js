@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyConfigModel } from './PropertyConfigModel'
-import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
-import { uploadImages } from '@app/services/api/imageApi'
-import { getUsersWithCreci } from '@app/services/api/userApi'
-import { listAllFeatures } from '@app/services/api/featureAPI'
+import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@api-penelopec/realEstateAdvertisementAPI'
+import { uploadImages } from '@api-penelopec/imageApi'
+import { getUsersWithCreci } from '@api-penelopec/userApi'
+import { listAllFeatures } from '@api-penelopec/featureAPI'
 
 export function usePropertyConfigViewModel(id) {
   const navigate = useNavigate()
@@ -92,42 +92,7 @@ export function usePropertyConfigViewModel(id) {
 
 
         const advertisement = await getAdvertisementById(id)
-
-          id: advertisement?.id,
-          active: advertisement?.active,
-          endDate: advertisement?.endDate,
-          creator: advertisement?.creator,
-          responsible: advertisement?.responsible,
-          hasEstate: !!advertisement?.estate,
-          hasProperty: !!advertisement?.property,
-          estateKeys: advertisement?.estate ? Object.keys(advertisement.estate).slice(0, 10) : [],
-          propertyKeys: advertisement?.property ? Object.keys(advertisement.property).slice(0, 10) : [],
-          estate: {
-            title: advertisement?.estate?.title,
-            type: advertisement?.estate?.type,
-            description: advertisement?.estate?.description?.substring(0, 50),
-            area: advertisement?.estate?.area,
-            numberOfRooms: advertisement?.estate?.numberOfRooms,
-            address: advertisement?.estate?.address,
-            amenities: advertisement?.estate?.amenities?.map(a => ({ description: a.description, name: a.name })),
-            imagesCount: advertisement?.estate?.images?.length || 0
-          },
-          property: {
-            title: advertisement?.property?.title,
-            type: advertisement?.property?.type,
-            description: advertisement?.property?.description?.substring(0, 50),
-            area: advertisement?.property?.area,
-            numberOfRooms: advertisement?.property?.numberOfRooms,
-            address: advertisement?.property?.address,
-            amenities: advertisement?.property?.amenities?.map(a => ({ description: a.description, name: a.name })),
-            imagesCount: advertisement?.property?.images?.length || 0
-          }
-        })
-
         const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisement)
-
-
-        const formDataOutput = propertyModel.toFormData()
 
 
         setInitialData(propertyModel)

@@ -1,10 +1,14 @@
-import axiosInstance from './axiosInstance'
-import { AppointmentMapper } from '@mapper/AppointmentMapper'
+import axiosInstance from '@api/axiosInstance'
 
 /**
- * Lista agendamentos com filtros opcionais e paginação.
+ * Camada de API - Responsável apenas por requisições HTTP
+ * Retorna dados brutos sem transformação de negócio
+ */
+
+/**
+ * Lista agendamentos com filtros opcionais.
  * @param {object} filters - Filtros de busca
- * @returns {Promise<{content: Appointment[], pageable: object}>} Lista paginada de entidades Appointment.
+ * @returns {Promise<object>} Dados brutos (com paginação)
  */
 export const getAllAppointments = async (filters = {}) => {
   try {
@@ -27,7 +31,7 @@ export const getAllAppointments = async (filters = {}) => {
     }
 
     const response = await axiosInstance.get('/appointments', { params })
-    return AppointmentMapper.toPaginatedEntityList(response.data)
+    return response.data
   } catch (error) {
     console.error('❌ [APPOINTMENTS API] Erro ao listar agendamentos:', error)
     throw error
@@ -36,13 +40,13 @@ export const getAllAppointments = async (filters = {}) => {
 
 /**
  * Busca um agendamento específico por ID.
- * @param {number} id - O ID do agendamento.
- * @returns {Promise<Appointment>} Entidade Appointment.
+ * @param {number} id - O ID do agendamento
+ * @returns {Promise<object>} Dados brutos do agendamento
  */
 export const getAppointmentById = async (id) => {
   try {
     const response = await axiosInstance.get(`/appointments/${id}`)
-    return AppointmentMapper.toEntity(response.data)
+    return response.data
   } catch (error) {
     console.error(`❌ [APPOINTMENTS API] Erro ao buscar agendamento ${id}:`, error)
     throw error
@@ -51,14 +55,14 @@ export const getAppointmentById = async (id) => {
 
 /**
  * Reagenda um agendamento existente.
- * @param {number} id - O ID do agendamento.
- * @param {object} rescheduleData - Dados do reagendamento { startDateTime, endDateTime, durationMinutes }
- * @returns {Promise<Appointment>} Entidade Appointment atualizada.
+ * @param {number} id - O ID do agendamento
+ * @param {object} rescheduleData - Dados do reagendamento
+ * @returns {Promise<object>} Dados brutos do agendamento atualizado
  */
 export const rescheduleAppointment = async (id, rescheduleData) => {
   try {
     const response = await axiosInstance.patch(`/appointments/${id}/reschedule`, rescheduleData)
-    return AppointmentMapper.toEntity(response.data)
+    return response.data
   } catch (error) {
     console.error(`❌ [APPOINTMENTS API] Erro ao reagendar agendamento ${id}:`, error)
     throw error
@@ -66,10 +70,10 @@ export const rescheduleAppointment = async (id, rescheduleData) => {
 }
 
 /**
- * Cancela um agendamento via Cal.com.
- * @param {number} id - O ID do agendamento.
- * @param {string} reason - Motivo do cancelamento (opcional).
- * @returns {Promise<object>} Resposta da API.
+ * Cancela um agendamento.
+ * @param {number} id - O ID do agendamento
+ * @param {string} reason - Motivo do cancelamento (opcional)
+ * @returns {Promise<object>} Resposta bruta da API
  */
 export const cancelAppointment = async (id, reason = null) => {
   try {
@@ -83,21 +87,20 @@ export const cancelAppointment = async (id, reason = null) => {
 }
 
 /**
- * Confirmação via Cal.com (retorna 405 - Não permitido).
- * @param {number} id - O ID do agendamento.
- * @returns {Promise<void>} Lança erro 405.
+ * Cria um novo agendamento.
+ * @param {object} appointmentData - Dados do agendamento
+ * @returns {Promise<object>} Dados brutos do agendamento criado
  */
-export const confirmAppointment = async (id) => {
+export const createAppointment = async (appointmentData) => {
   try {
-    await axiosInstance.post(`/appointments/${id}/confirm`)
+    const response = await axiosInstance.post('/appointments', appointmentData)
+    return response.data
   } catch (error) {
-    if (error.response?.status === 405) {
-      throw new Error('Confirmação deve ser feita via Cal.com')
-    }
-    console.error(`❌ [APPOINTMENTS API] Erro ao confirmar agendamento ${id}:`, error)
+    console.error('❌ [APPOINTMENTS API] Erro ao criar agendamento:', error)
     throw error
   }
 }
+
 
 /**
  * Finalização via Cal.com (retorna 405 - Não permitido).
