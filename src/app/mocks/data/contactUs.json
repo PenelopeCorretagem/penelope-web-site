@@ -1,0 +1,12 @@
+[
+  {"id": 1, "nome": "Carlos Eduardo", "email": "carlos.edu@example.com", "assunto": "Orçamento", "mensagem": "Gostaria de saber mais sobre os imóveis disponíveis."},
+  {"id": 2, "nome": "Lívia Rocha", "email": "livia.rocha@example.com", "assunto": "Visita", "mensagem": "Quando posso agendar uma visita?"},
+  {"id": 3, "nome": "Marcos Silva", "email": "marcos.silva@example.com", "assunto": "Contrato", "mensagem": "Preciso de informações sobre o contrato de locação."},
+  {"id": 4, "nome": "Fernanda Alves", "email": "fernanda.alves@example.com", "assunto": "Financiamento", "mensagem": "Quais são as opções de financiamento?"},
+  {"id": 5, "nome": "Rafael Costa", "email": "rafael.costa@example.com", "assunto": "Documentos", "mensagem": "Quais documentos são necessários?"},
+  {"id": 6, "nome": "Patrícia Gomes", "email": "patricia.gomes@example.com", "assunto": "Imóvel comercial", "mensagem": "Vocês atendem imóveis comerciais?"},
+  {"id": 7, "nome": "Eduardo Pinto", "email": "eduardo.pinto@example.com", "assunto": "Aluguel", "mensagem": "Como funciona o processo de aluguel?"},
+  {"id": 8, "nome": "Juliana Martins", "email": "juliana.martins@example.com", "assunto": "Compra", "mensagem": "Quero comprar um apartamento."},
+  {"id": 9, "nome": "Thiago Fernandes", "email": "thiago.fernandes@example.com", "assunto": "Desconto", "mensagem": "Existe algum desconto para pagamento à vista?"},
+  {"id": 10, "nome": "Renata Lima", "email": "renata.lima@example.com", "assunto": "Visita técnica", "mensagem": "Podemos marcar uma visita técnica?"}
+]

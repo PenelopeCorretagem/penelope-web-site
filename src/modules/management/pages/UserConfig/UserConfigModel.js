@@ -1,9 +1,9 @@
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword } from '@shared/utils/validatePasswordUtil'
-import { validateCPF } from '@shared/utils/validateCPFUtil'
-import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/formatPhoneNumberUtil'
-import { formatCPF, cleanCPF } from '@shared/utils/formatCPFUtil'
-import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword } from '@shared/utils/password/validatePasswordUtil'
+import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
+import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
+import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
+import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
 
 /**
  * UserConfigModel - Modelo de dados para configuração de usuários

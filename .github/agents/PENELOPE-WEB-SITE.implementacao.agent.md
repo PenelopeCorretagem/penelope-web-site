@@ -173,11 +173,11 @@ export class Entidade {
 
 ## Serviços de API
 
-Criar em `src/app/services/api/` — **NUNCA** importar axios diretamente:
+Criar em `src/app/services/penelopec/` — **NUNCA** importar axios diretamente:
 
 ```javascript
-import axiosInstance from '@api/axiosInstance'
-import { EntidadeMapper } from '@mapper/EntidadeMapper'
+import axiosInstance from '@penelopec/axiosInstance'
+import { EntidadeMapper } from '@mappers/EntidadeMapper'
 
 export const listarEntidades = async (filtros = {}) => {
   const response = await axiosInstance.get('/entidades', { params: filtros })
@@ -200,7 +200,7 @@ export const criarEntidade = async (entidade) => {
 Criar em `src/app/services/mapper/` — conversão bidirecional API ↔ Entidade:
 
 ```javascript
-import { Entidade } from '@entity/Entidade'
+import { Entidade } from '@dtos/Entidade'
 
 export class EntidadeMapper {
   static toEntity(data) {

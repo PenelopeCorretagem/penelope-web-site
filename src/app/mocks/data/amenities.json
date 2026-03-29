@@ -1,0 +1,12 @@
+[
+  {"id": 1, "description": "Piscina", "icon": "FaSwimmingPool"},
+  {"id": 2, "description": "Academia equipada", "icon": "FaDumbbell"},
+  {"id": 3, "description": "Playground", "icon": "FaChild"},
+  {"id": 4, "description": "Salão de festas", "icon": "FaGlassCheers"},
+  {"id": 5, "description": "Sauna", "icon": "FaHotTub"},
+  {"id": 6, "description": "Churrasqueira", "icon": "FaFire"},
+  {"id": 7, "description": "Vaga de garagem", "icon": "FaCar"},
+  {"id": 8, "description": "Portaria 24h", "icon": "FaClock"},
+  {"id": 9, "description": "Wi-Fi comum", "icon": "FaWifi"},
+  {"id": 10, "description": "Jardim", "icon": "FaTree"}
+]

@@ -1,16 +1,11 @@
-import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/formatAreaUtil'
+import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/area/formatAreaUtil'
 
 /**
  * Modelo de dados para configuração de propriedade
  */
 export class PropertyConfigModel {
   constructor(realEstateAdvertisement = null) {
-    console.log('🔨 [PROPERTY MODEL] Constructor called with:', {
-      hasData: !!realEstateAdvertisement,
-      id: realEstateAdvertisement?.id,
-      hasEstate: !!realEstateAdvertisement?.estate,
-      estateTitle: realEstateAdvertisement?.estate?.title
-    })
+
 
     this.id = realEstateAdvertisement?.id || null
     this.active = realEstateAdvertisement?.active !== undefined ? realEstateAdvertisement.active : true
@@ -30,28 +25,19 @@ export class PropertyConfigModel {
     // Card description from address
     this.cardDescription = estate?.address?.neighborhood || ''
 
-    console.log('🔨 [PROPERTY MODEL] Basic fields processed:', {
-      id: this.id,
-      title: this.propertyTitle,
-      type: this.propertyType,
-      responsible: this.responsible,
-      area: this.area,
-      rooms: this.numberOfRooms,
-      active: this.active,
-      endDate: this.displayEndDate
-    })
+
 
     // Extract differentials from features (keep as Feature objects)
-    console.log('🎯 [PROPERTY MODEL] Processing features (keeping Feature objects):', estate?.features?.length || 0)
+
     this.differentials = Array.isArray(estate?.features) ? [...estate.features] : []
-    console.log('🎯 [PROPERTY MODEL] Final differentials (Feature objects):', this.differentials)
+
 
     // Store original advertisement data for updates
     this.originalAdvertisementData = realEstateAdvertisement
 
     // Address
     const mainAddress = estate?.address || {}
-    console.log('📍 [PROPERTY MODEL] Processing main address:', mainAddress)
+
 
     this.address = {
       cep: mainAddress?.zipCode || '',
@@ -63,11 +49,11 @@ export class PropertyConfigModel {
       state: mainAddress?.uf || ''
     }
 
-    console.log('📍 [PROPERTY MODEL] Processed address:', this.address)
+
 
     // Stand address
     const standAddressData = estate?.standAddress
-    console.log('📍 [PROPERTY MODEL] Processing stand address:', !!standAddressData, standAddressData)
+
 
     this.standAddress = {
       cep: standAddressData?.zipCode || '',
@@ -80,19 +66,12 @@ export class PropertyConfigModel {
     }
 
     this.enableStandAddress = !!standAddressData && Object.values(standAddressData).some(v => v)
-    console.log('📍 [PROPERTY MODEL] Processed stand address:', {
-      enabled: this.enableStandAddress,
-      address: this.enableStandAddress ? this.standAddress : 'disabled'
-    })
+
 
     // Images
     const images = estate?.images || []
-    console.log('🖼️ [PROPERTY MODEL] Constructor - Processing images:', images.length)
-    console.log('🖼️ [PROPERTY MODEL] Raw images:', images.map(img => ({
-      id: img.id,
-      type: img.type?.description,
-      url: img.url?.substring(0, 100)
-    })))
+
+
 
     this.images = {
       video: this._createFilePreview(this._extractImageUrl(images, 'Video'), 'Video'),
@@ -101,23 +80,14 @@ export class PropertyConfigModel {
       floorPlans: this._extractAndCreatePreviews(images, 'Planta')
     }
 
-    console.log('🖼️ [PROPERTY MODEL] Constructor - Final images:', {
-      video: !!this.images.video,
-      cover: !!this.images.cover,
-      gallery: this.images.gallery.length,
-      floorPlans: this.images.floorPlans.length
-    })
+
   }
 
   /**
    * Cria um PropertyConfigModel a partir de uma entidade Advertisement
    */
   static fromAdvertisementEntity(advertisementEntity) {
-    console.log('🔄 [PROPERTY MODEL] fromAdvertisementEntity called with:', {
-      id: advertisementEntity?.id,
-      hasEstate: !!advertisementEntity?.estate,
-      estateTitle: advertisementEntity?.estate?.title
-    })
+
 
     if (!advertisementEntity) {
       console.warn('⚠️ [PROPERTY MODEL] No advertisement entity provided, creating empty model')
@@ -131,16 +101,13 @@ export class PropertyConfigModel {
    * Enhanced image URL extraction with better type matching
    */
   _extractImageUrl(images, type) {
-    console.log(`🔍 [PROPERTY MODEL] _extractImageUrl searching for "${type}"`)
 
     if (!Array.isArray(images) || images.length === 0) {
-      console.log(`❌ [PROPERTY MODEL] No images array or empty`)
       return ''
     }
 
     // Try exact match first using type.description (from ImageEstateType entity)
     let image = images.find(img => img.type?.description === type)
-    console.log(`🔍 [PROPERTY MODEL] Exact match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
 
     // If not found, try alternative type mappings
     if (!image) {
@@ -153,16 +120,9 @@ export class PropertyConfigModel {
 
       const alternativeTypes = typeMapping[type] || []
       image = images.find(img => alternativeTypes.includes(String(img.type?.description)))
-      console.log(`🔍 [PROPERTY MODEL] Alternative match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
     }
 
     const url = image?.url || ''
-    console.log(`🔍 [PROPERTY MODEL] Extracted ${type} image:`, {
-      found: !!image,
-      imageId: image?.id,
-      imageType: image?.type?.description,
-      urlLength: url?.length
-    })
 
     return url
   }
@@ -171,16 +131,13 @@ export class PropertyConfigModel {
    * Enhanced gallery/floor plans extraction with better sorting and type matching
    */
   _extractAndCreatePreviews(images, type) {
-    console.log(`🔍 [PROPERTY MODEL] _extractAndCreatePreviews for "${type}"`)
 
     if (!Array.isArray(images)) {
-      console.log(`❌ [PROPERTY MODEL] Images is not an array for ${type}`)
       return []
     }
 
     // Try exact match first using type.description
     let matchingImages = images.filter(img => img.type?.description === type)
-    console.log(`🔍 [PROPERTY MODEL] Exact matches for "${type}":`, matchingImages.length)
 
     // If no exact match, try alternative mappings
     if (matchingImages.length === 0) {
@@ -191,7 +148,6 @@ export class PropertyConfigModel {
 
       const alternativeTypes = typeMapping[type] || []
       matchingImages = images.filter(img => alternativeTypes.includes(String(img.type?.description)))
-      console.log(`🔍 [PROPERTY MODEL] Found ${matchingImages.length} alternative matches for "${type}"`)
     }
 
     const previews = matchingImages
@@ -199,7 +155,6 @@ export class PropertyConfigModel {
       .map((img, index) => this._createFilePreview(img.url, type, index + 1))
       .filter(Boolean)
 
-    console.log(`✅ [PROPERTY MODEL] Created ${previews.length} previews for "${type}"`)
     return previews
   }
 
@@ -207,10 +162,8 @@ export class PropertyConfigModel {
    * Cria um objeto File-like para preview de URL
    */
   _createFilePreview(url, type, index = null) {
-    console.log(`🖼️ [PROPERTY MODEL] _createFilePreview:`, { url: url?.substring(0, 100), type, index, hasUrl: !!url })
 
     if (!url) {
-      console.log(`❌ [PROPERTY MODEL] No URL provided for ${type}`)
       return null
     }
 
@@ -227,10 +180,6 @@ export class PropertyConfigModel {
       lastModified: Date.now()
     }
 
-    console.log(`✅ [PROPERTY MODEL] Created preview for ${type}:`, {
-      fileName,
-      urlLength: url?.length
-    })
 
     return preview
   }
@@ -277,7 +226,7 @@ export class PropertyConfigModel {
    * Converte o modelo para formato de formulário
    */
   toFormData() {
-    console.log('📤 [PROPERTY MODEL] toFormData() called')
+
 
     const formData = {
       active: this.active,
@@ -318,17 +267,6 @@ export class PropertyConfigModel {
       gallery: this.images.gallery,
       floorPlans: this.images.floorPlans
     }
-
-    console.log('📤 [PROPERTY MODEL] toFormData() complete:', {
-      title: formData.propertyTitle,
-      type: formData.propertyType,
-      images: {
-        video: !!formData.video,
-        cover: !!formData.cover,
-        gallery: formData.gallery.length,
-        floorPlans: formData.floorPlans.length
-      }
-    })
 
     return formData
   }
@@ -400,13 +338,6 @@ export class PropertyConfigModel {
       })
     }
 
-    console.log('📁 [PROPERTY MODEL] New files to upload:', newFiles.length)
-    console.log('📁 [PROPERTY MODEL] File breakdown:', newFiles.map(f => ({
-      fieldType: f.fieldType,
-      type: f.type,
-      fileName: f.file?.name
-    })))
-
     return newFiles
   }
 
@@ -414,7 +345,7 @@ export class PropertyConfigModel {
    * Enhanced API request conversion with better image handling for updates
    */
   toApiRequest(formData, uploadedImageData = [], availableAmenities = []) {
-    console.log('🔄 [PROPERTY MODEL] Converting form data to API request')
+
 
     // Função para limitar e sanitizar strings
     const sanitizeString = (value, maxLength = null) => {
@@ -579,12 +510,12 @@ export class PropertyConfigModel {
       imageType: imageTypes
     }
 
-    console.log('✅ [PROPERTY MODEL] API request created for', this.isNew() ? 'CREATE' : 'UPDATE')
-    console.log('🔍 [PROPERTY MODEL] Property type:', request.type)
-    console.log('🔍 [PROPERTY MODEL] Active status:', request.advertisementCreateRequest.active)
-    console.log('🖼️ [PROPERTY MODEL] Total images:', imageUrls.length)
-    console.log('🏷️ [PROPERTY MODEL] Image types:', imageTypes)
-    console.log('🎯 [PROPERTY MODEL] Amenities IDs:', request.amenitiesIds)
+
+
+
+
+
+
 
     return request
   }

@@ -6,8 +6,8 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
-import { formatArea } from '@shared/utils/formatAreaUtil'
-import { formatCEP } from '@shared/utils/formatCEPUtil'
+import { formatArea } from '@shared/utils/area/formatAreaUtil'
+import { formatCEP } from '@shared/utils/CEP/formatCEPUtil'
 import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 
 export function WizardFormView(props) {
@@ -612,7 +612,7 @@ export function WizardFormView(props) {
       <form
         className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md"
         onSubmit={(e) => {
-          console.log('🚀 [FORM] Form onSubmit triggered')
+
           vm.handleSubmit(e)
         }}
       >
@@ -667,7 +667,7 @@ export function WizardFormView(props) {
               width="fit"
               color="brown"
               onClick={(e) => {
-                console.log('🔄 [FORM] VOLTAR button clicked')
+
                 handlePrevious(e)
               }}
             >
@@ -683,7 +683,7 @@ export function WizardFormView(props) {
               width="fit"
               color="gray"
               onClick={(e) => {
-                console.log('❌ [FORM] CANCELAR button clicked')
+
                 vm.handleCancel()
               }}
             >
@@ -706,7 +706,7 @@ export function WizardFormView(props) {
                 color="pink"
                 disabled={vm.isLoading}
                 onClick={(e) => {
-                  console.log('➡️ [FORM] CONTINUAR button clicked')
+
                   handleNext(e)
                 }}
               >

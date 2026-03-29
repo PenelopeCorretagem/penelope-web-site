@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { login, register, forgotPassword } from '@app/services/api/authApi'
-import { getAllUsers } from '@app/services/api/userApi'
-import { userMapper } from '@app/services/mapper/userMapper'
+import { RouterModel } from '@routes/RouterModel'
+import { login, register, forgotPassword } from '@api-penelopec/authApi'
+import { getAllUsers } from '@api-penelopec/userApi'
+import { userMapper } from '@mappers/userMapper'
 
 export function useAuthViewModel() {
   const navigate = useNavigate()
@@ -57,7 +58,7 @@ export function useAuthViewModel() {
   const handleLoginSubmit = useCallback(async (formData) => {
     setIsLoading(true)
 
-    console.log('Tentando login com:', { email: formData.email })
+
 
     try {
       const response = await login({
@@ -65,7 +66,7 @@ export function useAuthViewModel() {
         password: formData.senha
       })
 
-      console.log('🔍 [LOGIN] Response da API:', response)
+
 
       // Validar e salvar token
       const token = response.token
@@ -115,7 +116,7 @@ export function useAuthViewModel() {
                     currentUser.user_id ||
                     currentUser.ID
 
-            console.log('✓ userId tentando extrair:', userId)
+
 
             if (!userId) {
               console.warn('⚠️ API não retorna ID! Usando email como fallback')
@@ -135,7 +136,7 @@ export function useAuthViewModel() {
         try {
           userEntity = userMapper.toEntity(response.user)
           userId = userEntity.id || response.id
-          console.log('✓ UserEntity criada da resposta')
+
         } catch (mapError) {
           console.error('❌ Erro ao mapear usuário:', mapError)
           throw new Error('Erro ao processar dados do usuário')
@@ -152,7 +153,7 @@ export function useAuthViewModel() {
       // Atualizar userId se necessário
       if (userId !== sessionStorage.getItem('userId')) {
         sessionStorage.setItem('userId', userId.toString())
-        console.log('✅ userId atualizado:', userId)
+
       }
 
       // Salvar dados completos do usuário se disponível, MAS PRESERVAR ROLE
@@ -163,28 +164,41 @@ export function useAuthViewModel() {
         if (userEntity.accessLevel && userEntity.isAdmin) {
           const entityIsAdmin = userEntity.isAdmin()
           if (entityIsAdmin !== isAdminUser) {
-            console.log('⚠️ Conflito de admin status, usando userEntity:', entityIsAdmin)
+
             sessionStorage.setItem('userRole', entityIsAdmin ? 'admin' : 'user')
             isAdminUser = entityIsAdmin
           }
         }
 
-        console.log('✅ Login completo! Dados salvos:', {
-          userId,
-          userEmail: userEntity.email,
-          isAdmin: isAdminUser
-        })
+
       } else {
         // Garantir que dados mínimos estão salvos
         sessionStorage.setItem('userName', formData.email)
-        console.log('⚠️ Dados mínimos salvos, preservando role:', sessionStorage.getItem('userRole'))
+
       }
 
-      // Disparar evento de mudança de auth e redirecionar automaticamente para a tela inicial após 2 segundos
-      window.dispatchEvent(new CustomEvent('authChanged'))
-      setTimeout(() => {
-        navigate(model.getHomeRoute())
-      }, 2000)
+      setAlertConfig({
+        type: 'success',
+        message: `Bem-vindo de volta${userEntity?.nomeCompleto ? `, ${userEntity.nomeCompleto}` : ''}!`,
+        onClose: () => {
+          setAlertConfig(null)
+
+          // Disparar evento de mudança de auth ANTES do redirect
+          window.dispatchEvent(new CustomEvent('authChanged'))
+
+          // Pequeno delay para garantir que o estado seja atualizado
+          setTimeout(() => {
+            // Usar RouterModel para redirecionamento
+            if (isAdminUser) {
+
+              navigate(model.getAdminPropertiesRoute())
+            } else {
+
+              navigate(model.getProfileRoute())
+            }
+          }, 100)
+        }
+      })
 
       return { success: true }
     } catch (error) {
@@ -226,9 +240,7 @@ export function useAuthViewModel() {
       if (!formData.lgpdConsent) {
         throw new Error('Você deve aceitar os termos da LGPD para prosseguir.')
       }
-      console.log({ name: formData.nomeCompleto,
-        email: formData.email,
-        password: formData.senha })
+
 
       await register({
         name: formData.nomeCompleto,

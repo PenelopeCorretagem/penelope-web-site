@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getUserById, updateUser, deleteUser } from '@app/services/api/userApi'
+import { getUserById, updateUser, deleteUser } from '@api-penelopec/userApi'
 import { AccountModel } from './AccountModel'
 
 export function useAccountViewModel() {

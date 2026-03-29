@@ -82,25 +82,25 @@ export class WizardFormModel {
   }
 
   validateCurrentStep() {
-    console.log('🔍 [WIZARD MODEL] Validating current step:', this.currentStep)
+
 
     const stepFields = this.getAllFieldsForStep(this.currentStep)
     let isValid = true
 
-    console.log('🔍 [WIZARD MODEL] Fields to validate:', stepFields.map(f => ({ name: f.name, required: f.required })))
+
 
     stepFields.forEach(field => {
       const value = this.fieldValues[field.name]
-      console.log(`🔍 [WIZARD MODEL] Validating field ${field.name}:`, { value, required: field.required })
+
 
       if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
         this.fieldErrors[field.name] = `${field.label} é obrigatório`
-        console.log(`❌ [WIZARD MODEL] Field ${field.name} failed validation`)
+
         isValid = false
       }
     })
 
-    console.log('🔍 [WIZARD MODEL] Validation result:', { isValid, errors: this.fieldErrors })
+
     return isValid
   }
 
