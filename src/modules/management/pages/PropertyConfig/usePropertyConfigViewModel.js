@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PropertyConfigModel } from './PropertyConfigModel'
 import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@api-penelopec/realEstateAdvertisementAPI'
 import { uploadImages } from '@api-penelopec/imageApi'
-import { getUsersWithCreci } from '@api-penelopec/userApi'
+import { getUsersWithCreci } from '@service-penelopec/userService'
 import { listAllFeatures } from '@api-penelopec/featureAPI'
 
 export function usePropertyConfigViewModel(id) {

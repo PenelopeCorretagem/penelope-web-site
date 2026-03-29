@@ -1,5 +1,5 @@
 import { mapStateToRegion } from '@shared/constants/viaCepConstants'
-import Address from '@dtos/Address'
+import { Address } from '@dtos/Address'
 
 /**
  * Mapper para converter dados ViaCEP em entidades de domínio
