@@ -10,7 +10,6 @@ export function useAuthViewModel() {
   const navigate = useNavigate()
   const location = useLocation()
   const [model] = useState(() => new AuthModel())
-  const [routerModel] = useState(() => RouterModel.getInstance())
 
   const [isActive, setIsActive] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
