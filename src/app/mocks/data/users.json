@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "name": "João Silva",
+    "email": "joao.silva@example.com",
+    "cpf": "12345678901",
+    "dateBirth": "1985-05-10",
+    "monthlyIncome": 8000.00,
+    "phone": "11987654321",
+    "creci": "123456-F/SP",
+    "accessLevel": "ADMINISTRADOR",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Maria Santos",
+    "email": "maria.santos@example.com",
+    "cpf": "98765432100",
+    "dateBirth": "1990-03-22",
+    "monthlyIncome": 5500.00,
+    "phone": "11987654322",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Carlos Pereira",
+    "email": "carlos.pereira@example.com",
+    "cpf": "11122233344",
+    "dateBirth": "1988-07-15",
+    "monthlyIncome": 6200.00,
+    "phone": "11987654323",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "Ana Souza",
+    "email": "ana.souza@example.com",
+    "cpf": "55566677788",
+    "dateBirth": "1992-11-03",
+    "monthlyIncome": 7000.00,
+    "phone": "11987654324",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "Pedro Gomes",
+    "email": "pedro.gomes@example.com",
+    "cpf": "99988877766",
+    "dateBirth": "1983-09-30",
+    "monthlyIncome": 9500.00,
+    "phone": "11987654325",
+    "creci": "654321-F/SP",
+    "accessLevel": "ADMINISTRADOR",
+    "active": true
+  },
+  {
+    "id": 6,
+    "name": "Beatriz Lima",
+    "email": "beatriz.lima@example.com",
+    "cpf": "44455566677",
+    "dateBirth": "1995-01-18",
+    "monthlyIncome": 4800.00,
+    "phone": "11987654326",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 7,
+    "name": "Ricardo Teixeira",
+    "email": "ricardo.teixeira@example.com",
+    "cpf": "77788899900",
+    "dateBirth": "1987-06-25",
+    "monthlyIncome": 6800.00,
+    "phone": "11987654327",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 8,
+    "name": "Luana Freitas",
+    "email": "luana.freitas@example.com",
+    "cpf": "33344455566",
+    "dateBirth": "1991-08-12",
+    "monthlyIncome": 8500.00,
+    "phone": "11987654328",
+    "creci": "789012-F/SP",
+    "accessLevel": "ADMINISTRADOR",
+    "active": true
+  },
+  {
+    "id": 9,
+    "name": "Sofia Mendes",
+    "email": "sofia.mendes@example.com",
+    "cpf": "66677788899",
+    "dateBirth": "1993-12-07",
+    "monthlyIncome": 5200.00,
+    "phone": "11987654329",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  },
+  {
+    "id": 10,
+    "name": "Mateus Rocha",
+    "email": "mateus.rocha@example.com",
+    "cpf": "22233344455",
+    "dateBirth": "1989-04-20",
+    "monthlyIncome": 7300.00,
+    "phone": "11987654330",
+    "creci": null,
+    "accessLevel": "CLIENTE",
+    "active": true
+  }
+]

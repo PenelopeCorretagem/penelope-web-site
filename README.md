@@ -64,6 +64,7 @@ penelope-web-site/
 ├── .env.development            # 🔧 Variáveis de ambiente - Desenvolvimento
 ├── .env.homologation           # 🏗️ Variáveis de ambiente - Homologação
 ├── .env.production             # 🚀 Variáveis de ambiente - Produção
+├── .env.mock                   # 🧪 Variáveis de ambiente - Modo mock (MSW)
 ├── .gitignore                  # 📝 Arquivos ignorados pelo Git
 ├── .prettierrc                 # 💅 Configuração Prettier
 ├── eslint.config.js            # 📏 Configuração ESLint (flat config)
@@ -73,6 +74,43 @@ penelope-web-site/
 ├── README.md                   # 📖 Este arquivo
 └── vite.config.js              # ⚡ Configuração Vite
 ```
+
+## 🧪 Modo de desenvolvimento com MSW
+
+O projeto agora suporta um **modo de mock** que permite rodar o front-end totalmente separado do backend. Isso é útil para desenvolvimento offline, testes de UI ou demos.
+
+### Como funciona
+
+1. Defina a variável `VITE_API_MODE=mock` no arquivo `.env.mock` (já criado no repositório).
+2. Execute o dev server com `npm run dev:mock` (ele usa `vite --mode mock`).
+3. No início da aplicação, `main.jsx` detecta o modo mock e inicializa o **Mock Service Worker** (MSW).
+4. Todas as requisições HTTP que corresponderem aos handlers definidos em `src/mocks/handlers.js` são interceptadas e recebem respostas com dados JSON locais.
+5. No modo normal (`npm run dev`), o MSW não é inicializado e as chamadas continuam indo para o backend real.
+
+### Estrutura de mocks
+
+```
+src/mocks/
+├── browser.js      # Setup do worker MSW
+├── handlers.js     # Definição de endpoints simulados
+└── data/
+    ├── users.json      # Exemplo de lista de usuários
+    └── properties.json # Exemplo de propriedades
+```
+
+Os handlers usam expressões regulares para abranger tanto URLs relativas quanto chamadas com base URL configurada.
+
+### Scripts úteis
+
+- `npm run dev`       → servidor normal usando API real
+- `npm run dev:mock`  → servidor em modo mock (MSW intercepta requisições)
+
+> ⚠️ Após adicionar novos handlers é necessário (uma única vez) inicializar o service worker em `public/` com:
+> ```bash
+> npx msw init public/ --save-dev
+> ```
+
+---
 
 ## 🎯 Arquitetura MVVM
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getUserById, updateUser } from '@app/services/api/userApi'
+import { getUserById, updateUser } from '@api-penelopec/userApi'
 import { ProfileModel } from './ProfileModel'
-import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
 
 export function useProfileViewModel(targetUserId = null) {
   const [model, setModel] = useState(new ProfileModel())

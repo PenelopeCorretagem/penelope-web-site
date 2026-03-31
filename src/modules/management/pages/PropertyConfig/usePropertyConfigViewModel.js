@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyConfigModel } from './PropertyConfigModel'
-import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
-import { uploadImages } from '@app/services/api/imageApi'
-import { getUsersWithCreci } from '@app/services/api/userApi'
-import { listAllFeatures } from '@app/services/api/featureAPI'
+import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@api-penelopec/realEstateAdvertisementAPI'
+import { uploadImages } from '@api-penelopec/imageApi'
+import { getUsersWithCreci } from '@service-penelopec/userService'
+import { listAllFeatures } from '@api-penelopec/featureAPI'
 
 export function usePropertyConfigViewModel(id) {
   const navigate = useNavigate()
@@ -22,7 +22,6 @@ export function usePropertyConfigViewModel(id) {
 
   // Simple toast implementation (fallback if useToast doesn't exist)
   const showToast = (type, message) => {
-    console.log(`${type.toUpperCase()}: ${message}`)
     // You can replace this with your actual toast implementation
     if (type === 'error') {
       alert(`Erro: ${message}`)
@@ -36,11 +35,11 @@ export function usePropertyConfigViewModel(id) {
     const loadUsers = async () => {
       try {
         setLoadingUsers(true)
-        console.log('🔄 [PROPERTY CONFIG VM] Loading users with CRECI...')
+
 
         const users = await getUsersWithCreci()
 
-        console.log('✅ [PROPERTY CONFIG VM] Users loaded:', users.length)
+
         setUsersWithCreci(users)
       } catch (err) {
         console.error('❌ [PROPERTY CONFIG VM] Failed to load users:', err)
@@ -60,11 +59,11 @@ export function usePropertyConfigViewModel(id) {
     const loadFeatures = async () => {
       try {
         setLoadingFeatures(true)
-        console.log('🔄 [PROPERTY CONFIG VM] Loading features...')
+
 
         const featuresList = await listAllFeatures()
 
-        console.log('✅ [PROPERTY CONFIG VM] Features loaded:', featuresList.length)
+
         setFeatures(featuresList)
       } catch (err) {
         console.error('❌ [PROPERTY CONFIG VM] Failed to load features:', err)
@@ -82,7 +81,7 @@ export function usePropertyConfigViewModel(id) {
   useEffect(() => {
     const loadPropertyData = async () => {
       if (isNew) {
-        console.log('📝 [PROPERTY CONFIG VM] Creating new property')
+
         setInitialData(new PropertyConfigModel())
         setLoading(false)
         return
@@ -90,46 +89,11 @@ export function usePropertyConfigViewModel(id) {
 
       try {
         setLoading(true)
-        console.log('🔄 [PROPERTY CONFIG VM] Loading property data for ID:', id)
+
 
         const advertisement = await getAdvertisementById(id)
-        console.log('📥 [PROPERTY CONFIG VM] Raw advertisement structure:', {
-          id: advertisement?.id,
-          active: advertisement?.active,
-          endDate: advertisement?.endDate,
-          creator: advertisement?.creator,
-          responsible: advertisement?.responsible,
-          hasEstate: !!advertisement?.estate,
-          hasProperty: !!advertisement?.property,
-          estateKeys: advertisement?.estate ? Object.keys(advertisement.estate).slice(0, 10) : [],
-          propertyKeys: advertisement?.property ? Object.keys(advertisement.property).slice(0, 10) : [],
-          estate: {
-            title: advertisement?.estate?.title,
-            type: advertisement?.estate?.type,
-            description: advertisement?.estate?.description?.substring(0, 50),
-            area: advertisement?.estate?.area,
-            numberOfRooms: advertisement?.estate?.numberOfRooms,
-            address: advertisement?.estate?.address,
-            amenities: advertisement?.estate?.amenities?.map(a => ({ description: a.description, name: a.name })),
-            imagesCount: advertisement?.estate?.images?.length || 0
-          },
-          property: {
-            title: advertisement?.property?.title,
-            type: advertisement?.property?.type,
-            description: advertisement?.property?.description?.substring(0, 50),
-            area: advertisement?.property?.area,
-            numberOfRooms: advertisement?.property?.numberOfRooms,
-            address: advertisement?.property?.address,
-            amenities: advertisement?.property?.amenities?.map(a => ({ description: a.description, name: a.name })),
-            imagesCount: advertisement?.property?.images?.length || 0
-          }
-        })
-
         const propertyModel = PropertyConfigModel.fromAdvertisementEntity(advertisement)
-        console.log('✅ [PROPERTY CONFIG VM] Property model created')
 
-        const formDataOutput = propertyModel.toFormData()
-        console.log('📋 [PROPERTY CONFIG VM] Form data being set - ALL FIELDS:', formDataOutput)
 
         setInitialData(propertyModel)
       } catch (err) {
@@ -146,8 +110,8 @@ export function usePropertyConfigViewModel(id) {
   const handleSubmit = async (formData) => {
     if (submitting) return
 
-    console.log('🎯 [PROPERTY CONFIG VM] Starting submit process', { isNew, id })
-    console.log('📝 [PROPERTY CONFIG VM] Form data received:', formData)
+
+
 
     setSubmitting(true)
     setError(null)
@@ -157,13 +121,13 @@ export function usePropertyConfigViewModel(id) {
 
       // Extract new files that need uploading
       const newFiles = propertyModel.extractNewImageFiles(formData)
-      console.log('📁 [PROPERTY CONFIG VM] New files to upload:', newFiles.length)
+
 
       let uploadedImageData = []
 
       // Upload new images if any
       if (newFiles.length > 0) {
-        console.log('📤 [PROPERTY CONFIG VM] Starting image upload...')
+
         const uploadResults = await Promise.all(
           newFiles.map(async ({ file, type }) => {
             const urls = await uploadImages([file], type)
@@ -171,23 +135,23 @@ export function usePropertyConfigViewModel(id) {
           })
         )
         uploadedImageData = uploadResults
-        console.log('✅ [PROPERTY CONFIG VM] Images uploaded successfully:', uploadedImageData)
+
       }
 
       // Convert to API request format
       const apiRequest = propertyModel.toApiRequest(formData, uploadedImageData, features)
-      console.log('🔄 [PROPERTY CONFIG VM] API request prepared:', apiRequest)
+
 
       let result
       if (isNew) {
-        console.log('➕ [PROPERTY CONFIG VM] Creating new advertisement...')
+
         result = await createAdvertisement(apiRequest)
       } else {
-        console.log('✏️ [PROPERTY CONFIG VM] Updating existing advertisement...')
+
         result = await updateAdvertisement(id, apiRequest)
       }
 
-      console.log('✅ [PROPERTY CONFIG VM] Operation completed successfully:', result)
+
 
       showToast('success', isNew ? 'Propriedade criada com sucesso!' : 'Propriedade atualizada com sucesso!')
       navigate('/admin/gerenciar-imoveis')
@@ -207,7 +171,7 @@ export function usePropertyConfigViewModel(id) {
   const handleDelete = async () => {
     if (!id || isNew) return
 
-    console.log('🗑️ [PROPERTY CONFIG VM] Starting soft delete (deactivate)...')
+
 
     try {
       setSubmitting(true)
@@ -222,11 +186,11 @@ export function usePropertyConfigViewModel(id) {
         active: false // Set active to false for soft delete
       }, [], features)
 
-      console.log('🔄 [PROPERTY CONFIG VM] Disabling advertisement with full data:', disableRequest)
+
 
       await updateAdvertisement(id, disableRequest)
 
-      console.log('✅ [PROPERTY CONFIG VM] Advertisement deactivated successfully')
+
       showToast('success', 'Propriedade desabilitada com sucesso!')
       navigate('/admin/gerenciar-imoveis')
     } catch (err) {
@@ -240,7 +204,7 @@ export function usePropertyConfigViewModel(id) {
   }
 
   const handleClear = () => {
-    console.log('🧹 [PROPERTY CONFIG VM] Clearing form')
+
     if (isNew) {
       setInitialData(new PropertyConfigModel())
     } else {
@@ -259,7 +223,7 @@ export function usePropertyConfigViewModel(id) {
   }
 
   const handleCancel = () => {
-    console.log('❌ [PROPERTY CONFIG VM] Cancelling operation')
+
     navigate('/admin/gerenciar-imoveis')
   }
 

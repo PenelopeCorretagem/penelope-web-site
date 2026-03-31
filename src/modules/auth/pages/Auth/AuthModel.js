@@ -1,6 +1,6 @@
 import { RouterModel } from '@app/routes/RouterModel'
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword, validatePasswordConfirmation } from '@shared/utils/validatePasswordUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword, validatePasswordConfirmation } from '@shared/utils/password/validatePasswordUtil'
 
 /**
  * AuthModel - Modelo de dados para autenticação

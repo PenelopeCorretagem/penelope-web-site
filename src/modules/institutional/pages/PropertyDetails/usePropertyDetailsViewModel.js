@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
+import { getAdvertisementById, listAllAdvertisements  } from '@api-penelopec/realEstateAdvertisementAPI'
 import { RealStateDetailsModel } from './RealStateDetailsModel'
 
 /**
@@ -20,7 +20,7 @@ export function usePropertyDetailsViewModel() {
   // Busca propriedades relacionadas
   const fetchRelatedProperties = useCallback(async (mainAdvertisement) => {
     try {
-      console.log('🔄 [PropertyDetails] Fetching related properties...')
+
       const allAdvertisements = await listAllAdvertisements ()
 
       const mainEstate = mainAdvertisement.estate
@@ -59,7 +59,7 @@ export function usePropertyDetailsViewModel() {
         })
         .slice(0, 6)
 
-      console.log('✅ [PropertyDetails] Related properties loaded:', related.length)
+
       return related
     } catch (err) {
       console.warn('⚠️ [PropertyDetails] Error loading related properties:', err)
@@ -75,9 +75,9 @@ export function usePropertyDetailsViewModel() {
     setError(null)
 
     try {
-      console.log('🔄 [PropertyDetails] Fetching advertisement by ID:', id)
+
       const advertisementData = await getAdvertisementById(id)
-      console.log('✅ [PropertyDetails] Advertisement loaded:', advertisementData)
+
 
       if (!advertisementData) {
         throw new Error('Advertisement not found')
