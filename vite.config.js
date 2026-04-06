@@ -31,6 +31,7 @@ export default defineConfig(({ command, mode }) => {
       'import.meta.env.MODE': JSON.stringify(mode),
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
       'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(env.VITE_VIACEP_BASE_URL),
+      'import.meta.env.VITE_CAL_SERVICE_URL': JSON.stringify(env.VITE_CAL_SERVICE_URL),
       'import.meta.env.APP_MODEL': JSON.stringify(env.APP_MODEL || 'development'),
     },
 
@@ -59,9 +60,11 @@ export default defineConfig(({ command, mode }) => {
         // Services
         '@service-penelopec': path.resolve(__dirname, './src/app/services/penelopec'),
         '@service-viacep': path.resolve(__dirname, './src/app/services/viacep'),
+        '@service-calservice': path.resolve(__dirname, './src/app/services/calservice'),
         // APIs
         '@api-penelopec': path.resolve(__dirname, './src/app/api/penelopec'),
         '@api-viacep': path.resolve(__dirname, './src/app/api/viacep'),
+        '@api-calservice': path.resolve(__dirname, './src/app/api/calservice'),
       },
     },
 

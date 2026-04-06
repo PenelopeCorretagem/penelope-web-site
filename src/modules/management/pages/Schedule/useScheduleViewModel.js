@@ -23,7 +23,6 @@ export function useScheduleViewModel() {
         const appts = model.getByDate(selectedDate)
         setAppointmentsForSelectedDate(appts)
       } catch (err) {
-        console.error('Erro ao carregar agendamentos:', err)
         setError(err.message)
       } finally {
         setLoading(false)
@@ -97,6 +96,7 @@ export function useScheduleViewModel() {
     appointmentsForSelectedDate,
     totalAppointments,
     totalAppointmentsToday,
+    allAppointments: model.getAll(),
 
     // Commands for integration
     setAppointments,

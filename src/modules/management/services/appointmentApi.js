@@ -1,9 +1,10 @@
 /**
  * appointmentApi.js
- * Serviço para consumir a API de agendamentos (appointments)
+ * Serviço para consumir a API de agendamentos (appointments) da penelope-api-rest
  */
 
-const BASE_URL = 'http://localhost:8081/api/v1/appointments'
+const BASE_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1'
+const BASE_URL = `${BASE_API_URL.replace(/\/\/$/, '')}/appointments`
 
 /**
  * Busca agendamentos com paginação e filtros
