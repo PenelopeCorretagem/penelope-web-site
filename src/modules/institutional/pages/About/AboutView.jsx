@@ -12,9 +12,9 @@ export function AboutView() {
 
   return (
     <>
-      <SectionView className="justify-between">
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[50%] justify-center">
-          <HeadingView level={1} className="text-left text-distac-primary">
+      <SectionView className="flex flex-col md:flex-row justify-between gap-section md:gap-section-md">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[50%] justify-center items-center md:items-start text-center md:text-left">
+          <HeadingView level={1} className="text-distac-primary">
             Seu sonho começa com uma chave
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md text-sm">
@@ -22,20 +22,21 @@ export function AboutView() {
             Mais do que vender imóveis, nosso propósito é transformar conquistas em momentos inesquecíveis, oferecendo clareza em cada detalhe, suporte em todas as etapas e soluções acessíveis para tornar o sonho possível.
           </TextView>
         </div>
-        <div className='flex flex-col gap-subsection mb:gap-subsection-md w-[50%] justify-center'>
-          <CardImageView src={AboutImage} description='Imagem gerada por IA' position='bottom-left' alt='Imagem mulher com chave' className='w-[500px] max-h-72' />
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[50%] justify-center items-center">
+          <CardImageView src={AboutImage} description="Imagem gerada por IA" position="bottom-left" alt="Imagem mulher com chave" className="w-full max-w-[500px] h-auto max-h-72" />
         </div>
       </SectionView>
 
-      <SectionView className="bg-distac-gradient">
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
+      <SectionView className="bg-distac-gradient flex flex-col md:flex-row gap-section md:gap-section-md">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[45%] justify-center items-center">
           <img
             src={PenelopeImage}
             alt="Corretora Penélope"
-            className="h-[81%] object-cover rounded-[10%]"
+            className="w-full max-w-[500px] h-auto max-h-72 object-cover rounded-[10%]"
           />
-        </div>        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={1} className="text-left text-default-light">
+        </div>
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[55%] justify-center items-center md:items-start text-center md:text-left">
+          <HeadingView level={1} className="text-default-light">
             Penélope ou Isabella?
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md text-sm text-default-light">
@@ -47,9 +48,9 @@ export function AboutView() {
         </div>
       </SectionView>
 
-      <SectionView>
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={2} className="text-left text-distac-primary">
+      <SectionView className="flex flex-col md:flex-row gap-section md:gap-section-md">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[55%] justify-center items-center md:items-start text-center md:text-left">
+          <HeadingView level={2} className="text-distac-primary">
             Imóveis Com a qualidade Cury
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md">
@@ -59,17 +60,17 @@ export function AboutView() {
             Listada na B3 desde 2020 (CURY3), a Cury atua com foco em incorporação econômica, oferecendo soluções habitacionais que promovem segurança, dignidade e realização para milhares de brasileiros. Seu compromisso é claro: construir não apenas imóveis, mas futuros melhores.
           </TextView>
         </div>
-        <div className='flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center'>
-          <CardImageView src={CuryAbout} description='' position='top-right' alt='Imagem da Cury Construtora' className='max-h-72' />
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[45%] justify-center items-center">
+          <CardImageView src={CuryAbout} description='' position='top-right' alt='Imagem da Cury Construtora' className='w-full max-w-[500px] h-auto max-h-72' />
         </div>
       </SectionView>
 
-      <SectionView className=" bg-default-light-alt">
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[45%] justify-center">
-          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description='Imagem gerada por IA' className='shadow-md max-h-72' />
+      <SectionView className="bg-default-light-alt flex flex-col md:flex-row gap-section md:gap-section-md">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[45%] justify-center items-center">
+          <ImageView src={PenelopeCuryImage} alt="Penélope e Cury" description="Imagem gerada por IA" className="shadow-md w-full max-w-[500px] h-auto max-h-72" />
         </div>
-        <div className="flex flex-col gap-subsection mb:gap-subsection-md w-[55%] justify-center">
-          <HeadingView level={2} className="text-left text-distac-primary">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md w-full md:w-[55%] justify-center items-center md:items-start text-center md:text-left">
+          <HeadingView level={2} className="text-distac-primary">
             Penélope + Cury
           </HeadingView>
           <TextView className="flex flex-col gap-card md:gap-card-md">
