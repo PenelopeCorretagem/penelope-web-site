@@ -65,6 +65,16 @@ export const deleteUser = async (id) => {
 }
 
 /**
+ * Solicita recuperação de senha.
+ * @param {string} email
+ * @returns {Promise<object>} Dados brutos da resposta
+ */
+export const forgotPassword = async (email) => {
+  const response = await axiosInstance.post('/users/forgot-password', { email })
+  return response.data
+}
+
+/**
  * Alias para compatibilidade com nomenclatura anterior
  */
 export const registerUser = createUser

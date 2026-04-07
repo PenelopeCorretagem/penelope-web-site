@@ -53,11 +53,20 @@ export const register = async (userData) => {
 /**
  * Solicita recuperação de senha.
  * @param {string} email
- * @returns {Promise<object>} Dados brutos da resposta
+ * @returns {Promise<string|object>} Mensagem da API ou payload bruto
  */
 export const forgotPassword = async (email) => {
-  const response = await axiosInstance.post('/auth/forgot-password', { email })
-  return response.data
+  try {
+    const response = await axiosInstance.post('/users/forgot-password', { email })
+    return response.data?.message || response.data
+  } catch (error) {
+    // Compatibilidade com ambientes que expõem o endpoint via /auth
+    if (error.response?.status === 404) {
+      const fallbackResponse = await axiosInstance.post('/auth/forgot-password', { email })
+      return fallbackResponse.data?.message || fallbackResponse.data
+    }
+    throw error
+  }
 }
 
 /**
@@ -66,7 +75,7 @@ export const forgotPassword = async (email) => {
  * @returns {Promise<object>} Dados brutos da resposta
  */
 export const validateResetToken = async (token) => {
-  const response = await axiosInstance.post('/auth/validate-token', { token })
+  const response = await axiosInstance.post('/auth/validate-reset-token', { token })
   return response.data
 }
 

@@ -21,7 +21,7 @@ export async function getAddressByCEP(cep) {
       throw new Error('CEP deve ter 8 dígitos')
     }
 
-    const viaCepBaseUrl = import.meta.env.VITE_VIACEP_BASE_URL
+    const viaCepBaseUrl = import.meta.env.VIACEP_URL
     const fullUrl = `${viaCepBaseUrl}/${cleanedCEP}/json/`
 
     const response = await axiosInstance.get(fullUrl, {

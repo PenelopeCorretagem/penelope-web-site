@@ -24,13 +24,23 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const port = parseInt(env.APP_PORT)
 
+  if (!env.API_URL) {
+    throw new Error(
+      `Variável API_URL não definida para o modo ${mode}. ` +
+        `Configure a URL base do backend no arquivo .env correspondente.`
+    )
+  }
+
+  const apiBaseUrl = env.API_URL
+  const viaCepBaseUrl = env.VIACEP_URL || 'https://viacep.com.br/ws'
+
   return {
     plugins: [react(), tailwindcss()],
 
     define: {
       'import.meta.env.MODE': JSON.stringify(mode),
-      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL),
-      'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(env.VITE_VIACEP_BASE_URL),
+      'import.meta.env.API_URL': JSON.stringify(apiBaseUrl),
+      'import.meta.env.VIACEP_URL': JSON.stringify(viaCepBaseUrl),
       'import.meta.env.APP_MODEL': JSON.stringify(env.APP_MODEL || 'development'),
     },
 
