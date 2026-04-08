@@ -56,6 +56,15 @@ export const deleteUser = async (id) => {
 }
 
 /**
+ * Solicita recuperação de senha.
+ * @param {string} email
+ * @returns {Promise<string|object>} Resposta da API
+ */
+export const forgotPassword = async (email) => {
+  return await userApi.forgotPassword(email)
+}
+
+/**
  * Alias para compatibilidade
  */
 export const registerUser = createUser

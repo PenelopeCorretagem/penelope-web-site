@@ -67,11 +67,11 @@ export const deleteUser = async (id) => {
 /**
  * Solicita recuperação de senha.
  * @param {string} email
- * @returns {Promise<object>} Dados brutos da resposta
+ * @returns {Promise<string|object>} Mensagem da API ou payload bruto
  */
 export const forgotPassword = async (email) => {
   const response = await axiosInstance.post('/users/forgot-password', { email })
-  return response.data
+  return response.data?.message || response.data
 }
 
 /**

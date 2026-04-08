@@ -51,25 +51,6 @@ export const register = async (userData) => {
 }
 
 /**
- * Solicita recuperação de senha.
- * @param {string} email
- * @returns {Promise<string|object>} Mensagem da API ou payload bruto
- */
-export const forgotPassword = async (email) => {
-  try {
-    const response = await axiosInstance.post('/users/forgot-password', { email })
-    return response.data?.message || response.data
-  } catch (error) {
-    // Compatibilidade com ambientes que expõem o endpoint via /auth
-    if (error.response?.status === 404) {
-      const fallbackResponse = await axiosInstance.post('/auth/forgot-password', { email })
-      return fallbackResponse.data?.message || fallbackResponse.data
-    }
-    throw error
-  }
-}
-
-/**
  * Valida o token de recuperação.
  * @param {string} token
  * @returns {Promise<object>} Dados brutos da resposta
