@@ -20,7 +20,7 @@ export function useHomeViewModel() {
   // ======================
   const fetchLaunchProperties = useCallback(async () => {
     try {
-      const launchAds = await listAllAdvertisements ({
+      const launchAds = await getAllAdvertisements({
         type: ESTATE_TYPES['LANCAMENTO'].key,
         active: true
       })
