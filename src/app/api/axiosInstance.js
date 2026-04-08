@@ -13,12 +13,17 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token')
+    const method = config.method?.toLowerCase()
+    const url = config.url || ''
 
     // Não adiciona Authorization em rotas públicas
-    const publicRoutes = ['/auth/login', '/auth/register', '/users/forgot-password']
-    const isPublicRoute = publicRoutes.some(route => config.url?.includes(route))
+    const publicRoutes = ['/auth/login', '/users/forgot-password']
+    const isPublicRoute = publicRoutes.some(route => url.includes(route))
 
-    if (token && !isPublicRoute) {
+    // Cadastro público usa POST /users; só trata como público quando não há token.
+    const isPublicRegister = method === 'post' && url.includes('/users') && !token
+
+    if (token && !isPublicRoute && !isPublicRegister) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
