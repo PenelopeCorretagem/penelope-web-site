@@ -2,8 +2,8 @@ import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
 import { RouterModel } from '@routes/RouterModel'
-import { login, register, forgotPassword } from '@api-penelopec/authApi'
-import { getAllUsers } from '@api-penelopec/userApi'
+import { login, register } from '@api-penelopec/authApi'
+import { getAllUsers, forgotPassword } from '@service-penelopec/userService'
 import { userMapper } from '@mappers/userMapper'
 
 export function useAuthViewModel() {
@@ -287,7 +287,10 @@ export function useAuthViewModel() {
   const handleForgotPasswordSubmit = useCallback(async (formData) => {
     setIsLoading(true)
     try {
-      const message = await forgotPassword(formData.email)
+      const responseMessage = await forgotPassword(formData.email)
+      const message = typeof responseMessage === 'string'
+        ? responseMessage
+        : responseMessage?.message
 
       setAlertConfig({
         type: 'success',

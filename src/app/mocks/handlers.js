@@ -250,10 +250,10 @@ export const handlers = [
     }
     return res(ctx.status(401), ctx.json({ error: 'Email ou senha inválidos' }))
   }),
-  rest.post(/\/auth\/forgot-password$/, (req, res, ctx) => {
+  rest.post(/\/users\/forgot-password$/, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ message: 'Se o e-mail estiver cadastrado, um código de verificação será enviado.' }))
   }),
-  rest.post(/\/auth\/validate-token$/, (req, res, ctx) => {
+  rest.post(/\/auth\/validate-reset-token$/, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ valid: true, expired: false, message: 'Token válido' }))
   }),
   rest.post(/\/auth\/reset-password$/, (req, res, ctx) => {
