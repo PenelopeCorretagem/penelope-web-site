@@ -102,6 +102,7 @@ export function AuthView() {
         isVisible={!!alertConfig}
         type={alertConfig?.type}
         message={alertConfig?.message}
+        hasCloseButton={!alertConfig?.hideCloseButton}
         onClose={alertConfig?.onClose || handleCloseAlert}
         buttonsLayout='col'
       >
