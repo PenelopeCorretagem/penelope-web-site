@@ -1,4 +1,5 @@
 import * as authApi from '@api-penelopec/authApi'
+import * as userApi from '@api-penelopec/userApi'
 import { userMapper } from '@mappers/userMapper'
 
 /**
@@ -52,15 +53,6 @@ export const login = async (credentials) => {
 export const register = async (userData) => {
   const response = await authApi.register(userData)
   return userMapper.toEntity(response)
-}
-
-/**
- * Solicita recuperação de senha.
- * @param {string} email
- * @returns {Promise<object>} Resposta da API
- */
-export const forgotPassword = async (email) => {
-  return await authApi.forgotPassword(email)
 }
 
 /**
