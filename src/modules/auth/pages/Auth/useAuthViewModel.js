@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { RouterModel } from '@routes/RouterModel'
 import { login, register } from '@api-penelopec/authApi'
 import { getAllUsers, forgotPassword } from '@service-penelopec/userService'
 import { userMapper } from '@mappers/userMapper'
@@ -31,6 +30,16 @@ export function useAuthViewModel() {
       setIsForgotPassword(false)
     }
   }, [location.pathname, model])
+
+  useEffect(() => {
+    if (!alertConfig?.autoCloseMs) return undefined
+
+    const timeoutId = setTimeout(() => {
+      setAlertConfig(null)
+    }, alertConfig.autoCloseMs)
+
+    return () => clearTimeout(timeoutId)
+  }, [alertConfig])
 
   const handleRegisterClick = useCallback(() => {
     setIsActive(true)
@@ -177,28 +186,10 @@ export function useAuthViewModel() {
 
       }
 
-      setAlertConfig({
-        type: 'success',
-        message: `Bem-vindo de volta${userEntity?.nomeCompleto ? `, ${userEntity.nomeCompleto}` : ''}!`,
-        onClose: () => {
-          setAlertConfig(null)
-
-          // Disparar evento de mudança de auth ANTES do redirect
-          window.dispatchEvent(new CustomEvent('authChanged'))
-
-          // Pequeno delay para garantir que o estado seja atualizado
-          setTimeout(() => {
-            // Usar RouterModel para redirecionamento
-            if (isAdminUser) {
-
-              navigate(model.getAdminPropertiesRoute())
-            } else {
-
-              navigate(model.getProfileRoute())
-            }
-          }, 100)
-        }
-      })
+      window.dispatchEvent(new CustomEvent('authChanged'))
+      setTimeout(() => {
+        navigate(model.getHomeRoute())
+      }, 2000)
 
       return { success: true }
     } catch (error) {
@@ -251,7 +242,8 @@ export function useAuthViewModel() {
       setAlertConfig({
         type: 'success',
         message: `Cadastro realizado com sucesso! Faça login para continuar.`,
-        primaryButton: { text: 'Fazer login', action: 'login' }
+        autoCloseMs: 1000,
+        hideCloseButton: true
       })
 
       setIsActive(false)
