@@ -201,14 +201,13 @@ export function NavMenuView({
 
   // Navigation variant
   return (
-
-    <nav className={viewModel.getMenuContainerClasses(`flex items-center justify-between w-full ${className}`)}>
-      {/* Header mobile: X e logo espaçados */}
-      {viewModel.isMobileMenuOpen ? (
-        <div
-          className="flex items-center w-full lg:hidden"
-          style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
-        >
+    <nav className={viewModel.getMenuContainerClasses(className)}>
+      {/* Mobile: header com logo e hamburger (escondido em md+) */}
+      <div
+        className="flex items-center w-full justify-between md:hidden"
+        style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+      >
+        {!hideLogo && (
           <Link
             to='/'
             className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
@@ -216,69 +215,54 @@ export function NavMenuView({
           >
             <LogoView height={'40'} className='text-distac-primary fill-current' />
           </Link>
-          <div className="flex-[2]" />
-          <button
-            onClick={viewModel.toggleMobileMenu}
-            className={viewModel.getHamburgerClasses()}
-            aria-label='Fechar menu de navegação'
-            style={{marginRight: 0, padding: 0}}
-          >
-            <X />
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* Logo à esquerda com espaçamento padrão */}
-          <div className="flex items-center w-full justify-between lg:hidden" style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
-            {!hideLogo && (
-              <Link
-                to='/'
-                className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
-                style={{marginLeft: 0, padding: 0}}
-              >
-                <LogoView height={'40'} className='text-distac-primary fill-current' />
-              </Link>
-            )}
-            <button
-              onClick={viewModel.toggleMobileMenu}
-              className={viewModel.getHamburgerClasses()}
-              aria-label='Abrir menu de navegação'
-              style={{marginRight: 0, padding: 0}}
-            >
-              <Menu />
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Menu principal: centralizado só no mobile, alinhado à esquerda no desktop */}
-      <div
-        className={
-          viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen) +
-          ' order-3 flex-1 flex flex-col ' +
-          'items-center justify-center text-center ' +
-          'md:flex-row md:items-center md:justify-start md:text-left'
-        }
-      >
-        {viewModel.menuItems.map(renderMenuItem)}
-        {/* Usuário no menu mobile, como item igual aos outros */}
-        {viewModel.isMobileMenuOpen && !isAuthenticated && (
-          <Link
-            to={viewModel.userActions.find(action => action.id === 'login' || action.route === '/login')?.route || '/login'}
-            onClick={viewModel.handleItemClick}
-            className="px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg text-default-dark hover:text-distac-primary mt-2 justify-center md:justify-start"
-            style={{textAlign: 'center'}}
-          >
-            {/* Ícone de usuário Lucide */}
-            {renderIcon('User')}
-            <span>Acessar</span>
-          </Link>
         )}
+        <button
+          onClick={viewModel.toggleMobileMenu}
+          className={viewModel.getHamburgerClasses()}
+          aria-label={viewModel.isMobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+          style={{marginRight: 0, padding: 0}}
+        >
+          {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
+        </button>
       </div>
 
-      {/* Botão de usuário só no desktop e quando não autenticado */}
-      {!viewModel.isMobileMenuOpen && !isAuthenticated && (
-        <div className={viewModel.getUserActionsClasses(false) + ' order-4 ml-auto'}>
+      {/* Mobile: dropdown do menu (escondido em md+, via tema) */}
+      {viewModel.isMobileMenuOpen && (
+        <div className={viewModel.getMenuItemsClasses(true) + ' items-center text-center'}>
+          {viewModel.menuItems.map(renderMenuItem)}
+          {!isAuthenticated && (
+            <Link
+              to={viewModel.userActions.find(action => action.id === 'login' || action.route === '/login')?.route || '/login'}
+              onClick={viewModel.handleItemClick}
+              className="px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base text-default-dark hover:text-distac-primary mt-2 justify-center"
+            >
+              {renderIcon('User')}
+              <span>Acessar</span>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Desktop: logo (escondida no mobile) */}
+      {!hideLogo && (
+        <Link
+          to='/'
+          className={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
+            hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+          }`}
+        >
+          <LogoView height={'40'} className='text-distac-primary fill-current' />
+        </Link>
+      )}
+
+      {/* Desktop: itens do menu (hidden md:flex via tema) */}
+      <div className={viewModel.getMenuItemsClasses(false)}>
+        {viewModel.menuItems.map(renderMenuItem)}
+      </div>
+
+      {/* Desktop: botão de usuário (hidden md:flex via tema) */}
+      {!isAuthenticated && (
+        <div className={viewModel.getUserActionsClasses(false)}>
           {viewModel.userActions
             .filter(action => action.id === 'login' || action.route === '/login')
             .map(renderUserAction)
