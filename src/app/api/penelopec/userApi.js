@@ -51,7 +51,7 @@ export const getUserById = async (id) => {
  * @returns {Promise<object>} Dados brutos do usuário atualizado
  */
 export const updateUser = async (id, userData) => {
-  const response = await axiosInstance.patch(`/users/${id}`, userData)
+  const response = await axiosInstance.put(`/users/${id}`, userData)
   return response.data
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@api-penelopec/realEstateAdvertisementAPI'
+import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/realEstateAdvertisementService'
 import { listAllFeatures } from '@api-penelopec/featureAPI'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'

@@ -30,9 +30,17 @@ export class AppointmentMapper {
   static toPaginatedEntityList(paginatedData) {
     if (!paginatedData) return { content: [], pageable: null }
 
+    const content = paginatedData.content || paginatedData.appointments || []
+    const pageable = paginatedData.pageable || {
+      pageNumber: paginatedData.page ?? 0,
+      pageSize: paginatedData.size ?? 0,
+      totalElements: paginatedData.totalElements ?? 0,
+      totalPages: paginatedData.totalPages ?? 0,
+    }
+
     return {
-      content: AppointmentMapper.toEntityList(paginatedData.content || []),
-      pageable: paginatedData.pageable || null,
+      content: AppointmentMapper.toEntityList(content),
+      pageable,
     }
   }
 }

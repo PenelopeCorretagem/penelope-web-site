@@ -368,13 +368,13 @@ export class PropertyConfigModel {
       return validTypes.includes(cleanType) ? cleanType : 'DISPONIVEL'
     }
 
-    // Função para gerar data de fim válida (formato ISO)
+    // Função para gerar data de fim válida no padrão LocalDate (yyyy-MM-dd)
     const generateValidEndDate = (inputDate) => {
       if (inputDate) {
         try {
           const date = new Date(inputDate)
           if (!isNaN(date.getTime())) {
-            return date.toISOString()
+            return date.toISOString().split('T')[0]
           }
         } catch (e) {
           console.warn('Data inválida fornecida, usando data padrão')
@@ -383,7 +383,7 @@ export class PropertyConfigModel {
       // Se não há data ou é inválida, usar 30 dias a partir de hoje
       const now = new Date()
       const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000))
-      return endDate.toISOString()
+      return endDate.toISOString().split('T')[0]
     }
 
     const sanitizeNumber = (value) => {
@@ -427,26 +427,46 @@ export class PropertyConfigModel {
         .filter(id => id !== undefined)
     }
 
-    // Build comprehensive image arrays including existing and new images
-    const imageUrls = []
-    const imageTypes = []
+    const resolveImageType = (typeValue) => {
+      if (typeValue === 1 || typeValue === '1' || String(typeValue).toUpperCase() === 'CAPA') {
+        return 'CAPA'
+      }
+
+      if (typeValue === 3 || typeValue === '3' || String(typeValue).toUpperCase() === 'PLANTA') {
+        return 'PLANTA'
+      }
+
+      return 'GALERIA'
+    }
+
+    const appendImageRequest = (collection, url, typeValue) => {
+      if (!url || typeof url !== 'string') return
+
+      const sanitizedUrl = url.trim()
+      if (!sanitizedUrl) return
+
+      collection.push({
+        url: sanitizedUrl,
+        type: resolveImageType(typeValue),
+      })
+    }
+
+    // Build comprehensive image payload including existing and new images
+    const images = []
 
     // Add existing images that weren't changed
     if (formData.video && formData.video.isExisting) {
-      imageUrls.push(formData.video.url)
-      imageTypes.push(2) // Video as gallery
+      appendImageRequest(images, formData.video.url, 2) // Video as gallery
     }
 
     if (formData.cover && formData.cover.isExisting) {
-      imageUrls.push(formData.cover.url)
-      imageTypes.push(1) // Cover
+      appendImageRequest(images, formData.cover.url, 1) // Cover
     }
 
     if (Array.isArray(formData.gallery)) {
       formData.gallery.forEach(file => {
         if (file && file.isExisting) {
-          imageUrls.push(file.url)
-          imageTypes.push(2) // Gallery
+          appendImageRequest(images, file.url, 2) // Gallery
         }
       })
     }
@@ -454,8 +474,7 @@ export class PropertyConfigModel {
     if (Array.isArray(formData.floorPlans)) {
       formData.floorPlans.forEach(file => {
         if (file && file.isExisting) {
-          imageUrls.push(file.url)
-          imageTypes.push(3) // Floor plan
+          appendImageRequest(images, file.url, 3) // Floor plan
         }
       })
     }
@@ -464,50 +483,55 @@ export class PropertyConfigModel {
     if (Array.isArray(uploadedImageData)) {
       uploadedImageData.forEach(item => {
         if (item.urls && item.type) {
-          imageUrls.push(...item.urls)
-          imageTypes.push(...new Array(item.urls.length).fill(item.type))
+          item.urls.forEach((url) => appendImageRequest(images, url, item.type))
         }
       })
     }
 
-    // Build complete API request
+    const selectedResponsibleId = sanitizeNumber(formData.responsible)
+    const creatorIdFromSession = sanitizeNumber(sessionStorage.getItem('userId'))
+    const creatorIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.creator?.id)
+    const responsibleIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.responsible?.id)
+
+    // Build complete API request seguindo AdvertisementCreateRequest
     const request = {
-      title: sanitizeString(formData.propertyTitle, 255),
-      description: sanitizeString(formData.propertyDescription, 1000),
-      area: formatAreaForDatabase(formData.area) || 0,
-      numberOfRooms: sanitizeNumber(formData.numberOfRooms),
-      type: sanitizePropertyType(formData.propertyType),
-      advertisementCreateRequest: {
-        creator: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.creator?.id) || 1,
-        responsible: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.responsible?.id) || 1,
-        dataFim: generateValidEndDate(formData.displayEndDate),
-        active: Boolean(formData.active)
-      },
-      address: {
-        id: this.originalAdvertisementData?.property?.address?.id || null,
-        street: sanitizeString(formData.street, 255),
-        number: sanitizeString(formData.number, 20),
-        neighborhood: sanitizeString(formData.neighborhood, 100),
-        city: sanitizeString(formData.city, 100),
-        uf: sanitizeString(formData.state, 2),
-        zipCode: formatCep(formData.cep),
-        complement: null,
-        region: sanitizeString(formData.region, 50)
-      },
-      standAddress: (formData.enableStandAddress && formData.standStreet) ? {
-        id: this.originalAdvertisementData?.property?.standAddress?.id || null,
-        street: sanitizeString(formData.standStreet, 255),
-        number: sanitizeString(formData.standNumber, 20),
-        neighborhood: sanitizeString(formData.standNeighborhood, 100),
-        city: sanitizeString(formData.standCity, 100),
-        uf: sanitizeString(formData.standState, 2),
-        zipCode: formatCep(formData.standCep),
-        complement: null,
-        region: sanitizeString(formData.standRegion, 50)
-      } : null,
-      amenitiesIds: mapDifferentialsToIds(formData.differentials),
-      images: imageUrls,
-      imageType: imageTypes
+      active: Boolean(formData.active),
+      featured: Boolean(this.originalAdvertisementData?.featured ?? false),
+      endDate: generateValidEndDate(formData.displayEndDate),
+      creatorId: creatorIdFromSession || creatorIdFromOriginal || selectedResponsibleId || 1,
+      responsibleId: selectedResponsibleId || responsibleIdFromOriginal || creatorIdFromSession || 1,
+      estate: {
+        id: this.originalAdvertisementData?.estate?.id || null,
+        title: sanitizeString(formData.propertyTitle, 255),
+        description: sanitizeString(formData.propertyDescription, 1000),
+        area: formatAreaForDatabase(formData.area) || 0,
+        numberOfRooms: sanitizeNumber(formData.numberOfRooms),
+        type: sanitizePropertyType(formData.propertyType),
+        address: {
+          id: this.originalAdvertisementData?.estate?.address?.id || null,
+          street: sanitizeString(formData.street, 255),
+          number: sanitizeString(formData.number, 20),
+          neighborhood: sanitizeString(formData.neighborhood, 100),
+          city: sanitizeString(formData.city, 100),
+          uf: sanitizeString(formData.state, 2),
+          zipCode: formatCep(formData.cep),
+          complement: null,
+          region: sanitizeString(formData.region, 50)
+        },
+        addressStand: (formData.enableStandAddress && formData.standStreet) ? {
+          id: this.originalAdvertisementData?.estate?.standAddress?.id || null,
+          street: sanitizeString(formData.standStreet, 255),
+          number: sanitizeString(formData.standNumber, 20),
+          neighborhood: sanitizeString(formData.standNeighborhood, 100),
+          city: sanitizeString(formData.standCity, 100),
+          uf: sanitizeString(formData.standState, 2),
+          zipCode: formatCep(formData.standCep),
+          complement: null,
+          region: sanitizeString(formData.standRegion, 50)
+        } : null,
+        amenitiesIds: mapDifferentialsToIds(formData.differentials),
+        images
+      }
     }
 
 

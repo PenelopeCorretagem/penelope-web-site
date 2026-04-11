@@ -107,20 +107,29 @@ export class Appointment {
       client: apiData.client ? {
         id: apiData.client.id,
         name: apiData.client.name,
-      } : null,
+      } : (apiData.clientId ? {
+        id: apiData.clientId,
+        name: `Cliente #${apiData.clientId}`,
+      } : null),
       estateAgent: apiData.estateAgent ? {
         id: apiData.estateAgent.id,
         name: apiData.estateAgent.name,
-      } : null,
+      } : (apiData.estateAgentId ? {
+        id: apiData.estateAgentId,
+        name: `Corretor #${apiData.estateAgentId}`,
+      } : null),
       estate: apiData.estate ? {
         id: apiData.estate.id,
         title: apiData.estate.title,
-      } : null,
+      } : (apiData.estateId ? {
+        id: apiData.estateId,
+        title: `Imóvel #${apiData.estateId}`,
+      } : null),
       durationMinutes: apiData.durationMinutes,
       startDateTime: apiData.startDateTime,
       endDateTime: apiData.endDateTime,
       status: apiData.status,
-      calBookingId: apiData.calBookingId,
+      calBookingId: apiData.calBookingId || apiData.bookingUid,
       createdAt: apiData.createdAt,
       updatedAt: apiData.updatedAt,
     })

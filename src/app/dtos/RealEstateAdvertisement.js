@@ -12,6 +12,7 @@ export class RealEstateAdvertisement {
   #creator
   #responsible
   #estate
+  #eventTypeId
 
   constructor({
     id,
@@ -22,6 +23,7 @@ export class RealEstateAdvertisement {
     creator,
     responsible,
     estate,
+    eventTypeId,
   }) {
     this.#id = id ?? null
     this.#active = active ?? true
@@ -31,6 +33,7 @@ export class RealEstateAdvertisement {
     this.#creator = creator ?? null
     this.#responsible = responsible ?? null
     this.#estate = estate ?? null
+    this.#eventTypeId = eventTypeId ?? null
   }
 
   // ===== GETTERS =====
@@ -42,6 +45,7 @@ export class RealEstateAdvertisement {
   get creator() { return this.#creator }
   get responsible() { return this.#responsible }
   get estate() { return this.#estate }
+  get eventTypeId() { return this.#eventTypeId }
 
   // ===== SETTERS =====
   set active(v) { this.#active = v }
@@ -50,6 +54,7 @@ export class RealEstateAdvertisement {
   set creator(v) { this.#creator = v }
   set responsible(v) { this.#responsible = v }
   set estate(v) { this.#estate = v }
+  set eventTypeId(v) { this.#eventTypeId = v }
 
   // (id e createdAt geralmente não têm setter, mas posso adicionar se quiser)
 
@@ -78,8 +83,8 @@ export class RealEstateAdvertisement {
       features.push(`${this.#estate.numberOfRooms} dormitórios`)
     }
 
-    if (this.#estate.amenities?.length > 0) {
-      features.push(this.#estate.amenities[0].description)
+    if (this.#estate.features?.length > 0) {
+      features.push(this.#estate.features[0].description)
     }
 
     if (this.#estate.area) {

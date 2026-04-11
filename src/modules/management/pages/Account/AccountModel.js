@@ -115,7 +115,7 @@ export class AccountModel {
 
     // Só inclui a nova senha se foi fornecida
     if (this.newPassword && this.newPassword.trim() !== '') {
-      apiData.senha = this.newPassword.trim()
+      apiData.password = this.newPassword.trim()
     }
 
     return apiData
