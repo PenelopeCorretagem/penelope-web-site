@@ -1,35 +1,45 @@
 /**
  * appointmentApi.js
- * Serviço para consumir a API de agendamentos (appointments) da penelope-api-rest
+ * Serviço para consumir a API de agendamentos (appointments) do cal-service
  */
 
-const BASE_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1'
-const BASE_URL = `${BASE_API_URL.replace(/\/\/$/, '')}/appointments`
+const BASE_CAL_SERVICE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8080'
+const BASE_URL = `${BASE_CAL_SERVICE_URL.replace(/\/$/, '')}/appointments`
 
 /**
- * Busca agendamentos com paginação e filtros
+ * Busca agendamentos com paginação e filtros via cal-service
  * @param {Object} params - Parâmetros de consulta
- * @param {boolean} params.onlyActive - Retorna apenas agendamentos ativos (default: true)
  * @param {number} params.page - Número da página (default: 0)
  * @param {number} params.size - Tamanho da página (default: 100 para buscar todos)
- * @param {string} params.sortBy - Campo de ordenação (default: 'startDateTime')
- * @param {string} params.sortDir - Direção de ordenação: 'asc' ou 'desc' (default: 'asc')
- * @returns {Promise<Object>} Retorna o objeto completo da API com content, pageable, etc.
+ * @param {Long} params.clientId - Filtro por ID do cliente (opcional)
+ * @param {Long} params.estateAgentId - Filtro por ID do agente (opcional)
+ * @param {Long} params.estateId - Filtro por ID do empreendimento (opcional)
+ * @param {String} params.status - Filtro por status (opcional)
+ * @param {String} params.startDateTime - Data/hora inicial ISO (opcional)
+ * @param {String} params.endDateTime - Data/hora final ISO (opcional)
+ * @returns {Promise<Object>} Retorna { appointments[], page, size, totalElements, totalPages }
  */
 export async function fetchAppointments({
-  onlyActive = true,
   page = 0,
   size = 100,
-  sortBy = 'startDateTime',
-  sortDir = 'asc',
+  clientId = null,
+  estateAgentId = null,
+  estateId = null,
+  status = null,
+  startDateTime = null,
+  endDateTime = null,
 } = {}) {
-  const params = new URLSearchParams({
-    onlyActive: String(onlyActive),
-    page: String(page),
-    size: String(size),
-    sortBy,
-    sortDir,
-  })
+  const params = new URLSearchParams()
+  
+  // Adiciona apenas parâmetros com valores definidos
+  if (page !== null) params.append('page', String(page))
+  if (size !== null) params.append('size', String(size))
+  if (clientId !== null) params.append('clientId', String(clientId))
+  if (estateAgentId !== null) params.append('estateAgentId', String(estateAgentId))
+  if (estateId !== null) params.append('estateId', String(estateId))
+  if (status !== null) params.append('status', status)
+  if (startDateTime !== null) params.append('startDateTime', startDateTime)
+  if (endDateTime !== null) params.append('endDateTime', endDateTime)
 
   const token = sessionStorage.getItem('token') || localStorage.getItem('jwtToken')
 
@@ -49,16 +59,26 @@ export async function fetchAppointments({
 }
 
 /**
- * Transforma os dados da API para o formato esperado pelo AppointmentModel
- * @param {Array} appointments - Array de appointments retornado pela API
- * @returns {Array} Array no formato { id, date, time, title, client }
+ * Transforma os dados da API (AppointmentCal DTO) em entidades reutilizáveis
+ * @param {Array} appointments - Array de appointments retornado pela API cal-service
+ * @returns {Array} Array de AppointmentCal com dados preservados integralmente
  */
 export function mapAppointmentsToModel(appointments) {
+  // Não faz transformação — apenas retorna os dados brutos do cal-service
+  // Os dados já vêm estruturados e com todos os campos necessários
   return appointments.map(appt => ({
     id: appt.id,
-    date: appt.startDateTime, // ISO string
-    time: new Date(appt.startDateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-    title: appt.estate?.title || 'Agendamento',
-    client: appt.client?.name || 'Cliente não informado',
+    bookingUid: appt.bookingUid,
+    eventTypeId: appt.eventTypeId,
+    clientId: appt.clientId,
+    estateAgentId: appt.estateAgentId,
+    estateId: appt.estateId,
+    durationMinutes: appt.durationMinutes || 60,
+    status: appt.status || 'PENDING',
+    startDateTime: typeof appt.startDateTime === 'string' ? new Date(appt.startDateTime) : appt.startDateTime,
+    endDateTime: typeof appt.endDateTime === 'string' ? new Date(appt.endDateTime) : appt.endDateTime,
+    title: appt.title || 'Agendamento',
+    createdAt: appt.createdAt ? new Date(appt.createdAt) : null,
+    updatedAt: appt.updatedAt ? new Date(appt.updatedAt) : null,
   }))
 }

@@ -14,6 +14,7 @@ import { PropertiesConfigView } from '@management/pages/PropertiesConfig/Propert
 import { UsersView } from '@management/pages/Users/UsersView'
 import { UserConfigView } from '@management/pages/UserConfig/UserConfigView'
 import { AccountView } from '@management/pages/Account/AccountView'
+import { AmenitiesView } from '@management/pages/Amenities/AmenitiesView'
 import { NotFoundView } from '@shared/pages/NotFound/NotFoundView'
 import { UnauthorizedView } from '@shared/pages/Unauthorized/UnauthorizedView'
 import { LoadingView } from '@shared/pages/Loading/LoadingView'
@@ -168,6 +169,14 @@ export function RouterView({
           element={(
             <ProtectedRoute protection={adminAccess}>
               <PropertyConfigView />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path={routes.ADMIN_AMENITIES}
+          element={(
+            <ProtectedRoute protection={adminAccess}>
+              <AmenitiesView />
             </ProtectedRoute>
           )}
         />

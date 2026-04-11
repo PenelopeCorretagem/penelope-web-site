@@ -17,7 +17,8 @@ export function useScheduleViewModel() {
         setLoading(true)
         setError(null)
         const response = await fetchAppointments({ size: 100 })
-        const mapped = mapAppointmentsToModel(response.content || [])
+        // cal-service retorna appointments array, não content
+        const mapped = mapAppointmentsToModel(response.appointments || [])
         model.setAppointments(mapped)
         setTotalAppointments(model.getTotal())
         const appts = model.getByDate(selectedDate)

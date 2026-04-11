@@ -7,8 +7,8 @@ const BASE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8080/
 
 /**
  * Lista appointments com filtros opcionais
- * @param {object} filters - Filtros: clientId, estateAgentId, estateId, status, dateRange, pagination
- * @returns {Promise<Array>} Array de appointments
+ * @param {object} filters - Filtros: clientId, estateAgentId, estateId, status, startDateTime, endDateTime, pagination
+ * @returns {Promise<Object>} Objeto com appointments[], page, size, totalElements, totalPages
  */
 export const listAppointments = async (filters = {}) => {
   const token = sessionStorage.getItem('token') || localStorage.getItem('jwtToken')
@@ -18,8 +18,11 @@ export const listAppointments = async (filters = {}) => {
   if (filters.estateAgentId) params.append('estateAgentId', filters.estateAgentId)
   if (filters.estateId) params.append('estateId', filters.estateId)
   if (filters.status) params.append('status', filters.status)
-  if (filters.dateFrom) params.append('dateFrom', filters.dateFrom)
-  if (filters.dateTo) params.append('dateTo', filters.dateTo)
+  // Cal-service usa startDateTime e endDateTime, não dateFrom/dateTo
+  if (filters.startDateTime) params.append('startDateTime', filters.startDateTime)
+  if (filters.endDateTime) params.append('endDateTime', filters.endDateTime)
+  if (filters.dateFrom) params.append('startDateTime', filters.dateFrom) // backward compatibility
+  if (filters.dateTo) params.append('endDateTime', filters.dateTo) // backward compatibility
   if (filters.page !== undefined) params.append('page', filters.page)
   if (filters.size !== undefined) params.append('size', filters.size)
 

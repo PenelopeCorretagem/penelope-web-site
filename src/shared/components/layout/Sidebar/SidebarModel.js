@@ -30,6 +30,13 @@ export class SidebarModel {
         roles: ['admin']
       },
       {
+        id: 'amenities',
+        text: 'Comodidades',
+        icon: 'Zap',
+        path: routes.ADMIN_AMENITIES,
+        roles: ['admin']
+      },
+      {
         id: 'users',
         text: 'Usuários',
         icon: 'Users',

@@ -1,22 +1,7 @@
-export class AppointmentModel {
-  constructor({ id, date, time, title, client }) {
-    this.id = id
-    // date expected to be ISO string or Date
-    this.date = typeof date === 'string' ? new Date(date) : date
-    this.time = time
-    this.title = title
-    this.client = client
-  }
-
-  getDateString() {
-    return this.date.toISOString().split('T')[0]
-  }
-}
-
 export class ScheduleModel {
   constructor(appointments = []) {
-    // garante instâncias de AppointmentModel
-    this.appointments = appointments.map(a => new AppointmentModel(a))
+    // Já recebe entidades AppointmentCal do cal-service, não precisa de transformação
+    this.appointments = Array.isArray(appointments) ? appointments : []
   }
 
   getAll() {
@@ -30,16 +15,18 @@ export class ScheduleModel {
   getByDate(date) {
     const target = date instanceof Date ? date : new Date(date)
     const key = target.toISOString().split('T')[0]
-    return this.appointments.filter(a => a.getDateString() === key)
+    return this.appointments.filter(a => {
+      const apptDate = a.startDateTime?.toISOString().split('T')[0]
+      return apptDate === key
+    })
   }
 
   add(appointment) {
-    const appt = new AppointmentModel(appointment)
-    this.appointments.push(appt)
+    this.appointments.push(appointment)
   }
 
   setAppointments(appointments = []) {
-    this.appointments = appointments.map(a => new AppointmentModel(a))
+    this.appointments = Array.isArray(appointments) ? appointments : []
   }
 }
 
