@@ -227,7 +227,7 @@ export const handlers = [
     const item = findById(imageTypes, id)
     return item ? res(ctx.status(200), ctx.json(item)) : res(ctx.status(404))
   }),
-  rest.post(/\/advertisement\/photos$/, (req, res, ctx) => {
+  rest.post(/\/(v1\/images|advertisement\/photos)$/, (req, res, ctx) => {
     // Simula upload retornando URLs mockadas
     const mockUrls = [
       'https://via.placeholder.com/800x600?text=Uploaded+1',

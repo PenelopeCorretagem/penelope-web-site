@@ -86,7 +86,7 @@ export const updateAdvertisement = async (id, advertisementData) => {
  */
 export const updateAdvertisementStatus = async (id, active) => {
   try {
-    const response = await axiosInstance.patch(`/advertisements/${id}`, { active })
+    const response = await axiosInstance.patch(`/advertisements/${id}/status`, { active })
     return response.data
   } catch (error) {
     console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar status do anúncio ${id}:`, error)

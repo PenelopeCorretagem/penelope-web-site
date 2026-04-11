@@ -3,7 +3,18 @@
  * Serviço para consumir a API de agendamentos (appointments)
  */
 
-const BASE_URL = 'http://localhost:8081/api/v1/appointments'
+const resolveAppointmentsBaseUrl = () => {
+  const baseFromEnv = import.meta.env.APPOINTMENTS_API_URL
+    || (import.meta.env.API_URL || '').replace(/\/api\/v1\/?$/, '')
+    || 'http://localhost:8080'
+
+  const normalizedBase = String(baseFromEnv).replace(/\/$/, '')
+  return /\/appointments$/.test(normalizedBase)
+    ? normalizedBase
+    : `${normalizedBase}/appointments`
+}
+
+const BASE_URL = resolveAppointmentsBaseUrl()
 
 /**
  * Busca agendamentos com paginação e filtros
@@ -19,16 +30,29 @@ export async function fetchAppointments({
   onlyActive = true,
   page = 0,
   size = 100,
-  sortBy = 'startDateTime',
-  sortDir = 'asc',
+  sortBy,
+  sortDir,
+  status,
+  clientId,
+  estateAgentId,
+  estateId,
+  startDateTime,
+  endDateTime,
 } = {}) {
-  const params = new URLSearchParams({
-    onlyActive: String(onlyActive),
-    page: String(page),
-    size: String(size),
-    sortBy,
-    sortDir,
-  })
+  const params = new URLSearchParams()
+
+  params.set('page', String(page))
+  params.set('size', String(size))
+
+  if (status) params.set('status', status)
+  if (clientId) params.set('clientId', String(clientId))
+  if (estateAgentId) params.set('estateAgentId', String(estateAgentId))
+  if (estateId) params.set('estateId', String(estateId))
+  if (startDateTime) params.set('startDateTime', startDateTime)
+  if (endDateTime) params.set('endDateTime', endDateTime)
+
+  if (sortBy) params.set('sortBy', sortBy)
+  if (sortDir) params.set('sortDir', sortDir)
 
   const token = sessionStorage.getItem('token') || localStorage.getItem('jwtToken')
 
@@ -44,7 +68,24 @@ export async function fetchAppointments({
     throw new Error(`Erro ao buscar agendamentos: ${response.status} ${response.statusText}`)
   }
 
-  return response.json()
+  const responseData = await response.json()
+  const appointments = Array.isArray(responseData?.appointments) ? responseData.appointments : []
+  const filteredAppointments = onlyActive
+    ? appointments.filter(appt => !['CANCELLED', 'CONCLUDED'].includes(appt?.status))
+    : appointments
+
+  // Compatibilidade com consumidores legados que esperam o formato content/pageable
+  return {
+    ...responseData,
+    appointments: filteredAppointments,
+    content: filteredAppointments,
+    pageable: {
+      pageNumber: responseData?.page ?? 0,
+      pageSize: responseData?.size ?? size,
+      totalElements: responseData?.totalElements ?? 0,
+      totalPages: responseData?.totalPages ?? 0,
+    },
+  }
 }
 
 /**
@@ -57,7 +98,7 @@ export function mapAppointmentsToModel(appointments) {
     id: appt.id,
     date: appt.startDateTime, // ISO string
     time: new Date(appt.startDateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-    title: appt.estate?.title || 'Agendamento',
-    client: appt.client?.name || 'Cliente não informado',
+    title: appt.estate?.title || (appt.estateId ? `Imóvel #${appt.estateId}` : 'Agendamento'),
+    client: appt.client?.name || (appt.clientId ? `Cliente #${appt.clientId}` : 'Cliente não informado'),
   }))
 }
