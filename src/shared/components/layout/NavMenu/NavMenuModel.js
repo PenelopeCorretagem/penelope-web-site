@@ -75,14 +75,7 @@ export class NavMenuModel {
   #getAuthenticatedMenuItems() {
     const routes = this.routerModel.getAllRoutes()
 
-    return [
-      this.#createMenuItem({
-        id: 'schedule',
-        label: 'Agenda',
-        route: routes.SCHEDULE,
-        requiresAuth: true,
-      }),
-    ]
+    return []
   }
 
   #getGuestUserActions() {
