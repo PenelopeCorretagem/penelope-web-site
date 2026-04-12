@@ -25,6 +25,70 @@ export class RealEstateAdvertisementMapper {
   static toEntity(data) {
     if (!data) return null
 
+    const mapImageTypeToEntity = (imageType) => {
+      if (!imageType) return null
+
+      if (typeof imageType === 'object') {
+        return imageType
+      }
+
+      if (typeof imageType !== 'string') {
+        return null
+      }
+
+      const normalizedType = imageType.trim().toLowerCase()
+      const normalizedMap = {
+        capa: 'Capa',
+        cover: 'Capa',
+        galeria: 'Galeria',
+        gallery: 'Galeria',
+        planta: 'Planta',
+        floor_plan: 'Planta',
+        floorplan: 'Planta',
+      }
+
+      const mappedDescription = normalizedMap[normalizedType]
+      if (!mappedDescription) return null
+
+      return IMAGE_TYPE_BY_DESCRIPTION[mappedDescription] || null
+    }
+
+    const mapAddressToEntity = (addressData) => {
+      if (!addressData) return null
+
+      return new Address({
+        id: addressData.id,
+        street: addressData.street,
+        number: addressData.number,
+        neighborhood: addressData.neighborhood,
+        city: addressData.city,
+        uf: addressData.uf,
+        region: addressData.region,
+        zipCode: addressData.zipCode ?? addressData.cep,
+        complement: addressData.complement || null,
+      })
+    }
+
+    const mapFeatureToEntity = (featureData) => {
+      if (!featureData) return null
+
+      if (typeof featureData === 'number') {
+        return new Feature({
+          id: featureData,
+          description: '',
+          icon: '',
+        })
+      }
+
+      return new Feature({
+        id: featureData.id,
+        description: featureData.description,
+        icon: featureData.icon,
+      })
+    }
+
+    const featuresSource = data.estate?.amenities ?? data.estate?.amenitiesIds ?? []
+
     const estate = data.estate
       ? new Estate({
         id: data.estate.id,
@@ -35,52 +99,23 @@ export class RealEstateAdvertisementMapper {
         type: getEstateTypeByKey(data.estate.type),
         images: data.estate.images
           ? data.estate.images.map(
-            img =>
-              new ImageEstate({
+            img => {
+              const mappedImageType = mapImageTypeToEntity(img.type)
+              if (!mappedImageType) return null
+
+              return new ImageEstate({
                 id: img.id,
                 url: img.url,
-                type: new ImageEstateType(
-                  IMAGE_TYPE_BY_DESCRIPTION[img.type]
-                ),
+                type: new ImageEstateType(mappedImageType),
               })
-          )
+            }
+          ).filter(Boolean)
           : [],
-        address: data.estate.address
-          ? new Address({
-            id: data.estate.address.id,
-            street: data.estate.address.street,
-            number: data.estate.address.number,
-            neighborhood: data.estate.address.neighborhood,
-            city: data.estate.address.city,
-            uf: data.estate.address.uf,
-            region: data.estate.address.region,
-            zipCode: data.estate.address.zipCode,
-            complement: data.estate.address.complement || null,
-          })
-          : null,
-        standAddress: data.estate.addressStand
-          ? new Address({
-            id: data.estate.addressStand.id,
-            street: data.estate.addressStand.street,
-            number: data.estate.addressStand.number,
-            neighborhood: data.estate.addressStand.neighborhood,
-            city: data.estate.addressStand.city,
-            uf: data.estate.addressStand.uf,
-            region: data.estate.addressStand.region,
-            zipCode: data.estate.addressStand.zipCode,
-            complement: data.estate.addressStand.complement || null,
-          })
-          : null,
-        features: data.estate.amenitiesIds
-          ? data.estate.amenitiesIds.map(
-            feature =>
-              new Feature({
-                id: feature.id,
-                description: feature.description,
-                icon: feature.icon,
-              })
-          )
-          : [],
+        address: mapAddressToEntity(data.estate.address),
+        standAddress: mapAddressToEntity(data.estate.addressStand),
+        features: featuresSource
+          .map(mapFeatureToEntity)
+          .filter(Boolean),
       })
       : null
 
@@ -119,7 +154,7 @@ export class RealEstateAdvertisementMapper {
     return new RealEstateAdvertisement({
       id: data.id,
       active: data.active,
-      featured: data.featured,
+      featured: data.featured ?? data.emphasis,
       createdAt: data.createdAt,
       endDate: data.endDate,
       creator,

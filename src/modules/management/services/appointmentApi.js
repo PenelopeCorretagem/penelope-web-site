@@ -3,8 +3,18 @@
  * Serviço para consumir a API de agendamentos (appointments) do cal-service
  */
 
-const BASE_CAL_SERVICE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8080'
-const BASE_URL = `${BASE_CAL_SERVICE_URL.replace(/\/$/, '')}/appointments`
+const resolveAppointmentsBaseUrl = () => {
+  const baseFromEnv = import.meta.env.APPOINTMENTS_API_URL
+    || (import.meta.env.API_URL || '').replace(/\/api\/v1\/?$/, '')
+    || 'http://localhost:8080'
+
+  const normalizedBase = String(baseFromEnv).replace(/\/$/, '')
+  return /\/appointments$/.test(normalizedBase)
+    ? normalizedBase
+    : `${normalizedBase}/appointments`
+}
+
+const BASE_URL = resolveAppointmentsBaseUrl()
 
 /**
  * Busca agendamentos com paginação e filtros via cal-service
@@ -22,24 +32,29 @@ const BASE_URL = `${BASE_CAL_SERVICE_URL.replace(/\/$/, '')}/appointments`
 export async function fetchAppointments({
   page = 0,
   size = 100,
-  clientId = null,
-  estateAgentId = null,
-  estateId = null,
-  status = null,
-  startDateTime = null,
-  endDateTime = null,
+  sortBy,
+  sortDir,
+  status,
+  clientId,
+  estateAgentId,
+  estateId,
+  startDateTime,
+  endDateTime,
 } = {}) {
   const params = new URLSearchParams()
-  
-  // Adiciona apenas parâmetros com valores definidos
-  if (page !== null) params.append('page', String(page))
-  if (size !== null) params.append('size', String(size))
-  if (clientId !== null) params.append('clientId', String(clientId))
-  if (estateAgentId !== null) params.append('estateAgentId', String(estateAgentId))
-  if (estateId !== null) params.append('estateId', String(estateId))
-  if (status !== null) params.append('status', status)
-  if (startDateTime !== null) params.append('startDateTime', startDateTime)
-  if (endDateTime !== null) params.append('endDateTime', endDateTime)
+
+  params.set('page', String(page))
+  params.set('size', String(size))
+
+  if (status) params.set('status', status)
+  if (clientId) params.set('clientId', String(clientId))
+  if (estateAgentId) params.set('estateAgentId', String(estateAgentId))
+  if (estateId) params.set('estateId', String(estateId))
+  if (startDateTime) params.set('startDateTime', startDateTime)
+  if (endDateTime) params.set('endDateTime', endDateTime)
+
+  if (sortBy) params.set('sortBy', sortBy)
+  if (sortDir) params.set('sortDir', sortDir)
 
   const token = sessionStorage.getItem('token') || localStorage.getItem('jwtToken')
 
@@ -55,30 +70,39 @@ export async function fetchAppointments({
     throw new Error(`Erro ao buscar agendamentos: ${response.status} ${response.statusText}`)
   }
 
-  return response.json()
+  const responseData = await response.json()
+  const appointments = Array.isArray(responseData?.appointments) ? responseData.appointments : []
+  const filteredAppointments = onlyActive
+    ? appointments.filter(appt => !['CANCELLED', 'CONCLUDED'].includes(appt?.status))
+    : appointments
+
+  // Compatibilidade com consumidores legados que esperam o formato content/pageable
+  return {
+    ...responseData,
+    appointments: filteredAppointments,
+    content: filteredAppointments,
+    pageable: {
+      pageNumber: responseData?.page ?? 0,
+      pageSize: responseData?.size ?? size,
+      totalElements: responseData?.totalElements ?? 0,
+      totalPages: responseData?.totalPages ?? 0,
+    },
+  }
 }
 
 /**
- * Transforma os dados da API (AppointmentCal DTO) em entidades reutilizáveis
- * @param {Array} appointments - Array de appointments retornado pela API cal-service
- * @returns {Array} Array de AppointmentCal com dados preservados integralmente
+ * Transforma os dados da API para o formato esperado pelo AppointmentModel
+ * @param {Array} appointments - Array de appointments retornado pela API
+ * @returns {Array} Array no formato { id, date, time, title, client }
  */
 export function mapAppointmentsToModel(appointments) {
   // Não faz transformação — apenas retorna os dados brutos do cal-service
   // Os dados já vêm estruturados e com todos os campos necessários
   return appointments.map(appt => ({
     id: appt.id,
-    bookingUid: appt.bookingUid,
-    eventTypeId: appt.eventTypeId,
-    clientId: appt.clientId,
-    estateAgentId: appt.estateAgentId,
-    estateId: appt.estateId,
-    durationMinutes: appt.durationMinutes || 60,
-    status: appt.status || 'PENDING',
-    startDateTime: typeof appt.startDateTime === 'string' ? new Date(appt.startDateTime) : appt.startDateTime,
-    endDateTime: typeof appt.endDateTime === 'string' ? new Date(appt.endDateTime) : appt.endDateTime,
-    title: appt.title || 'Agendamento',
-    createdAt: appt.createdAt ? new Date(appt.createdAt) : null,
-    updatedAt: appt.updatedAt ? new Date(appt.updatedAt) : null,
+    date: appt.startDateTime, // ISO string
+    time: new Date(appt.startDateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    title: appt.estate?.title || (appt.estateId ? `Imóvel #${appt.estateId}` : 'Agendamento'),
+    client: appt.client?.name || (appt.clientId ? `Cliente #${appt.clientId}` : 'Cliente não informado'),
   }))
 }
