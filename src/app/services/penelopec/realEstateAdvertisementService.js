@@ -54,8 +54,8 @@ export const updateAdvertisement = async (id, advertisementData) => {
  * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada
  */
 export const updateAdvertisementStatus = async (id, active) => {
-  const response = await advertisementApi.updateAdvertisementStatus(id, active)
-  return RealEstateAdvertisementMapper.toEntity(response)
+  await advertisementApi.updateAdvertisementStatus(id, active)
+  return { id, active }
 }
 
 /**

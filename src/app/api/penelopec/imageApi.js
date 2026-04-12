@@ -1,5 +1,7 @@
 import axiosInstance from '@api/axiosInstance'
 import { IMAGE_TYPE_IDS } from '@constant/imageTypes'
+import { imageEstateMapper } from '@mappers/imageEstateMapper'
+import { imageEstateTypeMapper } from '@mappers/imageEstateTypeMapper'
 
 /**
  * Camada de API - Responsável apenas por requisições HTTP
@@ -23,7 +25,7 @@ export const uploadImages = async (files) => {
       formData.append('files', file)
     })
 
-    const response = await axiosInstance.post('/advertisement/photos', formData, {
+    const response = await axiosInstance.post('/images', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

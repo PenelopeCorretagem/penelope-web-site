@@ -28,6 +28,7 @@ export const ROUTES = {
   ADMIN_USER_EDIT: { key: 'ADMIN_USER_EDIT', path: '/admin/usuarios/:id/editar', friendlyName: 'Editar Usuário' },
   ADMIN_PROPERTIES: { key: 'ADMIN_PROPERTIES', path: '/admin/gerenciar-imoveis', friendlyName: 'Gerenciar Imóveis' },
   ADMIN_PROPERTIES_CONFIG: { key: 'ADMIN_PROPERTIES_CONFIG', path: '/admin/gerenciar-imoveis/:id', friendlyName: 'Configurar Imóvel' },
+  ADMIN_AMENITIES: { key: 'ADMIN_AMENITIES', path: '/admin/amenities', friendlyName: 'Gerenciar Comodidades' },
   ADMIN_SCHEDULE: { key: 'ADMIN_SCHEDULE', path: '/admin/agenda', friendlyName: 'Agenda Admin' },
 
   // Erros

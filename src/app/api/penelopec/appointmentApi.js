@@ -1,5 +1,19 @@
 import axiosInstance from '@api/axiosInstance'
 
+const resolveAppointmentsBaseUrl = () => {
+  const baseFromEnv = import.meta.env.APPOINTMENTS_API_URL
+    || (import.meta.env.API_URL || '').replace(/\/api\/v1\/?$/, '')
+    || 'http://localhost:8080'
+
+  const normalizedBase = String(baseFromEnv).replace(/\/$/, '')
+  return /\/appointments$/.test(normalizedBase)
+    ? normalizedBase
+    : `${normalizedBase}/appointments`
+}
+
+const APPOINTMENTS_BASE_URL = resolveAppointmentsBaseUrl()
+const buildAppointmentsUrl = (suffix = '') => `${APPOINTMENTS_BASE_URL}${suffix}`
+
 /**
  * Camada de API - Responsável apenas por requisições HTTP
  * Retorna dados brutos sem transformação de negócio
@@ -17,8 +31,8 @@ export const getAllAppointments = async (filters = {}) => {
       estateAgentId: filters.estateAgentId,
       estateId: filters.estateId,
       status: filters.status,
-      startDate: filters.startDate,
-      endDate: filters.endDate,
+      startDateTime: filters.startDateTime || filters.startDate,
+      endDateTime: filters.endDateTime || filters.endDate,
       clientEmail: filters.clientEmail,
       agentEmail: filters.agentEmail,
       estateTitle: filters.estateTitle,
@@ -30,7 +44,7 @@ export const getAllAppointments = async (filters = {}) => {
       size: filters.size,
     }
 
-    const response = await axiosInstance.get('/appointments', { params })
+    const response = await axiosInstance.get(buildAppointmentsUrl(), { params })
     return response.data
   } catch (error) {
     console.error('❌ [APPOINTMENTS API] Erro ao listar agendamentos:', error)
@@ -45,7 +59,7 @@ export const getAllAppointments = async (filters = {}) => {
  */
 export const getAppointmentById = async (id) => {
   try {
-    const response = await axiosInstance.get(`/appointments/${id}`)
+    const response = await axiosInstance.get(buildAppointmentsUrl(`/${id}`))
     return response.data
   } catch (error) {
     console.error(`❌ [APPOINTMENTS API] Erro ao buscar agendamento ${id}:`, error)
@@ -61,7 +75,7 @@ export const getAppointmentById = async (id) => {
  */
 export const rescheduleAppointment = async (id, rescheduleData) => {
   try {
-    const response = await axiosInstance.patch(`/appointments/${id}/reschedule`, rescheduleData)
+    const response = await axiosInstance.patch(buildAppointmentsUrl(`/${id}/reschedule`), rescheduleData)
     return response.data
   } catch (error) {
     console.error(`❌ [APPOINTMENTS API] Erro ao reagendar agendamento ${id}:`, error)
@@ -77,8 +91,8 @@ export const rescheduleAppointment = async (id, rescheduleData) => {
  */
 export const cancelAppointment = async (id, reason = null) => {
   try {
-    const params = reason ? { reason } : {}
-    const response = await axiosInstance.post(`/appointments/${id}/cancel`, null, { params })
+    const payload = reason ? { reason } : null
+    const response = await axiosInstance.post(buildAppointmentsUrl(`/${id}/cancel`), payload)
     return response.data
   } catch (error) {
     console.error(`❌ [APPOINTMENTS API] Erro ao cancelar agendamento ${id}:`, error)
@@ -93,7 +107,7 @@ export const cancelAppointment = async (id, reason = null) => {
  */
 export const createAppointment = async (appointmentData) => {
   try {
-    const response = await axiosInstance.post('/appointments', appointmentData)
+    const response = await axiosInstance.post(buildAppointmentsUrl(), appointmentData)
     return response.data
   } catch (error) {
     console.error('❌ [APPOINTMENTS API] Erro ao criar agendamento:', error)
@@ -103,16 +117,16 @@ export const createAppointment = async (appointmentData) => {
 
 
 /**
- * Finalização via Cal.com (retorna 405 - Não permitido).
+ * Finaliza um agendamento.
  * @param {number} id - O ID do agendamento.
- * @returns {Promise<void>} Lança erro 405.
+ * @returns {Promise<void>}
  */
 export const completeAppointment = async (id) => {
   try {
-    await axiosInstance.post(`/appointments/${id}/complete`)
+    await axiosInstance.post(buildAppointmentsUrl(`/${id}/conclude`))
   } catch (error) {
-    if (error.response?.status === 405) {
-      throw new Error('Finalização deve ser feita via Cal.com')
+    if (error.response?.status === 409) {
+      throw new Error('Não foi possível concluir o agendamento no estado atual')
     }
     console.error(`❌ [APPOINTMENTS API] Erro ao finalizar agendamento ${id}:`, error)
     throw error

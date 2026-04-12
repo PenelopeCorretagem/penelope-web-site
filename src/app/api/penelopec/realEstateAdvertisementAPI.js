@@ -24,8 +24,13 @@ export const getAllAdvertisements = async (filters = {}) => {
     featured: filters.featured,
   }
 
-  const response = await axiosInstance.get('/advertisements', { params })
-  return response.data
+  try {
+    const response = await axiosInstance.get('/advertisements', { params })
+    return response.data
+  } catch (error) {
+    console.error('❌ [ADVERTISEMENTS_API] Erro na requisição:', error.message)
+    throw error
+  }
 }
 
 /**
@@ -86,7 +91,7 @@ export const updateAdvertisement = async (id, advertisementData) => {
  */
 export const updateAdvertisementStatus = async (id, active) => {
   try {
-    const response = await axiosInstance.patch(`/advertisements/${id}`, { active })
+    const response = await axiosInstance.patch(`/advertisements/${id}/status`, { active })
     return response.data
   } catch (error) {
     console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar status do anúncio ${id}:`, error)

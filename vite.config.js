@@ -32,16 +32,36 @@ export default defineConfig(({ command, mode }) => {
   }
 
   const apiBaseUrl = env.API_URL
-  const viaCepBaseUrl = env.VIACEP_URL || 'https://viacep.com.br/ws'
+  const viaCepBaseUrl = env.VITE_VIACEP_BASE_URL || 'https://viacep.com.br/ws'
+  const calServiceUrl = env.VITE_CAL_SERVICE_URL || 'http://localhost:8080/api/v1'
 
   return {
     plugins: [react(), tailwindcss()],
 
     define: {
+      // Modo
       'import.meta.env.MODE': JSON.stringify(mode),
-      'import.meta.env.API_URL': JSON.stringify(apiBaseUrl),
-      'import.meta.env.VIACEP_URL': JSON.stringify(viaCepBaseUrl),
       'import.meta.env.APP_MODEL': JSON.stringify(env.APP_MODEL || 'development'),
+      
+      // Frontend
+      'import.meta.env.FRONT_IP': JSON.stringify(env.FRONT_IP || 'localhost'),
+      'import.meta.env.FRONT_PORT': JSON.stringify(env.FRONT_PORT || '3000'),
+      'import.meta.env.APP_URL': JSON.stringify(env.APP_URL || 'http://localhost:3000'),
+      
+      // Backend (Penelope API Rest)
+      'import.meta.env.BACKEND_IP': JSON.stringify(env.BACKEND_IP || 'localhost'),
+      'import.meta.env.BACKEND_PORT': JSON.stringify(env.BACKEND_PORT || '8081'),
+      'import.meta.env.API_URL': JSON.stringify(env.API_URL),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || env.API_URL),
+      
+      // Cal Service
+      'import.meta.env.CAL_SERVICE_IP': JSON.stringify(env.CAL_SERVICE_IP || 'localhost'),
+      'import.meta.env.CAL_SERVICE_PORT': JSON.stringify(env.CAL_SERVICE_PORT || '8080'),
+      'import.meta.env.VITE_CAL_SERVICE_URL': JSON.stringify(calServiceUrl),
+      
+      // ViaCEP (Externo)
+      'import.meta.env.VIACEP_IP': JSON.stringify(env.VIACEP_IP || 'viacep.com.br'),
+      'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(viaCepBaseUrl),
     },
 
     resolve: {
@@ -69,9 +89,11 @@ export default defineConfig(({ command, mode }) => {
         // Services
         '@service-penelopec': path.resolve(__dirname, './src/app/services/penelopec'),
         '@service-viacep': path.resolve(__dirname, './src/app/services/viacep'),
+        '@service-calservice': path.resolve(__dirname, './src/app/services/calservice'),
         // APIs
         '@api-penelopec': path.resolve(__dirname, './src/app/api/penelopec'),
         '@api-viacep': path.resolve(__dirname, './src/app/api/viacep'),
+        '@api-calservice': path.resolve(__dirname, './src/app/api/calservice'),
       },
     },
 
