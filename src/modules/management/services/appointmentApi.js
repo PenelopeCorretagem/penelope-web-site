@@ -3,18 +3,9 @@
  * Serviço para consumir a API de agendamentos (appointments) do cal-service
  */
 
-const resolveAppointmentsBaseUrl = () => {
-  const baseFromEnv = import.meta.env.APPOINTMENTS_API_URL
-    || (import.meta.env.API_URL || '').replace(/\/api\/v1\/?$/, '')
-    || 'http://localhost:8080'
-
-  const normalizedBase = String(baseFromEnv).replace(/\/$/, '')
-  return /\/appointments$/.test(normalizedBase)
-    ? normalizedBase
-    : `${normalizedBase}/appointments`
-}
-
-const BASE_URL = resolveAppointmentsBaseUrl()
+// IMPORTANTE: Usar CAL_SERVICE_URL, não a API_URL (que aponta para penelope-api-rest)
+// Cal-service não usa /api/v1, acessa direto em /appointments
+const BASE_URL = `${import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8090'}/appointments`
 
 /**
  * Busca agendamentos com paginação e filtros via cal-service
@@ -72,15 +63,12 @@ export async function fetchAppointments({
 
   const responseData = await response.json()
   const appointments = Array.isArray(responseData?.appointments) ? responseData.appointments : []
-  const filteredAppointments = onlyActive
-    ? appointments.filter(appt => !['CANCELLED', 'CONCLUDED'].includes(appt?.status))
-    : appointments
 
   // Compatibilidade com consumidores legados que esperam o formato content/pageable
   return {
     ...responseData,
-    appointments: filteredAppointments,
-    content: filteredAppointments,
+    appointments,
+    content: appointments,
     pageable: {
       pageNumber: responseData?.page ?? 0,
       pageSize: responseData?.size ?? size,

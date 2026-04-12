@@ -1,13 +1,13 @@
+import { useEffect } from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
-import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { AlertView, useAlert } from '@shared/components/feedback/Alert/AlertView'
 
 export function PropertyConfigView() {
   const { id } = useRouteParams()
-
-
+  const alertError = useAlert(false)
 
   const {
     loading,
@@ -24,27 +24,19 @@ export function PropertyConfigView() {
     handleClear,
     handleCancel
   } = usePropertyConfigViewModel(id)
+
+  // Mostra o alerta de erro quando há erro
+  useEffect(() => {
+    if (error) {
+      alertError.show()
+    }
+  }, [error, alertError])
   
   // Só monta o formulário quando os usuários e features estiverem carregados
   if (loading || loadingUsers || loadingFeatures) {
     return (
       <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
         {loading ? 'Carregando dados da propriedade...' : loadingUsers ? 'Carregando usuários...' : 'Carregando diferenciais...'}
-      </SectionView>
-    )
-  }
-
-  if (error) {
-    return (
-      <SectionView className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-red-500 gap-4">
-        <p>{error}</p>
-        <ButtonView
-          type="button"
-          color="brown"
-          onClick={handleCancel}
-        >
-          Voltar
-        </ButtonView>
       </SectionView>
     )
   }
@@ -439,24 +431,35 @@ export function PropertyConfigView() {
   ]
 
   return (
-    <SectionView className="!min-h-[calc(100vh-80px)] !max-h-[calc(100vh-80px)] overflow-y-auto">
-      <WizardFormView
-        title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
-        steps={steps}
-        initialData={initialData}
-        onSubmit={(formData) => {
-          return handleSubmit(formData)
-        }}
-        onDelete={!isNew ? () => {
-          if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
-            return handleDelete()
-          }
-        } : undefined}
-        onClear={handleClear}
-        onCancel={handleCancel}
-        disabled={submitting}
-        key={id || 'new'}
+    <>
+      <SectionView className="!min-h-[calc(100vh-80px)] !max-h-[calc(100vh-80px)] overflow-y-auto">
+        <WizardFormView
+          title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
+          steps={steps}
+          initialData={initialData}
+          onSubmit={(formData) => {
+            return handleSubmit(formData)
+          }}
+          onDelete={!isNew ? () => {
+            if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
+              return handleDelete()
+            }
+          } : undefined}
+          onClear={handleClear}
+          onCancel={handleCancel}
+          disabled={submitting}
+          key={id || 'new'}
+        />
+      </SectionView>
+
+      {/* Alerta de erro flutuante */}
+      <AlertView
+        isVisible={alertError.isVisible}
+        type="error"
+        message={error || ''}
+        onClose={alertError.hide}
+        hasCloseButton={true}
       />
-    </SectionView>
+    </>
   )
 }

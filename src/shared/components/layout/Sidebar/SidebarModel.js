@@ -23,6 +23,13 @@ export class SidebarModel {
 
     return [
       {
+        id: 'schedule',
+        text: 'Agenda',
+        icon: 'Calendar',
+        path: routes.SCHEDULE,
+        roles: ['user', 'admin']
+      },
+      {
         id: 'properties',
         text: 'Imóveis',
         icon: 'Building2',
@@ -31,7 +38,7 @@ export class SidebarModel {
       },
       {
         id: 'amenities',
-        text: 'Comodidades',
+        text: 'Diferenciais',
         icon: 'Zap',
         path: routes.ADMIN_AMENITIES,
         roles: ['admin']

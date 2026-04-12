@@ -3,7 +3,8 @@
  * API client para gerenciar appointments no cal-service
  */
 
-const BASE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8080/api/v1'
+// Cal-service não usa /api/v1, acessa direto em /appointments
+const BASE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8090'
 
 /**
  * Lista appointments com filtros opcionais
@@ -250,4 +251,21 @@ export const deleteAppointment = async (id) => {
     console.error(`❌ [CAL SERVICE] Erro ao deletar appointment ${id}:`, error)
     throw error
   }
+}
+
+/**
+ * Transforma os dados da API para o formato esperado pelo AppointmentModel
+ * @param {Array} appointments - Array de appointments retornado pela API
+ * @returns {Array} Array no formato { id, date, time, title, client }
+ */
+export function mapAppointmentsToModel(appointments) {
+  // Não faz transformação — apenas retorna os dados brutos do cal-service
+  // Os dados já vêm estruturados e com todos os campos necessários
+  return appointments.map(appt => ({
+    id: appt.id,
+    date: appt.startDateTime, // ISO string
+    time: new Date(appt.startDateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    title: appt.estate?.title || (appt.estateId ? `Imóvel #${appt.estateId}` : 'Agendamento'),
+    client: appt.client?.name || (appt.clientId ? `Cliente #${appt.clientId}` : 'Cliente não informado'),
+  }))
 }

@@ -3,6 +3,7 @@ import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { AlertView, useAlert } from '@shared/components/feedback/Alert/AlertView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
 import { GripVertical, Plus } from 'lucide-react'
@@ -12,10 +13,20 @@ import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 
 export function WizardFormView(props) {
   const vm = useWizardFormViewModel(props)
+  const alert = useAlert(false)
+  const [alertMessage, setAlertMessage] = useState('')
+  const [alertType, setAlertType] = useState('warning')
   const [direction, setDirection] = useState('forward')
   const fileInputRefs = useRef({})
   const [draggedIndex, setDraggedIndex] = useState(null)
   const [dragOverIndex, setDragOverIndex] = useState(null)
+
+  // Função para exibir alerta com mensagem e tipo
+  const showAlert = (message, type = 'warning') => {
+    setAlertMessage(message)
+    setAlertType(type)
+    alert.show()
+  }
 
   const handleNext = (e) => {
     if (e) e.preventDefault()
@@ -154,7 +165,7 @@ export function WizardFormView(props) {
       debounceDelay: 800,
       enableAutoFill: true,
       onError: (error) => {
-        console.warn('Erro no auto-preenchimento de CEP do imóvel:', error)
+        showAlert(error, 'warning')
       }
     }
   )
@@ -183,7 +194,7 @@ export function WizardFormView(props) {
       debounceDelay: 800,
       enableAutoFill: true,
       onError: (error) => {
-        console.warn('Erro no auto-preenchimento de CEP do stand:', error)
+        showAlert(error, 'warning')
       }
     }
   )
@@ -716,6 +727,15 @@ export function WizardFormView(props) {
           </div>
         </div>
       </form>
+
+      {/* Alert for CEP errors */}
+      <AlertView
+        isVisible={alert.isVisible}
+        type={alertType}
+        message={alertMessage}
+        onClose={alert.hide}
+        hasCloseButton={true}
+      />
     </div>
   )
 }

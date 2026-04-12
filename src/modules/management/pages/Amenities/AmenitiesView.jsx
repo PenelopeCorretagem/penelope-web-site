@@ -99,7 +99,7 @@ export function AmenitiesView() {
                     Ícone
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark">
-                    Descrição
+                    Diferencial
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark">
                     Nome do Ícone
@@ -176,10 +176,10 @@ export function AmenitiesView() {
 
             {/* Body */}
             <div className="p-6 space-y-4">
-              {/* Descrição */}
+              {/* Diferencial */}
               <div>
                 <label className="text-sm font-medium text-default-dark mb-2 block">
-                  Descrição
+                  Diferencial
                 </label>
                 <InputView
                   type="text"

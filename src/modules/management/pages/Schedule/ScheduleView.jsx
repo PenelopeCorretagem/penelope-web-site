@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays } from 'lucide-react'
 import { useScheduleViewModel } from './useScheduleViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
+import { AppointmentFormModalView } from './AppointmentFormModalView'
 
 const STATUS_COLORS = {
   PENDING: 'bg-distac-primary text-white',
@@ -20,6 +21,10 @@ const STATUS_LABELS = {
 export function ScheduleView() {
   const headerHeight = useHeaderHeight()
   const [viewMode, setViewMode] = useState('week') // 'week' ou 'day'
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedModalDate, setSelectedModalDate] = useState(new Date())
+  const [selectedModalHour, setSelectedModalHour] = useState(10)
+
   const {
     selectedDate,
     setSelectedDate,
@@ -32,6 +37,44 @@ export function ScheduleView() {
     monthCount,
     allAppointments,
   } = useScheduleViewModel()
+
+  const handleTimeSlotClick = (date, hour) => {
+    // ✅ Validar se a data é no passado
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const clickedDate = new Date(date)
+    clickedDate.setHours(0, 0, 0, 0)
+    
+    if (clickedDate < today) {
+      // Silenciosamente ignorar clicks em datas passadas
+      return
+    }
+    
+    setSelectedModalDate(date)
+    setSelectedModalHour(hour)
+    setIsModalOpen(true)
+  }
+
+  // ✅ Função para verificar se data é no passado
+  const isPastDate = (date) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const checkDate = new Date(date)
+    checkDate.setHours(0, 0, 0, 0)
+    
+    return checkDate < today
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleAppointmentCreated = () => {
+    // Recarregar dados quando novo agendamento é criado
+    // O useScheduleViewModel já deve recarregar automaticamente
+  }
 
   const weekdayLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
   const currentMonthName = selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
@@ -112,6 +155,7 @@ export function ScheduleView() {
 
     const cellDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day)
     const isCurrent = day === selectedDate.getDate()
+    const isPassedDay = isPastDate(cellDate)
     const dateKey = cellDate.toISOString().split('T')[0]
     const count = appointmentsCountByDate[dateKey] || 0
 
@@ -123,12 +167,14 @@ export function ScheduleView() {
         className={`aspect-square rounded-md text-sm font-medium transition relative ${
           isCurrent
             ? 'bg-distac-primary text-white'
-            : 'bg-white text-default-dark hover:bg-slate-100'
+            : isPassedDay
+              ? 'bg-slate-100 text-slate-400 opacity-60'
+              : 'bg-white text-default-dark hover:bg-slate-100'
         }`}
       >
         <div className="relative h-full flex items-center justify-center">
           {day}
-          {count > 0 && (
+          {count > 0 && !isPassedDay && (
             <div className="absolute top-1 right-1 w-2 h-2 bg-distac-primary rounded-full"></div>
           )}
         </div>
@@ -274,69 +320,86 @@ export function ScheduleView() {
               {viewMode === 'week' ? (
                 // Visualização Semanal
                 <div className="grid grid-cols-8 gap-2 min-w-full">
-                {/* Coluna de horas */}
-                <div className="w-16 flex-shrink-0">
-                  <div className="h-8"></div>
-                  {hours.map(hour => (
-                    <div key={hour} className="h-12 text-xs text-muted flex items-start justify-end pr-2">
-                      {String(hour).padStart(2, '0')}:00
-                    </div>
-                  ))}
-                </div>
-
-                {/* Colunas dos dias */}
-                {weekDates.map((date, dayIndex) => {
-                  const isSelectedDay = date.toDateString() === selectedDate.toDateString()
-                  const dateKey = date.toISOString().split('T')[0]
-                  const dayAppointments = appointmentsByDay[dateKey] || []
-
-                  return (
-                    <div
-                      key={dateKey}
-                      className={`flex-1 border-l ${isSelectedDay ? 'bg-distac-primary/5 border-distac-primary' : 'border-slate-200'}`}
-                    >
-                      <div className="h-8 flex flex-col items-center justify-center border-b border-slate-200 pb-2">
-                        <p className="text-xs font-semibold text-default-dark">{weekdayLabels[dayIndex]}</p>
-                        <p className="text-sm font-bold text-distac-primary">{date.getDate()}</p>
+                  {/* Coluna de horas */}
+                  <div className="w-16 flex-shrink-0">
+                    <div className="h-8"></div>
+                    {hours.map(hour => (
+                      <div key={hour} className="h-12 text-xs text-muted flex items-start justify-end pr-2">
+                        {String(hour).padStart(2, '0')}:00
                       </div>
+                    ))}
+                  </div>
 
-                      {/* Slots de hora */}
-                      <div className="relative">
-                        {hours.map(hour => (
-                          <div key={`${dateKey}-${hour}`} className="h-12 border-b border-slate-100"></div>
-                        ))}
+                  {/* Colunas dos dias */}
+                  {weekDates.map((date, dayIndex) => {
+                    const isSelectedDay = date.toDateString() === selectedDate.toDateString()
+                    const dateKey = date.toISOString().split('T')[0]
+                    const dayAppointments = appointmentsByDay[dateKey] || []
 
-                        {/* Eventos sobrepostos */}
-                        <div className="absolute inset-0">
-                          {dayAppointments.map(appt => {
-                            const startHour = appt.startDateTime.getHours()
-                            const startMinutes = appt.startDateTime.getMinutes()
-                            const topOffset = (startHour - 7) * 48 + (startMinutes / 60) * 48
-                            const height = (appt.durationMinutes / 60) * 48
+                    return (
+                      <div
+                        key={dateKey}
+                        className={`flex-1 border-l ${isSelectedDay ? 'bg-distac-primary/5 border-distac-primary' : 'border-slate-200'}`}
+                      >
+                        <div className="h-8 flex flex-col items-center justify-center border-b border-slate-200 pb-2">
+                          <p className="text-xs font-semibold text-default-dark">{weekdayLabels[dayIndex]}</p>
+                          <p className="text-sm font-bold text-distac-primary">{date.getDate()}</p>
+                        </div>
+
+                        {/* Slots de hora */}
+                        <div className="relative">
+                          {hours.map((hour) => {
+                            // Eventos neste slot específico
+                            const slotAppointments = dayAppointments.filter(appt => {
+                              const apptHour = appt.startDateTime.getHours()
+                              return apptHour === hour
+                            })
 
                             return (
-                              <div
-                                key={appt.id}
-                                className={`absolute left-1 right-1 rounded-md p-2 text-white text-xs overflow-hidden ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
-                                style={{
-                                  top: `${topOffset}px`,
-                                  minHeight: `${Math.max(height, 24)}px`,
-                                }}
-                                title={appt.title || 'Agendamento'}
+                              <button
+                                key={`${dateKey}-${hour}`}
+                                type="button"
+                                onClick={() => handleTimeSlotClick(date, hour)}
+                                disabled={isPastDate(date)}
+                                className={`h-12 border-b border-slate-100 w-full transition relative block ${
+                                  isPastDate(date)
+                                    ? 'opacity-40 cursor-not-allowed bg-slate-50 pointer-events-none'
+                                    : 'hover:bg-distac-primary/5'
+                                }`}
                               >
-                                <p className="font-semibold truncate">{appt.title || 'Agendamento'}</p>
-                                <p className="text-[10px] opacity-90">
-                                  {String(startHour).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')}
-                                </p>
-                              </div>
+                                {/* Eventos neste slot */}
+                                <div className="absolute inset-0 pointer-events-none">
+                                  {slotAppointments.map(appt => {
+                                    const startMinutes = appt.startDateTime.getMinutes()
+                                    const topOffset = (startMinutes / 60) * 48
+                                    const height = (appt.durationMinutes / 60) * 48
+
+                                    return (
+                                      <div
+                                        key={appt.id}
+                                        className={`absolute left-1 right-1 rounded-md p-1 text-white text-[10px] overflow-hidden ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                        style={{
+                                          top: `${topOffset}px`,
+                                          minHeight: `${Math.max(height, 20)}px`,
+                                        }}
+                                        title={appt.title || 'Agendamento'}
+                                      >
+                                        <p className="font-semibold truncate text-xs">{appt.title || 'Agendamento'}</p>
+                                        <p className="text-[9px] opacity-90">
+                                          {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')}
+                                        </p>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </button>
                             )
                           })}
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
               ) : (
                 // Visualização Diária
                 <div className="min-w-full h-full flex flex-col">
@@ -362,37 +425,54 @@ export function ScheduleView() {
                         {/* Timeline do dia */}
                         <div className="flex-1 relative">
                           {/* Linhas de hora */}
-                          {hours.map(hour => (
-                            <div key={`hour-${hour}`} className="h-20 border-b border-slate-100"></div>
-                          ))}
+                          {hours.map((hour) => {
+                            // Eventos neste slot específico
+                            const slotAppointments = appointmentsForSelectedDate.filter(appt => {
+                              const apptHour = appt.startDateTime.getHours()
+                              return apptHour === hour
+                            })
 
-                          {/* Eventos do dia */}
-                          <div className="absolute inset-0 top-0">
-                            {appointmentsForSelectedDate.map(appt => {
-                              const startHour = appt.startDateTime.getHours()
-                              const startMinutes = appt.startDateTime.getMinutes()
-                              const topOffset = (startHour - 7) * 80 + (startMinutes / 60) * 80
-                              const height = (appt.durationMinutes / 60) * 80
+                            return (
+                              <button
+                                key={`hour-${hour}`}
+                                type="button"
+                                onClick={() => handleTimeSlotClick(selectedDate, hour)}
+                                disabled={isPastDate(selectedDate)}
+                                className={`h-20 border-b border-slate-100 w-full transition relative block ${
+                                  isPastDate(selectedDate)
+                                    ? 'opacity-40 cursor-not-allowed bg-slate-50 pointer-events-none'
+                                    : 'hover:bg-distac-primary/5'
+                                }`}
+                              >
+                                {/* Eventos neste slot */}
+                                <div className="absolute inset-0 pointer-events-none">
+                                  {slotAppointments.map(appt => {
+                                    const startMinutes = appt.startDateTime.getMinutes()
+                                    const topOffset = (startMinutes / 60) * 80
+                                    const height = (appt.durationMinutes / 60) * 80
 
-                              return (
-                                <div
-                                  key={appt.id}
-                                  className={`absolute left-2 right-2 rounded-lg p-3 text-white text-sm overflow-hidden shadow-md ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
-                                  style={{
-                                    top: `${topOffset}px`,
-                                    minHeight: `${Math.max(height, 40)}px`,
-                                  }}
-                                  title={appt.title || 'Agendamento'}
-                                >
-                                  <p className="font-semibold">{appt.title || 'Agendamento'}</p>
-                                  <p className="text-xs opacity-90 mt-1">
-                                    {String(startHour).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}min)
-                                  </p>
-                                  <p className="text-xs opacity-75 mt-1">{STATUS_LABELS[appt.status]}</p>
+                                    return (
+                                      <div
+                                        key={appt.id}
+                                        className={`absolute left-2 right-2 rounded-lg p-2 text-white text-xs overflow-hidden shadow-md ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                        style={{
+                                          top: `${topOffset}px`,
+                                          minHeight: `${Math.max(height, 35)}px`,
+                                        }}
+                                        title={appt.title || 'Agendamento'}
+                                      >
+                                        <p className="font-semibold text-xs">{appt.title || 'Agendamento'}</p>
+                                        <p className="text-[10px] opacity-90 mt-1">
+                                          {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}min)
+                                        </p>
+                                        <p className="text-[10px] opacity-75 mt-1">{STATUS_LABELS[appt.status]}</p>
+                                      </div>
+                                    )
+                                  })}
                                 </div>
-                              )
-                            })}
-                          </div>
+                              </button>
+                            )
+                          })}
                         </div>
                       </div>
 
@@ -491,6 +571,16 @@ export function ScheduleView() {
           
         </div>
       </main>
+
+      {/* Modal de Agendamento */}
+      <AppointmentFormModalView
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSubmitSuccess={handleAppointmentCreated}
+        selectedDate={selectedModalDate}
+        selectedHour={selectedModalHour}
+        allAppointments={allAppointments}
+      />
     </div>
   )
 }

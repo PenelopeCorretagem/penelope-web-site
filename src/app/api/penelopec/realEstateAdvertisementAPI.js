@@ -24,8 +24,13 @@ export const getAllAdvertisements = async (filters = {}) => {
     featured: filters.featured,
   }
 
-  const response = await axiosInstance.get('/advertisements', { params })
-  return response.data
+  try {
+    const response = await axiosInstance.get('/advertisements', { params })
+    return response.data
+  } catch (error) {
+    console.error('❌ [ADVERTISEMENTS_API] Erro na requisição:', error.message)
+    throw error
+  }
 }
 
 /**
