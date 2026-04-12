@@ -45,7 +45,7 @@ export function ContactsView() {
             contacts={contactItems}
             layout="horizontal"
             iconSize="large"
-            className="gap-card md:gap-card-md w-full md:justify-center max-md:mt-2 max-md:mb-4 max-md:grid max-md:grid-cols-2 max-md:gap-x-0 max-md:gap-y-2 max-md:flex-none max-md:justify-items-center [&_a]:max-md:p-3 [&_a]:max-md:text-[28px] [&_button]:max-md:p-3 [&_button]:max-md:text-[28px]"
+            className="gap-card md:gap-card-md w-full md:justify-center max-md:mt-2 max-md:mb-4 max-md:grid max-md:grid-cols-4 max-md:gap-x-4 max-md:gap-y-2 max-md:flex-none max-md:justify-items-center [&_a]:max-md:p-3 [&_a]:max-md:text-[28px] [&_button]:max-md:p-3 [&_button]:max-md:text-[28px]"
           />
         </div>
 

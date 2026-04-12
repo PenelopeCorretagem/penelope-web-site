@@ -124,8 +124,16 @@ export function NavMenuView({
     )
   }
 
+  // Ordem das seções no mobile para grid 2 colunas equilibrada (Geral|Contatos, Vendas|Acesso)
+  const mobileOrderClasses = {
+    geral: 'order-1 md:order-none',
+    contatos: 'order-2 md:order-none',
+    vendas: 'order-3 md:order-none',
+    acesso: 'order-4 md:order-none'
+  }
+
   const renderFooterSection = (sectionName, items) => (
-    <div key={sectionName} className={viewModel.getFooterSectionClasses()}>
+    <div key={sectionName} className={viewModel.getFooterSectionClasses() + ' ' + (mobileOrderClasses[sectionName] || '')}>
       <HeadingView level={6} className='text-distac-primary font-extrabold'>
         {getSectionTitle(sectionName)}
       </HeadingView>
@@ -185,7 +193,7 @@ export function NavMenuView({
   if (variant === 'footer') {
     return (
       <div className={viewModel.getFooterClasses()}>
-        <div className='flex flex-col items-center md:items-start justify-between h-24'>
+        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-2 md:col-span-1'>
           <LogoView hasHoverEffect={true} />
           <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
             Seu sonho começa com uma chave

@@ -279,17 +279,18 @@ export const theme = {
     },
     footer: {
       container: [
-        'flex flex-col md:flex-row items-center md:items-start',
-        'justify-between w-full h-fit gap-subsection md:gap-0'
+        'grid grid-cols-2 gap-6 items-start',
+        'md:flex md:flex-row md:items-start md:justify-between md:w-full md:h-fit md:gap-0'
       ].join(' '),
       logoSection: 'flex flex-col items-center md:items-start justify-between h-24',
-      section: 'flex flex-col items-center md:items-start gap-2',
+      section: 'flex flex-col items-center md:items-start gap-2 text-sm md:text-base',
       sectionTitle: 'text-distac-primary font-extrabold',
       sectionLink: [
         'text-default-dark',
         'hover:text-distac-primary hover:underline',
         'transition-colors duration-200',
-        'uppercase cursor-pointer'
+        'uppercase cursor-pointer',
+        'text-sm md:text-base'
       ].join(' '),
       disabledLink: 'cursor-not-allowed opacity-50 text-gray-500'
     }
