@@ -18,10 +18,9 @@ export const chatbotModel = {
 
     imoveis: {
       botResponse:
-        'Claro! Sobre imóveis, posso te ajudar com: imóveis disponíveis, valores ou localização. O que você deseja saber?',
+        'Claro! Sobre imóveis, posso te ajudar com: imóveis disponíveis ou localização. O que você deseja saber?',
       options: [
         'Imóveis disponíveis',
-        'Faixa de preço',
         'Localização',
         'Voltar para o inicio',
       ],
@@ -29,15 +28,15 @@ export const chatbotModel = {
 
     imoveisDisponiveis: {
       botResponse:
-        'Atualmente temos apartamentos de 2 e 3 quartos, casas em condomínio fechado e studios no centro da cidade. Deseja mais detalhes?',
+        'Atualmente trabalhamos com Studios e apartamentos de 1 a 3 dormitórios. Deseja mais detalhes?',
       options: [
-        'Faixa de preço',
+        'Ver Imóveis',
         'Localização',
         'Voltar para o inicio',
       ],
     },
 
-    faixaPreco: {
+    verImoveis: {
       botResponse:
         'Nossos imóveis variam entre R$ 250.000 e R$ 1.200.000, dependendo do tamanho e localização. Deseja simular financiamento?',
       options: [
@@ -48,7 +47,7 @@ export const chatbotModel = {
 
     localizacao: {
       botResponse:
-        'Temos imóveis nas regiões Central, Zona Sul e Zona Norte. Você tem preferência por alguma área?',
+        'Temos imóveis nas regiões Central, Zona Sul, Norte, Leste e Oeste. Veja nossos imóveis disponíveis!',
       options: [
         'Imóveis disponíveis',
         'Voltar para o inicio',
@@ -59,26 +58,18 @@ export const chatbotModel = {
 
     agendamento: {
       botResponse:
-        'Perfeito! Você deseja agendar uma visita presencial ou online?',
+        'Perfeito! Trabalhamos com Visitas Presenciais aos nossos Stands, e visitas totalmente Online. Deseja agendar uma visita?',
       options: [
-        'Visita presencial',
-        'Visita online',
+        'Agendar agora!',
         'Voltar para o inicio',
       ],
     },
 
-    visitaPresencial: {
+    agendamentoLoginNecessario: {
       botResponse:
-        'Ótimo! Nossa equipe entrará em contato para confirmar data e horário da visita presencial.',
+        'Para agendar uma visita, você precisa realizar o Cadastro. Faça login para continuar.',
       options: [
-        'Voltar para o inicio',
-      ],
-    },
-
-    visitaOnline: {
-      botResponse:
-        'Perfeito! Enviaremos um link para uma visita virtual guiada pelo corretor.',
-      options: [
+        'Ir para a tela de login',
         'Voltar para o inicio',
       ],
     },
@@ -100,14 +91,16 @@ export const chatbotModel = {
       botResponse:
         'Para simular, consideramos entrada mínima de 20% e parcelamento em até 360 meses. Deseja falar com um especialista?',
       options: [
+        'Falar com corretor',
         'Voltar para o inicio',
       ],
     },
 
     taxas: {
       botResponse:
-        'As taxas variam entre 7% e 9% ao ano, dependendo da instituição financeira e análise de crédito.',
+        'As taxas variam entre 7% e 9% ao ano, dependendo da instituição financeira e análise de crédito. Fale com um de nossos corretores!',
       options: [
+        'Falar com corretor',
         'Voltar para o inicio',
       ],
     },
@@ -116,6 +109,7 @@ export const chatbotModel = {
       botResponse:
         'Os documentos necessários são: RG, CPF, comprovante de renda, comprovante de residência e certidão de estado civil.',
       options: [
+        'Falar com corretor',
         'Voltar para o inicio',
       ],
     },
@@ -140,17 +134,20 @@ export const chatbotModel = {
 
     // imóveis
     'Imóveis disponíveis': 'imoveisDisponiveis',
-    'Faixa de preço': 'faixaPreco',
+    'Ver Imóveis': 'verImoveis',
     'Localização': 'localizacao',
 
     // agendamento
-    'Visita presencial': 'visitaPresencial',
-    'Visita online': 'visitaOnline',
+    'Agendar agora!': 'agendamento',
+
+    // login
+    'Ir para a tela de login': 'agendamentoLoginNecessario',
 
     // financiamento
     'Simulação': 'simulacao',
     'Taxas': 'taxas',
     'Documentos necessários': 'documentos',
+
   },
 
   getNextStep(userMessage) {

@@ -1,19 +1,38 @@
+import { useEffect, useRef } from 'react'
 import { FaTimes, FaComments } from 'react-icons/fa'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { TextView } from '@shared/components/ui/Text/TextView'
+import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView'
 import { useChatbotViewModel } from './useChatbotViewModel'
 
 export function ChatbotView() {
   const {
     isOpen,
     isTyping,
+    isScreeningFormOpen,
     messages,
     step,
     responses,
     handleOpen,
     handleClose,
+    handleCloseScreeningForm,
     handleOptionClick,
   } = useChatbotViewModel()
+  const messagesContainerRef = useRef(null)
+
+  const userMessageClasses = 'p-3 max-w-[80%] rounded-xl bg-distac-primary text-white rounded-tr-none'
+  const botMessageClasses = 'p-3 max-w-[80%] rounded-xl bg-distac-primary/20 text-distac-secondary rounded-tl-none'
+
+  useEffect(() => {
+    const container = messagesContainerRef.current
+
+    if (!container) return
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    })
+  }, [messages, isTyping, step, isOpen])
 
   return (
     <>
@@ -28,6 +47,10 @@ export function ChatbotView() {
         >
           <FaComments className="text-white text-3xl" />
         </ButtonView>
+      )}
+
+      {isScreeningFormOpen && (
+        <ScreeningFormView onClose={handleCloseScreeningForm} />
       )}
 
       {isOpen && (
@@ -56,7 +79,7 @@ export function ChatbotView() {
           </div>
 
           {/* MENSAGENS */}
-          <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-4">
+          <div ref={messagesContainerRef} className="p-4 flex-1 overflow-y-auto flex flex-col gap-4">
             {messages.map((m, index) => (
               <div
                 key={index}
@@ -65,11 +88,7 @@ export function ChatbotView() {
                 }`}
               >
                 <TextView
-                  className={`p-3 max-w-[80%] rounded-xl ${
-                    m.sender === 'user'
-                      ? 'bg-distac-primary text-white rounded-tr-none'
-                      : 'bg-distac-primary/20 text-distac-secondary rounded-tl-none'
-                  }`}
+                  className={m.sender === 'user' ? userMessageClasses : botMessageClasses}
                 >
                   {m.text}
                 </TextView>
