@@ -17,17 +17,12 @@ export function usePropertyConfigViewModel(id) {
   const [submitting, setSubmitting] = useState(false)
   const [usersWithCreci, setUsersWithCreci] = useState([])
   const [features, setFeatures] = useState([])
+  const [alertConfig, setAlertConfig] = useState(null)
 
   const isNew = !id || id === 'novo' || id === 'new'
 
-  // Simple toast implementation (fallback if useToast doesn't exist)
-  const showToast = (type, message) => {
-    // You can replace this with your actual toast implementation
-    if (type === 'error') {
-      alert(`Erro: ${message}`)
-    } else {
-      alert(`Sucesso: ${message}`)
-    }
+  const showAlert = (type, message, onClose = null) => {
+    setAlertConfig({ type, message, onClose })
   }
 
   // Carregar usuários com CRECI
@@ -43,7 +38,7 @@ export function usePropertyConfigViewModel(id) {
         setUsersWithCreci(users)
       } catch (err) {
         console.error('❌ [PROPERTY CONFIG VM] Failed to load users:', err)
-        showToast('error', 'Erro ao carregar usuários')
+        showAlert('error', 'Erro ao carregar usuários')
         // Set empty array on error to avoid breaking the form
         setUsersWithCreci([])
       } finally {
@@ -67,7 +62,7 @@ export function usePropertyConfigViewModel(id) {
         setFeatures(featuresList)
       } catch (err) {
         console.error('❌ [PROPERTY CONFIG VM] Failed to load features:', err)
-        showToast('error', 'Erro ao carregar diferenciais')
+        showAlert('error', 'Erro ao carregar diferenciais')
         setFeatures([])
       } finally {
         setLoadingFeatures(false)
@@ -153,15 +148,16 @@ export function usePropertyConfigViewModel(id) {
 
 
 
-      showToast('success', isNew ? 'Propriedade criada com sucesso!' : 'Propriedade atualizada com sucesso!')
-      navigate('/admin/gerenciar-imoveis')
+      showAlert('success', isNew ? 'Propriedade criada com sucesso!' : 'Propriedade atualizada com sucesso!', () => {
+        navigate('/admin/gerenciar-imoveis')
+      })
 
       return result
     } catch (err) {
       const errorMessage = err.message || (isNew ? 'Erro ao criar propriedade' : 'Erro ao atualizar propriedade')
       console.error(`❌ [PROPERTY CONFIG VM] ${isNew ? 'Create' : 'Update'} failed:`, err)
       setError(errorMessage)
-      showToast('error', errorMessage)
+      showAlert('error', errorMessage)
       throw err
     } finally {
       setSubmitting(false)
@@ -191,15 +187,25 @@ export function usePropertyConfigViewModel(id) {
       await updateAdvertisement(id, disableRequest)
 
 
-      showToast('success', 'Propriedade desabilitada com sucesso!')
-      navigate('/admin/gerenciar-imoveis')
+      showAlert('success', 'Propriedade desabilitada com sucesso!', () => {
+        navigate('/admin/gerenciar-imoveis')
+      })
     } catch (err) {
       const errorMessage = err.message || 'Erro ao desabilitar propriedade'
       console.error('❌ [PROPERTY CONFIG VM] Deactivate failed:', err)
       setError(errorMessage)
-      showToast('error', errorMessage)
+      showAlert('error', errorMessage)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleCloseAlert = () => {
+    const onClose = alertConfig?.onClose
+    setAlertConfig(null)
+
+    if (typeof onClose === 'function') {
+      onClose()
     }
   }
 
@@ -237,6 +243,8 @@ export function usePropertyConfigViewModel(id) {
     isNew,
     usersWithCreci,
     features,
+    alertConfig,
+    handleCloseAlert,
     handleSubmit,
     handleDelete: isNew ? undefined : handleDelete, // Only provide delete for existing items
     handleClear,
