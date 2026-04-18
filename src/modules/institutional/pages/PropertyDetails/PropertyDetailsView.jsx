@@ -140,8 +140,8 @@ export function PropertyDetailsView() {
       {/* === WRAPPER LIMITADOR === */}
       <div id="property-content-wrapper" className="relative z-10">
         <div className="relative">
-          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-8 text-distac-primary">
+          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-8 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre o Imóvel
             </HeadingView>
             <TextView className="text-default-dark-muted leading-relaxed">
@@ -149,9 +149,12 @@ export function PropertyDetailsView() {
             </TextView>
           </SectionView>
 
-          <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <div>
-              <HeadingView level={2} className="text-distac-primary mb-10">
+          <SectionView id="diferenciais" className="bg-default-light-alt lg:!pr-[544px] !flex-col md:!flex-row !items-start">
+            <HeadingView level={2} className="text-distac-primary mb-4 text-center !w-full md:hidden">
+              Diferenciais
+            </HeadingView>
+            <div className="self-start">
+              <HeadingView level={2} className="text-distac-primary mb-10 hidden md:block">
                 Diferenciais
               </HeadingView>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr max-w-4xl">
@@ -164,11 +167,11 @@ export function PropertyDetailsView() {
             </div>
           </SectionView>
 
-          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="text-default-light mb-10">
+          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="text-default-light mb-10 text-center md:text-left max-md:!w-full">
               Localização
             </HeadingView>
-            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
+            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1 md:grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
 
               {realEstateAdvertisement.estate?.address && (
               <PropertyLocation
@@ -186,8 +189,8 @@ export function PropertyDetailsView() {
             </div>
           </SectionView>
 
-          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-10 text-distac-primary">
+          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-10 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre a Região
             </HeadingView>
             <TextView className="text-default-dark-muted leading-relaxed">
