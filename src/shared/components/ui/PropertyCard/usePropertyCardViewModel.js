@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -13,6 +13,37 @@ export function usePropertyCardViewModel(
   const navigate = useNavigate()
   const [showLightbox, setShowLightbox] = useState(false)
   const [medias, setMedias] = useState([])
+  const [alertConfig, setAlertConfig] = useState(null)
+  const [isActiveAdvertisement, setIsActiveAdvertisement] = useState(Boolean(realEstateAdvertisement?.active))
+  const [isProcessingStatus, setIsProcessingStatus] = useState(false)
+
+  const handleCloseAlert = useCallback(() => {
+    setAlertConfig(null)
+  }, [])
+
+  const handleSoftDeleteSuccess = useCallback((message) => {
+    setAlertConfig({ type: 'success', message })
+  }, [])
+
+  const handleSoftDeleteError = useCallback((message) => {
+    setAlertConfig({ type: 'error', message })
+  }, [])
+
+  const handleRequestSoftDeleteConfirmation = useCallback(() => {
+    const nextActiveStatus = !isActiveAdvertisement
+    setAlertConfig({
+      type: 'warning',
+      isConfirm: true,
+      message: `Tem certeza que deseja ${nextActiveStatus ? 'habilitar' : 'desabilitar'} este imóvel?`,
+      confirmText: nextActiveStatus ? 'Habilitar' : 'Desabilitar',
+      confirmColor: nextActiveStatus ? 'brown' : 'pink',
+      nextActiveStatus,
+    })
+  }, [isActiveAdvertisement])
+
+  useEffect(() => {
+    setIsActiveAdvertisement(Boolean(realEstateAdvertisement?.active))
+  }, [realEstateAdvertisement])
 
   const onGalleryClick = () => {
     const galleryImages = realEstateAdvertisement?.estate?.getGalleryImages?.() || []
@@ -58,16 +89,45 @@ export function usePropertyCardViewModel(
       onWhatsAppClick,
       onFloorplanClick,
       onGalleryClick,
-      onVideoClick, // ✅ injeta o mock no model
+      onVideoClick,
+      onSoftDeleteSuccess: handleSoftDeleteSuccess,
+      onSoftDeleteError: handleSoftDeleteError,
+      onRequestSoftDeleteConfirmation: handleRequestSoftDeleteConfirmation,
     }),
     [
       realEstateAdvertisement,
       realStateCardMode,
       onWhatsAppClick,
       onFloorplanClick,
-      onGalleryClick
+      onGalleryClick,
+      onVideoClick,
+      handleSoftDeleteSuccess,
+      handleSoftDeleteError,
+      handleRequestSoftDeleteConfirmation,
     ]
   )
+
+  const handleConfirmSoftDelete = useCallback(async () => {
+    if (isProcessingStatus || !alertConfig?.isConfirm) return
+
+    setIsProcessingStatus(true)
+
+    try {
+      const success = await propertyCardModel.softDelete(alertConfig.nextActiveStatus)
+      if (success) {
+        setIsActiveAdvertisement(alertConfig.nextActiveStatus)
+        window.dispatchEvent(new CustomEvent('propertySoftDeleted', {
+          detail: {
+            propertyId: realEstateAdvertisement?.id,
+            active: alertConfig.nextActiveStatus,
+          }
+        }))
+      }
+    } finally {
+      setIsProcessingStatus(false)
+      setAlertConfig(null)
+    }
+  }, [alertConfig, isProcessingStatus, propertyCardModel, realEstateAdvertisement])
 
   return {
     // Dados do card
@@ -94,9 +154,13 @@ export function usePropertyCardViewModel(
     isDistacMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DISTAC,
     isDefaultMode: propertyCardModel.realStateCardMode === REAL_STATE_CARD_MODES.DEFAULT,
 
-    isActiveAdvertisement: realEstateAdvertisement?.active || false,
+    isActiveAdvertisement,
+    isProcessingStatus,
     medias,
     showLightbox,
     setShowLightbox,
+    alertConfig,
+    handleCloseAlert,
+    handleConfirmSoftDelete,
   }
 }

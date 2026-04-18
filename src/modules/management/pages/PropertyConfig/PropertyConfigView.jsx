@@ -1,17 +1,17 @@
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
-import { AlertView, useAlert } from '@shared/components/feedback/Alert/AlertView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function PropertyConfigView() {
   const { id } = useRouteParams()
-  const alertError = useAlert(false)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const {
     loading,
-    error,
     initialData,
     submitting,
     isNew,
@@ -19,18 +19,13 @@ export function PropertyConfigView() {
     loadingUsers,
     loadingFeatures,
     features,
+    alertConfig,
+    handleCloseAlert,
     handleSubmit,
     handleDelete,
     handleClear,
     handleCancel
   } = usePropertyConfigViewModel(id)
-
-  // Mostra o alerta de erro quando há erro
-  useEffect(() => {
-    if (error) {
-      alertError.show()
-    }
-  }, [error, alertError])
   
   // Só monta o formulário quando os usuários e features estiverem carregados
   if (loading || loadingUsers || loadingFeatures) {
@@ -440,11 +435,7 @@ export function PropertyConfigView() {
           onSubmit={(formData) => {
             return handleSubmit(formData)
           }}
-          onDelete={!isNew ? () => {
-            if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
-              return handleDelete()
-            }
-          } : undefined}
+          onDelete={!isNew ? () => setShowDeleteConfirmation(true) : undefined}
           onClear={handleClear}
           onCancel={handleCancel}
           disabled={submitting}
@@ -454,12 +445,48 @@ export function PropertyConfigView() {
 
       {/* Alerta de erro flutuante */}
       <AlertView
-        isVisible={alertError.isVisible}
-        type="error"
-        message={error || ''}
-        onClose={alertError.hide}
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={handleCloseAlert}
         hasCloseButton={true}
       />
+
+      <AlertView
+        isVisible={showDeleteConfirmation}
+        type="warning"
+        message="Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site."
+        hasCloseButton={false}
+        onClose={() => setShowDeleteConfirmation(false)}
+        buttonsLayout="col"
+      >
+        <div className="flex justify-center gap-card md:gap-card-md w-full">
+          <ButtonView
+            type="button"
+            shape="square"
+            color="border-distac-primary"
+            onClick={() => setShowDeleteConfirmation(false)}
+            width="fit"
+          >
+            Cancelar
+          </ButtonView>
+          <ButtonView
+            type="button"
+            shape="square"
+            color="pink"
+            onClick={async () => {
+              setShowDeleteConfirmation(false)
+              if (handleDelete) {
+                await handleDelete()
+              }
+            }}
+            width="fit"
+            disabled={submitting}
+          >
+            Desabilitar
+          </ButtonView>
+        </div>
+      </AlertView>
     </>
   )
 }

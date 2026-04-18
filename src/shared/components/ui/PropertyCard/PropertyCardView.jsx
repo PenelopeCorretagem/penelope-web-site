@@ -1,8 +1,8 @@
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { useState } from 'react'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 import { Pencil, X, Check } from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -238,6 +238,39 @@ export function PropertyCardView({
           onClose={() => viewModel.setShowLightbox(false)}
         />
       )}
+
+      <AlertView
+        isVisible={!!viewModel.alertConfig}
+        type={viewModel.alertConfig?.type}
+        message={viewModel.alertConfig?.message}
+        hasCloseButton={!viewModel.alertConfig?.isConfirm}
+        onClose={viewModel.handleCloseAlert}
+        buttonsLayout="col"
+      >
+        {viewModel.alertConfig?.isConfirm && (
+          <div className="flex justify-center gap-card md:gap-card-md w-full">
+            <ButtonView
+              type="button"
+              shape="square"
+              color="border-distac-primary"
+              onClick={viewModel.handleCloseAlert}
+              width="fit"
+            >
+              Cancelar
+            </ButtonView>
+            <ButtonView
+              type="button"
+              shape="square"
+              color={viewModel.alertConfig?.confirmColor || 'pink'}
+              onClick={viewModel.handleConfirmSoftDelete}
+              width="fit"
+              disabled={viewModel.isProcessingStatus}
+            >
+              {viewModel.alertConfig?.confirmText || 'Confirmar'}
+            </ButtonView>
+          </div>
+        )}
+      </AlertView>
     </div>
   )
 }

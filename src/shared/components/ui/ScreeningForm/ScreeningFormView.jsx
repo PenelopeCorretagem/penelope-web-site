@@ -5,6 +5,7 @@ import { FaTimes } from 'react-icons/fa'
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 import { useScreeningFormViewModel } from './useScreeningFormViewModel'
 
@@ -15,7 +16,9 @@ export function ScreeningFormView({ onClose, realEstateAdvertisement = null }) {
     fieldsColumn2,
     fieldsColumn3,
     handleFieldChange,
-    enviarWhatsApp
+    enviarWhatsApp,
+    alertConfig,
+    handleCloseAlert
   } = useScreeningFormViewModel(realEstateAdvertisement)
 
   return ReactDOM.createPortal(
@@ -80,6 +83,13 @@ export function ScreeningFormView({ onClose, realEstateAdvertisement = null }) {
             Enviar pelo WhatsApp
           </ButtonView>
         </div>
+
+        <AlertView
+          isVisible={!!alertConfig}
+          type={alertConfig?.type}
+          message={alertConfig?.message}
+          onClose={handleCloseAlert}
+        />
 
       </div>
     </div>,

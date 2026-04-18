@@ -120,6 +120,9 @@ export class PropertyCardModel {
   #onVideoClick
   #onGalleryClick
   #onFloorplanClick
+  #onSoftDeleteSuccess
+  #onSoftDeleteError
+  #onRequestSoftDeleteConfirmation
 
   constructor({
     realEstateAdvertisement,
@@ -127,7 +130,10 @@ export class PropertyCardModel {
     onWhatsAppClick = null,
     onGalleryClick = null,
     onFloorplanClick = null,
-    onVideoClick = null
+    onVideoClick = null,
+    onSoftDeleteSuccess = null,
+    onSoftDeleteError = null,
+    onRequestSoftDeleteConfirmation = null
   }) {
     validateRealEstateAdvertisementInstance(realEstateAdvertisement)
     validateRealStateCardMode(realStateCardMode)
@@ -138,6 +144,9 @@ export class PropertyCardModel {
     this.#onGalleryClick = onGalleryClick
     this.#onFloorplanClick = onFloorplanClick
     this.#onVideoClick = onVideoClick
+    this.#onSoftDeleteSuccess = onSoftDeleteSuccess
+    this.#onSoftDeleteError = onSoftDeleteError
+    this.#onRequestSoftDeleteConfirmation = onRequestSoftDeleteConfirmation
     this.#realStateCardCategory = new LabelModel(
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
@@ -203,20 +212,21 @@ export class PropertyCardModel {
   set realStateCardCoverImageUrl(value) { this.#realStateCardCoverImageUrl = value }
 
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
-  async softDelete() {
+  async softDelete(nextActiveStatus = !this.#realEstateAdvertisement.active) {
     try {
-
-      const isActive = !this.#realEstateAdvertisement.active
-
-      if (!window.confirm(`Tem certeza que deseja ${isActive ? 'habilitar' : 'desabilitar'} este imóvel?`)) return false
-
       // Chama o endpoint de atualização de status
-      await updateAdvertisementStatus(this.#realEstateAdvertisement.id, isActive)
+      await updateAdvertisementStatus(this.#realEstateAdvertisement.id, nextActiveStatus)
 
-      alert(`Propriedade ${isActive ? 'habilitada' : 'desabilitada'} com sucesso!`)
+      this.#realEstateAdvertisement.active = nextActiveStatus
+
+      if (typeof this.#onSoftDeleteSuccess === 'function') {
+        this.#onSoftDeleteSuccess(`Propriedade ${nextActiveStatus ? 'habilitada' : 'desabilitada'} com sucesso!`)
+      }
       return true
     } catch (err) {
-      alert(`Erro ao desabilitar propriedade: ${err.message}`)
+      if (typeof this.#onSoftDeleteError === 'function') {
+        this.#onSoftDeleteError(`Erro ao desabilitar propriedade: ${err.message}`)
+      }
       return false
     }
   }
@@ -233,7 +243,11 @@ export class PropertyCardModel {
         null,
         'square',
         'Excluir Imóvel',
-        () => { this.softDelete() }
+        () => {
+          if (typeof this.#onRequestSoftDeleteConfirmation === 'function') {
+            this.#onRequestSoftDeleteConfirmation()
+          }
+        }
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))

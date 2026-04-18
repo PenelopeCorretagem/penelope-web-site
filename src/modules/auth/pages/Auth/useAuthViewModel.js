@@ -187,13 +187,12 @@ export function useAuthViewModel() {
       }
 
       window.dispatchEvent(new CustomEvent('authChanged'))
-      setTimeout(() => {
-        navigate(model.getHomeRoute())
-      }, 2000)
+      navigate(model.getHomeRoute())
 
       return { success: true }
     } catch (error) {
       console.error('Erro no login:', error)
+      setIsLoading(false)
 
       let errorMessage = 'Erro ao fazer login. Tente novamente.'
 
@@ -217,8 +216,6 @@ export function useAuthViewModel() {
       })
 
       return { success: false, error: errorMessage }
-    } finally {
-      setIsLoading(false)
     }
   }, [navigate, model])
 

@@ -1,4 +1,5 @@
 import { SectionView } from '@shared/components/layout/Section/SectionView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { EditFormView } from '@shared/components/ui/EditForm/EditFormView'
 import { useAccountViewModel } from './useAccountViewModel'
 
@@ -30,6 +31,13 @@ export function AccountView() {
         onSubmit={vm.handleSubmit}
         onDelete={vm.handleDelete}
         showDeleteButton={true}
+      />
+
+      <AlertView
+        isVisible={!!vm.alertConfig}
+        type={vm.alertConfig?.type}
+        message={vm.alertConfig?.message}
+        onClose={vm.handleCloseAlert}
       />
     </SectionView>
   )

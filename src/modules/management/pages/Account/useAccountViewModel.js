@@ -11,6 +11,7 @@ export function useAccountViewModel() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [alertConfig, setAlertConfig] = useState(null)
 
   // Usar os campos do model
   const accountFields = AccountModel.getFormFields()
@@ -105,20 +106,40 @@ export function useAccountViewModel() {
       sessionStorage.removeItem('userId')
       sessionStorage.removeItem('token')
 
-      window.location.href = '/'
+      setAlertConfig({
+        type: 'success',
+        message: 'Conta excluída com sucesso!',
+        onClose: () => {
+          window.location.href = '/'
+        }
+      })
     } catch (err) {
       console.error('Erro ao excluir conta:', err)
-      alert(err.message || 'Erro ao excluir conta')
+      setAlertConfig({
+        type: 'error',
+        message: err.message || 'Erro ao excluir conta'
+      })
     }
   }
+
+  const handleCloseAlert = useCallback(() => {
+    const onClose = alertConfig?.onClose
+    setAlertConfig(null)
+
+    if (typeof onClose === 'function') {
+      onClose()
+    }
+  }, [alertConfig])
 
   return {
     accountFields,
     formData,
     isLoading,
     error,
+    alertConfig,
     handleSubmit,
     handleDelete,
+    handleCloseAlert,
     model,
   }
 }
