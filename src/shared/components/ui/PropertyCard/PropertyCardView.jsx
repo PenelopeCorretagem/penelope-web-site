@@ -25,7 +25,7 @@ export function PropertyCardView({
   )
 
   const containerClasses = () => {
-    const baseClasses = ['flex', 'flex-col', 'w-full', 'md:w-[340px]', 'relative', 'justify-between']
+    const baseClasses = ['flex', 'flex-col', 'w-[280px]', 'md:w-[340px]', 'relative', 'justify-between']
     baseClasses.push('group')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isRedirectionMode) baseClasses.push('shadow-md shadow-gray-400 h-full')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isDistacMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
@@ -104,7 +104,7 @@ export function PropertyCardView({
   }
 
   return (
-    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full flex flex-col md:grid md:grid-cols-[35%_65%] md:h-[78vh] relative' : 'relative'}>
+    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full flex flex-col-reverse md:grid md:grid-cols-[35%_65%] md:h-[78vh] relative' : 'relative'}>
       <div  className={viewModel.isDetailsMode || viewModel.isDistacMode ?'bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full md:h-full gap-subsection md:gap-subsection-md' : 'h-full'}>
         {viewModel.isDetailsMode || viewModel.isDistacMode ? (
           <HeadingView
