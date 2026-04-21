@@ -1,16 +1,11 @@
-import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/formatAreaUtil'
+import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/area/formatAreaUtil'
 
 /**
  * Modelo de dados para configuração de propriedade
  */
 export class PropertyConfigModel {
   constructor(realEstateAdvertisement = null) {
-    console.log('🔨 [PROPERTY MODEL] Constructor called with:', {
-      hasData: !!realEstateAdvertisement,
-      id: realEstateAdvertisement?.id,
-      hasEstate: !!realEstateAdvertisement?.estate,
-      estateTitle: realEstateAdvertisement?.estate?.title
-    })
+
 
     this.id = realEstateAdvertisement?.id || null
     this.active = realEstateAdvertisement?.active !== undefined ? realEstateAdvertisement.active : true
@@ -30,28 +25,19 @@ export class PropertyConfigModel {
     // Card description from address
     this.cardDescription = estate?.address?.neighborhood || ''
 
-    console.log('🔨 [PROPERTY MODEL] Basic fields processed:', {
-      id: this.id,
-      title: this.propertyTitle,
-      type: this.propertyType,
-      responsible: this.responsible,
-      area: this.area,
-      rooms: this.numberOfRooms,
-      active: this.active,
-      endDate: this.displayEndDate
-    })
+
 
     // Extract differentials from features (keep as Feature objects)
-    console.log('🎯 [PROPERTY MODEL] Processing features (keeping Feature objects):', estate?.features?.length || 0)
+
     this.differentials = Array.isArray(estate?.features) ? [...estate.features] : []
-    console.log('🎯 [PROPERTY MODEL] Final differentials (Feature objects):', this.differentials)
+
 
     // Store original advertisement data for updates
     this.originalAdvertisementData = realEstateAdvertisement
 
     // Address
     const mainAddress = estate?.address || {}
-    console.log('📍 [PROPERTY MODEL] Processing main address:', mainAddress)
+
 
     this.address = {
       cep: mainAddress?.zipCode || '',
@@ -63,11 +49,11 @@ export class PropertyConfigModel {
       state: mainAddress?.uf || ''
     }
 
-    console.log('📍 [PROPERTY MODEL] Processed address:', this.address)
+
 
     // Stand address
     const standAddressData = estate?.standAddress
-    console.log('📍 [PROPERTY MODEL] Processing stand address:', !!standAddressData, standAddressData)
+
 
     this.standAddress = {
       cep: standAddressData?.zipCode || '',
@@ -80,19 +66,12 @@ export class PropertyConfigModel {
     }
 
     this.enableStandAddress = !!standAddressData && Object.values(standAddressData).some(v => v)
-    console.log('📍 [PROPERTY MODEL] Processed stand address:', {
-      enabled: this.enableStandAddress,
-      address: this.enableStandAddress ? this.standAddress : 'disabled'
-    })
+
 
     // Images
     const images = estate?.images || []
-    console.log('🖼️ [PROPERTY MODEL] Constructor - Processing images:', images.length)
-    console.log('🖼️ [PROPERTY MODEL] Raw images:', images.map(img => ({
-      id: img.id,
-      type: img.type?.description,
-      url: img.url?.substring(0, 100)
-    })))
+
+
 
     this.images = {
       video: this._createFilePreview(this._extractImageUrl(images, 'Video'), 'Video'),
@@ -101,23 +80,14 @@ export class PropertyConfigModel {
       floorPlans: this._extractAndCreatePreviews(images, 'Planta')
     }
 
-    console.log('🖼️ [PROPERTY MODEL] Constructor - Final images:', {
-      video: !!this.images.video,
-      cover: !!this.images.cover,
-      gallery: this.images.gallery.length,
-      floorPlans: this.images.floorPlans.length
-    })
+
   }
 
   /**
    * Cria um PropertyConfigModel a partir de uma entidade Advertisement
    */
   static fromAdvertisementEntity(advertisementEntity) {
-    console.log('🔄 [PROPERTY MODEL] fromAdvertisementEntity called with:', {
-      id: advertisementEntity?.id,
-      hasEstate: !!advertisementEntity?.estate,
-      estateTitle: advertisementEntity?.estate?.title
-    })
+
 
     if (!advertisementEntity) {
       console.warn('⚠️ [PROPERTY MODEL] No advertisement entity provided, creating empty model')
@@ -131,16 +101,13 @@ export class PropertyConfigModel {
    * Enhanced image URL extraction with better type matching
    */
   _extractImageUrl(images, type) {
-    console.log(`🔍 [PROPERTY MODEL] _extractImageUrl searching for "${type}"`)
 
     if (!Array.isArray(images) || images.length === 0) {
-      console.log(`❌ [PROPERTY MODEL] No images array or empty`)
       return ''
     }
 
     // Try exact match first using type.description (from ImageEstateType entity)
     let image = images.find(img => img.type?.description === type)
-    console.log(`🔍 [PROPERTY MODEL] Exact match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
 
     // If not found, try alternative type mappings
     if (!image) {
@@ -153,16 +120,9 @@ export class PropertyConfigModel {
 
       const alternativeTypes = typeMapping[type] || []
       image = images.find(img => alternativeTypes.includes(String(img.type?.description)))
-      console.log(`🔍 [PROPERTY MODEL] Alternative match for "${type}":`, image ? { id: image.id, type: image.type?.description } : 'Not found')
     }
 
     const url = image?.url || ''
-    console.log(`🔍 [PROPERTY MODEL] Extracted ${type} image:`, {
-      found: !!image,
-      imageId: image?.id,
-      imageType: image?.type?.description,
-      urlLength: url?.length
-    })
 
     return url
   }
@@ -171,16 +131,13 @@ export class PropertyConfigModel {
    * Enhanced gallery/floor plans extraction with better sorting and type matching
    */
   _extractAndCreatePreviews(images, type) {
-    console.log(`🔍 [PROPERTY MODEL] _extractAndCreatePreviews for "${type}"`)
 
     if (!Array.isArray(images)) {
-      console.log(`❌ [PROPERTY MODEL] Images is not an array for ${type}`)
       return []
     }
 
     // Try exact match first using type.description
     let matchingImages = images.filter(img => img.type?.description === type)
-    console.log(`🔍 [PROPERTY MODEL] Exact matches for "${type}":`, matchingImages.length)
 
     // If no exact match, try alternative mappings
     if (matchingImages.length === 0) {
@@ -191,7 +148,6 @@ export class PropertyConfigModel {
 
       const alternativeTypes = typeMapping[type] || []
       matchingImages = images.filter(img => alternativeTypes.includes(String(img.type?.description)))
-      console.log(`🔍 [PROPERTY MODEL] Found ${matchingImages.length} alternative matches for "${type}"`)
     }
 
     const previews = matchingImages
@@ -199,7 +155,6 @@ export class PropertyConfigModel {
       .map((img, index) => this._createFilePreview(img.url, type, index + 1))
       .filter(Boolean)
 
-    console.log(`✅ [PROPERTY MODEL] Created ${previews.length} previews for "${type}"`)
     return previews
   }
 
@@ -207,10 +162,8 @@ export class PropertyConfigModel {
    * Cria um objeto File-like para preview de URL
    */
   _createFilePreview(url, type, index = null) {
-    console.log(`🖼️ [PROPERTY MODEL] _createFilePreview:`, { url: url?.substring(0, 100), type, index, hasUrl: !!url })
 
     if (!url) {
-      console.log(`❌ [PROPERTY MODEL] No URL provided for ${type}`)
       return null
     }
 
@@ -227,10 +180,6 @@ export class PropertyConfigModel {
       lastModified: Date.now()
     }
 
-    console.log(`✅ [PROPERTY MODEL] Created preview for ${type}:`, {
-      fileName,
-      urlLength: url?.length
-    })
 
     return preview
   }
@@ -277,7 +226,7 @@ export class PropertyConfigModel {
    * Converte o modelo para formato de formulário
    */
   toFormData() {
-    console.log('📤 [PROPERTY MODEL] toFormData() called')
+
 
     const formData = {
       active: this.active,
@@ -318,17 +267,6 @@ export class PropertyConfigModel {
       gallery: this.images.gallery,
       floorPlans: this.images.floorPlans
     }
-
-    console.log('📤 [PROPERTY MODEL] toFormData() complete:', {
-      title: formData.propertyTitle,
-      type: formData.propertyType,
-      images: {
-        video: !!formData.video,
-        cover: !!formData.cover,
-        gallery: formData.gallery.length,
-        floorPlans: formData.floorPlans.length
-      }
-    })
 
     return formData
   }
@@ -400,21 +338,14 @@ export class PropertyConfigModel {
       })
     }
 
-    console.log('📁 [PROPERTY MODEL] New files to upload:', newFiles.length)
-    console.log('📁 [PROPERTY MODEL] File breakdown:', newFiles.map(f => ({
-      fieldType: f.fieldType,
-      type: f.type,
-      fileName: f.file?.name
-    })))
-
     return newFiles
   }
 
   /**
    * Enhanced API request conversion with better image handling for updates
    */
-  toApiRequest(formData, uploadedImageData = []) {
-    console.log('🔄 [PROPERTY MODEL] Converting form data to API request')
+  toApiRequest(formData, uploadedImageData = [], availableAmenities = []) {
+
 
     // Função para limitar e sanitizar strings
     const sanitizeString = (value, maxLength = null) => {
@@ -437,13 +368,13 @@ export class PropertyConfigModel {
       return validTypes.includes(cleanType) ? cleanType : 'DISPONIVEL'
     }
 
-    // Função para gerar data de fim válida (formato ISO)
+    // Função para gerar data de fim válida no padrão LocalDate (yyyy-MM-dd)
     const generateValidEndDate = (inputDate) => {
       if (inputDate) {
         try {
           const date = new Date(inputDate)
           if (!isNaN(date.getTime())) {
-            return date.toISOString()
+            return date.toISOString().split('T')[0]
           }
         } catch (e) {
           console.warn('Data inválida fornecida, usando data padrão')
@@ -452,7 +383,7 @@ export class PropertyConfigModel {
       // Se não há data ou é inválida, usar 30 dias a partir de hoje
       const now = new Date()
       const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000))
-      return endDate.toISOString()
+      return endDate.toISOString().split('T')[0]
     }
 
     const sanitizeNumber = (value) => {
@@ -463,28 +394,19 @@ export class PropertyConfigModel {
     const mapDifferentialsToIds = (differentials) => {
       if (!Array.isArray(differentials)) return []
 
-      // Mapping completo fornecido — chaves normalizadas -> ids
-      // Ex: 'Quadra Basquete' => 'quadra_basquete'
-      const differentialMap = {
-        'brinde': 11,
-        'brinquedo': 7,
-        'cesta': 2,
-        'churrasqueira': 16,
-        'cinema': 3,
-        'floresta': 6,
-        'games': 18,
-        'horta': 17,
-        'lavanderia': 12,
-        'lounge': 8,
-        'meditacao': 10,
-        'mercado': 14,
-        'oficina': 4,
-        'pet': 5,
-        'quadra_basquete': 1,
-        'solario': 13,
-        'tenis': 15,
-        'yoga': 9,
-      }
+      const amenitiesMap = Array.isArray(availableAmenities)
+        ? availableAmenities.reduce((acc, amenity) => {
+          const description = amenity?.description || amenity?.name || ''
+          const id = Number(amenity?.id)
+
+          if (!description || Number.isNaN(id)) {
+            return acc
+          }
+
+          acc[this._normalizeDifferentialKey(description)] = id
+          return acc
+        }, {})
+        : {}
 
       return differentials
         .map(diff => {
@@ -492,12 +414,12 @@ export class PropertyConfigModel {
           if (diff && typeof diff === 'object') {
             if (diff.id) return Number(diff.id)
             const desc = diff.description || diff.name || ''
-            return differentialMap[this._normalizeDifferentialKey(desc)] || undefined
+            return amenitiesMap[this._normalizeDifferentialKey(desc)] || undefined
           }
 
           // If it's a string key, normalize and map
           if (typeof diff === 'string') {
-            return differentialMap[this._normalizeDifferentialKey(diff)] || undefined
+            return amenitiesMap[this._normalizeDifferentialKey(diff)] || undefined
           }
 
           return undefined
@@ -505,26 +427,46 @@ export class PropertyConfigModel {
         .filter(id => id !== undefined)
     }
 
-    // Build comprehensive image arrays including existing and new images
-    const imageUrls = []
-    const imageTypes = []
+    const resolveImageType = (typeValue) => {
+      if (typeValue === 1 || typeValue === '1' || String(typeValue).toUpperCase() === 'CAPA') {
+        return 'CAPA'
+      }
+
+      if (typeValue === 3 || typeValue === '3' || String(typeValue).toUpperCase() === 'PLANTA') {
+        return 'PLANTA'
+      }
+
+      return 'GALERIA'
+    }
+
+    const appendImageRequest = (collection, url, typeValue) => {
+      if (!url || typeof url !== 'string') return
+
+      const sanitizedUrl = url.trim()
+      if (!sanitizedUrl) return
+
+      collection.push({
+        url: sanitizedUrl,
+        type: resolveImageType(typeValue),
+      })
+    }
+
+    // Build comprehensive image payload including existing and new images
+    const images = []
 
     // Add existing images that weren't changed
     if (formData.video && formData.video.isExisting) {
-      imageUrls.push(formData.video.url)
-      imageTypes.push(2) // Video as gallery
+      appendImageRequest(images, formData.video.url, 2) // Video as gallery
     }
 
     if (formData.cover && formData.cover.isExisting) {
-      imageUrls.push(formData.cover.url)
-      imageTypes.push(1) // Cover
+      appendImageRequest(images, formData.cover.url, 1) // Cover
     }
 
     if (Array.isArray(formData.gallery)) {
       formData.gallery.forEach(file => {
         if (file && file.isExisting) {
-          imageUrls.push(file.url)
-          imageTypes.push(2) // Gallery
+          appendImageRequest(images, file.url, 2) // Gallery
         }
       })
     }
@@ -532,8 +474,7 @@ export class PropertyConfigModel {
     if (Array.isArray(formData.floorPlans)) {
       formData.floorPlans.forEach(file => {
         if (file && file.isExisting) {
-          imageUrls.push(file.url)
-          imageTypes.push(3) // Floor plan
+          appendImageRequest(images, file.url, 3) // Floor plan
         }
       })
     }
@@ -542,58 +483,63 @@ export class PropertyConfigModel {
     if (Array.isArray(uploadedImageData)) {
       uploadedImageData.forEach(item => {
         if (item.urls && item.type) {
-          imageUrls.push(...item.urls)
-          imageTypes.push(...new Array(item.urls.length).fill(item.type))
+          item.urls.forEach((url) => appendImageRequest(images, url, item.type))
         }
       })
     }
 
-    // Build complete API request
+    const selectedResponsibleId = sanitizeNumber(formData.responsible)
+    const creatorIdFromSession = sanitizeNumber(sessionStorage.getItem('userId'))
+    const creatorIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.creator?.id)
+    const responsibleIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.responsible?.id)
+
+    // Build complete API request seguindo AdvertisementCreateRequest
     const request = {
-      title: sanitizeString(formData.propertyTitle, 255),
-      description: sanitizeString(formData.propertyDescription, 1000),
-      area: formatAreaForDatabase(formData.area) || 0,
-      numberOfRooms: sanitizeNumber(formData.numberOfRooms),
-      type: sanitizePropertyType(formData.propertyType),
-      advertisementCreateRequest: {
-        creator: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.creator?.id) || 1,
-        responsible: sanitizeNumber(formData.responsible) || sanitizeNumber(this.originalAdvertisementData?.responsible?.id) || 1,
-        dataFim: generateValidEndDate(formData.displayEndDate),
-        active: Boolean(formData.active)
-      },
-      address: {
-        id: this.originalAdvertisementData?.property?.address?.id || null,
-        street: sanitizeString(formData.street, 255),
-        number: sanitizeString(formData.number, 20),
-        neighborhood: sanitizeString(formData.neighborhood, 100),
-        city: sanitizeString(formData.city, 100),
-        uf: sanitizeString(formData.state, 2),
-        zipCode: formatCep(formData.cep),
-        complement: null,
-        region: sanitizeString(formData.region, 50)
-      },
-      standAddress: (formData.enableStandAddress && formData.standStreet) ? {
-        id: this.originalAdvertisementData?.property?.standAddress?.id || null,
-        street: sanitizeString(formData.standStreet, 255),
-        number: sanitizeString(formData.standNumber, 20),
-        neighborhood: sanitizeString(formData.standNeighborhood, 100),
-        city: sanitizeString(formData.standCity, 100),
-        uf: sanitizeString(formData.standState, 2),
-        zipCode: formatCep(formData.standCep),
-        complement: null,
-        region: sanitizeString(formData.standRegion, 50)
-      } : null,
-      amenitiesIds: mapDifferentialsToIds(formData.differentials),
-      images: imageUrls,
-      imageType: imageTypes
+      active: Boolean(formData.active),
+      featured: Boolean(this.originalAdvertisementData?.featured ?? false),
+      endDate: generateValidEndDate(formData.displayEndDate),
+      creatorId: creatorIdFromSession || creatorIdFromOriginal || selectedResponsibleId || 1,
+      responsibleId: selectedResponsibleId || responsibleIdFromOriginal || creatorIdFromSession || 1,
+      estate: {
+        id: this.originalAdvertisementData?.estate?.id || null,
+        title: sanitizeString(formData.propertyTitle, 255),
+        description: sanitizeString(formData.propertyDescription, 1000),
+        area: formatAreaForDatabase(formData.area) || 0,
+        numberOfRooms: sanitizeNumber(formData.numberOfRooms),
+        type: sanitizePropertyType(formData.propertyType),
+        address: {
+          id: this.originalAdvertisementData?.estate?.address?.id || null,
+          street: sanitizeString(formData.street, 255),
+          number: sanitizeString(formData.number, 20),
+          neighborhood: sanitizeString(formData.neighborhood, 100),
+          city: sanitizeString(formData.city, 100),
+          uf: sanitizeString(formData.state, 2),
+          zipCode: formatCep(formData.cep),
+          complement: null,
+          region: sanitizeString(formData.region, 50)
+        },
+        addressStand: (formData.enableStandAddress && formData.standStreet) ? {
+          id: this.originalAdvertisementData?.estate?.standAddress?.id || null,
+          street: sanitizeString(formData.standStreet, 255),
+          number: sanitizeString(formData.standNumber, 20),
+          neighborhood: sanitizeString(formData.standNeighborhood, 100),
+          city: sanitizeString(formData.standCity, 100),
+          uf: sanitizeString(formData.standState, 2),
+          zipCode: formatCep(formData.standCep),
+          complement: null,
+          region: sanitizeString(formData.standRegion, 50)
+        } : null,
+        amenitiesIds: mapDifferentialsToIds(formData.differentials),
+        images
+      }
     }
 
-    console.log('✅ [PROPERTY MODEL] API request created for', this.isNew() ? 'CREATE' : 'UPDATE')
-    console.log('🔍 [PROPERTY MODEL] Property type:', request.type)
-    console.log('🔍 [PROPERTY MODEL] Active status:', request.advertisementCreateRequest.active)
-    console.log('🖼️ [PROPERTY MODEL] Total images:', imageUrls.length)
-    console.log('🏷️ [PROPERTY MODEL] Image types:', imageTypes)
-    console.log('🎯 [PROPERTY MODEL] Amenities IDs:', request.amenitiesIds)
+
+
+
+
+
+
 
     return request
   }

@@ -1,6 +1,6 @@
 import { RouterModel } from '@app/routes/RouterModel'
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword, validatePasswordConfirmation } from '@shared/utils/validatePasswordUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword, validatePasswordConfirmation } from '@shared/utils/password/validatePasswordUtil'
 
 /**
  * AuthModel - Modelo de dados para autenticação
@@ -87,6 +87,20 @@ export class AuthModel {
         showPasswordToggle: true,
         validate: (value, formData) => {
           return validatePasswordConfirmation(formData?.senha, value)
+        }
+      },
+      {
+        name: 'lgpdConsent',
+        type: 'checkbox',
+        hasLabel: false,
+        required: true,
+        label: 'Aceito os termos da Lei Geral de Proteção de Dados (LGPD) e autorizo o uso das minhas informações pessoais.',
+        link: { text: 'Saiba mais sobre LGPD', url: 'https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd' },
+        validate: (value) => {
+          if (!value) {
+            return 'Você deve aceitar os termos da LGPD para prosseguir'
+          }
+          return true
         }
       }
     ]

@@ -75,14 +75,7 @@ export class NavMenuModel {
   #getAuthenticatedMenuItems() {
     const routes = this.routerModel.getAllRoutes()
 
-    return [
-      this.#createMenuItem({
-        id: 'schedule',
-        label: 'Agenda',
-        route: routes.SCHEDULE,
-        requiresAuth: true,
-      }),
-    ]
+    return []
   }
 
   #getGuestUserActions() {
@@ -246,8 +239,6 @@ export class NavMenuModel {
       links.push({ id: 'schedule', text: 'Agenda', to: routes.SCHEDULE })
     }
 
-    links.push({ id: 'chatbot', text: 'Chatbot', to: '#', disabled: true })
-
     return links.map(link => ({ ...link, onClick: () => {} }))
   }
 
@@ -262,10 +253,34 @@ export class NavMenuModel {
 
   #getContactFooterLinks() {
     return [
-      { id: 'email', text: 'E-mail', to: 'mailto:contato@penelopeimoveis.com', onClick: () => {} },
-      { id: 'facebook', text: 'Facebook', to: '#', onClick: () => {} },
-      { id: 'whatsapp', text: 'WhatsApp', to: '#', onClick: () => {} },
-      { id: 'instagram', text: 'Instagram', to: '#', onClick: () => {} }
+      {
+        id: 'email',
+        text: 'E-mail',
+        to: 'mailto:contato@penelopeimoveis.com',
+        openInNewTab: true,
+        onClick: () => {}
+      },
+      {
+        id: 'facebook',
+        text: 'Facebook',
+        to: 'https://www.facebook.com/bella.medeiros.562',
+        openInNewTab: true,
+        onClick: () => {}
+      },
+      {
+        id: 'whatsapp',
+        text: 'WhatsApp',
+        to: 'https://wa.me/5511987419606',
+        openInNewTab: true,
+        onClick: () => {}
+      },
+      {
+        id: 'instagram',
+        text: 'Instagram',
+        to: 'https://www.instagram.com/consultora.penelope/',
+        openInNewTab: true,
+        onClick: () => {}
+      }
     ]
   }
 }

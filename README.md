@@ -1,10 +1,10 @@
 # 🏢 Corretora Penelope - Frontend
 
-Sistema de gerenciamento de anúncios de imóveis e agendamento de visitas com React 19 + Tailwind CSS v4 + Vite. **Arquitetura MVVM** para componentes reutilizáveis.
+Sistema de gerenciamento de anúncios de imóveis e agendamento de visitas com React 18 + Tailwind CSS v4 + Vite. **Arquitetura MVVM** para componentes reutilizáveis.
 
 ## 🚀 Tecnologias
 
-- **React 19.1.1** - Biblioteca JavaScript para interfaces de usuário
+- **React 18.3.1** - Biblioteca JavaScript para interfaces de usuário
 - **Tailwind CSS v4.1.13** - Framework CSS utility-first (versão mais recente)
 - **Vite 7.1.2** - Build tool e servidor de desenvolvimento ultra-rápido
 - **ESLint 9** - Linter com configuração flat config para qualidade de código
@@ -64,6 +64,7 @@ penelope-web-site/
 ├── .env.development            # 🔧 Variáveis de ambiente - Desenvolvimento
 ├── .env.homologation           # 🏗️ Variáveis de ambiente - Homologação
 ├── .env.production             # 🚀 Variáveis de ambiente - Produção
+├── .env.mock                   # 🧪 Variáveis de ambiente - Modo mock (MSW)
 ├── .gitignore                  # 📝 Arquivos ignorados pelo Git
 ├── .prettierrc                 # 💅 Configuração Prettier
 ├── eslint.config.js            # 📏 Configuração ESLint (flat config)
@@ -73,6 +74,43 @@ penelope-web-site/
 ├── README.md                   # 📖 Este arquivo
 └── vite.config.js              # ⚡ Configuração Vite
 ```
+
+## 🧪 Modo de desenvolvimento com MSW
+
+O projeto agora suporta um **modo de mock** que permite rodar o front-end totalmente separado do backend. Isso é útil para desenvolvimento offline, testes de UI ou demos.
+
+### Como funciona
+
+1. No arquivo `.env.mock`, adicione a variável `VITE_API_MODE=mock`.
+2. Execute o dev server com `npm run mock` (ele usa `vite --mode mock`).
+3. No início da aplicação, `main.jsx` detecta o modo mock e inicializa o **Mock Service Worker** (MSW).
+4. Todas as requisições HTTP que corresponderem aos handlers definidos em `src/mocks/handlers.js` são interceptadas e recebem respostas com dados JSON locais.
+5. No modo normal (`npm run dev`), o MSW não é inicializado e as chamadas continuam indo para o backend real.
+
+### Estrutura de mocks
+
+```
+src/mocks/
+├── browser.js      # Setup do worker MSW
+├── handlers.js     # Definição de endpoints simulados
+└── data/
+    ├── users.json      # Exemplo de lista de usuários
+    └── properties.json # Exemplo de propriedades
+```
+
+Os handlers usam expressões regulares para abranger tanto URLs relativas quanto chamadas com base URL configurada.
+
+### Scripts úteis
+
+- `npm run dev`       → servidor normal usando API real
+- `npm run mock`      → servidor em modo mock (MSW intercepta requisições)
+
+> ⚠️ Após adicionar novos handlers é necessário (uma única vez) inicializar o service worker em `public/` com:
+> ```bash
+> npx msw init public/ --save-dev
+> ```
+
+---
 
 ## 🎯 Arquitetura MVVM
 
@@ -290,10 +328,11 @@ Este projeto suporta **3 ambientes distintos** com configurações específicas:
 # Desenvolvimento Local
 APP_MODEL=development
 APP_VERSION=dev
-APP_PORT=8080
+APP_PORT=3000
 APP_NAME=Corretora Penelope - DEV
 APP_URL=http://localhost:3000
-API_URL=
+API_URL=http://localhost:8081/api/v1
+VIACEP_URL=https://viacep.com.br/ws
 ```
 
 #### **.env.homologation**
@@ -304,8 +343,9 @@ APP_MODEL=homologation
 APP_VERSION=homol
 APP_PORT=3001
 APP_NAME=Corretora Penelope - HOMOL
-APP_URL=
-API_URL=
+APP_URL=http://localhost:3001
+API_URL=http://localhost:8081/api/v1
+VIACEP_URL=https://viacep.com.br/ws
 ```
 
 #### **.env.production**
@@ -316,8 +356,9 @@ APP_MODEL=production
 APP_VERSION=1.0.0
 APP_PORT=3002
 APP_NAME=Corretora Penelope
-APP_URL=
-API_URL=
+APP_URL=http://localhost:3002
+API_URL=http://localhost:8081/api/v1
+VIACEP_URL=https://viacep.com.br/ws
 ```
 
 ### **💻 Scripts por Ambiente**
@@ -336,10 +377,14 @@ npm run build            # Usa .env.production (build para produção)
 npm run preview          # Preview da build de produção
 
 # 🔍 Utilitários
-npm run env:check        # Mostra variáveis de ambiente ativas
-npm run clean:envs       # Limpa cache de variáveis
 npm run lint             # Verifica problemas no código
 npm run lint:fix         # Corrige problemas automaticamente
+npm run format           # Formata arquivos do src
+npm run check:dev        # Validação para desenvolvimento
+npm run check:homol      # Validação para homologação
+npm run check:prod       # Validação para produção
+npm run mock             # Inicia em modo mock
+npm run msw:init         # Inicializa arquivos do MSW em public/
 ```
 
 ### **🚦 Fluxo de Deploy por Ambiente**
@@ -419,7 +464,7 @@ O VS Code sugerirá automaticamente as extensões ao abrir o projeto. **Instale 
 ```bash
 # Desenvolvimento (com hot reload)
 npm run dev
-# Aplicação disponível em: http://localhost:5173
+# Aplicação disponível em: http://localhost:3000
 
 # Build para produção
 npm run build

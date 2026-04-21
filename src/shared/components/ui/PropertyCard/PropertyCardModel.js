@@ -1,12 +1,12 @@
 import { REAL_STATE_CARD_CATEGORIES } from '@constant/realStateCardCategories'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
-import { softDeleteAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
+import { updateAdvertisementStatus } from '@service-penelopec/realEstateAdvertisementService'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
-import { generateSlug } from '@shared/utils/generateSlugUtil'
+import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 
@@ -29,9 +29,9 @@ const editButton = (realEstateAdvertisementId) => new ButtonModel(
 )
 
 const scheduleButton = (realEstateAdvertisement) => {
-  const propertyTitle = realEstateAdvertisement.estate?.title || 'imovel';
-  const propertySlug = generateSlug(propertyTitle);
-  const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?property=${propertySlug}`;
+  const propertyTitle = realEstateAdvertisement.estate?.title || 'imovel'
+  const propertySlug = generateSlug(propertyTitle)
+  const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?property=${propertySlug}`
 
   return new ButtonModel(
     'Agendar Visita',
@@ -40,8 +40,8 @@ const scheduleButton = (realEstateAdvertisement) => {
     scheduleUrl,
     'rectangle',
     'Agendar Visita'
-  );
-};
+  )
+}
 
 const whatsAppButton = (onWhatsAppClick = null) => new ButtonModel(
   'Conversar pelo WhatsApp',
@@ -120,6 +120,9 @@ export class PropertyCardModel {
   #onVideoClick
   #onGalleryClick
   #onFloorplanClick
+  #onSoftDeleteSuccess
+  #onSoftDeleteError
+  #onRequestSoftDeleteConfirmation
 
   constructor({
     realEstateAdvertisement,
@@ -127,7 +130,10 @@ export class PropertyCardModel {
     onWhatsAppClick = null,
     onGalleryClick = null,
     onFloorplanClick = null,
-    onVideoClick = null
+    onVideoClick = null,
+    onSoftDeleteSuccess = null,
+    onSoftDeleteError = null,
+    onRequestSoftDeleteConfirmation = null
   }) {
     validateRealEstateAdvertisementInstance(realEstateAdvertisement)
     validateRealStateCardMode(realStateCardMode)
@@ -138,6 +144,9 @@ export class PropertyCardModel {
     this.#onGalleryClick = onGalleryClick
     this.#onFloorplanClick = onFloorplanClick
     this.#onVideoClick = onVideoClick
+    this.#onSoftDeleteSuccess = onSoftDeleteSuccess
+    this.#onSoftDeleteError = onSoftDeleteError
+    this.#onRequestSoftDeleteConfirmation = onRequestSoftDeleteConfirmation
     this.#realStateCardCategory = new LabelModel(
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
       REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
@@ -203,20 +212,21 @@ export class PropertyCardModel {
   set realStateCardCoverImageUrl(value) { this.#realStateCardCoverImageUrl = value }
 
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
-  async softDelete() {
+  async softDelete(nextActiveStatus = !this.#realEstateAdvertisement.active) {
     try {
-      console.log('🗑️ [PROPERTY CARD MODEL] Toggling active for property:', this.#realEstateAdvertisement.id)
-      const isActive = !this.#realEstateAdvertisement.active
+      // Chama o endpoint de atualização de status
+      await updateAdvertisementStatus(this.#realEstateAdvertisement.id, nextActiveStatus)
 
-      if (!window.confirm(`Tem certeza que deseja ${isActive ? 'habilitar' : 'desabilitar'} este imóvel?`)) return false
+      this.#realEstateAdvertisement.active = nextActiveStatus
 
-      // Chama o endpoint de soft-delete diretamente enviando true/false no corpo
-      await softDeleteAdvertisement(this.#realEstateAdvertisement.id, isActive)
-
-      alert(`Propriedade ${isActive ? 'habilitada' : 'desabilitada'} com sucesso!`)
+      if (typeof this.#onSoftDeleteSuccess === 'function') {
+        this.#onSoftDeleteSuccess(`Propriedade ${nextActiveStatus ? 'habilitada' : 'desabilitada'} com sucesso!`)
+      }
       return true
     } catch (err) {
-      alert(`Erro ao desabilitar propriedade: ${err.message}`)
+      if (typeof this.#onSoftDeleteError === 'function') {
+        this.#onSoftDeleteError(`Erro ao desabilitar propriedade: ${err.message}`)
+      }
       return false
     }
   }
@@ -233,7 +243,11 @@ export class PropertyCardModel {
         null,
         'square',
         'Excluir Imóvel',
-        () => { this.softDelete() }
+        () => {
+          if (typeof this.#onRequestSoftDeleteConfirmation === 'function') {
+            this.#onRequestSoftDeleteConfirmation()
+          }
+        }
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))

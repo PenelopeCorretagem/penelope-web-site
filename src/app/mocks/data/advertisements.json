@@ -1,0 +1,327 @@
+[
+  {
+    "id": 1001,
+    "active": true,
+    "featured": true,
+    "createdAt": "2025-02-10T08:30:00Z",
+    "endDate": "2025-08-10",
+    "creator": {"id": 1, "name": "João Silva"},
+    "responsible": {"id": 1, "name": "João Silva"},
+    "estate": {
+      "id": 101,
+      "title": "Cobertura Duplex no Centro de São Paulo",
+      "description": "Cobertura de luxo com 3 quartos, 2 banheiros, varanda gourmet e vista para a cidade. Condomínio de alto padrão com segurança 24h.",
+      "area": 250.5,
+      "numberOfRooms": 3,
+      "type": "LANCAMENTO",
+      "address": {
+        "id": 1,
+        "street": "Avenida Paulista",
+        "number": "1000",
+        "neighborhood": "Bela Vista",
+        "city": "São Paulo",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "01311100",
+        "complement": "Apto 80"
+      },
+      "standAddress": null,
+      "images": [
+        {"id": 2001, "url": "https://via.placeholder.com/800x600?text=Cobertura+Bela+Vista", "type": "CAPA"},
+        {"id": 2002, "url": "https://via.placeholder.com/800x600?text=Sala+Estar", "type": "GALERIA"}
+      ],
+      "amenitiesIds": [1, 2, 8, 9]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1002,
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-02-15T10:15:00Z",
+    "endDate": "2025-07-15",
+    "creator": {"id": 5, "name": "Pedro Gomes"},
+    "responsible": {"id": 5, "name": "Pedro Gomes"},
+    "estate": {
+      "id": 102,
+      "title": "Casa em Condomínio Fechado em Campinas",
+      "description": "Casa térrea com 4 quartos, piscina, churrasqueira. Localizada em condomínio fechado com área verde.",
+      "area": 180.0,
+      "numberOfRooms": 4,
+      "type": "DISPONIVEL",
+      "address": {
+        "id": 2,
+        "street": "Rua das Flores",
+        "number": "500",
+        "neighborhood": "Alphaville",
+        "city": "Campinas",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "13092150",
+        "complement": null
+      },
+      "standAddress": null,
+      "images": [
+        {"id": 2006, "url": "https://via.placeholder.com/800x600?text=Casa+Conjugado", "type": "CAPA"}
+      ],
+      "amenitiesIds": [5, 6, 7, 10]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1003,
+    "active": true,
+    "featured": true,
+    "createdAt": "2024-12-20T14:45:00Z",
+    "endDate": "2025-09-20",
+    "creator": {"id": 8, "name": "Luana Freitas"},
+    "responsible": {"id": 8, "name": "Luana Freitas"},
+    "estate": {
+      "id": 103,
+      "title": "Apartamento Moderno Vista Mar em Santos",
+      "description": "Apartamento 2 quartos com varanda vista para o mar, ar condicionado, garagem dupla. Prédio com piscina e academia.",
+      "area": 120.0,
+      "numberOfRooms": 2,
+      "type": "LANCAMENTO",
+      "address": {
+        "id": 3,
+        "street": "Avenida Atlântica",
+        "number": "2500",
+        "neighborhood": "Gonzaga",
+        "city": "Santos",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "11060000",
+        "complement": "Apto 1205"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [1, 2, 7, 9]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1004,
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-01-05T09:20:00Z",
+    "endDate": null,
+    "creator": {"id": 1, "name": "João Silva"},
+    "responsible": {"id": 5, "name": "Pedro Gomes"},
+    "estate": {
+      "id": 104,
+      "title": "Loft Industrial Reformado em São Paulo",
+      "description": "Loft com pé direito alto, cozinha integrada, 1 quarto, banheiro e área de trabalho. Ideal para profissionais liberais.",
+      "area": 95.0,
+      "numberOfRooms": 1,
+      "type": "DISPONIVEL",
+      "address": {
+        "id": 4,
+        "street": "Rua Augusta",
+        "number": "2700",
+        "neighborhood": "Consolação",
+        "city": "São Paulo",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "01305000",
+        "complement": "Sala 42"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [2, 8, 9]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1005,
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-02-01T11:30:00Z",
+    "endDate": "2025-06-01",
+    "creator": {"id": 8, "name": "Luana Freitas"},
+    "responsible": {"id": 8, "name": "Luana Freitas"},
+    "estate": {
+      "id": 105,
+      "title": "Chácara com Piscina em Atibaia",
+      "description": "Chácara 5000 m², com casa de 250 m², piscina, pomar, poço. Ideal para quem busca tranquilidade no interior.",
+      "area": 5000.0,
+      "numberOfRooms": 3,
+      "type": "LANCAMENTO",
+      "address": {
+        "id": 5,
+        "street": "Estrada da Pedra Grande",
+        "number": "1200",
+        "neighborhood": "Rural",
+        "city": "Atibaia",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "12954000",
+        "complement": null
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [5, 6, 10]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1006,
+    "active": false,
+    "featured": false,
+    "createdAt": "2024-11-30T15:00:00Z",
+    "endDate": "2025-05-30",
+    "creator": {"id": 1, "name": "João Silva"},
+    "responsible": {"id": 1, "name": "João Silva"},
+    "estate": {
+      "id": 106,
+      "title": "Studio Próximo à USP São Paulo",
+      "description": "Studio mobiliado, climatizado, com cozinha integrada. Próximo a estação de metrô e universidade.",
+      "area": 45.0,
+      "numberOfRooms": 0,
+      "type": "DISPONIVEL",
+      "address": {
+        "id": 6,
+        "street": "Rua Cristovao Colombo",
+        "number": "350",
+        "neighborhood": "Butantã",
+        "city": "São Paulo",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "05510020",
+        "complement": "Apto 15"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [2, 8]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1007,
+    "active": true,
+    "featured": false,
+    "createdAt": "2025-01-20T13:45:00Z",
+    "endDate": "2025-10-20",
+    "creator": {"id": 5, "name": "Pedro Gomes"},
+    "responsible": {"id": 5, "name": "Pedro Gomes"},
+    "estate": {
+      "id": 107,
+      "title": "Sala Comercial na Avenida Paulista",
+      "description": "Sala 300 m² em prédio de alto padrão, ar condicionado, 2 banheiros, recepção. Ideal para consultoria, advocacia ou agência.",
+      "area": 300.0,
+      "numberOfRooms": 0,
+      "type": "DISPONIVEL",
+      "address": {
+        "id": 7,
+        "street": "Avenida Paulista",
+        "number": "1500",
+        "neighborhood": "Bela Vista",
+        "city": "São Paulo",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "01311100",
+        "complement": "Cj 1400"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [8, 9]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1008,
+    "active": true,
+    "featured": true,
+    "createdAt": "2025-02-05T10:00:00Z",
+    "endDate": null,
+    "creator": {"id": 8, "name": "Luana Freitas"},
+    "responsible": {"id": 8, "name": "Luana Freitas"},
+    "estate": {
+      "id": 108,
+      "title": "Apartamento Duplex com Varanda Gourmet",
+      "description": "Duplex 3 quartos, 3 banheiros, varanda gourmet, mój, 2 vagas. Prédio com lazer completo.",
+      "area": 200.0,
+      "numberOfRooms": 3,
+      "type": "LANCAMENTO",
+      "address": {
+        "id": 8,
+        "street": "Rua Oscar Freire",
+        "number": "500",
+        "neighborhood": "Pinheiros",
+        "city": "São Paulo",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "05409011",
+        "complement": "Apto 82"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [1, 2, 3, 7]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1009,
+    "active": true,
+    "featured": false,
+    "createdAt": "2024-10-15T16:20:00Z",
+    "endDate": "2025-04-15",
+    "creator": {"id": 1, "name": "João Silva"},
+    "responsible": {"id": 1, "name": "João Silva"},
+    "estate": {
+      "id": 109,
+      "title": "Terreno Plano em Sorocaba",
+      "description": "Terreno 500 m² plano, em condomínio fechado, infraestrutura de água e luz. Pronto para construção.",
+      "area": 500.0,
+      "numberOfRooms": 0,
+      "type": "DISPONIVEL",
+      "address": {
+        "id": 9,
+        "street": "Avenida Bom Retiro",
+        "number": "1000",
+        "neighborhood": "Condominio Parque da Esperança",
+        "city": "Sorocaba",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "18095200",
+        "complement": "Lote 45"
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [7, 8]
+    },
+    "eventTypeId": null
+  },
+  {
+    "id": 1010,
+    "active": true,
+    "featured": true,
+    "createdAt": "2025-02-20T12:00:00Z",
+    "endDate": "2025-11-20",
+    "creator": {"id": 5, "name": "Pedro Gomes"},
+    "responsible": {"id": 8, "name": "Luana Freitas"},
+    "estate": {
+      "id": 110,
+      "title": "Casa com Acessibilidade em Jundiaí",
+      "description": "Casa térrea 3 quartos pensada para acessibilidade. Rampa de acesso, banheiro adaptado, corredores amplos.",
+      "area": 160.0,
+      "numberOfRooms": 3,
+      "type": "EM_OBRAS",
+      "address": {
+        "id": 10,
+        "street": "Rua Treze de Maio",
+        "number": "800",
+        "neighborhood": "Centro",
+        "city": "Jundiaí",
+        "uf": "SP",
+        "region": "Sudeste",
+        "zipCode": "13202150",
+        "complement": null
+      },
+      "standAddress": null,
+      "images": [],
+      "amenitiesIds": [2, 4]
+    },
+    "eventTypeId": null
+  }
+]

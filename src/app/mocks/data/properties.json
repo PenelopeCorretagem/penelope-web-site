@@ -1,0 +1,12 @@
+[
+  {"id": 101, "title": "Apartamento aconchegante no centro", "price": 350000, "city": "São Paulo", "type": "Apartamento", "status": "venda"},
+  {"id": 102, "title": "Casa com quintal amplo", "price": 750000, "city": "Campinas", "type": "Casa", "status": "venda"},
+  {"id": 103, "title": "Cobertura vista mar", "price": 1200000, "city": "Santos", "type": "Cobertura", "status": "venda"},
+  {"id": 104, "title": "Loft moderno próximo à USP", "price": 420000, "city": "São Paulo", "type": "Loft", "status": "aluguel"},
+  {"id": 105, "title": "Casa térrea em condomínio fechado", "price": 950000, "city": "Jundiaí", "type": "Casa", "status": "venda"},
+  {"id": 106, "title": "Apartamento 1 quarto no centro", "price": 280000, "city": "Campinas", "type": "Apartamento", "status": "aluguel"},
+  {"id": 107, "title": "Terreno plano 500m²", "price": 400000, "city": "Sorocaba", "type": "Terreno", "status": "venda"},
+  {"id": 108, "title": "Sala comercial Av. Paulista", "price": 700000, "city": "São Paulo", "type": "Sala", "status": "aluguel"},
+  {"id": 109, "title": "Apartamento duplex com varanda", "price": 850000, "city": "São Paulo", "type": "Apartamento", "status": "venda"},
+  {"id": 110, "title": "Chácara com piscina e pomar", "price": 1200000, "city": "Atibaia", "type": "Chácara", "status": "venda"}
+]

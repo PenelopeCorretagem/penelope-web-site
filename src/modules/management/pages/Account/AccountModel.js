@@ -1,5 +1,5 @@
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword } from '@shared/utils/validatePasswordUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword } from '@shared/utils/password/validatePasswordUtil'
 
 /**
  * AccountModel - Modelo de dados para a conta do usuário
@@ -115,7 +115,7 @@ export class AccountModel {
 
     // Só inclui a nova senha se foi fornecida
     if (this.newPassword && this.newPassword.trim() !== '') {
-      apiData.senha = this.newPassword.trim()
+      apiData.password = this.newPassword.trim()
     }
 
     return apiData

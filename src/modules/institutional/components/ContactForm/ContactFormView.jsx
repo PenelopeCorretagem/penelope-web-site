@@ -1,5 +1,5 @@
 import { FormView } from '@shared/components/ui/Form/FormView'
-import { sendContactMessage } from '@app/services/api/contactUsApi'
+import { sendContactMessage } from '@api-penelopec/contactUsApi'
 
 export function ContactFormView() {
   const fields = [

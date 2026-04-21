@@ -87,16 +87,16 @@ export function HomeView() {
       </SectionView>
 
       {/*Penélope + Cury*/}
-      <SectionView className="bg-default-light-alt">
-        <div className='flex flex-col items-start justify-center flex-1 gap-subsection md:gap-subsection-md'>
+      <SectionView className="bg-default-light-alt !flex-col md:!flex-row">
+        <div className='flex flex-col items-center md:items-start justify-center flex-1 gap-subsection md:gap-subsection-md'>
           <HeadingView
             level={2}
-            className='text-left'
+            className='text-center md:text-left max-md:!w-full'
           >
             Imóveis Com a qualidade Cury -
             <span className='text-distac-primary'> seu sonho começa com uma chave</span>
           </HeadingView>
-          <TextView>
+          <TextView className="text-center md:text-left">
             Penélope une o melhor dos dois mundos: a experiência e credibilidade da Cury no mercado imobiliário com um atendimento humanizado, próximo e pensado especialmente para quem está dando os primeiros passos rumo à casa própria.
           </TextView>
           <ButtonView

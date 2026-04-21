@@ -78,8 +78,8 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
 
   return (
     <div className="relative w-full gap-subsection md:gap-subsection-md flex flex-col h-fit">
-      <div className="flex flex-row justify-between items-start">
-        <HeadingView level={2} className="text-center text-distac-primary">
+      <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+        <HeadingView level={2} className="text-center md:text-left text-distac-primary max-md:!w-full">
           {modelTitle || titleCarousel}
         </HeadingView>
 
@@ -91,6 +91,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
             width="fit"
             onClick={handleActionClick}
             aria-label={actionButtonText}
+            className="self-auto"
           >
             {actionButtonText}
           </ButtonView>

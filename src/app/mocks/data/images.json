@@ -1,0 +1,12 @@
+[
+  {"id": 2001, "url": "https://via.placeholder.com/800x600?text=Cobertura+Bela+Vista", "type": "CAPA"},
+  {"id": 2002, "url": "https://via.placeholder.com/800x600?text=Sala+Estar", "type": "GALERIA"},
+  {"id": 2003, "url": "https://via.placeholder.com/800x600?text=Cozinha", "type": "GALERIA"},
+  {"id": 2004, "url": "https://via.placeholder.com/800x600?text=Quarto+1", "type": "GALERIA"},
+  {"id": 2005, "url": "https://via.placeholder.com/800x600?text=Planta+Baixa", "type": "PLANTA"},
+  {"id": 2006, "url": "https://via.placeholder.com/800x600?text=Casa+Conjugado", "type": "CAPA"},
+  {"id": 2007, "url": "https://via.placeholder.com/800x600?text=Garden+Room", "type": "GALERIA"},
+  {"id": 2008, "url": "https://via.placeholder.com/800x600?text=Suite+Casal", "type": "GALERIA"},
+  {"id": 2009, "url": "https://via.placeholder.com/800x600?text=Garagem", "type": "GALERIA"},
+  {"id": 2010, "url": "https://via.placeholder.com/800x600?text=Planta+Casa", "type": "PLANTA"}
+]

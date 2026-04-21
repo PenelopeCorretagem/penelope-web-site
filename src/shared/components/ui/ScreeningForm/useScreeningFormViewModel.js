@@ -1,23 +1,40 @@
 // useScreeningFormViewModel.js
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { ScreeningFormModel } from './ScreeningFormModel'
-import { generateWhatsAppLink } from '@shared/utils/generateWhatsAppLinkUtil'
+import { generateWhatsAppLink } from '@shared/utils/WhatsApp/generateWhatsAppLinkUtil'
 
 export function useScreeningFormViewModel(realEstateAdvertisement) {
 
   const [formData, setFormData] = useState(ScreeningFormModel.defaultFormData)
+  const [alertConfig, setAlertConfig] = useState(null)
 
-  const handleFieldChange = (name, value) => {
+  const handleFieldChange = useCallback((name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  }, [])
+
+  const handleCloseAlert = useCallback(() => {
+    setAlertConfig(null)
+  }, [])
 
   const enviarWhatsApp = () => {
-    const { nome, sobrenome, cpf, celular, email, rendaMed } = formData
+    const { nome, sobrenome, cpf, celular, email, rendaMed, lgpdConsent } = formData
 
     // Validação simples dos campos obrigatórios
     if (!nome || !sobrenome || !email || !cpf) {
-      window.alert('Por favor preencha os campos Nome, Sobrenome, Cpf e E-mail antes de enviar.')
+      setAlertConfig({
+        type: 'error',
+        message: 'Por favor preencha os campos Nome, Sobrenome, Cpf e E-mail antes de enviar.'
+      })
+      return
+    }
+
+    // Validação do aceite de LGPD
+    if (!lgpdConsent) {
+      setAlertConfig({
+        type: 'error',
+        message: 'Você deve aceitar os termos da LGPD para prosseguir.'
+      })
       return
     }
 
@@ -36,7 +53,7 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
       `Renda média mensal: ${rendaMed || ''}`
     ].join('\n')
 
-    const numero = '5511927419606'
+    const numero = '5511987419606'
     const url = generateWhatsAppLink(numero, mensagem)
 
     window.open(url, '_blank')
@@ -44,12 +61,16 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
 
   const fieldsColumn1 = ScreeningFormModel.fields.filter(f => f.column === 1)
   const fieldsColumn2 = ScreeningFormModel.fields.filter(f => f.column === 2)
+  const fieldsColumn3 = ScreeningFormModel.fields.filter(f => f.column === 3)
 
   return {
     formData,
     fieldsColumn1,
     fieldsColumn2,
+    fieldsColumn3,
     handleFieldChange,
-    enviarWhatsApp
+    enviarWhatsApp,
+    alertConfig,
+    handleCloseAlert
   }
 }

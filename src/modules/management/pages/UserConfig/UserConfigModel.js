@@ -1,9 +1,9 @@
-import { validateEmail } from '@shared/utils/validateEmailUtil'
-import { validatePassword } from '@shared/utils/validatePasswordUtil'
-import { validateCPF } from '@shared/utils/validateCPFUtil'
-import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/formatPhoneNumberUtil'
-import { formatCPF, cleanCPF } from '@shared/utils/formatCPFUtil'
-import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
+import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validatePassword } from '@shared/utils/password/validatePasswordUtil'
+import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
+import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
+import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
+import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
 
 /**
  * UserConfigModel - Modelo de dados para configuração de usuários
@@ -24,7 +24,7 @@ export class UserConfigModel {
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
     this.accessLevel = userData.accessLevel || 'CLIENTE'
-    this.senha = userData.senha || ''
+    this.senha = userData.senha || userData.password || ''
   }
 
   /**
@@ -331,9 +331,9 @@ export class UserConfigModel {
       apiData.creci = this.creci.trim()
     }
 
-    // Incluir senha se disponível (modo adição)
+    // Incluir senha se disponível (modo adição/edição)
     if (this.senha && this.senha.trim() !== '') {
-      apiData.senha = this.senha.trim()
+      apiData.password = this.senha.trim()
     }
 
     return apiData

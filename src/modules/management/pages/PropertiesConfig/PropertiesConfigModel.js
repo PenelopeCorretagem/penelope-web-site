@@ -1,4 +1,4 @@
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
 /**
  * Modelo de dados para configuração de propriedades
  */

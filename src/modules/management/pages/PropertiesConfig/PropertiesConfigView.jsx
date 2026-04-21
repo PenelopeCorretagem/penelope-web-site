@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { useCallback, useMemo } from 'react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function PropertiesConfigView() {
   const navigate = useNavigate()
@@ -28,6 +29,10 @@ export function PropertiesConfigView() {
     typeFilter,
     sortOrder,
     availableCities,
+    isDeleting,
+    alertConfig,
+    handleCloseAlert,
+    handleConfirmDelete,
     handleEdit,
     handleDelete,
     handleSearchChange,
@@ -218,6 +223,39 @@ export function PropertiesConfigView() {
             </div>
           )}
         </div>
+
+        <AlertView
+          isVisible={!!alertConfig}
+          type={alertConfig?.type}
+          message={alertConfig?.message}
+          hasCloseButton={!alertConfig?.isConfirm}
+          onClose={handleCloseAlert}
+          buttonsLayout="col"
+        >
+          {alertConfig?.isConfirm && (
+            <div className="flex justify-center gap-card md:gap-card-md w-full">
+              <ButtonView
+                type="button"
+                shape="square"
+                color="border-distac-primary"
+                onClick={handleCloseAlert}
+                width="fit"
+              >
+                Cancelar
+              </ButtonView>
+              <ButtonView
+                type="button"
+                shape="square"
+                color={alertConfig?.confirmColor || 'pink'}
+                onClick={handleConfirmDelete}
+                width="fit"
+                disabled={isDeleting}
+              >
+                {alertConfig?.confirmText || 'Confirmar'}
+              </ButtonView>
+            </div>
+          )}
+        </AlertView>
       </SectionView>
     </div>
   )

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
-import { formatCurrencyForDisplay } from '@shared/utils/formatCurrencyUtil'
-import { registerUser, updateUser, deleteUser, getUserById }  from '@app/services/api/userApi'
+import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
+import { registerUser, updateUser, deleteUser, getUserById }  from '@api-penelopec/userApi'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()
@@ -21,10 +21,9 @@ export function useUserConfigViewModel() {
   useEffect(() => {
     if (isEditMode && id) {
       setLoading(true)
-      // TODO: Replace with actual API call
-      setTimeout(() => {
-        getUserById(id).then((userData) => {
-          setFormData({
+      getUserById(id)
+        .then((userData) => {
+          const normalizedData = {
             name: userData.name || '',
             email: userData.email || '',
             phone: userData.phone || '',
@@ -33,14 +32,18 @@ export function useUserConfigViewModel() {
             dateBirth: userData.dateBirth || '',
             monthlyIncome: userData.monthlyIncome || '',
             accessLevel: userData.accessLevel || 'CLIENTE',
-            password: ''
-          })
+            senha: ''
+          }
+
+          setFormData(normalizedData)
+          setModel(new UserConfigModel(normalizedData))
         })
-        setLoading(false)
-      }, 500)
+        .finally(() => {
+          setLoading(false)
+        })
     } else {
       // Initialize empty form for add mode
-      setFormData({
+      const emptyData = {
         name: '',
         email: '',
         phone: '',
@@ -49,8 +52,11 @@ export function useUserConfigViewModel() {
         dateBirth: '',
         monthlyIncome: '',
         accessLevel: 'CLIENTE',
-        password: ''
-      })
+        senha: ''
+      }
+
+      setFormData(emptyData)
+      setModel(new UserConfigModel(emptyData))
     }
   }, [isEditMode, id])
 
