@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { getAllAdvertisements } from '@service-penelopec/realEstateAdvertisementService'
+import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { HomeModel } from './HomeModel'
 import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -26,7 +26,7 @@ export function useHomeViewModel() {
       })
 
       if (Array.isArray(launchAds)) {
-        homeModel.setPreLaunchRealEstateAdvertisements(launchAds)
+        homeModel.setPreLaunchAdvertisements(launchAds)
       }
     } catch (error) {
       console.error('❌ Erro ao carregar lançamentos:', error)
@@ -65,12 +65,12 @@ export function useHomeViewModel() {
     fetchHomeData()
   }, [fetchHomeData])
 
-  const mapperPropertyCardModel = useCallback((realEstateAdvertisement, realStateCardMode) => {
-    return !realEstateAdvertisement
+  const mapperPropertyCardModel = useCallback((advertisement, realStateCardMode) => {
+    return !advertisement
       ? null
       : new PropertyCardModel(
         {
-          realEstateAdvertisement: realEstateAdvertisement,
+          advertisement: advertisement,
           realStateCardMode: realStateCardMode
         }
       )
@@ -78,14 +78,14 @@ export function useHomeViewModel() {
 
   // Memoize the mapped properties to avoid recreating arrays on every render
   const featuredProperty = useMemo(() =>
-    mapperPropertyCardModel(homeModel.featuredRealEstateAdvertisement, REAL_STATE_CARD_MODES.DISTAC),
-  [homeModel.featuredRealEstateAdvertisement, mapperPropertyCardModel]
+    mapperPropertyCardModel(homeModel.featuredAdvertisement, REAL_STATE_CARD_MODES.DISTAC),
+  [homeModel.featuredAdvertisement, mapperPropertyCardModel]
   )
 
   // Don't map to PropertyCardModel here - let PropertiesCarouselView handle it
   const launchProperties = useMemo(() =>
-    homeModel.preLaunchRealEstateAdvertisements,
-  [homeModel.preLaunchRealEstateAdvertisements]
+    homeModel.preLaunchAdvertisements,
+  [homeModel.preLaunchAdvertisements]
   )
 
 
@@ -98,10 +98,10 @@ export function useHomeViewModel() {
     isLoading: homeModel.isLoading,
     error: homeModel.error,
 
-    hasFeaturedProperty: !!homeModel.featuredRealEstateAdvertisement,
-    hasLaunchProperties: homeModel.preLaunchRealEstateAdvertisements.length > 0,
+    hasFeaturedProperty: !!homeModel.featuredAdvertisement,
+    hasLaunchProperties: homeModel.preLaunchAdvertisements.length > 0,
 
-    featureImageCoverUrl: homeModel.featuredRealEstateAdvertisement !== null ? homeModel.featuredRealEstateAdvertisement.estate.getCoverImageUrl() : null,
+    featureImageCoverUrl: homeModel.featuredAdvertisement !== null ? homeModel.featuredAdvertisement.estate.getCoverImageUrl() : null,
     featuredProperty,
     launchProperties,
 

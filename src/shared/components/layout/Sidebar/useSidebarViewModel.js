@@ -80,8 +80,12 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
    * @param {string} path - Caminho da rota
    */
   const navigateTo = useCallback((path) => {
+    if (path && location.pathname === path) {
+      window.location.href = window.location.pathname
+      return
+    }
     navigate(path)
-  }, [navigate])
+  }, [navigate, location.pathname])
 
   /**
    * Verifica se uma rota está ativa
@@ -94,21 +98,34 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
 
   /**
    * Executa logout
+   * - Dispara transição visual
    * - Remove tokens
    * - Redireciona para home
    */
   const handleLogout = useCallback(() => {
-    sessionStorage.removeItem('jwtToken')
-    sessionStorage.removeItem('userRole')
-    sessionStorage.removeItem('userId')
-    sessionStorage.removeItem('userEmail')
-    sessionStorage.removeItem('userName')
-    sessionStorage.removeItem('token')
+    // Dispara evento de transição para PageView exibir AuthTransitionView
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+    }))
 
-    // Disparar evento de mudança de auth
-    window.dispatchEvent(new CustomEvent('authChanged'))
+    // Aguarda transição renderizar
+    setTimeout(() => {
+      sessionStorage.removeItem('jwtToken')
+      sessionStorage.removeItem('userRole')
+      sessionStorage.removeItem('userId')
+      sessionStorage.removeItem('userEmail')
+      sessionStorage.removeItem('userName')
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('_hadToken')
 
-    window.location.href = model.getHomeRoute()
+      // Disparar evento de mudança de auth
+      window.dispatchEvent(new CustomEvent('authChanged'))
+
+      // Aguarda animação terminar antes de redirecionar
+      setTimeout(() => {
+        window.location.href = model.getHomeRoute()
+      }, 300)
+    }, 300)
   }, [model])
 
   return {

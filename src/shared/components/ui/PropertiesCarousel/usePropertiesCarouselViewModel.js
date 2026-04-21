@@ -6,12 +6,12 @@ import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
  * Hook para gerenciar estado e interações do PropertiesCarousel.
  * Implementa Factory Pattern - cria e encapsula o Model internamente.
  *
- * @param {Array} realEstateAdvertisements Lista de propriedades
+ * @param {Array} Advertisements Lista de propriedades
  * @param {Object|string} realStateCardMode Modo de exibição dos cards
  * @param {string} initialTitle Título opcional do carrossel
  */
 export function usePropertiesCarouselViewModel(
-  realEstateAdvertisements = [],
+  advertisements = [],
   realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
   initialTitle = ''
 ) {
@@ -25,12 +25,12 @@ export function usePropertiesCarouselViewModel(
   }, [])
 
   // Memoize the array to avoid recreating on every render
-  const memoizedAdvertisements = useMemo(() => realEstateAdvertisements, [realEstateAdvertisements])
+  const memoizedAdvertisements = useMemo(() => advertisements, [advertisements])
 
   // ✅ Factory Pattern — criando o model corretamente
   const [model] = useState(() => {
     return new PropertiesCarouselModel({
-      realEstateAdvertisements: memoizedAdvertisements,
+      advertisements: memoizedAdvertisements,
       realStateCardMode,
       containerRef,
       titleCarousel: initialTitle
@@ -41,8 +41,8 @@ export function usePropertiesCarouselViewModel(
   useEffect(() => {
     let hasChanges = false
 
-    if (model.realEstateAdvertisements !== memoizedAdvertisements) {
-      model.realEstateAdvertisements = memoizedAdvertisements
+    if (model.advertisements !== memoizedAdvertisements) {
+      model.advertisements = memoizedAdvertisements
       hasChanges = true
     }
 
@@ -143,11 +143,11 @@ export function usePropertiesCarouselViewModel(
 
     // Comandos expostos
     next: () => {
-      model.goToNextRealEstateAdvertisement()
+      model.goToNextAdvertisement()
       refresh()
     },
     previous: () => {
-      model.goToPreviousRealEstateAdvertisement()
+      model.goToPreviousAdvertisement()
       refresh()
     },
     goToSlide: (index) => {

@@ -204,7 +204,7 @@ export function PropertiesConfigView() {
         <div className="flex flex-col gap-subsection md:gap-subsection-md h-fit flex-1">
           {lancamentos.length > 0 && (
             <PropertiesCarouselView
-              realEstateAdvertisements={lancamentos}
+              advertisements={lancamentos}
               realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Lançamentos"
               actionButtonText="Adicionar Imóvel"
@@ -214,7 +214,7 @@ export function PropertiesConfigView() {
 
           {disponiveis.length > 0 && (
             <PropertiesCarouselView
-              realEstateAdvertisements={disponiveis}
+              advertisements={disponiveis}
               realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Disponíveis"
               actionButtonText="Adicionar Imóvel"
@@ -224,7 +224,7 @@ export function PropertiesConfigView() {
 
           {emObras.length > 0 && (
             <PropertiesCarouselView
-              realEstateAdvertisements={emObras}
+              advertisements={emObras}
               realStateCardMode={REAL_STATE_CARD_MODES.CONFIG}
               titleCarousel="Em Obras"
               actionButtonText="Adicionar Imóvel"

@@ -8,7 +8,7 @@ import { ROUTES } from '@constant/routes'
 const DEFAULT_VIDEO = 'https://www.youtube.com/embed/NA0u8QCrZfY'
 
 export function usePropertyCardViewModel(
-  realEstateAdvertisement,
+  advertisement,
   realStateCardMode,
   onWhatsAppClick = null,
   isCarouselItem = false
@@ -17,7 +17,7 @@ export function usePropertyCardViewModel(
   const [showLightbox, setShowLightbox] = useState(false)
   const [medias, setMedias] = useState([])
   const [alertConfig, setAlertConfig] = useState(null)
-  const [isActiveAdvertisement, setIsActiveAdvertisement] = useState(Boolean(realEstateAdvertisement?.active))
+  const [isActiveAdvertisement, setIsActiveAdvertisement] = useState(Boolean(advertisement?.active))
   const [isProcessingStatus, setIsProcessingStatus] = useState(false)
 
   const handleCloseAlert = useCallback(() => {
@@ -45,17 +45,17 @@ export function usePropertyCardViewModel(
   }, [isActiveAdvertisement])
 
   useEffect(() => {
-    setIsActiveAdvertisement(Boolean(realEstateAdvertisement?.active))
-  }, [realEstateAdvertisement])
+    setIsActiveAdvertisement(Boolean(advertisement?.active))
+  }, [advertisement])
 
   const onGalleryClick = () => {
-    const galleryImages = realEstateAdvertisement?.estate?.getGalleryImages?.() || []
+    const galleryImages = advertisement?.estate?.getGalleryImages?.() || []
     setMedias(Array.isArray(galleryImages) ? galleryImages : [galleryImages])
     setShowLightbox(true)
   }
 
   const onFloorplanClick = () => {
-    const floorplanImages = realEstateAdvertisement?.estate?.getFloorPlanImages?.() || []
+    const floorplanImages = advertisement?.estate?.getFloorPlanImages?.() || []
     setMedias(Array.isArray(floorplanImages) ? floorplanImages : [floorplanImages])
     setShowLightbox(true)
   }
@@ -74,7 +74,7 @@ export function usePropertyCardViewModel(
     if (realStateCardMode !== REAL_STATE_CARD_MODES.REDIRECTION) return null
 
     return () => {
-      const propertyTitle = realEstateAdvertisement?.estate?.title
+      const propertyTitle = advertisement?.estate?.title
       if (propertyTitle) {
         navigate('/agenda', {
           state: { propertyTitle }
@@ -83,11 +83,11 @@ export function usePropertyCardViewModel(
         navigate('/agenda')
       }
     }
-  }, [realEstateAdvertisement, realStateCardMode, navigate])
+  }, [advertisement, realStateCardMode, navigate])
 
   const propertyCardModel = useMemo(
     () => new PropertyCardModel({
-      realEstateAdvertisement,
+      advertisement,
       realStateCardMode,
       onWhatsAppClick,
       onFloorplanClick,
@@ -98,7 +98,7 @@ export function usePropertyCardViewModel(
       onRequestSoftDeleteConfirmation: handleRequestSoftDeleteConfirmation,
     }),
     [
-      realEstateAdvertisement,
+      advertisement,
       realStateCardMode,
       onWhatsAppClick,
       onFloorplanClick,
@@ -121,7 +121,7 @@ export function usePropertyCardViewModel(
         setIsActiveAdvertisement(alertConfig.nextActiveStatus)
         window.dispatchEvent(new CustomEvent('propertySoftDeleted', {
           detail: {
-            propertyId: realEstateAdvertisement?.id,
+            propertyId: advertisement?.id,
             active: alertConfig.nextActiveStatus,
           }
         }))
@@ -130,15 +130,15 @@ export function usePropertyCardViewModel(
       setIsProcessingStatus(false)
       setAlertConfig(null)
     }
-  }, [alertConfig, isProcessingStatus, propertyCardModel, realEstateAdvertisement])
+  }, [alertConfig, isProcessingStatus, propertyCardModel, advertisement])
 
   const handleCarouselItemClick = useCallback(() => {
-    if (isCarouselItem && realEstateAdvertisement) {
+    if (isCarouselItem && advertisement) {
       const router = RouterModel.getInstance()
-      const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: realEstateAdvertisement.id })
+      const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisement.id })
       navigate(route)
     }
-  }, [isCarouselItem, realEstateAdvertisement, navigate])
+  }, [isCarouselItem, advertisement, navigate])
 
   return {
     // Dados do card

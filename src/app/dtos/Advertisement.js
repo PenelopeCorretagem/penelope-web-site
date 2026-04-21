@@ -2,7 +2,7 @@
  * Representa um anúncio de imóvel, incluindo status,
  * datas, responsáveis e o imóvel relacionado.
  */
-export class RealEstateAdvertisement {
+export class Advertisement {
   // ===== PRIVATE FIELDS =====
   #id
   #active
@@ -102,7 +102,7 @@ export class RealEstateAdvertisement {
     return `Anúncio #${this.#id} — ${addr.city}/${addr.neighborhood} — ${this.#active ? 'Ativo' : 'Inativo'}`
   }
 
-  isRealEstateAdvertisement(object){
-    return object instanceof RealEstateAdvertisement
+  isAdvertisement(object){
+    return object instanceof Advertisement
   }
 }

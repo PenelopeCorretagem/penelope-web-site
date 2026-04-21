@@ -8,7 +8,7 @@ const generateRoute = (routeName, param) =>
   RouterModel.getInstance().generateRoute(routeName, param)
 
 export class PropertiesCarouselModel {
-  #realEstateAdvertisements = []
+  #advertisements = []
   #realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT
   #currentIndex = 0
   #containerRef = null
@@ -18,12 +18,12 @@ export class PropertiesCarouselModel {
   #titlePassedManually = false
 
   constructor({
-    realEstateAdvertisements = [],
+    advertisements = [],
     realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
     containerRef = null,
     titleCarousel = ''
   } = {}) {
-    this.realEstateAdvertisements = realEstateAdvertisements
+    this.advertisements = advertisements
     this.realStateCardMode = realStateCardMode
     this.containerRef = containerRef
     this.#callToActionButton = this.#createDefaultCTAButton()
@@ -42,13 +42,13 @@ export class PropertiesCarouselModel {
   }
 
   #countByEstateType(type) {
-    return this.#realEstateAdvertisements.filter(
+    return this.#advertisements.filter(
       ad => ad?.estate?.type === type
     ).length
   }
 
   #generateAutoTitle() {
-    const total = this.#realEstateAdvertisements.length
+    const total = this.#advertisements.length
     if (total === 0) return ''
 
     const types = [
@@ -68,12 +68,12 @@ export class PropertiesCarouselModel {
   // GETTERS E SETTERS
   // ========================================================================
 
-  get realEstateAdvertisements() {
-    return this.#realEstateAdvertisements
+  get advertisements() {
+    return this.#advertisements
   }
 
-  set realEstateAdvertisements(value) {
-    this.#realEstateAdvertisements = Array.isArray(value) ? value : []
+  set advertisements(value) {
+    this.#advertisements = Array.isArray(value) ? value : []
     if (!this.#titlePassedManually) {
       this.#titleCarousel = this.#generateAutoTitle()
     }
@@ -114,7 +114,7 @@ export class PropertiesCarouselModel {
     const index = Number(value)
     this.#currentIndex = isNaN(index)
       ? 0
-      : Math.min(Math.max(0, index), Math.max(0, this.getRealEstateAdvertisementsLength() - 1))
+      : Math.min(Math.max(0, index), Math.max(0, this.getAdvertisementsLength() - 1))
   }
 
   get scrollProgress() {
@@ -151,17 +151,17 @@ export class PropertiesCarouselModel {
   // MÉTODOS AUXILIARES
   // ========================================================================
 
-  getRealEstateAdvertisementsLength() {
-    return this.#realEstateAdvertisements.length
+  getAdvertisementsLength() {
+    return this.#advertisements.length
   }
 
-  goToNextRealEstateAdvertisement() {
-    if (this.#currentIndex < this.getRealEstateAdvertisementsLength() - 1) {
+  goToNextAdvertisement() {
+    if (this.#currentIndex < this.getAdvertisementsLength() - 1) {
       this.#currentIndex++
     }
   }
 
-  goToPreviousRealEstateAdvertisement() {
+  goToPreviousAdvertisement() {
     if (this.#currentIndex > 0) {
       this.#currentIndex--
     }
@@ -178,11 +178,11 @@ export class PropertiesCarouselModel {
   }
 
   getTotalOriginalItems() {
-    return this.getRealEstateAdvertisementsLength()
+    return this.getAdvertisementsLength()
   }
 
   getOriginalItems() {
-    return this.#realEstateAdvertisements
+    return this.#advertisements
   }
 
   // ========================================================================

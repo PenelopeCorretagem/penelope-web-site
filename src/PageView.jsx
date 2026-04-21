@@ -4,7 +4,19 @@ import { RouterView } from '@routes/RouterView'
 import { useRouter } from '@routes/useRouterViewModel'
 import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
+import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionView'
+import { useAuthTransitionViewModel } from '@shared/pages/AuthTransition/useAuthTransitionViewModel'
 
+/**
+ * PageView - Componente raiz da aplicação
+ *
+ * RESPONSABILIDADES:
+ * - Layout principal (header, sidebar, router, footer)
+ * - Gerenciar autenticação (isAuthenticated, isAdmin)
+ * - Controlar exibição de transição de auth
+ * - Sincronizar estado entre abas
+ * - Gerenciar logout
+ */
 export function PageView() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
@@ -13,8 +25,8 @@ export function PageView() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const { currentRoute } = useRouter()
 
-  // Feedback de exemplo
-  const [showFeedback, setShowFeedback] = useState(false)
+  // Hook para gerenciar transição de autenticação
+  const { isTransitioning, status, message } = useAuthTransitionViewModel()
 
   // Rotas onde header e footer devem ser ocultos
   const authRoutes = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/verificacao']
@@ -22,11 +34,11 @@ export function PageView() {
     currentRoute === route || currentRoute.startsWith('/redefinir-senha/')
   )
 
-  // ✅ Rotas administrativas/privadas onde footer não deve aparecer
+  // Rotas administrativas/privadas onde footer não deve aparecer
   const adminRoutes = ['/admin', '/agenda']
   const isAdminPage = adminRoutes.some(route => currentRoute.startsWith(route))
 
-  // ✅ Deve mostrar footer apenas em páginas públicas (não auth, não admin)
+  // Deve mostrar footer apenas em páginas públicas (não auth, não admin)
   const shouldShowFooter = !isAuthPage && !isAdminPage
 
   // Sidebar aparece para usuários autenticados em todas as páginas, exceto páginas de autenticação
@@ -89,39 +101,70 @@ export function PageView() {
   }, [currentRoute])
 
   const handleLogout = () => {
-    sessionStorage.removeItem('jwtToken')
-    sessionStorage.removeItem('userRole')
-    sessionStorage.removeItem('userId')
-    sessionStorage.removeItem('userEmail')
-    sessionStorage.removeItem('userName')
-    sessionStorage.removeItem('token')
-    setIsAuthenticated(false)
-    setIsAdmin(false)
-    window.location.href = '/'
+    // Dispara transição de logout
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+    }))
+
+    // Remove dados de autenticação após um pequeno delay para a transição renderizar
+    setTimeout(() => {
+      sessionStorage.removeItem('jwtToken')
+      sessionStorage.removeItem('userRole')
+      sessionStorage.removeItem('userId')
+      sessionStorage.removeItem('userEmail')
+      sessionStorage.removeItem('userName')
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('_hadToken')
+      setIsAuthenticated(false)
+      setIsAdmin(false)
+      
+      // Aguarda a animação terminar antes de redirecionar
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 300)
+    }, 300)
   }
 
   const handleDevLogin = () => {
-    sessionStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
-    sessionStorage.setItem('userRole', 'CLIENTE')
-    sessionStorage.setItem('userId', '1')
-    sessionStorage.setItem('userEmail', 'dev@test.com')
-    sessionStorage.setItem('userName', 'Dev User')
-    setIsAuthenticated(true)
-    setIsAdmin(false)
-    // Redireciona para a home após login
-    window.location.href = '/'
+    // Dispara transição de login
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'login', message: 'Autenticando sua conta...' }
+    }))
+
+    setTimeout(() => {
+      sessionStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
+      sessionStorage.setItem('userRole', 'CLIENTE')
+      sessionStorage.setItem('userId', '1')
+      sessionStorage.setItem('userEmail', 'dev@test.com')
+      sessionStorage.setItem('userName', 'Dev User')
+      sessionStorage.setItem('_hadToken', 'true')
+      setIsAuthenticated(true)
+      setIsAdmin(false)
+      window.dispatchEvent(new CustomEvent('authChanged'))
+      // Redireciona para a home após login
+      window.location.href = '/'
+    }, 500)
   }
 
   const handleDevAdminLogin = () => {
-    sessionStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
-    sessionStorage.setItem('userRole', 'ADMINISTRADOR')
-    sessionStorage.setItem('userId', '1')
-    sessionStorage.setItem('userEmail', 'admin@test.com')
-    sessionStorage.setItem('userName', 'Admin User')
-    setIsAuthenticated(true)
-    setIsAdmin(true)
-    // Redireciona para a home após login
-    window.location.href = '/'
+    // Dispara transição de login
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'login', message: 'Autenticando sua conta de administrador...' }
+    }))
+
+    setTimeout(() => {
+      sessionStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
+      sessionStorage.setItem('userRole', 'ADMINISTRADOR')
+      sessionStorage.setItem('userId', '1')
+      sessionStorage.setItem('userEmail', 'admin@test.com')
+      sessionStorage.setItem('userName', 'Admin User')
+      sessionStorage.setItem('_hadToken', 'true')
+      setIsAuthenticated(true)
+      setIsAdmin(true)
+      window.dispatchEvent(new CustomEvent('authChanged'))
+      // Redireciona para a home após login
+      window.location.href = '/'
+    }, 500)
   }
 
   const toggleSidebar = () => {
@@ -142,6 +185,11 @@ export function PageView() {
           <ChatbotView />
         </div>
       </div>
+
+      {/* Tela de Transição de Autenticação */}
+      {isTransitioning && (
+        <AuthTransitionView status={status} message={message} />
+      )}
     </div>
   )
 }

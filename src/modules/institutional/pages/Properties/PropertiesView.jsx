@@ -87,7 +87,7 @@ export const PropertiesView = () => {
         <SectionView>
           <div className="container mx-auto">
             <PropertiesCarouselView
-              realEstateAdvertisements={lancamentos}
+              advertisements={lancamentos}
               titleCarousel="Lançamentos"
               showActionButton={false}
             />
@@ -99,7 +99,7 @@ export const PropertiesView = () => {
         <SectionView className={filterModel.getFilter('typeFilter') === 'DISPONIVEIS' ? '' : 'bg-default-light-alt'}>
           <div className="container mx-auto">
             <PropertiesCarouselView
-              realEstateAdvertisements={disponiveis}
+              advertisements={disponiveis}
               titleCarousel="Disponíveis"
               showActionButton={false}
             />
@@ -111,7 +111,7 @@ export const PropertiesView = () => {
         <SectionView>
           <div className="container mx-auto">
             <PropertiesCarouselView
-              realEstateAdvertisements={emObras}
+              advertisements={emObras}
               titleCarousel="Em Obras"
               showActionButton={false}
             />

@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { PropertyTabsView } from '@institutional/components/PropertyTabs/PropertyTabsView.jsx'
 import { SectionView } from '@shared/components/layout/Section/SectionView.jsx'
 import { PropertyLocation } from '@institutional/components/PropertyLocation/PropertyLocation.jsx'
-import { PropertyFeatureView } from '@shared/components/ui/PropertyFeature/PropertyFeatureView.jsx'
 import * as LucideIcons from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { ImageView } from '@shared/components/ui/Image/ImageView.jsx'
@@ -19,8 +18,8 @@ import { usePropertyDetailsViewModel } from './usePropertyDetailsViewModel'
 
 export function PropertyDetailsView() {
   const {
-    realEstateAdvertisement,
-    relatedRealEstateAdvertisements,
+    advertisement,
+    relatedAdvertisements,
     region,
     isLoading,
     error
@@ -33,6 +32,33 @@ export function PropertyDetailsView() {
   const [tabsHeight, setTabsHeight] = useState(60)
   const [sectionPadding, setSectionPadding] = useState(20)
   const [isScreeningFormOpen, setIsScreeningFormOpen] = useState(false)
+
+  const diferenciaisRef = useRef(null)
+  const [diferenciaisProgress, setDiferenciaisProgress] = useState(0)
+  const [isDiferenciaisScrollable, setIsDiferenciaisScrollable] = useState(false)
+
+  const updateDiferenciaisProgress = useCallback(() => {
+    const el = diferenciaisRef.current
+    if (!el) return
+    const maxScroll = el.scrollWidth - el.clientWidth
+    setIsDiferenciaisScrollable(maxScroll > 1)
+    if (maxScroll <= 1) { setDiferenciaisProgress(0); return }
+    const progress = (el.scrollLeft / maxScroll) * 100
+    setDiferenciaisProgress(Math.min(100, Math.max(0, progress)))
+  }, [])
+
+  useEffect(() => {
+    const el = diferenciaisRef.current
+    if (!el) return
+    el.addEventListener('scroll', updateDiferenciaisProgress)
+    const observer = new ResizeObserver(() => updateDiferenciaisProgress())
+    observer.observe(el)
+    updateDiferenciaisProgress()
+    return () => {
+      el.removeEventListener('scroll', updateDiferenciaisProgress)
+      observer.disconnect()
+    }
+  }, [updateDiferenciaisProgress, advertisement])
 
   useEffect(() => {
     const calculateHeights = () => {
@@ -104,7 +130,7 @@ export function PropertyDetailsView() {
   }
 
   // Property not found
-  if (!realEstateAdvertisement) {
+  if (!advertisement) {
     return (
       <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <TextView className="text-center">Propriedade não encontrada</TextView>
@@ -123,7 +149,7 @@ export function PropertyDetailsView() {
       {/* Hero */}
       <SectionView className="!p-0">
         <PropertyCardView
-          realEstateAdvertisement={realEstateAdvertisement}
+          advertisement={advertisement}
           realStateCardMode={REAL_STATE_CARD_MODES.DETAILS}
         />
       </SectionView>
@@ -141,77 +167,85 @@ export function PropertyDetailsView() {
       {/* === WRAPPER LIMITADOR === */}
       <div id="property-content-wrapper" className="relative z-10">
         <div className="relative">
-          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-8 text-distac-primary">
+          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-8 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre o Imóvel
             </HeadingView>
-            <TextView className="text-default-dark-muted leading-relaxed">
-              {realEstateAdvertisement.estate?.description}
+            <TextView className="text-default-dark-muted leading-relaxed text-center md:text-left">
+              {advertisement.estate?.description}
             </TextView>
           </SectionView>
 
-          <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <div className='w-full'>
-              <HeadingView level={2} className="text-distac-primary mb-10">
-                Diferenciais
-              </HeadingView>
-              <div className="grid grid-cols-4 gap-4 w-full">
-                {realEstateAdvertisement.estate?.features?.map((feature) => {
-                  const iconName = feature?.icon
-                  const IconComponent = iconName ? LucideIcons[iconName] : null
-                  
-                  return (
-                    <div
-                      key={feature.id}
-                      className="flex items-center w-full justify-center gap-3 bg-default-dark-light rounded-sm p-3"
-                    >
-                      {IconComponent && (
-                        <IconComponent className="w-6 h-6 text-default-light flex-shrink-0" />
-                      )}
-                      <span className="text-default-light text-sm font-medium">
-                        {feature?.description}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
+          <SectionView id="diferenciais" className="bg-default-light-alt lg:!pr-[544px] !flex-col !items-center md:!items-start w-full">
+            <HeadingView level={2} className="text-distac-primary mb-10 text-center md:text-left max-md:!w-full">
+              Diferenciais
+            </HeadingView>
+            <div
+              ref={diferenciaisRef}
+              className="w-full grid grid-flow-col grid-rows-5 auto-cols-[100%] overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth snap-x snap-mandatory md:grid-flow-row md:grid-cols-4 md:auto-cols-auto md:grid-rows-none md:gap-4 md:auto-rows-fr md:overflow-visible md:snap-none"
+            >
+              {advertisement.estate?.features?.map((feature) => {
+                const iconName = feature?.icon
+                const IconComponent = iconName ? LucideIcons[iconName] : null
+                
+                return (
+                  <div key={feature.id} className="snap-start md:h-full flex items-center w-full justify-center gap-3 bg-default-dark-light rounded-sm p-3">
+                    {IconComponent && (
+                      <IconComponent className="w-6 h-6 text-default-light flex-shrink-0" />
+                    )}
+                    <span className="text-default-light text-sm font-medium">
+                      {feature?.description}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
+            {isDiferenciaisScrollable && (
+              <div className="w-full mt-4 md:hidden">
+                <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${diferenciaisProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </SectionView>
 
-          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="text-default-light mb-10">
+          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="text-default-light mb-10 text-center md:text-left max-md:!w-full">
               Localização
             </HeadingView>
-            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
+            <div className={`grid gap-8 auto-rows-fr ${advertisement.estate?.address && advertisement.estate?.standAddress ? 'grid-cols-1 md:grid-cols-2' : advertisement.estate?.address || advertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
 
-              {realEstateAdvertisement.estate?.address && (
+              {advertisement.estate?.address && (
               <PropertyLocation
-                address={realEstateAdvertisement.estate?.address}
+                address={advertisement.estate?.address}
                 type="building"
               />
               )}
 
-              {realEstateAdvertisement.estate?.hasStandAddress() && (
+              {advertisement.estate?.hasStandAddress() && (
               <PropertyLocation
-                address={realEstateAdvertisement.estate?.standAddress}
+                address={advertisement.estate?.standAddress}
                 type="stand"
               />
               )}
             </div>
           </SectionView>
 
-          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-10 text-distac-primary">
+          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-10 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre a Região
             </HeadingView>
-            <TextView className="text-default-dark-muted leading-relaxed">
+            <TextView className="text-default-dark-muted leading-relaxed text-center md:text-left">
               {region.description}
             </TextView>
             <ImageView src={region.imageUrl} alt="Região" description={region.description} className="max-h-96" />
           </SectionView>
         </div>
 
-        {realEstateAdvertisement && (
+        {advertisement && (
         <div className="hidden lg:block absolute inset-0 pointer-events-none">
           <div
             className="sticky right-0 z-50 w-fit mr-[var(--padding-section-x)] md:mr-[var(--padding-section-x-md)] ml-auto pointer-events-auto"
@@ -222,7 +256,7 @@ export function PropertyDetailsView() {
             }}
           >
             <PropertyCardView
-              realEstateAdvertisement={realEstateAdvertisement}
+              advertisement={advertisement}
               realStateCardMode={REAL_STATE_CARD_MODES.REDIRECTION}
               className="!w-full"
               onWhatsAppClick={() => setIsScreeningFormOpen(true)}
@@ -233,11 +267,11 @@ export function PropertyDetailsView() {
       </div>
 
       {/* Carrossel de Imóveis Relacionados */}
-      {relatedRealEstateAdvertisements.length > 0 && (
+      {relatedAdvertisements.length > 0 && (
         <SectionView id="imoveis-relacionados">
           <PropertiesCarouselView
             titleCarousel="Imóveis Relacionados"
-            realEstateAdvertisements={relatedRealEstateAdvertisements}
+            advertisements={relatedAdvertisements}
             showActionButton={true}
             actionButtonText="Ver Todas"
             actionRoute="PROPERTIES"
@@ -257,7 +291,7 @@ export function PropertyDetailsView() {
                 <X size={24} />
               </button>
             </div>
-            <ScreeningFormView realEstateAdvertisement={realEstateAdvertisement} onClose={() => setIsScreeningFormOpen(false)} />
+            <ScreeningFormView advertisement={advertisement} onClose={() => setIsScreeningFormOpen(false)} />
           </div>
         </div>
       )}

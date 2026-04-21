@@ -1,9 +1,9 @@
 /**
  * appointmentCalApi.js
- * API client para gerenciar appointments no cal-service
+ * API client para gerenciar appointments no cal-Api
  */
 
-// Cal-service não usa /api/v1, acessa direto em /appointments
+// Cal-Api não usa /api/v1, acessa direto em /appointments
 const BASE_URL = import.meta.env.VITE_CAL_SERVICE_URL || 'http://localhost:8090'
 
 /**
@@ -19,7 +19,7 @@ export const listAppointments = async (filters = {}) => {
   if (filters.estateAgentId) params.append('estateAgentId', filters.estateAgentId)
   if (filters.estateId) params.append('estateId', filters.estateId)
   if (filters.status) params.append('status', filters.status)
-  // Cal-service usa startDateTime e endDateTime, não dateFrom/dateTo
+  // Cal-Api usa startDateTime e endDateTime, não dateFrom/dateTo
   if (filters.startDateTime) params.append('startDateTime', filters.startDateTime)
   if (filters.endDateTime) params.append('endDateTime', filters.endDateTime)
   if (filters.dateFrom) params.append('startDateTime', filters.dateFrom) // backward compatibility
@@ -45,7 +45,7 @@ export const listAppointments = async (filters = {}) => {
 
     return await response.json()
   } catch (error) {
-    console.error('❌ [CAL SERVICE] Erro ao listar appointments:', error)
+    console.error('❌ [CAL Api] Erro ao listar appointments:', error)
     throw error
   }
 }
@@ -73,7 +73,7 @@ export const getAppointmentById = async (id) => {
 
     return await response.json()
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao buscar appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao buscar appointment ${id}:`, error)
     throw error
   }
 }
@@ -102,7 +102,7 @@ export const createAppointment = async (appointmentData) => {
 
     return await response.json()
   } catch (error) {
-    console.error('❌ [CAL SERVICE] Erro ao criar appointment:', error)
+    console.error('❌ [CAL Api] Erro ao criar appointment:', error)
     throw error
   }
 }
@@ -132,7 +132,7 @@ export const rescheduleAppointment = async (id, rescheduleData) => {
 
     return await response.json()
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao reagendar appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao reagendar appointment ${id}:`, error)
     throw error
   }
 }
@@ -160,7 +160,7 @@ export const confirmAppointment = async (id) => {
 
     return await response.json()
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao confirmar appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao confirmar appointment ${id}:`, error)
     throw error
   }
 }
@@ -188,7 +188,7 @@ export const concludeAppointment = async (id) => {
 
     return await response.json()
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao concluir appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao concluir appointment ${id}:`, error)
     throw error
   }
 }
@@ -223,7 +223,7 @@ export const cancelAppointment = async (id, reason = null) => {
 
     return await response.json()
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao cancelar appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao cancelar appointment ${id}:`, error)
     throw error
   }
 }
@@ -248,7 +248,7 @@ export const deleteAppointment = async (id) => {
       throw new Error(`Erro ao deletar appointment ${id}: ${response.status}`)
     }
   } catch (error) {
-    console.error(`❌ [CAL SERVICE] Erro ao deletar appointment ${id}:`, error)
+    console.error(`❌ [CAL Api] Erro ao deletar appointment ${id}:`, error)
     throw error
   }
 }
@@ -259,7 +259,7 @@ export const deleteAppointment = async (id) => {
  * @returns {Array} Array no formato { id, date, time, title, client }
  */
 export function mapAppointmentsToModel(appointments) {
-  // Não faz transformação — apenas retorna os dados brutos do cal-service
+  // Não faz transformação — apenas retorna os dados brutos do cal-Api
   // Os dados já vêm estruturados e com todos os campos necessários
   return appointments.map(appt => ({
     id: appt.id,

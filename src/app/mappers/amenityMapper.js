@@ -1,4 +1,4 @@
-import { Amenity } from '../../model/entities/Amenity'
+import { Amenity } from '@dtos/Amenity'
 
 /**
  * AmenityMapper - Converte dados da API para entidades e vice-versa
@@ -32,6 +32,28 @@ export class AmenityMapper {
   static toEntityList(dataList) {
     if (!Array.isArray(dataList)) return []
     return dataList.map(data => this.toEntity(data))
+  }
+
+  /**
+   * Converte resposta paginada da API para entidades com metadados de paginação
+   * @param {Object} paginatedData - Dados paginados da API
+   * @returns {Object} { content: Amenity[], pageable: {...} }
+   */
+  static toPaginatedEntityList(paginatedData) {
+    if (!paginatedData) return { content: [], pageable: null }
+
+    const content = paginatedData.content || paginatedData.amenities || []
+    const pageable = paginatedData.pageable || {
+      pageNumber: paginatedData.page ?? 0,
+      pageSize: paginatedData.pageSize ?? 10,
+      totalElements: paginatedData.totalElements ?? 0,
+      totalPages: paginatedData.totalPages ?? 0,
+    }
+
+    return {
+      content: AmenityMapper.toEntityList(content),
+      pageable,
+    }
   }
 
   /**

@@ -103,23 +103,43 @@ export function useNavMenuViewModel(isAuthenticated = false) {
 
   /**
    * Executa o processo de logout.
-   * - Reseta scroll para o topo;
-   * - Remove token JWT do `localStorage`;
-   * - Atualiza estado de autenticação;
-   * - Fecha o menu mobile;
-   * - Redireciona para a home (`/`).
+   * - Dispara transição visual
+   * - Reseta scroll para o topo
+   * - Remove token JWT
+   * - Atualiza estado de autenticação
+   * - Fecha o menu mobile
+   * - Redireciona para a home
    *
    * @function
    * @example
    * handleLogout()
    */
   const handleLogout = useCallback(() => {
-    window.scrollTo(0, 0)
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
-    model.setAuthenticationStatus(false)
-    model.closeMobileMenu()
-    window.location.href = routerModel.get('HOME')
+    // Dispara evento de transição para PageView exibir AuthTransitionView
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+    }))
+
+    // Aguarda transição renderizar
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+      sessionStorage.removeItem('jwtToken')
+      sessionStorage.removeItem('userRole')
+      sessionStorage.removeItem('userId')
+      sessionStorage.removeItem('userEmail')
+      sessionStorage.removeItem('userName')
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('_hadToken')
+      localStorage.removeItem('jwtToken')
+      localStorage.removeItem('userRole')
+      model.setAuthenticationStatus(false)
+      model.closeMobileMenu()
+      
+      // Aguarda animação terminar antes de redirecionar
+      setTimeout(() => {
+        window.location.href = routerModel.get('HOME')
+      }, 300)
+    }, 300)
   }, [model, routerModel])
 
   /**

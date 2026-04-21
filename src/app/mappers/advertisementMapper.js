@@ -1,6 +1,6 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
 import { getEstateTypeByKey } from '@constant/estateTypes'
-import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
+import { Advertisement } from '@dtos/Advertisement'
 import { User } from '@dtos/User'
 import { Address } from '@dtos/Address'
 import { Estate } from '@dtos/Estate'
@@ -10,17 +10,17 @@ import { ImageEstateType } from '@dtos/ImageEstateType'
 
 /**
 
-* RealEstateAdvertisementMapper
+* AdvertisementMapper
 * ---
 * Classe responsável por mapear dados da API para entidades do sistema
 * e entidades do sistema para dados da API.
   */
-export class RealEstateAdvertisementMapper {
+export class AdvertisementMapper {
   /**
 
-  * Converte dados da API para uma instância de RealEstateAdvertisement
+  * Converte dados da API para uma instância de Advertisement
   * @param {Object} data Dados brutos da API
-  * @returns {RealEstateAdvertisement|null}
+  * @returns {Advertisement|null}
     */
   static toEntity(data) {
     if (!data) return null
@@ -151,7 +151,7 @@ export class RealEstateAdvertisementMapper {
       })
       : null
 
-    return new RealEstateAdvertisement({
+    return new Advertisement({
       id: data.id,
       active: data.active,
       featured: data.featured ?? data.emphasis,
@@ -178,13 +178,13 @@ export class RealEstateAdvertisementMapper {
   */
   static toEntityList(dataList) {
     if (!Array.isArray(dataList)) return []
-    return dataList.map(data => RealEstateAdvertisementMapper.toEntity(data))
+    return dataList.map(data => AdvertisementMapper.toEntity(data))
   }
 
   /**
 
-* Converte uma instância de RealEstateAdvertisement para o formato da API
-* @param {RealEstateAdvertisement} advertisement
+* Converte uma instância de Advertisement para o formato da API
+* @param {Advertisement} advertisement
 * @returns {Object|null}
   */
   static toApiData(advertisement) {

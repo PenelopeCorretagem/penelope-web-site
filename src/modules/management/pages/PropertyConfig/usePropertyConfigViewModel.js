@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyConfigModel } from './PropertyConfigModel'
-import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@service-penelopec/realEstateAdvertisementService'
+import { getAdvertisementById, createAdvertisement, updateAdvertisement } from '@service-penelopec/advertisementService'
 import { uploadImages } from '@api-penelopec/imageApi'
 import { getUsersWithCreci } from '@service-penelopec/userService'
-import { listAllFeatures } from '@api-penelopec/featureAPI'
+import { getAllAmenities } from '@service-penelopec/amenitiesService'
 
 export function usePropertyConfigViewModel(id) {
   const navigate = useNavigate()
@@ -56,7 +56,7 @@ export function usePropertyConfigViewModel(id) {
         setLoadingFeatures(true)
 
 
-        const featuresList = await listAllFeatures()
+        const featuresList = await getAllAmenities()
 
 
         setFeatures(featuresList)

@@ -3,11 +3,11 @@ import { AmenitiesModel } from './AmenitiesModel'
 import { getAllLucideIcons } from '@management/utils/lucideIconsUtil'
 
 /**
- * useAmenitiesViewModel - Hook ViewModel para Amenities
+ * useAmenitiesViewModel - Hook ViewModel para Amenities com paginação
  *
  * RESPONSABILIDADES:
  * - Conectar Model ao React
- * - Gerenciar estado local (modal, formulário)
+ * - Gerenciar estado local (modal, formulário, paginação)
  * - Fornecer métodos de interação da UI
  */
 export const useAmenitiesViewModel = () => {
@@ -15,6 +15,12 @@ export const useAmenitiesViewModel = () => {
   const [amenities, setAmenities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Estado de paginação
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
   // Estado do modal
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -32,14 +38,16 @@ export const useAmenitiesViewModel = () => {
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
   /**
-   * Carrega amenities ao montar componente
+   * Carrega amenities ao montar componente ou mudar página
    */
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true)
-        await model.loadAmenities()
+        await model.loadAmenities(currentPage, pageSize)
         setAmenities(model.amenities)
+        setTotalPages(model.totalPages)
+        setTotalElements(model.totalElements)
         setError(null)
       } catch (err) {
         setError(err.message || 'Erro ao carregar amenities')
@@ -49,7 +57,7 @@ export const useAmenitiesViewModel = () => {
     }
 
     loadData()
-  }, [model])
+  }, [model, currentPage, pageSize])
 
   /**
    * Abre modal para adicionar nova amenity
@@ -104,6 +112,7 @@ export const useAmenitiesViewModel = () => {
   const handleSave = useCallback(async () => {
     try {
       setLoading(true)
+      setError(null)
 
       const amenity = model.createNewAmenity()
       amenity.description = formData.description
@@ -117,10 +126,13 @@ export const useAmenitiesViewModel = () => {
       }
 
       setAmenities(model.amenities)
-      setError(null)
+      setTotalPages(model.totalPages)
+      setTotalElements(model.totalElements)
       handleCloseModal()
     } catch (err) {
-      setError(err.message || 'Erro ao salvar amenity')
+      // Tenta extrair mensagem da resposta da API
+      const errorMessage = err.response?.data?.message || err.message || 'Erro ao salvar diferencial'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -145,11 +157,15 @@ export const useAmenitiesViewModel = () => {
       setLoading(true)
       await model.deleteAmenity(pendingDeleteId)
       setAmenities(model.amenities)
+      setCurrentPage(model.currentPage)
+      setTotalPages(model.totalPages)
+      setTotalElements(model.totalElements)
       setError(null)
       setIsConfirmDeleteOpen(false)
       setPendingDeleteId(null)
     } catch (err) {
-      setError(err.message || 'Erro ao deletar amenity')
+      const errorMessage = err.response?.data?.message || err.message || 'Erro ao deletar diferencial'
+      setError(errorMessage)
       setIsConfirmDeleteOpen(false)
       setPendingDeleteId(null)
     } finally {
@@ -177,6 +193,37 @@ export const useAmenitiesViewModel = () => {
     setIsIconPickerOpen(false)
   }, [])
 
+  /**
+   * Vai para página anterior
+   */
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage(prev => Math.max(1, prev - 1))
+  }, [])
+
+  /**
+   * Vai para próxima página
+   */
+  const handleNextPage = useCallback(() => {
+    setCurrentPage(prev => Math.min(totalPages, prev + 1))
+  }, [totalPages])
+
+  /**
+   * Vai para página específica
+   */
+  const handleGoToPage = useCallback((page) => {
+    const pageNum = Math.max(1, Math.min(totalPages, page))
+    setCurrentPage(pageNum)
+  }, [totalPages])
+
+  /**
+   * Muda a quantidade de itens por página
+   * @param {number} newPageSize
+   */
+  const handlePageSizeChange = useCallback((newPageSize) => {
+    setPageSize(newPageSize)
+    setCurrentPage(1) // Volta para página 1 ao mudar o tamanho
+  }, [])
+
   return {
     // Estado
     amenities,
@@ -187,6 +234,12 @@ export const useAmenitiesViewModel = () => {
     formData,
     isIconPickerOpen,
     isConfirmDeleteOpen,
+
+    // Paginação
+    currentPage,
+    pageSize,
+    totalPages,
+    totalElements,
 
     // Métodos
     handleAdd,
@@ -199,5 +252,9 @@ export const useAmenitiesViewModel = () => {
     handleSave,
     handleSelectIcon,
     setIsIconPickerOpen,
+    handlePreviousPage,
+    handleNextPage,
+    handleGoToPage,
+    handlePageSizeChange,
   }
 }

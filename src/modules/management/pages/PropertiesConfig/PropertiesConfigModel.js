@@ -1,4 +1,4 @@
-import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
+import { Advertisement } from '@dtos/Advertisement'
 /**
  * Modelo de dados para configuração de propriedades
  */
@@ -52,20 +52,20 @@ export class PropertiesConfigModel {
   set launchProperties(properties) {
     this.#launchProperties = properties
     properties.forEach(prop => {
-      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+      Advertisement.prototype.isAdvertisement(prop)
     })
   }
 
   set availableProperties(properties) {
     properties.forEach(prop => {
-      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+      Advertisement.prototype.isAdvertisement(prop)
     })
 
     this.#availableProperties = properties
   }
   set underConstructionProperties(properties) {
     properties.forEach(prop => {
-      RealEstateAdvertisement.prototype.isRealEstateAdvertisement(prop)
+      Advertisement.prototype.isAdvertisement(prop)
     })
     this.#underConstructionProperties = properties
   }

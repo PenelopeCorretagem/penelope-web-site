@@ -4,15 +4,15 @@ import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/area/
  * Modelo de dados para configuração de propriedade
  */
 export class PropertyConfigModel {
-  constructor(realEstateAdvertisement = null) {
+  constructor(advertisement = null) {
 
 
-    this.id = realEstateAdvertisement?.id || null
-    this.active = realEstateAdvertisement?.active !== undefined ? realEstateAdvertisement.active : true
-    this.displayEndDate = realEstateAdvertisement?.endDate ? this._formatDate(realEstateAdvertisement.endDate) : ''
+    this.id = advertisement?.id || null
+    this.active = advertisement?.active !== undefined ? advertisement.active : true
+    this.displayEndDate = advertisement?.endDate ? this._formatDate(advertisement.endDate) : ''
 
     // Access Estate entity getters (not private properties)
-    const estate = realEstateAdvertisement?.estate
+    const estate = advertisement?.estate
     this.propertyTitle = estate?.title || ''
     this.propertyType = estate?.type?.key || 'DISPONIVEL'
     this.propertyDescription = estate?.description || ''
@@ -20,7 +20,7 @@ export class PropertyConfigModel {
     this.numberOfRooms = estate?.numberOfRooms || ''
 
     // Responsible
-    this.responsible = realEstateAdvertisement?.responsible?.id || realEstateAdvertisement?.creator?.id || ''
+    this.responsible = advertisement?.responsible?.id || advertisement?.creator?.id || ''
 
     // Card description from address
     this.cardDescription = estate?.address?.neighborhood || ''
@@ -33,7 +33,7 @@ export class PropertyConfigModel {
 
 
     // Store original advertisement data for updates
-    this.originalAdvertisementData = realEstateAdvertisement
+    this.originalAdvertisementData = advertisement
 
     // Address
     const mainAddress = estate?.address || {}

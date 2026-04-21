@@ -20,24 +20,24 @@
   --text-button: 12px;
   --text-button-md: 16px;
 
-  --padding-section-y: 48px;
-  --padding-section-x: 80px;
-  --padding-section: 48px 80px;
+  --padding-section-y: 32px;
+  --padding-section-x: 24px;
+  --padding-section: 32px 24px;
   --padding-section-y-md: 56px;
   --padding-section-x-md: 104px;
   --padding-section-md: 56px 104px;
 
-  --padding-header: 16px 80px;
+  --padding-header: 16px 24px;
   --padding-header-md: 24px 104px;
   --padding-header-y: 16px;
-  --padding-header-x: 80px;
+  --padding-header-x: 24px;
   --padding-header-y-md: 24px;
   --padding-header-x-md: 104px;
 
-  --padding-filter: 16px 80px;
+  --padding-filter: 16px 24px;
   --padding-filter-md: 24px 104px;
   --padding-filter-y: 16px;
-  --padding-filter-x: 80px;
+  --padding-filter-x: 24px;
   --padding-filter-y-md: 24px;
   --padding-filter-x-md: 104px;
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { listAllAdvertisements  } from '@service-penelopec/realEstateAdvertisementService'
+import { listAllAdvertisements  } from '@service-penelopec/advertisementService'
 import { PropertiesModel } from './PropertiesModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 import { FilterModel } from '@shared/components/layout/Filter/FilterModel'

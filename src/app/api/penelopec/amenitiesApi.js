@@ -1,16 +1,20 @@
 import axiosInstance from '@api/axiosInstance'
-import { AmenityMapper } from '../mapper/AmenityMapper'
+import { AmenityMapper } from '@mappers/amenityMapper'
 
 const API_URL = '/amenities'
 
 /**
- * Busca todas as amenities
- * @returns {Promise<Array<Amenity>>}
+ * Busca todas as amenities com paginação
+ * @param {number} page - Número da página (começando em 1 para a API)
+ * @param {number} pageSize - Tamanho da página
+ * @returns {Promise<Object>} Objeto com content e pageable
  */
-export const listAllAmenities = async () => {
+export const getAllAmenities = async (page = 1, pageSize = 10) => {
   try {
-    const response = await axiosInstance.get(API_URL)
-    return AmenityMapper.toEntityList(response.data)
+    const response = await axiosInstance.get(API_URL, {
+      params: { page, pageSize }
+    })
+    return response.data
   } catch (error) {
     console.error('Erro ao buscar amenities:', error)
     throw error

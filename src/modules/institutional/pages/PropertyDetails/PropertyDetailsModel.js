@@ -23,24 +23,24 @@ const REGION_PHOTOS = {
 }
 
 export class RealStateDetailsModel {
-  #realEstateAdvertisement
-  #relatedRealEstateAdvertisements
+  #advertisement
+  #relatedAdvertisements
   #region
   #isLoading = false
   #error = null
 
-  constructor(realStateAdvertisement, relatedRealEstateAdvertisements) {
-    this.#realEstateAdvertisement = realStateAdvertisement
-    this.relatedRealEstateAdvertisements = relatedRealEstateAdvertisements
+  constructor(realStateAdvertisement, relatedAdvertisements) {
+    this.#advertisement = realStateAdvertisement
+    this.relatedAdvertisements = relatedAdvertisements
     this.#region = this.#fetchRegion()
   }
 
-  get relatedRealEstateAdvertisements() {
-    return this.#relatedRealEstateAdvertisements
+  get relatedAdvertisements() {
+    return this.#relatedAdvertisements
   }
 
-  get realEstateAdvertisement() {
-    return this.#realEstateAdvertisement
+  get Advertisement() {
+    return this.#advertisement
   }
 
   get region() {
@@ -55,12 +55,12 @@ export class RealStateDetailsModel {
     return this.#error
   }
 
-  set relatedRealEstateAdvertisements(value) {
-    this.#relatedRealEstateAdvertisements = value
+  set relatedAdvertisements(value) {
+    this.#relatedAdvertisements = value
   }
 
-  set realEstateAdvertisement(value) {
-    this.#realEstateAdvertisement = value
+  set Advertisement(value) {
+    this.#advertisement = value
   }
 
   set region(value) {
@@ -76,7 +76,7 @@ export class RealStateDetailsModel {
   }
 
   #fetchRegion() {
-    const city = this.#realEstateAdvertisement?.estate?.address?.region?.toLowerCase() || ''
+    const city = this.#advertisement?.estate?.address?.region?.toLowerCase() || ''
     for (const region of REGIONS_LIST) {
       if (city.includes(region)) {
         return {

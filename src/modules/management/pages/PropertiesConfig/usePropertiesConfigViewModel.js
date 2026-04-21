@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/realEstateAdvertisementService'
-import { listAllFeatures } from '@api-penelopec/featureAPI'
+import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/advertisementService'
+import { getAllAmenities } from '@service-penelopec/amenitiesService'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
@@ -110,7 +110,7 @@ export const usePropertiesConfigViewModel = () => {
       const propertyModel = PropertyConfigModel.fromAdvertisementEntity(currentAdvertisement)
       const currentFormData = propertyModel.toFormData()
 
-      const amenities = await listAllFeatures()
+      const amenities = await getAllAmenities()
 
       const disableRequest = propertyModel.toApiRequest({
         ...currentFormData,
@@ -187,40 +187,40 @@ export const usePropertiesConfigViewModel = () => {
   }, [lancamentos, disponiveis, emObras])
 
   // Filter properties based on filterModel
-  const filterRealEstateAdvertisements = useCallback((realEstateAdvertisements) => {
-    let filtered = [...realEstateAdvertisements]
+  const filterAdvertisements = useCallback((advertisements) => {
+    let filtered = [...advertisements]
 
     // Search filter
     const searchTerm = filterModel.searchTerm
     if (searchTerm?.trim()) {
       const searchLower = searchTerm.toLowerCase()
-      filtered = filtered.filter(realEstateAdvertisement =>
-        (realEstateAdvertisement?.estate?.address?.city ?? '').toLowerCase().includes(searchLower) ||
-        (realEstateAdvertisement?.estate?.address?.neighborhood ?? '').toLowerCase().includes(searchLower) ||
-        (realEstateAdvertisement?.estate?.address?.uf ?? '').toLowerCase().includes(searchLower) ||
-        (realEstateAdvertisement?.estate?.address?.region ?? '').toLowerCase().includes(searchLower) ||
-        (realEstateAdvertisement?.estate?.description ?? '').toLowerCase().includes(searchLower) ||
-        (realEstateAdvertisement?.estate?.title ?? '').toLowerCase().includes(searchLower)
+      filtered = filtered.filter(advertisement =>
+        (advertisement?.estate?.address?.city ?? '').toLowerCase().includes(searchLower) ||
+        (advertisement?.estate?.address?.neighborhood ?? '').toLowerCase().includes(searchLower) ||
+        (advertisement?.estate?.address?.uf ?? '').toLowerCase().includes(searchLower) ||
+        (advertisement?.estate?.address?.region ?? '').toLowerCase().includes(searchLower) ||
+        (advertisement?.estate?.description ?? '').toLowerCase().includes(searchLower) ||
+        (advertisement?.estate?.title ?? '').toLowerCase().includes(searchLower)
       )
     }
 
     // Region filter
     const regionFilter = filterModel.getFilter('regionFilter')
     if (regionFilter && regionFilter !== 'TODAS' && regionFilter !== 'ALL') {
-      filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.region ?? '').toLowerCase() === regionFilter.toLowerCase())
+      filtered = filtered.filter(advertisement => (advertisement?.estate?.address?.region ?? '').toLowerCase() === regionFilter.toLowerCase())
     }
 
     // City filter
     const cityFilter = filterModel.getFilter('cityFilter')
     if (cityFilter && cityFilter !== 'TODAS' && cityFilter !== 'ALL') {
-      filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.city ?? '').toLowerCase() === cityFilter.toLowerCase())
+      filtered = filtered.filter(advertisement => (advertisement?.estate?.address?.city ?? '').toLowerCase() === cityFilter.toLowerCase())
     }
 
     // Status filter
     const statusFilter = filterModel.getFilter('statusFilter')
     if (statusFilter && statusFilter !== 'TODOS') {
-      filtered = filtered.filter(realEstateAdvertisement => {
-        const isEnabled = realEstateAdvertisement?.active ?? true
+      filtered = filtered.filter(advertisement => {
+        const isEnabled = advertisement?.active ?? true
         if (statusFilter === 'HABILITADOS') {
           return isEnabled
         } else if (statusFilter === 'DESABILITADOS') {
@@ -243,18 +243,18 @@ export const usePropertiesConfigViewModel = () => {
   // Apply filters to each category
   const filteredLancamentos = useMemo(() => {
     const typeFilter = filterModel.getFilter('typeFilter')
-    return typeFilter === 'TODOS' || typeFilter === 'LANCAMENTOS' ? filterRealEstateAdvertisements(lancamentos) : []
-  }, [lancamentos, filterModel, filterRealEstateAdvertisements])
+    return typeFilter === 'TODOS' || typeFilter === 'LANCAMENTOS' ? filterAdvertisements(lancamentos) : []
+  }, [lancamentos, filterModel, filterAdvertisements])
 
   const filteredDisponiveis = useMemo(() => {
     const typeFilter = filterModel.getFilter('typeFilter')
-    return typeFilter === 'TODOS' || typeFilter === 'DISPONIVEIS' ? filterRealEstateAdvertisements(disponiveis) : []
-  }, [disponiveis, filterModel, filterRealEstateAdvertisements])
+    return typeFilter === 'TODOS' || typeFilter === 'DISPONIVEIS' ? filterAdvertisements(disponiveis) : []
+  }, [disponiveis, filterModel, filterAdvertisements])
 
   const filteredEmObras = useMemo(() => {
     const typeFilter = filterModel.getFilter('typeFilter')
-    return typeFilter === 'TODOS' || typeFilter === 'EM_OBRAS' ? filterRealEstateAdvertisements(emObras) : []
-  }, [emObras, filterModel, filterRealEstateAdvertisements])
+    return typeFilter === 'TODOS' || typeFilter === 'EM_OBRAS' ? filterAdvertisements(emObras) : []
+  }, [emObras, filterModel, filterAdvertisements])
 
   return {
     lancamentos: filteredLancamentos,

@@ -367,7 +367,7 @@ export function PropertyConfigView() {
       <AlertView
         isVisible={showDeleteConfirmation}
         type="warning"
-        message="Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site."
+        message="Tem certeza que deseja deletar esta propriedade permanentemente? Esta ação não poderá ser desfeita."
         hasCloseButton={false}
         onClose={() => setShowDeleteConfirmation(false)}
         buttonsLayout="col"
@@ -395,7 +395,7 @@ export function PropertyConfigView() {
             width="fit"
             disabled={submitting}
           >
-            Desabilitar
+            {submitting ? 'Deletando...' : 'Deletar'}
           </ButtonView>
         </div>
       </AlertView>

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllAdvertisements  } from '@service-penelopec/realEstateAdvertisementService'
+import { getAdvertisementById, listAllAdvertisements  } from '@service-penelopec/advertisementService'
 import { RealStateDetailsModel } from './PropertyDetailsModel'
 
 /**
@@ -103,12 +103,15 @@ export function usePropertyDetailsViewModel() {
   }, [fetchAdvertisement])
 
   // Usa o model para mapear os dados apenas quando necessário
-  const propertyDetails = new RealStateDetailsModel(advertisement, relatedAdvertisements)
+  const propertyDetails = useMemo(
+    () => new RealStateDetailsModel(advertisement, relatedAdvertisements),
+    [advertisement, relatedAdvertisements]
+  )
 
   return {
     // Dados principais
-    realEstateAdvertisement : propertyDetails.realEstateAdvertisement,
-    relatedRealEstateAdvertisements : propertyDetails.relatedRealEstateAdvertisements,
+    advertisement : propertyDetails.Advertisement,
+    relatedAdvertisements : propertyDetails.relatedAdvertisements,
     region: propertyDetails.region,
 
     // Estado

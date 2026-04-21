@@ -18,19 +18,26 @@ import { AccountView } from '@management/pages/Account/AccountView'
 import { AmenitiesView } from '@management/pages/Amenities/AmenitiesView'
 import { NotFoundView } from '@shared/pages/NotFound/NotFoundView'
 import { UnauthorizedView } from '@shared/pages/Unauthorized/UnauthorizedView'
-import { LoadingView } from '@shared/pages/Loading/LoadingView'
+import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionView'
 import { useRouter } from './useRouterViewModel'
 
 /**
  * ProtectedRoute - Wrapper para rotas protegidas
+ *
+ * Renderiza:
+ * - AuthTransitionView: enquanto verifica autenticação
+ * - Redirect: se não autenticado e sem permissão
+ * - Children: se autenticado e com permissão
  */
 const ProtectedRoute = ({ protection, children }) => {
   const { shouldRender, redirectTo } = protection
 
+  // Enquanto carrega a verificação de auth
   if (!shouldRender && !redirectTo) {
-    return <LoadingView />
+    return <AuthTransitionView status="verifying" message="Verificando acesso..." />
   }
 
+  // Sem permissão, redireciona
   if (!shouldRender && redirectTo) {
     return <Navigate to={redirectTo} replace />
   }

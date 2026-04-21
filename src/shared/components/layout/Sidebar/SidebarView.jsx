@@ -84,6 +84,10 @@ export function SidebarView({ isAdmin = false, initialOpen = false }) {
           {/* Logo - Changes based on sidebar state */}
           <Link
             to={viewModel.homeRoute}
+            onClick={(e) => {
+              e.preventDefault()
+              viewModel.navigateTo(viewModel.homeRoute)
+            }}
             className="inline-block transform transition-all duration-500 hover:scale-110 flex-shrink-0"
             title="Ir para home"
           >

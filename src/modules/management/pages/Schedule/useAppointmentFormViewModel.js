@@ -5,8 +5,8 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { AppointmentFormModel } from './AppointmentFormModel'
-import { getAllAdvertisements } from '@app/api/penelopec/realEstateAdvertisementAPI'
-import { createAppointment } from '@app/api/calservice/appointmentCalApi'
+import { getAllAdvertisements } from '@api-penelopec/advertisementAPI'
+import { createAppointment } from '@api-calservice/appointmentCalApi'
 
 export function useAppointmentFormViewModel(initialDate, initialHour, allAppointments = []) {
   const [model, setModel] = useState(() => {

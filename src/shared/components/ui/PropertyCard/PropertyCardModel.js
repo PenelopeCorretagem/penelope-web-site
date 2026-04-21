@@ -1,35 +1,35 @@
 import { REAL_STATE_CARD_CATEGORIES } from '@constant/realStateCardCategories'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
-import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
+import { Advertisement } from '@dtos/Advertisement'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { RouterModel } from '@app/routes/RouterModel'
-import { updateAdvertisementStatus } from '@service-penelopec/realEstateAdvertisementService'
+import { updateAdvertisementStatus } from '@service-penelopec/AdvertisementService'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
 import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 
-const defaultButton = (realEstateAdvertisementId) => new ButtonModel(
+const defaultButton = (advertisementId) => new ButtonModel(
   'Saiba Mais',
   'pink',
   'link',
-  generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: realEstateAdvertisementId }),
+  generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisementId }),
   'rectangle',
   'Saiba Mais'
 )
 
-const editButton = (realEstateAdvertisementId) => new ButtonModel(
+const editButton = (advertisementId) => new ButtonModel(
   'Editar Imóvel',
   'pink',
   'link',
-  generateRoute(ROUTES['ADMIN_PROPERTIES_CONFIG'].key, { id: realEstateAdvertisementId }),
+  generateRoute(ROUTES['ADMIN_PROPERTIES_CONFIG'].key, { id: advertisementId }),
   'square',
   'Editar Imóvel'
 )
 
-const scheduleButton = (realEstateAdvertisement) => {
-  const propertyTitle = realEstateAdvertisement.estate?.title || 'imovel'
+const scheduleButton = (advertisement) => {
+  const propertyTitle = advertisement.estate?.title || 'imovel'
   const propertySlug = generateSlug(propertyTitle)
   const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?property=${propertySlug}`
 
@@ -90,10 +90,10 @@ const validateRealStateCardMode = (mode) => {
   }
 }
 
-/** Valida se o objeto é uma instância de RealEstateAdvertisement */
-const validateRealEstateAdvertisementInstance = (realEstateAdvertisement) => {
-  if (!(realEstateAdvertisement instanceof RealEstateAdvertisement)) {
-    throw new Error(`O realEstateAdvertisement: ${realEstateAdvertisement} não é uma instância válida`)
+/** Valida se o objeto é uma instância de Advertisement */
+const validateAdvertisementInstance = (advertisement) => {
+  if (!(advertisement instanceof Advertisement)) {
+    throw new Error(`O Advertisement: ${advertisement} não é uma instância válida`)
   }
 }
 
@@ -104,7 +104,7 @@ const validateRealEstateAdvertisementInstance = (realEstateAdvertisement) => {
  * e callbacks de edição/deleção.
  */
 export class PropertyCardModel {
-  #realEstateAdvertisement
+  #advertisement
   #realStateCardMode
   #realStateCardCategory
   #realStateCardButtons = []
@@ -125,7 +125,7 @@ export class PropertyCardModel {
   #onRequestSoftDeleteConfirmation
 
   constructor({
-    realEstateAdvertisement,
+    advertisement,
     realStateCardMode = REAL_STATE_CARD_MODES.DEFAULT,
     onWhatsAppClick = null,
     onGalleryClick = null,
@@ -135,10 +135,10 @@ export class PropertyCardModel {
     onSoftDeleteError = null,
     onRequestSoftDeleteConfirmation = null
   }) {
-    validateRealEstateAdvertisementInstance(realEstateAdvertisement)
+    validateAdvertisementInstance(advertisement)
     validateRealStateCardMode(realStateCardMode)
 
-    this.#realEstateAdvertisement = realEstateAdvertisement
+    this.#advertisement = advertisement
     this.#realStateCardMode = realStateCardMode
     this.#onWhatsAppClick = onWhatsAppClick
     this.#onGalleryClick = onGalleryClick
@@ -148,23 +148,23 @@ export class PropertyCardModel {
     this.#onSoftDeleteError = onSoftDeleteError
     this.#onRequestSoftDeleteConfirmation = onRequestSoftDeleteConfirmation
     this.#realStateCardCategory = new LabelModel(
-      REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
-      REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
+      REAL_STATE_CARD_CATEGORIES[this.#advertisement.estate?.type?.key]?.['label'] || 'Imóvel',
+      REAL_STATE_CARD_CATEGORIES[this.#advertisement.estate?.type?.key]?.['variant'] || 'gray',
       'small'
     )
-    this.#realStateCardTitle = realEstateAdvertisement.estate?.title || 'Título não disponível'
-    this.#realStateCardSubtitle = realEstateAdvertisement.estate?.address?.city || 'Cidade não informada'
-    this.#realStateCardDescription = `${realEstateAdvertisement.estate?.area || '?'} m² - ${realEstateAdvertisement.estate?.numberOfRooms || '?'} dormitórios`
-    this.#realStateCardFeatures = realEstateAdvertisement.estate?.features || []
+    this.#realStateCardTitle = this.#advertisement.estate?.title || 'Título não disponível'
+    this.#realStateCardSubtitle = this.#advertisement.estate?.address?.city || 'Cidade não informada'
+    this.#realStateCardDescription = `${this.#advertisement.estate?.area || '?'} m² - ${this.#advertisement.estate?.numberOfRooms || '?'} dormitórios`
+    this.#realStateCardFeatures = this.#advertisement.estate?.features || []
     this.#renderRealStateCardCoverImage = this.shouldRenderRealStateCardCoverImage()
-    this.#realStateCardCoverImageUrl = this.realEstateAdvertisement.estate?.getCoverImageUrl?.()
+    this.#realStateCardCoverImageUrl = this.#advertisement.estate?.getCoverImageUrl?.()
     this.#realStateCardButtons = this.selectRealStateCardButtons()
     this.#renderRealStateCardCategoryLabel = this.shouldRenderRealStateCardCategoryLabel()
     this.#renderRealStateCardFeatures = this.shouldRenderRealStateCardFeatures()
   }
 
   // ===== GETTERS =====
-  get realEstateAdvertisement() { return this.#realEstateAdvertisement }
+  get advertisement() { return this.#advertisement }
   get realStateCardMode() { return this.#realStateCardMode }
   get realStateCardCategory() { return this.#realStateCardCategory }
   get realStateCardButtons() { return this.#realStateCardButtons }
@@ -178,12 +178,12 @@ export class PropertyCardModel {
   get renderRealStateCardFeatures() { return this.#renderRealStateCardFeatures }
 
   // ===== SETTERS =====
-  set realEstateAdvertisement(value) {
-    validateRealEstateAdvertisementInstance(value)
-    this.#realEstateAdvertisement = value
+  set advertisement(value) {
+    validateAdvertisementInstance(value)
+    this.#advertisement = value
     this.#realStateCardCategory = new LabelModel(
-      REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['label'] || 'Imóvel',
-      REAL_STATE_CARD_CATEGORIES[this.#realEstateAdvertisement.estate?.type?.key]?.['variant'] || 'gray',
+      REAL_STATE_CARD_CATEGORIES[this.#advertisement.estate?.type?.key]?.['label'] || 'Imóvel',
+      REAL_STATE_CARD_CATEGORIES[this.#advertisement.estate?.type?.key]?.['variant'] || 'gray',
       'small'
     )
     this.#realStateCardTitle = value.estate?.title || 'Título não disponível'
@@ -212,12 +212,12 @@ export class PropertyCardModel {
   set realStateCardCoverImageUrl(value) { this.#realStateCardCoverImageUrl = value }
 
   // Soft-delete method: faz a confirmação, chama a API e emite evento global para sincronização
-  async softDelete(nextActiveStatus = !this.#realEstateAdvertisement.active) {
+  async softDelete(nextActiveStatus = !this.#advertisement.active) {
     try {
       // Chama o endpoint de atualização de status
-      await updateAdvertisementStatus(this.#realEstateAdvertisement.id, nextActiveStatus)
+      await updateAdvertisementStatus(this.#advertisement.id, nextActiveStatus)
 
-      this.#realEstateAdvertisement.active = nextActiveStatus
+      this.#advertisement.active = nextActiveStatus
 
       if (typeof this.#onSoftDeleteSuccess === 'function') {
         this.#onSoftDeleteSuccess(`Propriedade ${nextActiveStatus ? 'habilitada' : 'desabilitada'} com sucesso!`)
@@ -235,7 +235,7 @@ export class PropertyCardModel {
   selectRealStateCardButtons() {
     const buttons = []
     if (this.#realStateCardMode === REAL_STATE_CARD_MODES.CONFIG) {
-      buttons.push(editButton(this.#realEstateAdvertisement.id))
+      buttons.push(editButton(this.#advertisement.id))
       buttons.push(new ButtonModel(
         'Excluir Imóvel',
         'soft-brown',
@@ -251,13 +251,13 @@ export class PropertyCardModel {
       ))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.REDIRECTION) {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))
-      buttons.push(scheduleButton(this.#realEstateAdvertisement))
+      buttons.push(scheduleButton(this.#advertisement))
     } else if (this.#realStateCardMode === REAL_STATE_CARD_MODES.DETAILS) {
       buttons.push(galleryButton(this.#onGalleryClick))
       buttons.push(floorplanButton(this.#onFloorplanClick))
       buttons.push(videoButton(this.#onVideoClick))
     } else {
-      buttons.push(defaultButton(this.#realEstateAdvertisement.id))
+      buttons.push(defaultButton(this.#advertisement.id))
     }
     return buttons
   }
