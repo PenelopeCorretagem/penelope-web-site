@@ -22,7 +22,7 @@ export function PropertyTabsView({ tabs, anchors }) {
       role="tablist"
       aria-label="Property sections navigation"
     >
-      <ul className="flex items-center justify-start gap-subsection md:gap-subsection-md">
+      <ul className="flex items-center justify-between md:justify-start gap-2 md:gap-subsection md:gap-subsection-md flex-wrap md:flex-nowrap">
         {tabsData.map(({ tab, anchor, isActive }) => (
           <li key={anchor} role="none">
             <button
@@ -40,7 +40,7 @@ export function PropertyTabsView({ tabs, anchors }) {
             >
               <HeadingView
                 level={5}
-                className="transition-colors duration-200 !text-current"
+                className="transition-colors duration-200 !text-current text-xs md:text-base"
               >
                 {tab}
               </HeadingView>

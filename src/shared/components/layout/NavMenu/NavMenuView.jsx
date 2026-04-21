@@ -124,8 +124,16 @@ export function NavMenuView({
     )
   }
 
+  // Ordem das seções no mobile para grid 2 colunas equilibrada (Geral|Contatos, Vendas|Acesso)
+  const mobileOrderClasses = {
+    geral: 'order-1 md:order-none',
+    contatos: 'order-2 md:order-none',
+    vendas: 'order-3 md:order-none',
+    acesso: 'order-4 md:order-none'
+  }
+
   const renderFooterSection = (sectionName, items) => (
-    <div key={sectionName} className={viewModel.getFooterSectionClasses()}>
+    <div key={sectionName} className={viewModel.getFooterSectionClasses() + ' ' + (mobileOrderClasses[sectionName] || '')}>
       <HeadingView level={6} className='text-distac-primary font-extrabold'>
         {getSectionTitle(sectionName)}
       </HeadingView>
@@ -185,7 +193,7 @@ export function NavMenuView({
   if (variant === 'footer') {
     return (
       <div className={viewModel.getFooterClasses()}>
-        <div className='flex flex-col items-center md:items-start justify-between h-24'>
+        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-2 md:col-span-1'>
           <LogoView hasHoverEffect={true} />
           <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
             Seu sonho começa com uma chave
@@ -202,17 +210,52 @@ export function NavMenuView({
   // Navigation variant
   return (
     <nav className={viewModel.getMenuContainerClasses(className)}>
-      <button
-        onClick={viewModel.toggleMobileMenu}
-        className={`${viewModel.getHamburgerClasses()} lg:hidden`}
-        aria-label='Toggle menu'
+      {/* Mobile: header com logo e hamburger (escondido em md+) */}
+      <div
+        className="flex items-center w-full justify-between md:hidden"
+        style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
       >
-        {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
-      </button>
+        {!hideLogo && (
+          <Link
+            to='/'
+            className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
+            style={{marginLeft: 0, padding: 0}}
+          >
+            <LogoView height={'40'} className='text-distac-primary fill-current' />
+          </Link>
+        )}
+        <button
+          onClick={viewModel.toggleMobileMenu}
+          className={viewModel.getHamburgerClasses()}
+          aria-label={viewModel.isMobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+          style={{marginRight: 0, padding: 0}}
+        >
+          {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
+        </button>
+      </div>
+
+      {/* Mobile: dropdown do menu (escondido em md+, via tema) */}
+      {viewModel.isMobileMenuOpen && (
+        <div className={viewModel.getMenuItemsClasses(true) + ' items-center text-center'}>
+          {viewModel.menuItems.map(renderMenuItem)}
+          {!isAuthenticated && (
+            <Link
+              to={viewModel.userActions.find(action => action.id === 'login' || action.route === '/login')?.route || '/login'}
+              onClick={viewModel.handleItemClick}
+              className="px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base text-default-dark hover:text-distac-primary mt-2 justify-center"
+            >
+              {renderIcon('User')}
+              <span>Acessar</span>
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Desktop: logo (escondida no mobile) */}
       {!hideLogo && (
         <Link
           to='/'
-          className={`inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
+          className={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
             hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
           }`}
         >
@@ -220,12 +263,14 @@ export function NavMenuView({
         </Link>
       )}
 
-      <div className={viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen)}>
+      {/* Desktop: itens do menu (hidden md:flex via tema) */}
+      <div className={viewModel.getMenuItemsClasses(false)}>
         {viewModel.menuItems.map(renderMenuItem)}
       </div>
 
+      {/* Desktop: botão de usuário (hidden md:flex via tema) */}
       {!isAuthenticated && (
-        <div className={viewModel.getUserActionsClasses(viewModel.isMobileMenuOpen)}>
+        <div className={viewModel.getUserActionsClasses(false)}>
           {viewModel.userActions
             .filter(action => action.id === 'login' || action.route === '/login')
             .map(renderUserAction)

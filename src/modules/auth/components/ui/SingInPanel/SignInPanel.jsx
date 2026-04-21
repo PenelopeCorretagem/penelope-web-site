@@ -3,7 +3,7 @@ import { TextView } from '@shared/components/ui/Text/TextView'
 import { PanelHeader } from '../PanelHeader/PanelHeader'
 import { getAuthFormContainerThemeClasses, getAuthBackButtonThemeClasses, getAuthLinkContainerThemeClasses, getAuthLinkButtonThemeClasses, getAuthSignInPanelThemeClasses } from '@shared/styles/theme'
 
-export function SignInPanel({ isActive, signInFormConfig, isLoading, onForgotPassword, onLoginSubmit }) {
+export function SignInPanel({ isActive, signInFormConfig, isLoading, onForgotPassword, onLoginSubmit, onRegister }) {
   return (
     <div className={getAuthSignInPanelThemeClasses({ isActive })}>
       <div className={getAuthBackButtonThemeClasses({ variant: 'signIn' })}>
@@ -27,6 +27,16 @@ export function SignInPanel({ isActive, signInFormConfig, isLoading, onForgotPas
             className={getAuthLinkButtonThemeClasses()}
           >
             Redefinir senha
+          </button>
+        </TextView>
+
+        <TextView className={getAuthLinkContainerThemeClasses({ className: 'mt-4 md:hidden' })}>
+          Não tem conta?
+          <button
+            onClick={onRegister}
+            className={getAuthLinkButtonThemeClasses()}
+          >
+            Cadastre-se
           </button>
         </TextView>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { PropertyTabsView } from '@institutional/components/PropertyTabs/PropertyTabsView.jsx'
 import { SectionView } from '@shared/components/layout/Section/SectionView.jsx'
 import { PropertyLocation } from '@institutional/components/PropertyLocation/PropertyLocation.jsx'
@@ -32,6 +32,33 @@ export function PropertyDetailsView() {
   const [tabsHeight, setTabsHeight] = useState(60)
   const [sectionPadding, setSectionPadding] = useState(20)
   const [isScreeningFormOpen, setIsScreeningFormOpen] = useState(false)
+
+  const diferenciaisRef = useRef(null)
+  const [diferenciaisProgress, setDiferenciaisProgress] = useState(0)
+  const [isDiferenciaisScrollable, setIsDiferenciaisScrollable] = useState(false)
+
+  const updateDiferenciaisProgress = useCallback(() => {
+    const el = diferenciaisRef.current
+    if (!el) return
+    const maxScroll = el.scrollWidth - el.clientWidth
+    setIsDiferenciaisScrollable(maxScroll > 1)
+    if (maxScroll <= 1) { setDiferenciaisProgress(0); return }
+    const progress = (el.scrollLeft / maxScroll) * 100
+    setDiferenciaisProgress(Math.min(100, Math.max(0, progress)))
+  }, [])
+
+  useEffect(() => {
+    const el = diferenciaisRef.current
+    if (!el) return
+    el.addEventListener('scroll', updateDiferenciaisProgress)
+    const observer = new ResizeObserver(() => updateDiferenciaisProgress())
+    observer.observe(el)
+    updateDiferenciaisProgress()
+    return () => {
+      el.removeEventListener('scroll', updateDiferenciaisProgress)
+      observer.disconnect()
+    }
+  }, [updateDiferenciaisProgress, realEstateAdvertisement])
 
   useEffect(() => {
     const calculateHeights = () => {
@@ -140,35 +167,46 @@ export function PropertyDetailsView() {
       {/* === WRAPPER LIMITADOR === */}
       <div id="property-content-wrapper" className="relative z-10">
         <div className="relative">
-          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-8 text-distac-primary">
+          <SectionView id="sobre-imovel" className="bg-default-light relative flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-8 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre o Imóvel
             </HeadingView>
-            <TextView className="text-default-dark-muted leading-relaxed">
+            <TextView className="text-default-dark-muted leading-relaxed text-center md:text-left">
               {realEstateAdvertisement.estate?.description}
             </TextView>
           </SectionView>
 
-          <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <div>
-              <HeadingView level={2} className="text-distac-primary mb-10">
-                Diferenciais
-              </HeadingView>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr max-w-4xl">
-                {realEstateAdvertisement.estate?.features?.map((feature) => (
-                  <div key={feature.id} className="h-full">
-                    <PropertyFeatureView feature={feature} />
-                  </div>
-                ))}
-              </div>
+          <SectionView id="diferenciais" className="bg-default-light-alt lg:!pr-[544px] !flex-col !items-center md:!items-start">
+            <HeadingView level={2} className="text-distac-primary mb-10 text-center md:text-left max-md:!w-full">
+              Diferenciais
+            </HeadingView>
+            <div
+              ref={diferenciaisRef}
+              className="w-full grid grid-flow-col grid-rows-5 auto-cols-[100%] overflow-x-auto scrollbar-hide gap-3 pb-2 scroll-smooth snap-x snap-mandatory md:grid-flow-row md:grid-cols-3 md:auto-cols-auto md:grid-rows-none md:gap-6 md:auto-rows-fr md:max-w-4xl md:overflow-visible md:snap-none"
+            >
+              {realEstateAdvertisement.estate?.features?.map((feature, index) => (
+                <div key={feature.id} className="snap-start md:h-full">
+                  <PropertyFeatureView feature={feature} />
+                </div>
+              ))}
             </div>
+            {realEstateAdvertisement.estate?.features?.length > 5 && (
+              <div className="w-full mt-4 md:hidden">
+                <div className="w-full bg-default-light-muted rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="bg-distac-primary h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${diferenciaisProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </SectionView>
 
-          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="text-default-light mb-10">
+          <SectionView id="localizacao" className="bg-distac-gradient flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="text-default-light mb-10 text-center md:text-left max-md:!w-full">
               Localização
             </HeadingView>
-            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
+            <div className={`grid gap-8 auto-rows-fr ${realEstateAdvertisement.estate?.address && realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1 md:grid-cols-2' : realEstateAdvertisement.estate?.address || realEstateAdvertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
 
               {realEstateAdvertisement.estate?.address && (
               <PropertyLocation
@@ -186,11 +224,11 @@ export function PropertyDetailsView() {
             </div>
           </SectionView>
 
-          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md !pr-[544px]">
-            <HeadingView level={2} className="mb-10 text-distac-primary">
+          <SectionView id="sobre-regiao" className="bg-default-light-alt flex-col !gap-subsection md:!gap-subsection-md lg:!pr-[544px]">
+            <HeadingView level={2} className="mb-10 text-distac-primary text-center md:text-left max-md:!w-full">
               Sobre a Região
             </HeadingView>
-            <TextView className="text-default-dark-muted leading-relaxed">
+            <TextView className="text-default-dark-muted leading-relaxed text-center md:text-left">
               {region.description}
             </TextView>
             <ImageView src={region.imageUrl} alt="Região" description={region.description} className="max-h-96" />

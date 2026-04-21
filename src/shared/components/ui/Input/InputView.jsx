@@ -77,7 +77,11 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
       'placeholder:leading-none',
       'placeholder:font-default',
       'placeholder:p-0',
-      'placeholder:m-0'
+      'placeholder:m-0',
+      'text-center',
+      'md:text-left',
+      'placeholder:text-center',
+      'md:placeholder:text-left'
     )
 
     // Estados
@@ -134,6 +138,8 @@ function getLabelClasses({ hasErrors, required }) {
     'text-form-control',
     'leading-none',
     'md:text-form-control-md',
+    'text-center',
+    'md:text-left',
   )
 
   // Estado de erro
