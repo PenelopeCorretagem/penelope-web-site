@@ -23,6 +23,13 @@ export function PageView() {
     currentRoute === route || currentRoute.startsWith('/redefinir-senha/')
   )
 
+  // ✅ Rotas administrativas/privadas onde footer não deve aparecer
+  const adminRoutes = ['/admin', '/agenda']
+  const isAdminPage = adminRoutes.some(route => currentRoute.startsWith(route))
+
+  // ✅ Deve mostrar footer apenas em páginas públicas (não auth, não admin)
+  const shouldShowFooter = !isAuthPage && !isAdminPage
+
   // Sidebar aparece para usuários autenticados em todas as páginas, exceto páginas de autenticação
   const shouldShowSidebar = isAuthenticated && !isAuthPage
 
@@ -134,7 +141,7 @@ export function PageView() {
         <div className='flex-1 overflow-x-hidden overflow-y-auto'>
           <RouterView isAuthenticated={isAuthenticated} isAdmin={isAdmin} authReady={authReady} />
           <ChatbotView />
-          {!isAuthPage && <FooterView isAuthenticated={isAuthenticated} />}
+          {shouldShowFooter && <FooterView isAuthenticated={isAuthenticated} />}
         </div>
       </div>
     </div>

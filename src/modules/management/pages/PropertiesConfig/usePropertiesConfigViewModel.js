@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@app/services/api/realEstateAdvertisementAPI'
+import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/realEstateAdvertisementService'
+import { listAllFeatures } from '@api-penelopec/featureAPI'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
 
@@ -19,6 +20,8 @@ export const usePropertiesConfigViewModel = () => {
   const [cityFilter, setCityFilter] = useState('TODAS')
   const [typeFilter, setTypeFilter] = useState('TODOS')
   const [sortOrder, setSortOrder] = useState('none')
+  const [alertConfig, setAlertConfig] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // helper to compare arrays by id to avoid unnecessary setState calls
   const arePropertyArraysEqual = useCallback((a = [], b = []) => {
@@ -73,7 +76,7 @@ export const usePropertiesConfigViewModel = () => {
   useEffect(() => {
     const onPropertySoftDeleted = (e) => {
       // opcional: log para depuração
-      console.log('🟢 propertySoftDeleted event received for id:', e?.detail?.id)
+
       // Recarregar os anúncios
       fetchAdvertisements()
     }
@@ -82,7 +85,7 @@ export const usePropertiesConfigViewModel = () => {
   }, [fetchAdvertisements])
 
   const handleEdit = useCallback((id) => {
-    console.log('Editing property:', id)
+
     try {
       const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id })
       navigate(route)
@@ -93,48 +96,62 @@ export const usePropertiesConfigViewModel = () => {
     }
   }, [navigate, generateRoute])
 
-  const handleDelete = useCallback(async (id) => {
-    console.log('🗑️ [PROPERTIES CONFIG VM] Soft deleting property:', id)
-
-    if (!window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
-      return
-    }
-
+  const executeDelete = useCallback(async (id) => {
     try {
-      setLoading(true)
+      setIsDeleting(true)
 
-      // First, get the current advertisement data
-      console.log('🔄 [PROPERTIES CONFIG VM] Fetching current advertisement data for ID:', id)
       const currentAdvertisement = await getAdvertisementById(id)
 
-      // Convert to PropertyConfigModel to get proper format
       const propertyModel = PropertyConfigModel.fromAdvertisementEntity(currentAdvertisement)
       const currentFormData = propertyModel.toFormData()
 
-      // Create update request with active set to false
+      const amenities = await listAllFeatures()
+
       const disableRequest = propertyModel.toApiRequest({
         ...currentFormData,
-        active: false // Set active to false for soft delete
-      })
-
-      console.log('🔄 [PROPERTIES CONFIG VM] Disabling advertisement with data:', disableRequest)
+        active: false
+      }, [], amenities)
 
       await updateAdvertisement(id, disableRequest)
-
-      console.log('✅ [PROPERTIES CONFIG VM] Property deactivated successfully')
-
-      // Recarregar os dados após exclusão
       await fetchAdvertisements()
 
-      // Simple toast notification
-      alert('Propriedade desabilitada com sucesso!')
+      setAlertConfig({
+        type: 'success',
+        message: 'Propriedade desabilitada com sucesso!'
+      })
     } catch (err) {
       console.error('❌ [PROPERTIES CONFIG VM] Delete failed:', err)
-      alert(`Erro ao desabilitar propriedade: ${err.message}`)
+      setAlertConfig({
+        type: 'error',
+        message: `Erro ao desabilitar propriedade: ${err.message}`
+      })
     } finally {
-      setLoading(false)
+      setIsDeleting(false)
     }
   }, [fetchAdvertisements])
+
+  const handleDelete = useCallback((id) => {
+    setAlertConfig({
+      type: 'warning',
+      isConfirm: true,
+      message: 'Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.',
+      confirmText: 'Desabilitar',
+      confirmColor: 'pink',
+      propertyId: id,
+    })
+  }, [])
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!alertConfig?.isConfirm || !alertConfig?.propertyId || isDeleting) return
+
+    const { propertyId } = alertConfig
+    setAlertConfig(null)
+    await executeDelete(propertyId)
+  }, [alertConfig, executeDelete, isDeleting])
+
+  const handleCloseAlert = useCallback(() => {
+    setAlertConfig(null)
+  }, [])
 
   const handleSearchChange = useCallback((e) => {
     // Handle both event objects and direct values
@@ -240,6 +257,10 @@ export const usePropertiesConfigViewModel = () => {
     typeFilter,
     sortOrder,
     availableCities,
+    isDeleting,
+    alertConfig,
+    handleCloseAlert,
+    handleConfirmDelete,
     handleEdit,
     handleDelete,
     handleSearchChange,

@@ -1,6 +1,6 @@
 import { featureIconConstant } from '@constant/featureIconConstant'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { Feature } from '@entity/Feature'
+import { Feature } from '@dtos/Feature'
 
 
 export const PropertyFeatureView = ({ feature }) => {
@@ -19,7 +19,7 @@ export const PropertyFeatureView = ({ feature }) => {
 
   return (
     <div
-      className="flex items-center justify-center gap-3 bg-default-dark-light rounded-sm px-4 py-3 w-fit"
+      className="flex items-center justify-center gap-3 bg-default-dark-light rounded-sm px-4 py-3 w-full h-full"
     >
       {IconComponent && (
         <IconComponent className="w-5 h-5 text-default-light flex-shrink-0" />

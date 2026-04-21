@@ -25,13 +25,13 @@ export function TextAreaView({
   const containerClasses = 'w-full flex flex-col gap-2'
 
   // Label classes
-  const baseLabelClasses = 'uppercase font-semibold font-default text-[12px] leading-none md:text-[16px]'
+  const baseLabelClasses = 'uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-center md:text-left'
   const labelStateClass = 'text-default-dark-muted'
   const requiredClass = required ? 'after:content-["*"] after:text-distac-primary after:ml-1' : ''
   const labelClasses = `${baseLabelClasses} ${labelStateClass} ${requiredClass}`.trim()
 
   // Textarea classes
-  const baseTextareaClasses = 'w-full px-4 py-2 rounded-sm transition-colors duration-200 placeholder:text-default-dark-muted placeholder:text-[12px] md:placeholder:text-[16px] placeholder:uppercase placeholder:font-default'
+  const baseTextareaClasses = 'w-full px-4 py-2 rounded-sm transition-colors duration-200 placeholder:text-default-dark-muted placeholder:text-[12px] md:placeholder:text-[16px] placeholder:uppercase placeholder:font-default text-center md:text-left placeholder:text-center md:placeholder:text-left'
 
   let stateClasses = ''
   if (disabled) {

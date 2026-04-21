@@ -1,17 +1,17 @@
+import { useState } from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
+import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { usePropertyConfigViewModel } from './usePropertyConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
-import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function PropertyConfigView() {
   const { id } = useRouteParams()
-
-  console.log('🎨 [PROPERTY CONFIG VIEW] Mounted with ID:', id)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const {
     loading,
-    error,
     initialData,
     submitting,
     isNew,
@@ -19,89 +19,19 @@ export function PropertyConfigView() {
     loadingUsers,
     loadingFeatures,
     features,
+    alertConfig,
+    handleCloseAlert,
     handleSubmit,
     handleDelete,
     handleClear,
     handleCancel
   } = usePropertyConfigViewModel(id)
-
-  console.log('🎨 [PROPERTY CONFIG VIEW] State updated:', {
-    loading,
-    error,
-    isNew,
-    hasInitialData: !!initialData,
-    initialDataKeys: initialData ? Object.keys(initialData) : [],
-    usersCount: usersWithCreci.length,
-    loadingUsers
-  })
-
-  if (initialData) {
-    console.log('🎨 [PROPERTY CONFIG VIEW] Received initialData:', {
-      propertyTitle: initialData.propertyTitle,
-      propertyType: initialData.propertyType,
-      responsible: initialData.responsible,
-      address: {
-        street: initialData.street,
-        city: initialData.city,
-        cep: initialData.cep
-      },
-      differentials: initialData.differentials,
-      // Log detalhado de imagens
-      images: {
-        video: {
-          exists: !!initialData.video,
-          preview: initialData.video?.preview?.substring(0, 100),
-          name: initialData.video?.name,
-          isExisting: initialData.video?.isExisting,
-          url: initialData.video?.url?.substring(0, 100)
-        },
-        cover: {
-          exists: !!initialData.cover,
-          preview: initialData.cover?.preview?.substring(0, 100),
-          name: initialData.cover?.name,
-          isExisting: initialData.cover?.isExisting,
-          url: initialData.cover?.url?.substring(0, 100)
-        },
-        gallery: {
-          count: initialData.gallery?.length || 0,
-          items: initialData.gallery?.map(item => ({
-            name: item?.name,
-            preview: item?.preview?.substring(0, 50),
-            isExisting: item?.isExisting
-          }))
-        },
-        floorPlans: {
-          count: initialData.floorPlans?.length || 0,
-          items: initialData.floorPlans?.map(item => ({
-            name: item?.name,
-            preview: item?.preview?.substring(0, 50),
-            isExisting: item?.isExisting
-          }))
-        }
-      }
-    })
-  }
-
+  
   // Só monta o formulário quando os usuários e features estiverem carregados
   if (loading || loadingUsers || loadingFeatures) {
     return (
       <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
         {loading ? 'Carregando dados da propriedade...' : loadingUsers ? 'Carregando usuários...' : 'Carregando diferenciais...'}
-      </SectionView>
-    )
-  }
-
-  if (error) {
-    return (
-      <SectionView className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-red-500 gap-4">
-        <p>{error}</p>
-        <ButtonView
-          type="button"
-          color="brown"
-          onClick={handleCancel}
-        >
-          Voltar
-        </ButtonView>
       </SectionView>
     )
   }
@@ -115,7 +45,7 @@ export function PropertyConfigView() {
     }))
   ]
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] Responsible options:', responsibleOptions.map(opt => ({ value: opt.value, label: opt.label })))
+
 
   // Converter features em opções de checkbox
   const featureOptions = features.map(feature => ({
@@ -123,41 +53,41 @@ export function PropertyConfigView() {
     label: feature.description
   }))
 
-  console.log('🎨 [PROPERTY CONFIG VIEW] Feature options:', featureOptions)
+
 
   const steps = [
     {
-      title: 'Etapa 1',
+      title: 'Informações Gerais',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
           fields: [
             {
               name: 'propertyTitle',
               label: 'Título',
               type: 'text',
               required: true,
-              containerClassName: 'w-full md:w-1/2',
+              containerClassName: 'w-full md:col-span-6',
             },
             {
               name: 'displayEndDate',
               label: 'Data Término de Exibição',
               type: 'date',
               required: true,
-              containerClassName: 'w-full md:w-1/4',
+              containerClassName: 'w-full md:col-span-3',
             },
             {
               name: 'active',
               label: 'Ativo',
               type: 'checkbox',
               placeholder: 'Propriedade ativa',
-              containerClassName: 'w-full md:w-1/4',
+              containerClassName: 'w-full md:col-span-3',
             },
           ],
         },
         {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
+          className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
           fields: [
             {
               name: 'propertyType',
@@ -170,7 +100,7 @@ export function PropertyConfigView() {
                 { value: 'LANCAMENTO', label: 'Lançamento' }
               ],
               required: true,
-              containerClassName: 'w-1/2',
+              containerClassName: 'w-full md:col-span-6',
             },
             {
               name: 'responsible',
@@ -178,28 +108,14 @@ export function PropertyConfigView() {
               type: 'select',
               options: responsibleOptions,
               required: true,
-              containerClassName: 'w-1/2',
-            },
-          ],
-        },
-        {
-          className: 'w-full h-full flex-1',
-          fields: [
-            {
-              name: 'cardDescription',
-              label: 'Descritivo do card do imóvel',
-              type: 'textarea',
-              className: 'w-full h-full flex-1',
-              containerClassName: 'w-full h-full flex-1',
-              rows: 3,
-              required: true,
+              containerClassName: 'w-full md:col-span-6',
             },
           ],
         },
       ],
     },
     {
-      title: 'Etapa 2',
+      title: 'Descrição e Características',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -238,7 +154,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 3',
+      title: 'Diferenciais do Imóvel',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -257,7 +173,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 4',
+      title: 'Localização do Imóvel',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -354,7 +270,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 5',
+      title: 'Localização do Stand',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -452,7 +368,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 6',
+      title: 'Vídeo e Capa',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -479,7 +395,7 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Etapa 7',
+      title: 'Galeria de Imagens',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -510,34 +426,67 @@ export function PropertyConfigView() {
   ]
 
   return (
-    <SectionView className="!min-h-[calc(100vh-80px)] !max-h-[calc(100vh-80px)] overflow-y-auto">
-      <WizardFormView
-        title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
-        steps={steps}
-        initialData={initialData}
-        onSubmit={(formData) => {
-          console.log('🎯 [PROPERTY CONFIG VIEW] onSubmit called with formData images:', {
-            videoExists: !!formData.video,
-            coverExists: !!formData.cover,
-            galleryCount: formData.gallery?.length,
-            floorPlansCount: formData.floorPlans?.length,
-            video: formData.video,
-            cover: formData.cover,
-            gallery: formData.gallery,
-            floorPlans: formData.floorPlans
-          })
-          return handleSubmit(formData)
-        }}
-        onDelete={!isNew ? () => {
-          if (window.confirm('Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site.')) {
-            return handleDelete()
-          }
-        } : undefined}
-        onClear={handleClear}
-        onCancel={handleCancel}
-        disabled={submitting}
-        key={id || 'new'}
+    <>
+      <SectionView className="!min-h-[calc(100vh-80px)] !max-h-[calc(100vh-80px)] overflow-y-auto">
+        <WizardFormView
+          title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
+          steps={steps}
+          initialData={initialData}
+          onSubmit={(formData) => {
+            return handleSubmit(formData)
+          }}
+          onDelete={!isNew ? () => setShowDeleteConfirmation(true) : undefined}
+          onClear={handleClear}
+          onCancel={handleCancel}
+          disabled={submitting}
+          key={id || 'new'}
+        />
+      </SectionView>
+
+      {/* Alerta de erro flutuante */}
+      <AlertView
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={handleCloseAlert}
+        hasCloseButton={true}
       />
-    </SectionView>
+
+      <AlertView
+        isVisible={showDeleteConfirmation}
+        type="warning"
+        message="Tem certeza que deseja desabilitar esta propriedade? Ela não aparecerá mais no site."
+        hasCloseButton={false}
+        onClose={() => setShowDeleteConfirmation(false)}
+        buttonsLayout="col"
+      >
+        <div className="flex justify-center gap-card md:gap-card-md w-full">
+          <ButtonView
+            type="button"
+            shape="square"
+            color="border-distac-primary"
+            onClick={() => setShowDeleteConfirmation(false)}
+            width="fit"
+          >
+            Cancelar
+          </ButtonView>
+          <ButtonView
+            type="button"
+            shape="square"
+            color="pink"
+            onClick={async () => {
+              setShowDeleteConfirmation(false)
+              if (handleDelete) {
+                await handleDelete()
+              }
+            }}
+            width="fit"
+            disabled={submitting}
+          >
+            Desabilitar
+          </ButtonView>
+        </div>
+      </AlertView>
+    </>
   )
 }

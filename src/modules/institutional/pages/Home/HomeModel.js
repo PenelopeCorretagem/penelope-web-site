@@ -1,5 +1,5 @@
 import { ESTATE_TYPES } from '@constant/estateTypes'
-import { RealEstateAdvertisement } from '@entity/RealEstateAdvertisement'
+import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
 
 export class HomeModel {
   // ===== PRIVATE FIELDS =====
@@ -52,15 +52,15 @@ export class HomeModel {
 
   /**
    * Seleciona a propriedade em destaque:
-   * 1. emphasis = true
+   * 1. featured = true
    * 2. mais nova (createdAt)
    * 3. fallback: primeira do array
    */
   _filterFeaturedRealEstateAdvertisement(advertisements) {
     this._validateAdvertisementsArray(advertisements)
 
-    const emphasis = advertisements.find(ad => ad.emphasis === true)
-    if (emphasis) return emphasis
+    const featured = advertisements.find(ad => ad.featured === true)
+    if (featured) return featured
 
     const sorted = [...advertisements].sort((a, b) => {
       const da = new Date(a.createdAt || 0)

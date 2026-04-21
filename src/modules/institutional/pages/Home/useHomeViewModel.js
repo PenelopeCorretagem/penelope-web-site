@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { listAllAdvertisements  } from '@api/realEstateAdvertisementAPI'
+import { getAllAdvertisements } from '@service-penelopec/realEstateAdvertisementService'
 import { HomeModel } from './HomeModel'
 import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -20,7 +20,7 @@ export function useHomeViewModel() {
   // ======================
   const fetchLaunchProperties = useCallback(async () => {
     try {
-      const launchAds = await listAllAdvertisements ({
+      const launchAds = await getAllAdvertisements({
         type: ESTATE_TYPES['LANCAMENTO'].key,
         active: true
       })

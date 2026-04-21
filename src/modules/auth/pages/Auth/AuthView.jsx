@@ -59,6 +59,7 @@ export function AuthView() {
           isLoading={isLoading}
           onForgotPassword={handleForgotPasswordClick}
           onLoginSubmit={handleLoginSubmit}
+          onRegister={handleRegisterClick}
         />
 
         {/* Sign Up Form / Forgot Password Form */}
@@ -70,6 +71,7 @@ export function AuthView() {
           forgotPasswordFormConfig={forgotPasswordFormConfig}
           onForgotPassword={handleForgotPasswordClick}
           onBackToLogin={handleBackToLogin}
+          onLogin={handleLoginClick}
           onRegisterSubmit={handleRegisterSubmit}
           onForgotPasswordSubmit={handleForgotPasswordSubmit}
         />
@@ -102,6 +104,7 @@ export function AuthView() {
         isVisible={!!alertConfig}
         type={alertConfig?.type}
         message={alertConfig?.message}
+        hasCloseButton={!alertConfig?.hideCloseButton}
         onClose={alertConfig?.onClose || handleCloseAlert}
         buttonsLayout='col'
       >

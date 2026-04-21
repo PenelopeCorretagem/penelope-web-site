@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ScheduleModel } from './ScheduleModel'
-import { fetchAppointments, mapAppointmentsToModel } from '../../services/appointmentApi'
+import { listAppointments, mapAppointmentsToModel } from '@app/api/calservice/appointmentCalApi'
 
 export function useScheduleViewModel() {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
@@ -16,14 +16,14 @@ export function useScheduleViewModel() {
       try {
         setLoading(true)
         setError(null)
-        const response = await fetchAppointments({ size: 100 })
-        const mapped = mapAppointmentsToModel(response.content || [])
+        const response = await listAppointments({ size: 100 })
+        // cal-service retorna appointments array, não content
+        const mapped = mapAppointmentsToModel(response.appointments || [])
         model.setAppointments(mapped)
         setTotalAppointments(model.getTotal())
         const appts = model.getByDate(selectedDate)
         setAppointmentsForSelectedDate(appts)
       } catch (err) {
-        console.error('Erro ao carregar agendamentos:', err)
         setError(err.message)
       } finally {
         setLoading(false)
@@ -97,6 +97,7 @@ export function useScheduleViewModel() {
     appointmentsForSelectedDate,
     totalAppointments,
     totalAppointmentsToday,
+    allAppointments: model.getAll(),
 
     // Commands for integration
     setAppointments,

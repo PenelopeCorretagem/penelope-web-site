@@ -50,6 +50,7 @@ export class RouterModel {
       ADMIN_USER_EDIT: '/admin/usuarios/:id/editar',
       ADMIN_PROPERTIES: '/admin/gerenciar-imoveis',
       ADMIN_PROPERTIES_CONFIG: '/admin/gerenciar-imoveis/:id',
+      ADMIN_AMENITIES: '/admin/amenities',
       ADMIN_SCHEDULE: '/admin/agenda',
 
       // Rotas de erro
@@ -90,6 +91,7 @@ export class RouterModel {
         this.routes.ADMIN_USER_EDIT,
         this.routes.ADMIN_PROPERTIES,
         this.routes.ADMIN_PROPERTIES_CONFIG,
+        this.routes.ADMIN_AMENITIES,
         this.routes.ADMIN_SCHEDULE,
       ],
     }

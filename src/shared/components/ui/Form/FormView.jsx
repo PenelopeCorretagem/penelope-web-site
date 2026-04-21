@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { TextAreaView } from '@shared/components/ui/TextArea/TextAreaView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
@@ -43,6 +44,7 @@ export function FormView({
   fields = [],
   submitText = 'Enviar',
   submitWidth = 'fit',
+  isLoading: externalLoading,
   onSubmit,
   onChange, // optional external change handler: (fieldName, value)
   footerContent,
@@ -58,7 +60,8 @@ export function FormView({
     hasFooter,
     errorMessages,
     successMessage,
-    isLoading,
+    isLoading: formIsLoading,
+    setLoading,
     formClasses,
     titleClasses,
     subtitleClasses,
@@ -83,7 +86,14 @@ export function FormView({
     errorMessages: initialErrors,
     successMessage: initialSuccess,
     isLoading: initialLoading,
+    controlledLoading: typeof externalLoading === 'boolean',
   })
+
+  useEffect(() => {
+    if (typeof externalLoading === 'boolean' && formIsLoading !== externalLoading) {
+      setLoading(externalLoading)
+    }
+  }, [externalLoading, formIsLoading, setLoading])
 
   return (
     <form onSubmit={handleSubmit} className={formClasses}>
@@ -117,7 +127,7 @@ export function FormView({
               onClick={field.onClick}
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={field.required || false}
-              isActive={!isLoading}
+              isActive={!formIsLoading}
               rows={field.rows || 4}
             >
               {field.label || ''}
@@ -129,6 +139,7 @@ export function FormView({
               type={field.type || 'text'}
               placeholder={field.placeholder || ''}
               value={getFieldValue(field.name)}
+              checked={field.type === 'checkbox' ? getFieldValue(field.name) : undefined}
               onChange={(value, event) => {
                 handleFieldChange(field.name)(value, event)
                 if (onChange) onChange(field.name, value, event)
@@ -137,7 +148,8 @@ export function FormView({
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={field.required || false}
               showPasswordToggle={field.showPasswordToggle || false}
-              isActive={!isLoading}
+              isActive={!formIsLoading}
+              link={field.link}
             >
               {field.label || ''}
             </InputView>
@@ -147,6 +159,13 @@ export function FormView({
           {hasFieldError(field.name) && (
             <div className="text-red-600 text-sm mt-1">
               {getFieldError(field.name)}
+            </div>
+          )}
+
+          {/* Texto auxiliar/informativo */}
+          {field.helperText && (
+            <div className="text-default-dark-muted text-m mt-2 font-bold">
+              {field.helperText}
             </div>
           )}
         </div>
@@ -166,10 +185,10 @@ export function FormView({
       <ButtonView
         type="submit"
         width={submitWidth}
-        disabled={isLoading}
+        disabled={formIsLoading}
         className={submitButtonClasses}
       >
-        {isLoading ? 'Carregando...' : submitText}
+        {formIsLoading ? 'Carregando...' : submitText}
       </ButtonView>
       )}
 

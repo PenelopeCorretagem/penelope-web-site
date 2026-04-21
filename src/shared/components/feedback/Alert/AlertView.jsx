@@ -49,6 +49,9 @@ export function AlertView({
     onClose()
   }, [onClose])
 
+  const visibleActionsCount = (children ? 1 : 0) + (hasCloseButton ? 1 : 0)
+  const rowButtonsAlignment = visibleActionsCount === 1 ? 'justify-center' : 'justify-between'
+
   if (!isVisible) return null
 
   return (
@@ -99,7 +102,7 @@ export function AlertView({
             </>
           )}
           <div className={`flex items-center gap-card md:gap-card-md w-full ${
-            buttonsLayout === 'row' ? 'justify-between' : 'flex-col justify-center'
+            buttonsLayout === 'row' ? rowButtonsAlignment : 'flex-col justify-center'
           }`}
           >
             {children && <div className={buttonsLayout === 'row' ? '' : 'text-center w-full'}>{children}</div>}

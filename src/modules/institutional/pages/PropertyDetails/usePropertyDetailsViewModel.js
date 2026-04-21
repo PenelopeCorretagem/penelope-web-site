@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllAdvertisements  } from '@app/services/api/realEstateAdvertisementAPI'
+import { getAdvertisementById, listAllAdvertisements  } from '@service-penelopec/realEstateAdvertisementService'
 import { RealStateDetailsModel } from './RealStateDetailsModel'
 
 /**
@@ -20,15 +20,16 @@ export function usePropertyDetailsViewModel() {
   // Busca propriedades relacionadas
   const fetchRelatedProperties = useCallback(async (mainAdvertisement) => {
     try {
-      console.log('🔄 [PropertyDetails] Fetching related properties...')
+
       const allAdvertisements = await listAllAdvertisements ()
 
       const mainEstate = mainAdvertisement.estate
       if (!mainEstate) return []
 
       const mainAddress = mainEstate.address || {}
-      const mainCity = mainAddress.city?.toLowerCase() || null
       const mainRegion = (mainAddress.region || '').toLowerCase()
+      const mainRooms = mainEstate.numberOfRooms || null
+      // const mainType = mainEstate.type?.key || null
 
       const related = allAdvertisements
         .filter(item => {
@@ -38,17 +39,27 @@ export function usePropertyDetailsViewModel() {
 
           const itemEstate = item.estate
           const itemAddress = itemEstate.address || {}
-          const itemCity = (itemAddress.city || '').toLowerCase()
           const itemRegion = (itemAddress.region || '').toLowerCase()
+          const itemRooms = itemEstate.numberOfRooms || null
+          // const itemType = itemEstate.type?.key || null
 
-          // Prioritize same city, then same region
-          if (mainCity && itemCity === mainCity) return true
-          if (mainRegion && itemRegion === mainRegion) return true
-          return false
+          // Filtra apenas imóveis na mesma região
+          if (!mainRegion || itemRegion !== mainRegion) return false
+
+          // Filtra pelo mesmo tipo de imóvel
+          // if (mainType && itemType !== mainType) return false
+
+          // Número de quartos semelhante (±1), mas não obrigatório
+          if (mainRooms && itemRooms) {
+            const diffRooms = Math.abs(itemRooms - mainRooms)
+            if (diffRooms > 1) return false
+          }
+
+          return true
         })
         .slice(0, 6)
 
-      console.log('✅ [PropertyDetails] Related properties loaded:', related.length)
+
       return related
     } catch (err) {
       console.warn('⚠️ [PropertyDetails] Error loading related properties:', err)
@@ -64,9 +75,9 @@ export function usePropertyDetailsViewModel() {
     setError(null)
 
     try {
-      console.log('🔄 [PropertyDetails] Fetching advertisement by ID:', id)
+
       const advertisementData = await getAdvertisementById(id)
-      console.log('✅ [PropertyDetails] Advertisement loaded:', advertisementData)
+
 
       if (!advertisementData) {
         throw new Error('Advertisement not found')

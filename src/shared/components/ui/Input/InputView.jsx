@@ -77,7 +77,11 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
       'placeholder:leading-none',
       'placeholder:font-default',
       'placeholder:p-0',
-      'placeholder:m-0'
+      'placeholder:m-0',
+      'text-center',
+      'md:text-left',
+      'placeholder:text-center',
+      'md:placeholder:text-left'
     )
 
     // Estados
@@ -134,6 +138,8 @@ function getLabelClasses({ hasErrors, required }) {
     'text-form-control',
     'leading-none',
     'md:text-form-control-md',
+    'text-center',
+    'md:text-left',
   )
 
   // Estado de erro
@@ -172,6 +178,7 @@ export function InputView({
   className = '',
   onChange,
   onClick,
+  link = null,
   // Props customizadas que não devem ir para o input HTML
   formatOnChange = false,
   formatter = null,
@@ -269,7 +276,7 @@ export function InputView({
             : 'bg-distac-primary-light'
         }`}
         >
-          <label className={`flex items-center gap-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <label className={`flex items-start gap-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               className={inputClasses}
               type="checkbox"
@@ -282,8 +289,22 @@ export function InputView({
               onClick={onClick}
               {...htmlProps}
             />
-            <span className={`text-[12px] md:text-[16px] text-default-dark`}>
+            <span className={`text-[12px] md:text-[16px] text-default-dark flex-1`}>
               {placeholder || label}
+              {link && (
+                <>
+                  {' '}
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-distac-primary hover:underline font-semibold"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {link.text}
+                  </a>
+                </>
+              )}
             </span>
           </label>
         </div>

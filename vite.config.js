@@ -1,42 +1,99 @@
-// vite.config.js
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
+import fs from 'fs'
 
 export default defineConfig(({ command, mode }) => {
-  // Carrega variáveis de ambiente baseado no mode
-  const env = loadEnv(mode, process.cwd(), '')
 
+  // apenas utilizar variáveis vindas de arquivos .env
+  // e garantir que pelo menos um arquivo esteja presente para o modo atual
+  const envFiles = [
+    path.resolve(process.cwd(), `.env`),
+    path.resolve(process.cwd(), `.env.${mode}`),
+  ]
+
+  const hasEnvFile = envFiles.some(f => fs.existsSync(f))
+  if (!hasEnvFile) {
+    throw new Error(
+      `Nenhum arquivo de ambiente encontrado (.env ou .env.${mode}). ` +
+        `Crie um dos arquivos para continuar.`
+    )
+  }
+
+  const env = loadEnv(mode, process.cwd(), '')
   const port = parseInt(env.APP_PORT)
 
-  console.log(`Modo: ${mode} | Porta: ${port}`)
+  if (!env.API_URL) {
+    throw new Error(
+      `Variável API_URL não definida para o modo ${mode}. ` +
+        `Configure a URL base do backend no arquivo .env correspondente.`
+    )
+  }
+
+  const apiBaseUrl = env.API_URL
+  const viaCepBaseUrl = env.VITE_VIACEP_BASE_URL || 'https://viacep.com.br/ws'
+  const calServiceUrl = env.VITE_CAL_SERVICE_URL || 'http://localhost:8080/api/v1'
 
   return {
     plugins: [react(), tailwindcss()],
 
     define: {
-      'import.meta.env.DEV': mode === 'development',
+      // Modo
       'import.meta.env.MODE': JSON.stringify(mode),
-      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || 'http://localhost:8081/api/v1'),
-      'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(env.VITE_VIACEP_BASE_URL || 'https://viacep.com.br/ws'),
+      'import.meta.env.APP_MODEL': JSON.stringify(env.APP_MODEL || 'development'),
+      
+      // Frontend
+      'import.meta.env.FRONT_IP': JSON.stringify(env.FRONT_IP || 'localhost'),
+      'import.meta.env.FRONT_PORT': JSON.stringify(env.FRONT_PORT || '3000'),
+      'import.meta.env.APP_URL': JSON.stringify(env.APP_URL || 'http://localhost:3000'),
+      
+      // Backend (Penelope API Rest)
+      'import.meta.env.BACKEND_IP': JSON.stringify(env.BACKEND_IP || 'localhost'),
+      'import.meta.env.BACKEND_PORT': JSON.stringify(env.BACKEND_PORT || '8081'),
+      'import.meta.env.API_URL': JSON.stringify(env.API_URL),
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL || env.API_URL),
+      
+      // Cal Service
+      'import.meta.env.CAL_SERVICE_IP': JSON.stringify(env.CAL_SERVICE_IP || 'localhost'),
+      'import.meta.env.CAL_SERVICE_PORT': JSON.stringify(env.CAL_SERVICE_PORT || '8080'),
+      'import.meta.env.VITE_CAL_SERVICE_URL': JSON.stringify(calServiceUrl),
+      
+      // ViaCEP (Externo)
+      'import.meta.env.VIACEP_IP': JSON.stringify(env.VIACEP_IP || 'viacep.com.br'),
+      'import.meta.env.VITE_VIACEP_BASE_URL': JSON.stringify(viaCepBaseUrl),
     },
 
     resolve: {
       alias: {
+        // Módulos de aplicação
         '@shared': path.resolve(__dirname, './src/shared'),
         '@institutional': path.resolve(__dirname, './src/modules/institutional'),
         '@auth': path.resolve(__dirname, './src/modules/auth'),
         '@management': path.resolve(__dirname, './src/modules/management'),
-        '@routes': path.resolve(__dirname, './src/app/routes'),
-        '@domains': path.resolve(__dirname, './src/domains'),
+
+        // Shared (utils, constants, hooks, components)
+        '@constant': path.resolve(__dirname, './src/shared/constants'),
         '@utils': path.resolve(__dirname, './src/shared/utils'),
-        '@services': path.resolve(__dirname, './src/app/services'),
+
+        // App core (API, Services, Mappers, DTOs, Routes)
         '@app': path.resolve(__dirname, './src/app'),
-        '@api': path.resolve(__dirname, './src/app/services/api'),
-        '@mapper': path.resolve(__dirname, './src/app/services/mapper'),
-        '@entity': path.resolve(__dirname, './src/app/model/entities'),
-        '@constant': path.resolve(__dirname, './src/constants'),
+        '@routes': path.resolve(__dirname, './src/app/routes'),
+        '@api': path.resolve(__dirname, './src/app/api'),
+        '@services': path.resolve(__dirname, './src/app/services'),
+        '@mappers': path.resolve(__dirname, './src/app/mappers'),
+        '@dtos': path.resolve(__dirname, './src/app/dtos'),
+        '@mocks': path.resolve(__dirname, './src/app/mocks'),
+
+        // Convenience aliases para domínios/integrações específicas
+        // Services
+        '@service-penelopec': path.resolve(__dirname, './src/app/services/penelopec'),
+        '@service-viacep': path.resolve(__dirname, './src/app/services/viacep'),
+        '@service-calservice': path.resolve(__dirname, './src/app/services/calservice'),
+        // APIs
+        '@api-penelopec': path.resolve(__dirname, './src/app/api/penelopec'),
+        '@api-viacep': path.resolve(__dirname, './src/app/api/viacep'),
+        '@api-calservice': path.resolve(__dirname, './src/app/api/calservice'),
       },
     },
 

@@ -15,8 +15,9 @@ import {
  * FormViewModel - Gerencia a lógica e apresentação do Form usando theme design-model
  */
 class FormViewModel {
-  constructor(model = new FormModel()) {
+  constructor(model = new FormModel(), options = {}) {
     this.model = model
+    this.controlledLoading = Boolean(options.controlledLoading)
   }
 
   // Getters de dados
@@ -214,7 +215,14 @@ class FormViewModel {
         const result = await this.model.onSubmit(this.formData, this.model)
 
         if (result && result.success) {
-          this.setSuccess(result.message || 'Operação realizada com sucesso!')
+          const successMessage = typeof result.message === 'string'
+            ? result.message.trim()
+            : ''
+
+          if (successMessage) {
+            this.setSuccess(successMessage)
+          }
+
           if (result.reset) {
             this.reset()
           }
@@ -228,7 +236,9 @@ class FormViewModel {
       this.setErrors(error.message || 'Erro inesperado')
       return { success: false, error: error.message }
     } finally {
-      this.setLoading(false)
+      if (!this.controlledLoading) {
+        this.setLoading(false)
+      }
     }
   }
 
@@ -267,9 +277,11 @@ class FormViewModel {
  * Factory Pattern - cria o modelo internamente
  */
 export function useFormViewModel(initialProps = {}) {
+  const controlledLoading = Boolean(initialProps.controlledLoading)
+
   const [viewModel] = useState(() => {
     const model = new FormModel(initialProps)
-    return new FormViewModel(model)
+    return new FormViewModel(model, { controlledLoading })
   })
 
   const [, forceUpdate] = useState(0)
@@ -278,68 +290,65 @@ export function useFormViewModel(initialProps = {}) {
     forceUpdate(prev => prev + 1)
   }, [])
 
-  // Commands que incluem refresh
-  const commands = {
-    updateFieldValue: (fieldName, value) => {
-      const success = viewModel.updateFieldValue(fieldName, value)
-      if (success) refresh()
-      return success
-    },
+  const updateFieldValue = useCallback((fieldName, value) => {
+    const success = viewModel.updateFieldValue(fieldName, value)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    updateTitle: (title) => {
-      const success = viewModel.updateTitle(title)
-      if (success) refresh()
-      return success
-    },
+  const updateTitle = useCallback((title) => {
+    const success = viewModel.updateTitle(title)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    updateSubtitle: (subtitle) => {
-      const success = viewModel.updateSubtitle(subtitle)
-      if (success) refresh()
-      return success
-    },
+  const updateSubtitle = useCallback((subtitle) => {
+    const success = viewModel.updateSubtitle(subtitle)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    setLoading: (loading) => {
-      const success = viewModel.setLoading(loading)
-      if (success) refresh()
-      return success
-    },
+  const setLoading = useCallback((loading) => {
+    const success = viewModel.setLoading(loading)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    setErrors: (errors) => {
-      const success = viewModel.setErrors(errors)
-      if (success) refresh()
-      return success
-    },
+  const setErrors = useCallback((errors) => {
+    const success = viewModel.setErrors(errors)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    clearErrors: () => {
-      const success = viewModel.clearErrors()
-      if (success) refresh()
-      return success
-    },
+  const clearErrors = useCallback(() => {
+    const success = viewModel.clearErrors()
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    setSuccess: (message) => {
-      const success = viewModel.setSuccess(message)
-      if (success) refresh()
-      return success
-    },
+  const setSuccess = useCallback((message) => {
+    const success = viewModel.setSuccess(message)
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    clearSuccess: () => {
-      const success = viewModel.clearSuccess()
-      if (success) refresh()
-      return success
-    },
+  const clearSuccess = useCallback(() => {
+    const success = viewModel.clearSuccess()
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    reset: () => {
-      const success = viewModel.reset()
-      if (success) refresh()
-      return success
-    },
+  const reset = useCallback(() => {
+    const success = viewModel.reset()
+    if (success) refresh()
+    return success
+  }, [viewModel, refresh])
 
-    validateForm: () => {
-      const isValid = viewModel.validateForm()
-      refresh()
-      return isValid
-    },
-  }
+  const validateForm = useCallback(() => {
+    const isValid = viewModel.validateForm()
+    refresh()
+    return isValid
+  }, [viewModel, refresh])
 
   // Event handlers que incluem refresh
   const handleFieldChange = useCallback((fieldName) => (value) => {
@@ -389,7 +398,16 @@ export function useFormViewModel(initialProps = {}) {
     handleSubmit,
 
     // Commands
-    ...commands,
+    updateFieldValue,
+    updateTitle,
+    updateSubtitle,
+    setLoading,
+    setErrors,
+    clearErrors,
+    setSuccess,
+    clearSuccess,
+    reset,
+    validateForm,
 
     // Utilities
     getFieldValue: viewModel.getFieldValue.bind(viewModel),

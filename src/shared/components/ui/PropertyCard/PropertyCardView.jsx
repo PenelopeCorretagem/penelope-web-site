@@ -1,8 +1,8 @@
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { useState } from 'react'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 import { Pencil, X, Check } from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
@@ -25,7 +25,7 @@ export function PropertyCardView({
   )
 
   const containerClasses = () => {
-    const baseClasses = ['flex', 'flex-col', 'w-[340px]', 'relative', 'justify-between']
+    const baseClasses = ['flex', 'flex-col', 'w-[280px]', 'md:w-[340px]', 'relative', 'justify-between']
     baseClasses.push('group')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isRedirectionMode) baseClasses.push('shadow-md shadow-gray-400 h-full')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isDistacMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
@@ -104,8 +104,8 @@ export function PropertyCardView({
   }
 
   return (
-    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full grid grid-cols-[35%_65%] h-[78vh] relative' : 'relative'}>
-      <div  className={viewModel.isDetailsMode || viewModel.isDistacMode ?'bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full h-full gap-subsection md:gap-subsection-md' : 'h-full'}>
+    <div className={viewModel.isDetailsMode || viewModel.isDistacMode ? 'w-full flex flex-col-reverse md:grid md:grid-cols-[35%_65%] md:h-[78vh] relative' : 'relative'}>
+      <div  className={viewModel.isDetailsMode || viewModel.isDistacMode ?'bg-distac-gradient p-section-y md:p-section-y-md flex flex-col items-center justify-center w-full md:h-full gap-subsection md:gap-subsection-md' : 'h-full'}>
         {viewModel.isDetailsMode || viewModel.isDistacMode ? (
           <HeadingView
             level={2}
@@ -212,14 +212,14 @@ export function PropertyCardView({
             ) : null}
           </div>
         ) : (
-          <div className="w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
+          <div className="w-full md:w-[340px] h-[200px] bg-default-light rounded-sm flex items-center justify-center">
             <TextView>Nenhum imóvel encontrado</TextView>
           </div>
         )}
       </div>
 
       {viewModel.isDetailsMode || viewModel.isDistacMode ? (
-        <div className="h-full w-full overflow-hidden">
+        <div className="h-[40vh] md:h-full w-full overflow-hidden">
           {realEstateAdvertisement && viewModel.realStateCardCoverImageUrl && (
             <img
               src={viewModel.realStateCardCoverImageUrl}
@@ -238,6 +238,39 @@ export function PropertyCardView({
           onClose={() => viewModel.setShowLightbox(false)}
         />
       )}
+
+      <AlertView
+        isVisible={!!viewModel.alertConfig}
+        type={viewModel.alertConfig?.type}
+        message={viewModel.alertConfig?.message}
+        hasCloseButton={!viewModel.alertConfig?.isConfirm}
+        onClose={viewModel.handleCloseAlert}
+        buttonsLayout="col"
+      >
+        {viewModel.alertConfig?.isConfirm && (
+          <div className="flex justify-center gap-card md:gap-card-md w-full">
+            <ButtonView
+              type="button"
+              shape="square"
+              color="border-distac-primary"
+              onClick={viewModel.handleCloseAlert}
+              width="fit"
+            >
+              Cancelar
+            </ButtonView>
+            <ButtonView
+              type="button"
+              shape="square"
+              color={viewModel.alertConfig?.confirmColor || 'pink'}
+              onClick={viewModel.handleConfirmSoftDelete}
+              width="fit"
+              disabled={viewModel.isProcessingStatus}
+            >
+              {viewModel.alertConfig?.confirmText || 'Confirmar'}
+            </ButtonView>
+          </div>
+        )}
+      </AlertView>
     </div>
   )
 }
