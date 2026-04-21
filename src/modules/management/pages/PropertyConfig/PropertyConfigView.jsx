@@ -50,14 +50,15 @@ export function PropertyConfigView() {
   // Converter features em opções de checkbox
   const featureOptions = features.map(feature => ({
     value: feature.description.toLowerCase().replace(/\s+/g, '_'),
-    label: feature.description
+    label: feature.description,
+    icon: feature.icon || 'Package'
   }))
 
 
 
   const steps = [
     {
-      title: 'Informações Gerais',
+      title: 'INFORMAÇÕES GERAIS',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -65,21 +66,21 @@ export function PropertyConfigView() {
           fields: [
             {
               name: 'propertyTitle',
-              label: 'Título',
+              label: 'TÍTULO',
               type: 'text',
               required: true,
               containerClassName: 'w-full md:col-span-6',
             },
             {
               name: 'displayEndDate',
-              label: 'Data Término de Exibição',
+              label: 'DATA TÉRMINO DE EXIBIÇÃO',
               type: 'date',
               required: true,
               containerClassName: 'w-full md:col-span-3',
             },
             {
               name: 'active',
-              label: 'Ativo',
+              label: 'ATIVO',
               type: 'checkbox',
               placeholder: 'Propriedade ativa',
               containerClassName: 'w-full md:col-span-3',
@@ -87,11 +88,19 @@ export function PropertyConfigView() {
           ],
         },
         {
-          className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
+          className: 'w-full grid grid-cols-1 md:grid-cols-8 gap-card md:gap-card-md',
           fields: [
             {
+              name: 'responsible',
+              label: 'RESPONSÁVEL',
+              type: 'select',
+              options: responsibleOptions,
+              required: true,
+              containerClassName: 'w-full md:col-span-4',
+            },
+            {
               name: 'propertyType',
-              label: 'Tipo',
+              label: 'TIPO',
               type: 'select',
               options: [
                 { value: '', label: 'Selecione o tipo' },
@@ -100,30 +109,30 @@ export function PropertyConfigView() {
                 { value: 'LANCAMENTO', label: 'Lançamento' }
               ],
               required: true,
-              containerClassName: 'w-full md:col-span-6',
+              containerClassName: 'w-full md:col-span-2',
             },
             {
-              name: 'responsible',
-              label: 'Responsável',
-              type: 'select',
-              options: responsibleOptions,
+              name: 'numberOfRooms',
+              label: 'Nº QUARTOS',
+              type: 'number',
               required: true,
-              containerClassName: 'w-full md:col-span-6',
+              containerClassName: 'w-full',
+            },
+            {
+              name: 'area',
+              label: 'ÁREA (M²)',
+              type: 'text',
+              required: true,
+              containerClassName: 'w-full',
             },
           ],
         },
-      ],
-    },
-    {
-      title: 'Descrição e Características',
-      className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
-      groups: [
         {
           className: 'w-full h-full flex-1',
           fields: [
             {
               name: 'propertyDescription',
-              label: 'Descritivo do imóvel',
+              label: 'DESCRITIVO DO IMÓVEL',
               type: 'textarea',
               className: 'w-full h-full flex-1',
               containerClassName: 'w-full h-full flex-1',
@@ -132,48 +141,28 @@ export function PropertyConfigView() {
             },
           ],
         },
-        {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
-          fields: [
-            {
-              name: 'area',
-              label: 'Área (m²)',
-              type: 'text',
-              required: true,
-              containerClassName: 'w-full md:w-1/2',
-            },
-            {
-              name: 'numberOfRooms',
-              label: 'Número de Quartos',
-              type: 'number',
-              required: true,
-              containerClassName: 'w-full md:w-1/2',
-            },
-          ],
-        },
       ],
     },
     {
-      title: 'Diferenciais do Imóvel',
+      title: 'DIFERENCIAIS DO IMÓVEL',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
-          className: 'w-full',
+          className: 'w-full h-full overflow-hidden',
           fields: [
             {
               name: 'differentials',
-              label: 'Diferenciais',
-              type: 'checkbox-group',
+              label: 'DIFERENCIAIS',
+              type: 'differentials-grid',
               options: featureOptions,
-              containerClassName: 'w-full',
-              groupClassName: 'grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4',
+              containerClassName: 'w-full h-full overflow-hidden',
             },
           ],
         },
       ],
     },
     {
-      title: 'Localização do Imóvel',
+      title: 'LOCALIZAÇÃO DO IMÓVEL',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
@@ -181,7 +170,7 @@ export function PropertyConfigView() {
           fields: [
             {
               name: 'addressTitle',
-              label: 'Endereço do imóvel',
+              label: 'ENDEREÇO DO IMÓVEL',
               type: 'heading',
             },
           ],
@@ -198,14 +187,14 @@ export function PropertyConfigView() {
             },
             {
               name: 'number',
-              label: 'Número',
+              label: 'NÚMERO',
               type: 'text',
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
             {
               name: 'region',
-              label: 'Região',
+              label: 'REGIÃO',
               type: 'select',
               options: [
                 { value: '', label: 'Selecione a região' },
@@ -225,7 +214,7 @@ export function PropertyConfigView() {
           fields: [
             {
               name: 'street',
-              label: 'Rua',
+              label: 'RUA',
               type: 'text',
               required: true,
             },
@@ -236,14 +225,14 @@ export function PropertyConfigView() {
           fields: [
             {
               name: 'neighborhood',
-              label: 'Bairro',
+              label: 'BAIRRO',
               type: 'text',
               required: true,
               containerClassName: 'w-full md:w-1/3',
             },
             {
               name: 'city',
-              label: 'Cidade',
+              label: 'CIDADE',
               type: 'text',
               required: true,
               containerClassName: 'w-full md:w-1/3',
@@ -252,15 +241,36 @@ export function PropertyConfigView() {
               name: 'state',
               label: 'UF',
               type: 'select',
+              size: 3,
               options: [
                 { value: '', label: 'Selecione o estado' },
-                { value: 'SP', label: 'SP' },
-                { value: 'RJ', label: 'RJ' },
-                { value: 'MG', label: 'MG' },
+                { value: 'AC', label: 'AC' },
+                { value: 'AL', label: 'AL' },
+                { value: 'AP', label: 'AP' },
+                { value: 'AM', label: 'AM' },
+                { value: 'BA', label: 'BA' },
+                { value: 'CE', label: 'CE' },
+                { value: 'DF', label: 'DF' },
                 { value: 'ES', label: 'ES' },
+                { value: 'GO', label: 'GO' },
+                { value: 'MA', label: 'MA' },
+                { value: 'MT', label: 'MT' },
+                { value: 'MS', label: 'MS' },
+                { value: 'MG', label: 'MG' },
+                { value: 'PA', label: 'PA' },
+                { value: 'PB', label: 'PB' },
                 { value: 'PR', label: 'PR' },
+                { value: 'PE', label: 'PE' },
+                { value: 'PI', label: 'PI' },
+                { value: 'RJ', label: 'RJ' },
+                { value: 'RN', label: 'RN' },
+                { value: 'RS', label: 'RS' },
+                { value: 'RO', label: 'RO' },
+                { value: 'RR', label: 'RR' },
                 { value: 'SC', label: 'SC' },
-                { value: 'RS', label: 'RS' }
+                { value: 'SP', label: 'SP' },
+                { value: 'SE', label: 'SE' },
+                { value: 'TO', label: 'TO' }
               ],
               required: true,
               containerClassName: 'w-full md:w-1/3',
@@ -270,140 +280,42 @@ export function PropertyConfigView() {
       ],
     },
     {
-      title: 'Localização do Stand',
-      className: 'w-full flex flex-col gap-card md:gap-card-md',
-      groups: [
-        {
-          className: 'w-full flex flex-row justify-between gap-card md:gap-card-md',
-          fields: [
-            {
-              name: 'standAddressTitle',
-              label: 'Endereço do stand',
-              type: 'heading',
-              containerClassName: 'w-auto',
-            },
-            {
-              name: 'enableStandAddress',
-              label: 'Habilitar endereço do stand',
-              type: 'checkbox',
-              placeholder: 'Habilitar endereço do stand',
-              containerClassName: 'w-auto',
-            },
-          ],
-        },
-        {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
-          fields: [
-            {
-              name: 'standCep',
-              label: 'CEP',
-              type: 'text',
-              containerClassName: 'w-full md:w-1/3',
-            },
-            {
-              name: 'standNumber',
-              label: 'Número',
-              type: 'text',
-              containerClassName: 'w-full md:w-1/3',
-            },
-            {
-              name: 'standRegion',
-              label: 'Região',
-              type: 'select',
-              options: [
-                { value: '', label: 'Selecione a região' },
-                { value: 'Norte', label: 'Norte' },
-                { value: 'Sul', label: 'Sul' },
-                { value: 'Leste', label: 'Leste' },
-                { value: 'Oeste', label: 'Oeste' },
-                { value: 'Centro', label: 'Centro' }
-              ],
-              containerClassName: 'w-full md:w-1/3',
-            },
-          ],
-        },
-        {
-          className: 'w-full',
-          fields: [
-            {
-              name: 'standStreet',
-              label: 'Rua',
-              type: 'text',
-            },
-          ],
-        },
-        {
-          className: 'w-full flex flex-row gap-card md:gap-card-md',
-          fields: [
-            {
-              name: 'standNeighborhood',
-              label: 'Bairro',
-              type: 'text',
-              containerClassName: 'w-full md:w-1/3',
-            },
-            {
-              name: 'standCity',
-              label: 'Cidade',
-              type: 'text',
-              containerClassName: 'w-full md:w-1/3',
-            },
-            {
-              name: 'standState',
-              label: 'UF',
-              type: 'select',
-              options: [
-                { value: '', label: 'Selecione o estado' },
-                { value: 'SP', label: 'SP' },
-                { value: 'RJ', label: 'RJ' },
-                { value: 'MG', label: 'MG' },
-                { value: 'ES', label: 'ES' },
-                { value: 'PR', label: 'PR' },
-                { value: 'SC', label: 'SC' },
-                { value: 'RS', label: 'RS' }
-              ],
-              containerClassName: 'w-full md:w-1/3',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Vídeo e Capa',
+      title: 'CAPA E VÍDEO',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
-          className: 'w-full h-full flex-1 flex flex-row gap-card md:gap-card-md',
+          className: 'w-full h-full flex-1 flex flex-col md:flex-row gap-card md:gap-card-md',
           fields: [
             {
-              name: 'video',
-              label: 'Vídeo',
-              type: 'file',
-              accept: 'video/*',
-              containerClassName: 'w-full h-full flex-1 md:w-1/2',
-              className: 'w-full h-full flex-1',
-            },
-            {
               name: 'cover',
-              label: 'Capa',
+              label: 'CAPA',
               type: 'file',
               accept: 'image/*',
               containerClassName: 'w-full h-full flex-1 md:w-1/2',
               className: 'w-full h-full flex-1',
             },
+            {
+              name: 'video',
+              label: 'LINK DO VÍDEO (YOUTUBE)',
+              type: 'text',
+              placeholder: 'Ex: https://www.youtube.com/watch?v=...',
+              containerClassName: 'w-full md:w-1/2',
+              className: 'w-full',
+            },
           ],
         },
       ],
     },
     {
-      title: 'Galeria de Imagens',
+      title: 'GALERIA E PLANTAS',
       className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
       groups: [
         {
-          className: 'w-full h-full flex-1 flex flex-row gap-card md:gap-card-md',
+          className: 'w-full h-full flex-1 flex flex-col md:flex-row gap-card md:gap-card-md',
           fields: [
             {
               name: 'gallery',
-              label: 'Galeria',
+              label: 'GALERIA',
               type: 'file',
               accept: 'image/*',
               multiple: true,
@@ -412,7 +324,7 @@ export function PropertyConfigView() {
             },
             {
               name: 'floorPlans',
-              label: 'Plantas',
+              label: 'PLANTAS',
               type: 'file',
               accept: 'image/*',
               multiple: true,

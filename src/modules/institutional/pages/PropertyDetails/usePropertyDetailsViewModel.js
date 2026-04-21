@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { getAdvertisementById, listAllAdvertisements  } from '@service-penelopec/realEstateAdvertisementService'
-import { RealStateDetailsModel } from './RealStateDetailsModel'
+import { RealStateDetailsModel } from './PropertyDetailsModel'
 
 /**
  * ViewModel para a tela de detalhes de propriedade

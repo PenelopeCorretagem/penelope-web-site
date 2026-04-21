@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { HeaderView } from '@shared/components/layout/Header/HeaderView'
 import { RouterView } from '@routes/RouterView'
 import { useRouter } from '@routes/useRouterViewModel'
-import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 
@@ -46,7 +45,7 @@ export function PageView() {
       const userRole = sessionStorage.getItem('userRole')
 
       const newIsAuthenticated = !!jwtToken && !!userId
-      const newIsAdmin = userRole === 'admin'
+      const newIsAdmin = userRole === 'ADMINISTRADOR'
 
       // Sempre atualiza o estado para garantir sincronização
       setIsAuthenticated(newIsAuthenticated)
@@ -103,7 +102,7 @@ export function PageView() {
 
   const handleDevLogin = () => {
     sessionStorage.setItem('jwtToken', `dev-fake-token-${Date.now()}`)
-    sessionStorage.setItem('userRole', 'user')
+    sessionStorage.setItem('userRole', 'CLIENTE')
     sessionStorage.setItem('userId', '1')
     sessionStorage.setItem('userEmail', 'dev@test.com')
     sessionStorage.setItem('userName', 'Dev User')
@@ -115,7 +114,7 @@ export function PageView() {
 
   const handleDevAdminLogin = () => {
     sessionStorage.setItem('jwtToken', `dev-fake-admin-token-${Date.now()}`)
-    sessionStorage.setItem('userRole', 'admin')
+    sessionStorage.setItem('userRole', 'ADMINISTRADOR')
     sessionStorage.setItem('userId', '1')
     sessionStorage.setItem('userEmail', 'admin@test.com')
     sessionStorage.setItem('userName', 'Admin User')
@@ -138,10 +137,9 @@ export function PageView() {
       <div className='flex flex-col w-full h-full overflow-hidden'>
         {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} sidebarVisible={shouldShowSidebar} />}
 
-        <div className='flex-1 overflow-x-hidden overflow-y-auto'>
-          <RouterView isAuthenticated={isAuthenticated} isAdmin={isAdmin} authReady={authReady} />
+        <div className='flex-1 overflow-x-hidden overflow-y-hidden'>
+          <RouterView isAuthenticated={isAuthenticated} isAdmin={isAdmin} authReady={authReady} shouldShowFooter={shouldShowFooter} />
           <ChatbotView />
-          {shouldShowFooter && <FooterView isAuthenticated={isAuthenticated} />}
         </div>
       </div>
     </div>

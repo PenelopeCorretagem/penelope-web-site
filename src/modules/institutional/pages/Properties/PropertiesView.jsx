@@ -19,10 +19,13 @@ export const PropertiesView = () => {
     totalResults,
     filterConfigs,
     defaultFilters,
+    filterModel,
     handleFiltersChange,
     refresh
   } = usePropertiesViewModel({
-    onError: (error) => console.error('Error loading properties:', error)
+    onError: (_error) => {
+      // Lidar com erro de carregamento
+    }
   })
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export const PropertiesView = () => {
       )}
 
       {disponiveis.length > 0 && (
-        <SectionView className="bg-gray-100">
+        <SectionView className={filterModel.getFilter('typeFilter') === 'DISPONIVEIS' ? '' : 'bg-default-light-alt'}>
           <div className="container mx-auto">
             <PropertiesCarouselView
               realEstateAdvertisements={disponiveis}

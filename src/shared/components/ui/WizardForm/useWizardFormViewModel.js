@@ -75,17 +75,20 @@ export function useWizardFormViewModel(initialProps = {}) {
 
 
 
-    if (!model.isLastStep) {
-
-      return nextStep()
-    }
-
-
-
-    // Validação antes de enviar
-    if (!model.validateCurrentStep()) {
-      console.error('❌ [WIZARD FORM] Validation failed for current step')
+    // Validação de todas as etapas antes de enviar
+    if (!model.validateAllSteps()) {
+      console.error('❌ [WIZARD FORM] Validation failed for some steps')
       console.error('❌ [WIZARD FORM] Validation errors:', model.fieldErrors)
+
+      // Encontrar a primeira etapa com erro e navegar para ela
+      for (let i = 0; i < model.totalSteps; i++) {
+        const stepFields = model.getAllFieldsForStep(i)
+        if (stepFields.some(f => model.fieldErrors[f.name])) {
+          model.goToStep(i)
+          break
+        }
+      }
+
       refresh()
       return false
     }

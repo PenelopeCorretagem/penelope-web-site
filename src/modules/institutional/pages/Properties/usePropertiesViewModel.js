@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { listAllAdvertisements  } from '@service-penelopec/realEstateAdvertisementService'
 import { PropertiesModel } from './PropertiesModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
+import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
 
 /**
  * Hook para gerenciar a lógica da página Properties
@@ -9,7 +10,13 @@ import { ESTATE_TYPES } from '@constant/estateTypes'
  */
 export const usePropertiesViewModel = ({ onError }) => {
   const [model] = useState(() => new PropertiesModel())
-  const [currentFilters, setCurrentFilters] = useState(null)
+  const [filterModel, setFilterModel] = useState(() => new FilterModel({
+    filters: {
+      regionFilter: 'TODAS',
+      cityFilter: 'TODAS',
+      typeFilter: 'TODOS'
+    }
+  }))
   const [dataVersion, setDataVersion] = useState(0)
 
   // Busca propriedades por categoria
@@ -50,8 +57,17 @@ export const usePropertiesViewModel = ({ onError }) => {
   }, [model, onError])
 
   // Handler quando filtros mudam
-  const handleFiltersChange = useCallback((filterModel) => {
-    setCurrentFilters(filterModel)
+  const handleFiltersChange = useCallback((filterKey, filterValue) => {
+    setFilterModel(prev => {
+      if (filterKey === 'searchTerm') {
+        return prev.with({ searchTerm: filterValue })
+      } else if (filterKey === 'sortOrder') {
+        return prev.with({ sortOrder: filterValue })
+      } else {
+        // É um filtro de chave-valor
+        return prev.withFilter(filterKey, filterValue)
+      }
+    })
   }, [])
 
   // Carrega propriedades na montagem
@@ -62,8 +78,8 @@ export const usePropertiesViewModel = ({ onError }) => {
   // Obtém propriedades filtradas (simplificado para evitar dependências problemáticas)
   const filteredProperties = useMemo(() => {
     if (!model) return { lancamentos: [], disponiveis: [], emObras: [] }
-    return model.getFilteredPropertiesByType(currentFilters)
-  }, [model, currentFilters, dataVersion])
+    return model.getFilteredPropertiesByType(filterModel)
+  }, [model, filterModel, dataVersion])
 
   // Obtém cidades disponíveis (simplificado)
   const availableCities = useMemo(() => {
@@ -125,8 +141,8 @@ export const usePropertiesViewModel = ({ onError }) => {
 
   const totalResults = useMemo(() => {
     if (!model) return 0
-    return model.getTotalFilteredResults(currentFilters)
-  }, [model, currentFilters, dataVersion])
+    return model.getTotalFilteredResults(filterModel)
+  }, [model, filterModel, dataVersion])
 
   return {
     // Estado
@@ -142,6 +158,7 @@ export const usePropertiesViewModel = ({ onError }) => {
     // Configuração de filtros
     filterConfigs,
     defaultFilters,
+    filterModel,
     handleFiltersChange,
 
     // Ações

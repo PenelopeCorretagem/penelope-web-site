@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/realEstateAdvertisementService'
 import { listAllFeatures } from '@api-penelopec/featureAPI'
 import { PropertiesConfigModel } from './PropertiesConfigModel'
 import { PropertyConfigModel } from '../PropertyConfig/PropertyConfigModel'
+import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
 
 export const usePropertiesConfigViewModel = () => {
   const navigate = useNavigate()
@@ -15,13 +16,17 @@ export const usePropertiesConfigViewModel = () => {
   const [emObras, setEmObras] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [regionFilter, setRegionFilter] = useState('TODAS')
-  const [cityFilter, setCityFilter] = useState('TODAS')
-  const [typeFilter, setTypeFilter] = useState('TODOS')
-  const [sortOrder, setSortOrder] = useState('none')
+  const [filterModel, setFilterModel] = useState(() => new FilterModel({
+    filters: {
+      regionFilter: 'TODAS',
+      cityFilter: 'TODAS',
+      typeFilter: 'TODOS',
+      statusFilter: 'TODOS'
+    }
+  }))
   const [alertConfig, setAlertConfig] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const hasFetched = useRef(false)
 
   // helper to compare arrays by id to avoid unnecessary setState calls
   const arePropertyArraysEqual = useCallback((a = [], b = []) => {
@@ -66,23 +71,23 @@ export const usePropertiesConfigViewModel = () => {
     } finally {
       setLoading(false)
     }
-  }, [propertiesConfigModel, arePropertyArraysEqual]) // propertiesConfigModel is stable from useState initialization
+  }, [propertiesConfigModel, arePropertyArraysEqual])
 
   useEffect(() => {
-    fetchAdvertisements()
-  }, [fetchAdvertisements])
+    if (!hasFetched.current) {
+      hasFetched.current = true
+      fetchAdvertisements()
+    }
+  }, []) // Empty dependency array - run only once on mount
 
   // Listen for global notifications of soft deletes performed via PropertyCardModel
   useEffect(() => {
     const onPropertySoftDeleted = (e) => {
-      // opcional: log para depuração
-
-      // Recarregar os anúncios
       fetchAdvertisements()
     }
     window.addEventListener('propertySoftDeleted', onPropertySoftDeleted)
     return () => window.removeEventListener('propertySoftDeleted', onPropertySoftDeleted)
-  }, [fetchAdvertisements])
+  }, []) // Remove fetchAdvertisements dependency to avoid excessive calls
 
   const handleEdit = useCallback((id) => {
 
@@ -153,30 +158,16 @@ export const usePropertiesConfigViewModel = () => {
     setAlertConfig(null)
   }, [])
 
-  const handleSearchChange = useCallback((e) => {
-    // Handle both event objects and direct values
-    const value = e?.target?.value ?? e ?? ''
-    setSearchTerm(value)
-  }, [])
-
-  const handleRegionFilterChange = useCallback((value) => {
-    setRegionFilter(value)
-    setCityFilter('TODAS') // Reset city when region changes
-  }, [])
-
-  const handleCityFilterChange = useCallback((value) => {
-    setCityFilter(value)
-  }, [])
-
-  const handleTypeFilterChange = useCallback((value) => {
-    setTypeFilter(value)
-  }, [])
-
-  const handleSortOrderChange = useCallback(() => {
-    setSortOrder(prev => {
-      if (prev === 'none') return 'asc'
-      if (prev === 'asc') return 'desc'
-      return 'none'
+  // Unified filter handler - same pattern as Properties
+  const handleFiltersChange = useCallback((filterKey, filterValue) => {
+    setFilterModel(prev => {
+      if (filterKey === 'searchTerm') {
+        return prev.with({ searchTerm: filterValue })
+      } else if (filterKey === 'sortOrder') {
+        return prev.with({ sortOrder: filterValue })
+      } else {
+        return prev.withFilter(filterKey, filterValue)
+      }
     })
   }, [])
 
@@ -195,12 +186,13 @@ export const usePropertiesConfigViewModel = () => {
     return Array.from(cities).sort()
   }, [lancamentos, disponiveis, emObras])
 
-  // Filter properties based on search and filters
+  // Filter properties based on filterModel
   const filterRealEstateAdvertisements = useCallback((realEstateAdvertisements) => {
     let filtered = [...realEstateAdvertisements]
 
     // Search filter
-    if (searchTerm.trim()) {
+    const searchTerm = filterModel.searchTerm
+    if (searchTerm?.trim()) {
       const searchLower = searchTerm.toLowerCase()
       filtered = filtered.filter(realEstateAdvertisement =>
         (realEstateAdvertisement?.estate?.address?.city ?? '').toLowerCase().includes(searchLower) ||
@@ -212,38 +204,57 @@ export const usePropertiesConfigViewModel = () => {
       )
     }
 
-    // Region filter - FIXED: check for 'TODAS'
+    // Region filter
+    const regionFilter = filterModel.getFilter('regionFilter')
     if (regionFilter && regionFilter !== 'TODAS' && regionFilter !== 'ALL') {
       filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.region ?? '').toLowerCase() === regionFilter.toLowerCase())
     }
 
-    // City filter - FIXED: check for 'TODAS'
+    // City filter
+    const cityFilter = filterModel.getFilter('cityFilter')
     if (cityFilter && cityFilter !== 'TODAS' && cityFilter !== 'ALL') {
       filtered = filtered.filter(realEstateAdvertisement => (realEstateAdvertisement?.estate?.address?.city ?? '').toLowerCase() === cityFilter.toLowerCase())
     }
 
+    // Status filter
+    const statusFilter = filterModel.getFilter('statusFilter')
+    if (statusFilter && statusFilter !== 'TODOS') {
+      filtered = filtered.filter(realEstateAdvertisement => {
+        const isEnabled = realEstateAdvertisement?.active ?? true
+        if (statusFilter === 'HABILITADOS') {
+          return isEnabled
+        } else if (statusFilter === 'DESABILITADOS') {
+          return !isEnabled
+        }
+        return true
+      })
+    }
+
     // Sort
-    if (sortOrder === 'asc') {
+    if (filterModel.sortOrder === 'asc') {
       filtered = filtered.sort((a, b) => ((a?.estate?.title || '')).localeCompare((b?.estate?.title || ''), 'pt-BR'))
-    } else if (sortOrder === 'desc') {
+    } else if (filterModel.sortOrder === 'desc') {
       filtered = filtered.sort((a, b) => ((b?.estate?.title || '')).localeCompare((a?.estate?.title || ''), 'pt-BR'))
     }
 
     return filtered
-  }, [searchTerm, regionFilter, cityFilter, sortOrder])
+  }, [filterModel])
 
   // Apply filters to each category
   const filteredLancamentos = useMemo(() => {
+    const typeFilter = filterModel.getFilter('typeFilter')
     return typeFilter === 'TODOS' || typeFilter === 'LANCAMENTOS' ? filterRealEstateAdvertisements(lancamentos) : []
-  }, [lancamentos, typeFilter, filterRealEstateAdvertisements])
+  }, [lancamentos, filterModel, filterRealEstateAdvertisements])
 
   const filteredDisponiveis = useMemo(() => {
+    const typeFilter = filterModel.getFilter('typeFilter')
     return typeFilter === 'TODOS' || typeFilter === 'DISPONIVEIS' ? filterRealEstateAdvertisements(disponiveis) : []
-  }, [disponiveis, typeFilter, filterRealEstateAdvertisements])
+  }, [disponiveis, filterModel, filterRealEstateAdvertisements])
 
   const filteredEmObras = useMemo(() => {
+    const typeFilter = filterModel.getFilter('typeFilter')
     return typeFilter === 'TODOS' || typeFilter === 'EM_OBRAS' ? filterRealEstateAdvertisements(emObras) : []
-  }, [emObras, typeFilter, filterRealEstateAdvertisements])
+  }, [emObras, filterModel, filterRealEstateAdvertisements])
 
   return {
     lancamentos: filteredLancamentos,
@@ -251,11 +262,12 @@ export const usePropertiesConfigViewModel = () => {
     emObras: filteredEmObras,
     loading,
     error,
-    searchTerm,
-    regionFilter,
-    cityFilter,
-    typeFilter,
-    sortOrder,
+    searchTerm: filterModel.searchTerm,
+    regionFilter: filterModel.getFilter('regionFilter'),
+    cityFilter: filterModel.getFilter('cityFilter'),
+    typeFilter: filterModel.getFilter('typeFilter'),
+    statusFilter: filterModel.getFilter('statusFilter'),
+    sortOrder: filterModel.sortOrder,
     availableCities,
     isDeleting,
     alertConfig,
@@ -263,10 +275,17 @@ export const usePropertiesConfigViewModel = () => {
     handleConfirmDelete,
     handleEdit,
     handleDelete,
-    handleSearchChange,
-    handleRegionFilterChange,
-    handleCityFilterChange,
-    handleTypeFilterChange,
-    handleSortOrderChange
+    handleFiltersChange,
+    filterModel,
+    handleSortOrderChange: (newOrder) => setFilterModel(prev => {
+      if (newOrder !== undefined && typeof newOrder === 'string') {
+        return prev.with({ sortOrder: newOrder })
+      }
+      let nextSortOrder = 'none'
+      if (prev.sortOrder === 'none') nextSortOrder = 'asc'
+      else if (prev.sortOrder === 'asc') nextSortOrder = 'desc'
+      else nextSortOrder = 'none'
+      return prev.with({ sortOrder: nextSortOrder })
+    })
   }
 }

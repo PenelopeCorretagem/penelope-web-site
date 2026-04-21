@@ -2,13 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PropertyCardModel } from './PropertyCardModel'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { RouterModel } from '@app/routes/RouterModel'
+import { ROUTES } from '@constant/routes'
 
 const DEFAULT_VIDEO = 'https://www.youtube.com/embed/NA0u8QCrZfY'
 
 export function usePropertyCardViewModel(
   realEstateAdvertisement,
   realStateCardMode,
-  onWhatsAppClick = null
+  onWhatsAppClick = null,
+  isCarouselItem = false
 ) {
   const navigate = useNavigate()
   const [showLightbox, setShowLightbox] = useState(false)
@@ -129,6 +132,14 @@ export function usePropertyCardViewModel(
     }
   }, [alertConfig, isProcessingStatus, propertyCardModel, realEstateAdvertisement])
 
+  const handleCarouselItemClick = useCallback(() => {
+    if (isCarouselItem && realEstateAdvertisement) {
+      const router = RouterModel.getInstance()
+      const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: realEstateAdvertisement.id })
+      navigate(route)
+    }
+  }, [isCarouselItem, realEstateAdvertisement, navigate])
+
   return {
     // Dados do card
     realStateCardCategory: propertyCardModel.realStateCardCategory,
@@ -162,5 +173,6 @@ export function usePropertyCardViewModel(
     alertConfig,
     handleCloseAlert,
     handleConfirmSoftDelete,
+    handleCarouselItemClick,
   }
 }

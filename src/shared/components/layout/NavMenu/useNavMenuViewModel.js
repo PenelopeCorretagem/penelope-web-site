@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { NavMenuModel } from '@shared/components/layout/NavMenu/NavMenuModel'
 import { RouterModel } from '@routes/RouterModel'
 import {
@@ -39,6 +39,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
   const [routerModel] = useState(() => RouterModel.getInstance())
   const [, forceUpdate] = useState(0)
   const location = useLocation()
+  const navigate = useNavigate()
 
   /**
    * Força atualização manual do componente.
@@ -80,16 +81,25 @@ export function useNavMenuViewModel(isAuthenticated = false) {
 
   /**
    * Fecha o menu mobile e força atualização.
+   * Se a rota clicada for a mesma que está ativa, recarrega a página.
    * O scroll para o topo é gerenciado pelo componente ScrollToTop.
    *
    * @function
+   * @param {string} [routePath] - Caminho da rota que foi clicada (opcional).
    * @example
-   * handleItemClick()
+   * handleItemClick('/imoveis')
    */
-  const handleItemClick = useCallback(() => {
+  const handleItemClick = useCallback((routePath) => {
     model.closeMobileMenu()
+    
+    // Se foi fornecida uma rota e ela é igual à rota atual, recarrega
+    if (routePath && isItemActive(routePath)) {
+      window.location.href = window.location.pathname
+      return
+    }
+    
     refresh()
-  }, [model, refresh])
+  }, [model, refresh, isItemActive])
 
   /**
    * Executa o processo de logout.

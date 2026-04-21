@@ -74,7 +74,7 @@ export class PropertyConfigModel {
 
 
     this.images = {
-      video: this._createFilePreview(this._extractImageUrl(images, 'Video'), 'Video'),
+      video: this._extractImageUrl(images, 'Video'),
       cover: this._createFilePreview(this._extractImageUrl(images, 'Capa'), 'Capa'),
       gallery: this._extractAndCreatePreviews(images, 'Galeria'),
       floorPlans: this._extractAndCreatePreviews(images, 'Planta')
@@ -292,15 +292,6 @@ export class PropertyConfigModel {
   extractNewImageFiles(formData) {
     const newFiles = []
 
-    // Check if video is new or replaced
-    if (formData.video && !formData.video.isExisting) {
-      newFiles.push({
-        file: formData.video,
-        type: 2, // Videos as gallery for now
-        fieldType: 'video'
-      })
-    }
-
     // Check if cover is new or replaced
     if (formData.cover && !formData.cover.isExisting) {
       newFiles.push({
@@ -436,6 +427,10 @@ export class PropertyConfigModel {
         return 'PLANTA'
       }
 
+      if (typeValue === 4 || typeValue === '4' || String(typeValue).toUpperCase() === 'VIDEO') {
+        return 'VIDEO'
+      }
+
       return 'GALERIA'
     }
 
@@ -454,9 +449,9 @@ export class PropertyConfigModel {
     // Build comprehensive image payload including existing and new images
     const images = []
 
-    // Add existing images that weren't changed
-    if (formData.video && formData.video.isExisting) {
-      appendImageRequest(images, formData.video.url, 2) // Video as gallery
+    // Add video url directly as a string
+    if (formData.video && typeof formData.video === 'string') {
+      appendImageRequest(images, formData.video, 4) // 4 = Video
     }
 
     if (formData.cover && formData.cover.isExisting) {

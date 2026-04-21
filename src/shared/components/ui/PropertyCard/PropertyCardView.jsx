@@ -5,6 +5,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { usePropertyCardViewModel } from './usePropertyCardViewModel'
 import { Pencil, X, Check } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { PropertyFeatureView } from '@shared/components/ui//PropertyFeature/PropertyFeatureView'
 import { MediaLightboxView } from '@shared/components/ui//MediaLightbox/MediaLightboxView'
@@ -17,11 +18,13 @@ export function PropertyCardView({
   medias,
   showLightbox,
   setShowLightbox,
+  isCarouselItem = false,
 }) {
   const viewModel = usePropertyCardViewModel(
     realEstateAdvertisement,
     realStateCardMode,
     onWhatsAppClick,
+    isCarouselItem,
   )
 
   const containerClasses = () => {
@@ -30,6 +33,7 @@ export function PropertyCardView({
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isRedirectionMode) baseClasses.push('shadow-md shadow-gray-400 h-full')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isDistacMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
     if (!viewModel.isDistacMode) baseClasses.push('rounded-sm')
+    if (isCarouselItem && viewModel.isDefaultMode) baseClasses.push('cursor-pointer')
     return baseClasses.join(' ')
   }
 
@@ -46,7 +50,7 @@ export function PropertyCardView({
     return baseClasses.join(' ')
   }
 
-  const renderButtons = (isDetailsMode, isConfigMode, buttons) => {
+  const renderButtons = (isDetailsMode, isConfigMode, buttons, isCarousel) => {
     if (isDetailsMode) {
       const [galleryButton, floorplanButton, videoButton] = buttons
       return (
@@ -83,6 +87,16 @@ export function PropertyCardView({
         </div>
       )
     } else if(!isConfigMode) {
+      // Se for carousel item, renderiza uma div rosa com o mesmo estilo do botão
+      if (isCarousel) {
+        return (
+          <div className="flex z-2 flex-col gap-3 w-full">
+            <div className="inline-flex items-center justify-center font-title font-bold uppercase leading-none text-button md:text-button-md transition-all duration-200 gap-[var(--gap-button)] md:gap-[var(--gap-button-md)] p-[var(--padding-button-rectangle)] md:p-[var(--padding-button-rectangle-md)] bg-distac-primary text-default-light w-full rounded-sm">
+              {buttons[0].text}
+            </div>
+          </div>
+        )
+      }
       return (
         <div className="flex z-2 flex-col gap-3 w-full">
           {buttons.map((button, index) => (
@@ -123,13 +137,17 @@ export function PropertyCardView({
             aria-label={`Ver detalhes do imóvel ${viewModel.realStateCardTitle}`}
             onClick={(e) => {
               if (e.target.closest('button') || e.target.closest('a')) return
-              // ação default
+              if (isCarouselItem && viewModel.isDefaultMode) {
+                viewModel.handleCarouselItemClick()
+              }
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
                 if (e.target.closest('button') || e.target.closest('a')) return
-                // ação default
+                if (isCarouselItem && viewModel.isDefaultMode) {
+                  viewModel.handleCarouselItemClick()
+                }
               }
             }}
           >
@@ -192,19 +210,29 @@ export function PropertyCardView({
               </TextView>
 
               {viewModel.renderRealStateCardFeatures && (
-                <div className="w-full overflow-hidden">
-                  <div
-                    className="property-features-marquee flex items-center gap-card md:gap-card-md will-change-transform"
-                    aria-hidden={false}
-                  >
-                    {viewModel.realStateCardFeatures.concat(viewModel.realStateCardFeatures).map((realStateFeature, idx) => (
-                      <PropertyFeatureView feature={realStateFeature} key={`${realStateFeature.id}-${idx}`} />
-                    ))}
+                <div className="w-full">
+                  <div className="grid grid-cols-4 gap-5">
+                    {viewModel.realStateCardFeatures.slice(0, 4).map((feature) => {
+                      const iconName = feature?.icon
+                      const IconComponent = iconName ? LucideIcons[iconName] : null
+                      
+                      return (
+                        <div
+                          key={feature?.id}
+                          className="flex items-center justify-center bg-default-dark-light rounded-sm aspect-square"
+                          title={feature?.description}
+                        >
+                          {IconComponent && (
+                            <IconComponent className="w-7 h-7 text-default-light" />
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
 
-              {renderButtons(viewModel.isDetailsMode, viewModel.isConfigMode, viewModel.realStateCardButtons)}
+              {renderButtons(viewModel.isDetailsMode, viewModel.isConfigMode, viewModel.realStateCardButtons, isCarouselItem)}
             </div>
             {!viewModel.isActiveAdvertisement ? (
               <div className="absolute inset-0 bg-default-dark opacity-50 rounded-sm">

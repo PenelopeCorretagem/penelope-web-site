@@ -131,10 +131,13 @@ export function usePropertyTabsViewModel(anchors, tabs) {
     setActiveTab(initialActive)
     model.setActiveTab(initialActive)
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    // Try to find the scrollable element (.router-view), fallback to window
+    const scrollableElement = document.querySelector('.router-view') || window
+    
+    scrollableElement.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
-      window.removeEventListener('scroll', handleScroll)
+      scrollableElement.removeEventListener('scroll', handleScroll)
       // Cleanup any pending timers used for manual click debounce
       if (manualClickTimer.current) {
         clearTimeout(manualClickTimer.current)

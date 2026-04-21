@@ -4,14 +4,14 @@ import { usePropertiesConfigViewModel } from './usePropertiesConfigViewModel'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { InputView } from '@shared/components/ui/Input/InputView'
-import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
-import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { useCallback, useMemo } from 'react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { FilterView } from '@shared/components/layout/Filter/FilterView'
 
 export function PropertiesConfigView() {
   const navigate = useNavigate()
@@ -33,13 +33,8 @@ export function PropertiesConfigView() {
     alertConfig,
     handleCloseAlert,
     handleConfirmDelete,
-    handleEdit,
-    handleDelete,
-    handleSearchChange,
-    handleRegionFilterChange,
-    handleCityFilterChange,
-    handleTypeFilterChange,
-    handleSortOrderChange
+    handleFiltersChange,
+    filterModel
   } = usePropertiesConfigViewModel()
 
   const headerHeight = useHeaderHeight()
@@ -48,8 +43,7 @@ export function PropertiesConfigView() {
     try {
       const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'new' })
       navigate(route)
-    } catch (error) {
-      console.error('Erro ao gerar rota:', error)
+    } catch {
       // Fallback direto
       navigate('/admin/gerenciar-imoveis/new')
     }
@@ -76,16 +70,25 @@ export function PropertiesConfigView() {
     { value: 'EM_OBRAS', label: 'Em Obras' }
   ], [])
 
-  const onRegionChange = useCallback((e) => handleRegionFilterChange(e.target.value), [handleRegionFilterChange])
-  const onCityChange = useCallback((e) => handleCityFilterChange(e.target.value), [handleCityFilterChange])
-  const onTypeChange = useCallback((e) => handleTypeFilterChange(e.target.value), [handleTypeFilterChange])
+  const statusOptions = useMemo(() => [
+    { value: 'TODOS', label: 'Todos os Status' },
+    { value: 'HABILITADOS', label: 'Habilitados' },
+    { value: 'DESABILITADOS', label: 'Desabilitados' }
+  ], [])
 
-  const getSortIcon = useCallback(() => {
-    if (sortOrder === 'asc') return <ArrowUpAZ size={16} />
-    if (sortOrder === 'desc') return <ArrowDownAZ size={16} />
-    return <ArrowUpDown size={16} />
-  }, [sortOrder])
+  const handleClearAllFilters = useCallback(() => {
+    handleFiltersChange('searchTerm', '')
+    handleFiltersChange('regionFilter', 'TODAS')
+    handleFiltersChange('cityFilter', 'TODAS')
+    handleFiltersChange('typeFilter', 'TODOS')
+    handleFiltersChange('statusFilter', 'TODOS')
+    handleFiltersChange('sortOrder', 'none')
+  }, [handleFiltersChange])
 
+  const handleSearchInputChange = useCallback((value) => {
+    // InputView passes the string value as the first argument
+    handleFiltersChange('searchTerm', value ?? '')
+  }, [handleFiltersChange])
   if (loading) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
@@ -109,70 +112,91 @@ export function PropertiesConfigView() {
   return (
     <div style={{ '--header-height': `${headerHeight}px` }}>
       <SectionView className="flex flex-col !gap-section-col md:!gap-section-col-md">
-        <div className="flex items-center w-full justify-between flex-shrink-0">
+        {/* Title and Search Bar - Same Row */}
+        <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end flex-shrink-0">
           <HeadingView level={2} className="text-distac-primary">
             Gerenciar Imóveis
           </HeadingView>
+          <div className="flex-1">
+            <InputView
+              type="text"
+              placeholder="Buscar por título, cidade ou descrição..."
+              value={searchTerm}
+              onChange={handleSearchInputChange}
+              hasLabel={false}
+              isActive={true}
+            />
+          </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col gap-card md:gap-card-md flex-shrink-0">
-          <div className="flex flex-col md:flex-row gap-card md:gap-card-md">
-            <div className="flex-1">
-              <InputView
-                type="text"
-                placeholder="Buscar por título, cidade ou descrição..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                hasLabel={false}
-                isActive={true}
-              />
-            </div>
-            <SelectView
-              value={regionFilter}
-              name="regionFilter"
-              id="regionFilter"
-              options={regionOptions}
-              width="fit"
-              variant="brown"
-              shape="square"
-              hasLabel={false}
-              onChange={onRegionChange}
+        {/* Filters and Buttons - Full Width Row with Justify Between */}
+        <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end flex-shrink-0 md:justify-between">
+          {/* Left side: Filters and Sort Button */}
+          <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end">
+            <FilterView
+              key={`filter-${filterModel.getFilter('regionFilter')}-${filterModel.getFilter('cityFilter')}-${filterModel.getFilter('typeFilter')}-${filterModel.getFilter('statusFilter')}-${sortOrder}`}
+              filterConfigs={[
+                {
+                  key: 'regionFilter',
+                  options: regionOptions,
+                  width: 'fit',
+                  variant: 'brown',
+                  shape: 'square',
+                },
+                {
+                  key: 'cityFilter',
+                  options: cityOptions,
+                  width: 'fit',
+                  variant: 'brown',
+                  shape: 'square',
+                },
+                {
+                  key: 'typeFilter',
+                  options: typeOptions,
+                  width: 'fit',
+                  variant: 'brown',
+                  shape: 'square',
+                },
+                {
+                  key: 'statusFilter',
+                  options: statusOptions,
+                  width: 'fit',
+                  variant: 'brown',
+                  shape: 'square',
+                },
+              ]}
+              defaultFilters={{
+                regionFilter,
+                cityFilter,
+                typeFilter,
+                statusFilter: filterModel.getFilter('statusFilter') || 'TODOS'
+              }}
+              defaultSortOrder={sortOrder}
+              onFiltersChange={handleFiltersChange}
+              showResetButton={false}
+              showSortButton={true}
+              hideSearch={true}
             />
-            <SelectView
-              value={cityFilter}
-              name="cityFilter"
-              id="cityFilter"
-              options={cityOptions}
+          </div>
+
+          {/* Right side: Clear Button */}
+          <div className="w-full md:w-fit">
+            <ButtonView
+              type="button"
               width="fit"
-              variant="brown"
+              color="soft-gray"
+              onClick={handleClearAllFilters}
               shape="square"
-              hasLabel={false}
-              onChange={onCityChange}
-            />
-            <SelectView
-              value={typeFilter}
-              name="typeFilter"
-              id="typeFilter"
-              options={typeOptions}
-              width="fit"
-              variant="brown"
-              shape="square"
-              hasLabel={false}
-              onChange={onTypeChange}
-            />
-            <div className="w-full md:w-fit">
-              <ButtonView
-                type="button"
-                width="fit"
-                color={sortOrder !== 'none' ? 'pink' : 'brown'}
-                onClick={handleSortOrderChange}
-                shape="square"
-                title={sortOrder === 'asc' ? 'Ordenação crescente (A → Z)' : sortOrder === 'desc' ? 'Ordenação decrescente (Z → A)' : 'Sem ordenação'}
-              >
-                {getSortIcon()}
-              </ButtonView>
-            </div>
+              title="Limpar todos os filtros"
+              disabled={!filterModel.hasActiveFilters({
+                regionFilter: 'TODAS',
+                cityFilter: 'TODAS',
+                typeFilter: 'TODOS',
+                statusFilter: 'TODOS'
+              })}
+            >
+              Limpar
+            </ButtonView>
           </div>
         </div>
 

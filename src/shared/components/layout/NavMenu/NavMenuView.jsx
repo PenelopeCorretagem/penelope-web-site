@@ -90,7 +90,7 @@ export function NavMenuView({
       <Link
         key={item.id}
         to={item.route}
-        onClick={viewModel.handleItemClick}
+        onClick={() => viewModel.handleItemClick(item.route)}
         className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg ${
           isActive
             ? 'text-distac-primary underline underline-offset-4 decoration-2'
@@ -116,7 +116,7 @@ export function NavMenuView({
         shape='circle'
         disabled={action.requiresAuth && !viewModel.isAuthenticated}
         active={isActive}
-        onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
+        onClick={action.isLogoutAction ? viewModel.handleLogout : () => viewModel.handleItemClick(action.route)}
         title={action.label}
       >
         {renderIcon(action.icon)}
@@ -158,6 +158,7 @@ export function NavMenuView({
                 e.preventDefault()
                 return
               }
+              viewModel.handleItemClick(item.to)
               item.onClick?.()
             }}
             className={viewModel.getFooterLinkClasses(item.disabled)}
@@ -210,14 +211,14 @@ export function NavMenuView({
         {viewModel.isMobileMenuOpen ? <X /> : <Menu />}
       </button>
       {!hideLogo && (
-        <Link
-          to='/'
+        <button
+          onClick={() => viewModel.handleItemClick('/')}
           className={`inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
             hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
-          }`}
+          } bg-transparent border-none cursor-pointer p-0`}
         >
           <LogoView height={'40'} className='text-distac-primary fill-current' />
-        </Link>
+        </button>
       )}
 
       <div className={viewModel.getMenuItemsClasses(viewModel.isMobileMenuOpen)}>

@@ -3,6 +3,7 @@ import { PropertyTabsView } from '@institutional/components/PropertyTabs/Propert
 import { SectionView } from '@shared/components/layout/Section/SectionView.jsx'
 import { PropertyLocation } from '@institutional/components/PropertyLocation/PropertyLocation.jsx'
 import { PropertyFeatureView } from '@shared/components/ui/PropertyFeature/PropertyFeatureView.jsx'
+import * as LucideIcons from 'lucide-react'
 import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
 import { ImageView } from '@shared/components/ui/Image/ImageView.jsx'
 import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView.jsx'
@@ -129,11 +130,11 @@ export function PropertyDetailsView() {
 
       {/* Tabs - Sticky */}
       <div
-        className="bg-white shadow-sm"
+        className="sticky top-0 z-40 bg-white shadow-sm"
       >
         <PropertyTabsView
-          tabs={['Sobre o Imóvel', 'Diferenciais', 'Localização', 'Sobre a Região']}
-          anchors={['sobre-imovel', 'diferenciais', 'localizacao', 'sobre-regiao']}
+          tabs={['Sobre o Imóvel', 'Diferenciais', 'Localização', 'Sobre a Região', 'Imóveis Relacionados']}
+          anchors={['sobre-imovel', 'diferenciais', 'localizacao', 'sobre-regiao', 'imoveis-relacionados']}
         />
       </div>
 
@@ -150,16 +151,29 @@ export function PropertyDetailsView() {
           </SectionView>
 
           <SectionView id="diferenciais" className="bg-default-light-alt !pr-[544px]">
-            <div>
+            <div className='w-full'>
               <HeadingView level={2} className="text-distac-primary mb-10">
                 Diferenciais
               </HeadingView>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 auto-rows-fr max-w-4xl">
-                {realEstateAdvertisement.estate?.features?.map((feature) => (
-                  <div key={feature.id} className="h-full">
-                    <PropertyFeatureView feature={feature} />
-                  </div>
-                ))}
+              <div className="grid grid-cols-4 gap-4 w-full">
+                {realEstateAdvertisement.estate?.features?.map((feature) => {
+                  const iconName = feature?.icon
+                  const IconComponent = iconName ? LucideIcons[iconName] : null
+                  
+                  return (
+                    <div
+                      key={feature.id}
+                      className="flex items-center w-full justify-center gap-3 bg-default-dark-light rounded-sm p-3"
+                    >
+                      {IconComponent && (
+                        <IconComponent className="w-6 h-6 text-default-light flex-shrink-0" />
+                      )}
+                      <span className="text-default-light text-sm font-medium">
+                        {feature?.description}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </SectionView>
@@ -203,7 +217,8 @@ export function PropertyDetailsView() {
             className="sticky right-0 z-50 w-fit mr-[var(--padding-section-x)] md:mr-[var(--padding-section-x-md)] ml-auto pointer-events-auto"
             style={{
               top: `${headerHeight + tabsHeight + sectionPadding}px`,
-              marginTop: `${sectionPadding}px`
+              marginTop: `${sectionPadding}px`,
+              marginBottom: `${sectionPadding}px`
             }}
           >
             <PropertyCardView
@@ -219,7 +234,7 @@ export function PropertyDetailsView() {
 
       {/* Carrossel de Imóveis Relacionados */}
       {relatedRealEstateAdvertisements.length > 0 && (
-        <SectionView>
+        <SectionView id="imoveis-relacionados">
           <PropertiesCarouselView
             titleCarousel="Imóveis Relacionados"
             realEstateAdvertisements={relatedRealEstateAdvertisements}

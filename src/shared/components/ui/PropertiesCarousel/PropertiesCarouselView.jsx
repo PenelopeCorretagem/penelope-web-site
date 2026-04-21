@@ -144,6 +144,7 @@ export const PropertiesCarouselView = memo(function PropertiesCarouselView({
                 realEstateAdvertisement={realEstateAdvertisement}
                 realStateCardMode={realStateCardMode}
                 className="flex-shrink-0"
+                isCarouselItem={true}
               />
             ))}
           </div>

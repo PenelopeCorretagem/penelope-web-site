@@ -62,11 +62,13 @@ export class NavMenuModel {
       this.#createMenuItem({
         id: 'about',
         label: 'Sobre',
+        icon: 'Info',
         route: routes.ABOUT,
       }),
       this.#createMenuItem({
         id: 'contacts',
         label: 'Contatos',
+        icon: 'Phone',
         route: routes.CONTACTS,
       }),
     ]

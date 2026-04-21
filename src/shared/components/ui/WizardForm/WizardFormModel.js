@@ -104,6 +104,25 @@ export class WizardFormModel {
     return isValid
   }
 
+  validateAllSteps() {
+    let isValid = true
+    this.fieldErrors = {}
+
+    for (let i = 0; i < this.totalSteps; i++) {
+      const stepFields = this.getAllFieldsForStep(i)
+      stepFields.forEach(field => {
+        const value = this.fieldValues[field.name]
+
+        if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
+          this.fieldErrors[field.name] = `${field.label} é obrigatório`
+          isValid = false
+        }
+      })
+    }
+
+    return isValid
+  }
+
   // Método auxiliar para obter todos os campos de uma etapa
   getAllFieldsForStep(stepIndex) {
     const step = this.steps[stepIndex]

@@ -104,7 +104,7 @@ export function useAuthViewModel() {
       }
 
       sessionStorage.setItem('userEmail', formData.email)
-      sessionStorage.setItem('userRole', isAdminUser ? 'admin' : 'user')
+      sessionStorage.setItem('userRole', isAdminUser ? 'ADMINISTRADOR' : 'CLIENTE')
 
       // Se não temos user nem id na resposta, buscar na API
       if (!response.user && !response.id) {

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
+import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { HomeView } from '@institutional/pages/Home/HomeView'
 import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
 import { PropertyDetailsView } from '@institutional/pages/PropertyDetails/PropertyDetailsView'
@@ -49,6 +50,7 @@ export function RouterView({
   isAuthenticated = false,
   isAdmin = false,
   authReady = false,
+  shouldShowFooter = false,
 }) {
   const {
     calculateProtectedRouteAccess,
@@ -63,7 +65,7 @@ export function RouterView({
   const adminAccess = calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady)
 
   return (
-    <main className="router-view bg-default-light w-full flex-1 overflow-x-hidden overflow-y-auto">
+    <main className="router-view bg-default-light w-full h-full flex-1 overflow-x-hidden overflow-y-auto">
       <ScrollToTop />
       <Routes>
         {/* ===== ROTAS PÚBLICAS ===== */}
@@ -186,6 +188,7 @@ export function RouterView({
         <Route path={routes.NOT_FOUND} element={<NotFoundView />} />
         <Route path="*" element={<NotFoundView />} />
       </Routes>
+      {shouldShowFooter && <FooterView isAuthenticated={isAuthenticated} />}
     </main>
   )
 }

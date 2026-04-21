@@ -2,6 +2,7 @@ import { useFilterViewModel } from './useFilterViewModel'
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
 import { createElement } from 'react'
 
 // ============================================
@@ -11,30 +12,36 @@ export const FilterView = ({
   searchPlaceholder = 'Buscar...',
   filterConfigs = [], // Array de configurações de filtros
   defaultFilters = {},
+  defaultSortOrder = 'none',
   onFiltersChange,
   showResetButton = true,
   showSortButton = true,
+  hideSearch = false,
   className
 }) => {
   const viewModel = useFilterViewModel({
     defaultFilters,
+    defaultSortOrder,
     onFiltersChange
   })
 
   return (
     <div className={`flex flex-col gap-4 md:gap-4 flex-shrink-0 ${className}`}>
-      <div className="flex flex-col md:flex-row gap-4 md:gap-4">
+      {/* Filters, Buttons and Search Row */}
+      <div className="flex flex-col md:flex-row gap-4 md:gap-4 md:items-end">
         {/* Search Input */}
-        <div className="flex-1">
-          <InputView
-            type="text"
-            placeholder={searchPlaceholder}
-            value={viewModel.filterModel.searchTerm}
-            onChange={viewModel.handleSearchChange}
-            hasLabel={false}
-            isActive={true}
-          />
-        </div>
+        {!hideSearch && (
+          <div className="flex-1">
+            <InputView
+              type="text"
+              placeholder={searchPlaceholder}
+              value={viewModel.filterModel.searchTerm}
+              onChange={viewModel.handleSearchChange}
+              hasLabel={false}
+              isActive={true}
+            />
+          </div>
+        )}
 
         {/* Dynamic Filters */}
         {filterConfigs.map((config) => (
@@ -59,29 +66,31 @@ export const FilterView = ({
         {/* Sort Button */}
         {showSortButton && (
           <div className="w-full md:w-fit">
-            <ButtonView
-              type="button"
-              width="fit"
-              color={viewModel.filterModel.sortOrder !== 'none' ? 'pink' : 'brown'}
-              onClick={viewModel.handleSortOrderChange}
-              shape="square"
+            <SortButtonView
+              sortOrder={
+                viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
+                viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+              }
+              onSortChange={viewModel.handleSortOrderChange}
               title={viewModel.getSortTitle()}
-            >
-              {createElement(viewModel.getSortIcon(), { size: 16 })}
-            </ButtonView>
+              width="fit"
+              shape="square"
+              color="brown"
+            />
           </div>
         )}
 
         {/* Reset Button */}
-        {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
+        {showResetButton && (
           <div className="w-full md:w-fit">
             <ButtonView
               type="button"
               width="fit"
-              color="brown"
+              color="soft-gray"
               onClick={viewModel.handleResetFilters}
               shape="square"
               title="Limpar filtros"
+              disabled={!viewModel.filterModel.hasActiveFilters(defaultFilters)}
             >
               Limpar
             </ButtonView>

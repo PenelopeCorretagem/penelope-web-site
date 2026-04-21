@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AmenitiesModel } from './AmenitiesModel'
+import { getAllLucideIcons } from '@management/utils/lucideIconsUtil'
 
 /**
  * useAmenitiesViewModel - Hook ViewModel para Amenities
@@ -26,6 +27,10 @@ export const useAmenitiesViewModel = () => {
   // Estado do seletor de ícone
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false)
 
+  // Estado de confirmação para deletar
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+  const [pendingDeleteId, setPendingDeleteId] = useState(null)
+
   /**
    * Carrega amenities ao montar componente
    */
@@ -50,10 +55,11 @@ export const useAmenitiesViewModel = () => {
    * Abre modal para adicionar nova amenity
    */
   const handleAdd = useCallback(() => {
+    const firstIcon = getAllLucideIcons()[0] || 'Zap'
     setIsEditMode(false)
     setFormData({
       description: '',
-      icon: 'Zap',
+      icon: firstIcon,
     })
     setIsModalOpen(true)
   }, [])
@@ -121,25 +127,43 @@ export const useAmenitiesViewModel = () => {
   }, [model, isEditMode, formData, handleCloseModal])
 
   /**
-   * Deleta amenity
+   * Abre diálogo de confirmação para deletar amenity
    * @param {number} id
    */
-  const handleDelete = useCallback(async (id) => {
-    if (!window.confirm('Tem certeza que deseja deletar esta amenity?')) {
-      return
-    }
+  const handleDelete = useCallback((id) => {
+    setPendingDeleteId(id)
+    setIsConfirmDeleteOpen(true)
+  }, [])
+
+  /**
+   * Confirma a exclusão
+   */
+  const handleConfirmDelete = useCallback(async () => {
+    if (!pendingDeleteId) return
 
     try {
       setLoading(true)
-      await model.deleteAmenity(id)
+      await model.deleteAmenity(pendingDeleteId)
       setAmenities(model.amenities)
       setError(null)
+      setIsConfirmDeleteOpen(false)
+      setPendingDeleteId(null)
     } catch (err) {
       setError(err.message || 'Erro ao deletar amenity')
+      setIsConfirmDeleteOpen(false)
+      setPendingDeleteId(null)
     } finally {
       setLoading(false)
     }
-  }, [model])
+  }, [model, pendingDeleteId])
+
+  /**
+   * Cancela a exclusão
+   */
+  const handleCancelDelete = useCallback(() => {
+    setIsConfirmDeleteOpen(false)
+    setPendingDeleteId(null)
+  }, [])
 
   /**
    * Seleciona ícone do icon picker
@@ -162,11 +186,14 @@ export const useAmenitiesViewModel = () => {
     isEditMode,
     formData,
     isIconPickerOpen,
+    isConfirmDeleteOpen,
 
     // Métodos
     handleAdd,
     handleEdit,
     handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
     handleCloseModal,
     handleFormChange,
     handleSave,

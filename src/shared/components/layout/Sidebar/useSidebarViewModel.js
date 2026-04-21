@@ -10,6 +10,7 @@ import { SidebarModel } from './SidebarModel'
  * - Fornecer métodos de navegação
  * - Calcular estado ativo dos itens
  * - Gerenciar logout
+ * - Expor informações do usuário
  *
  * @param {boolean} isAdmin - Se usuário é admin
  * @param {boolean} initialOpen - Estado inicial do sidebar (padrão: false)
@@ -21,6 +22,8 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
   const [model] = useState(() => new SidebarModel(isAdmin))
   const [isOpen, setIsOpen] = useState(initialOpen)
   const [forceUpdate, setForceUpdate] = useState(0)
+  const [userEmail, setUserEmail] = useState('')
+  const [userRole, setUserRole] = useState('')
 
   // Sincroniza status de admin com o modelo E força re-render
   useEffect(() => {
@@ -28,14 +31,30 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     setForceUpdate(prev => prev + 1) // Força re-render dos menu items
   }, [isAdmin, model])
 
+  // Recuperar informações do usuário do sessionStorage
+  useEffect(() => {
+    const email = sessionStorage.getItem('userEmail') || ''
+    const role = sessionStorage.getItem('userRole') || 'CLIENTE'
+    setUserEmail(email)
+    setUserRole(role)
+  }, [])
+
   // Escutar mudanças de auth para atualizar sidebar
   useEffect(() => {
     const handleAuthChange = () => {
+      const email = sessionStorage.getItem('userEmail') || ''
+      const role = sessionStorage.getItem('userRole') || 'CLIENTE'
+      setUserEmail(email)
+      setUserRole(role)
       setForceUpdate(prev => prev + 1)
     }
 
     const handleStorageChange = (event) => {
-      if (['jwtToken', 'userRole', 'userId'].includes(event.key)) {
+      if (['jwtToken', 'userRole', 'userId', 'userEmail'].includes(event.key)) {
+        const email = sessionStorage.getItem('userEmail') || ''
+        const role = sessionStorage.getItem('userRole') || 'CLIENTE'
+        setUserEmail(email)
+        setUserRole(role)
         setForceUpdate(prev => prev + 1)
       }
     }
@@ -97,6 +116,8 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     isOpen,
     menuItems: model.getMenuItems(), // Será recalculado quando forceUpdate mudar
     homeRoute: model.getHomeRoute(),
+    userEmail,
+    userRole,
 
     // Verificações
     isRouteActive,
