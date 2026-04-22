@@ -90,7 +90,7 @@ export function NavMenuView({
       <Link
         key={item.id}
         to={item.route}
-        onClick={viewModel.handleItemClick}
+        onClick={() => viewModel.handleItemClick(item.route)}
         className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg ${
           isActive
             ? 'text-distac-primary underline underline-offset-4 decoration-2'
@@ -116,7 +116,7 @@ export function NavMenuView({
         shape='circle'
         disabled={action.requiresAuth && !viewModel.isAuthenticated}
         active={isActive}
-        onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
+        onClick={action.isLogoutAction ? viewModel.handleLogout : () => viewModel.handleItemClick(action.route)}
         title={action.label}
       >
         {renderIcon(action.icon)}
@@ -124,19 +124,15 @@ export function NavMenuView({
     )
   }
 
-  // Ordem das seções no mobile para grid 2 colunas equilibrada (Geral|Contatos, Vendas|Acesso)
-  const mobileOrderClasses = {
-    geral: 'order-1 md:order-none',
-    contatos: 'order-2 md:order-none',
-    vendas: 'order-3 md:order-none',
-    acesso: 'order-4 md:order-none'
-  }
-
   const renderFooterSection = (sectionName, items) => (
-    <div key={sectionName} className={viewModel.getFooterSectionClasses() + ' ' + (mobileOrderClasses[sectionName] || '')}>
+    <div
+      key={sectionName}
+      className={`${viewModel.getFooterSectionClasses()} ${viewModel.getFooterSectionMobileOrder(sectionName)}`}
+    >
       <HeadingView level={6} className='text-distac-primary font-extrabold'>
-        {getSectionTitle(sectionName)}
+        {viewModel.getSectionTitle(sectionName)}
       </HeadingView>
+      
       {items.map(item => (
         item.openInNewTab ? (
           <a
@@ -166,6 +162,7 @@ export function NavMenuView({
                 e.preventDefault()
                 return
               }
+              viewModel.handleItemClick(item.to)
               item.onClick?.()
             }}
             className={viewModel.getFooterLinkClasses(item.disabled)}
@@ -178,16 +175,6 @@ export function NavMenuView({
       ))}
     </div>
   )
-
-  const getSectionTitle = (sectionName) => {
-    const titles = {
-      geral: 'Geral',
-      vendas: 'Vendas',
-      acesso: 'Acesso',
-      contatos: 'Contatos'
-    }
-    return titles[sectionName] || sectionName
-  }
 
   // Footer variant
   if (variant === 'footer') {
@@ -253,14 +240,14 @@ export function NavMenuView({
 
       {/* Desktop: logo (escondida no mobile) */}
       {!hideLogo && (
-        <Link
-          to='/'
+        <button
+          onClick={() => viewModel.handleItemClick('/')}
           className={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
             hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
-          }`}
+          } bg-transparent border-none cursor-pointer p-0`}
         >
           <LogoView height={'40'} className='text-distac-primary fill-current' />
-        </Link>
+        </button>
       )}
 
       {/* Desktop: itens do menu (hidden md:flex via tema) */}

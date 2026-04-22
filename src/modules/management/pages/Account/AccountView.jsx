@@ -23,7 +23,7 @@ export function AccountView() {
   }
 
   return (
-    <SectionView className='flex flex-col h-screen gap-subsection subsection md:gap-subsection-md'>
+    <SectionView className='flex flex-col h-full gap-subsection subsection md:gap-subsection-md'>
       <EditFormView
         title="MINHA CONTA"
         fields={vm.accountFields}

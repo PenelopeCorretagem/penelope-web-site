@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { ScreeningFormModel } from './ScreeningFormModel'
 import { generateWhatsAppLink } from '@shared/utils/WhatsApp/generateWhatsAppLinkUtil'
 
-export function useScreeningFormViewModel(realEstateAdvertisement) {
+export function useScreeningFormViewModel(advertisement) {
 
   const [formData, setFormData] = useState(ScreeningFormModel.defaultFormData)
   const [alertConfig, setAlertConfig] = useState(null)
@@ -38,14 +38,14 @@ export function useScreeningFormViewModel(realEstateAdvertisement) {
       return
     }
 
-    let realEstateAdvertisementInfo = ''
-    if (realEstateAdvertisement && realEstateAdvertisement?.estate?.title) {
-      realEstateAdvertisementInfo = `Imóvel: ${realEstateAdvertisement.estate.title}\n\n`
+    let advertisementInfo = ''
+    if (advertisement && advertisement?.estate?.title) {
+      advertisementInfo = `Imóvel: ${advertisement.estate.title}\n\n`
     }
 
     const mensagem = [
       'Olá! Segue minha triagem:',
-      realEstateAdvertisementInfo,
+      advertisementInfo,
       `Nome: ${nome || ''} ${sobrenome || ''}`,
       `Cpf: ${cpf || ''}`,
       `E-mail: ${email || ''}`,

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { NavMenuModel } from '@shared/components/layout/NavMenu/NavMenuModel'
 import { RouterModel } from '@routes/RouterModel'
 import {
@@ -13,6 +13,8 @@ import {
   getNavMenuItemThemeClasses,
   getNavMenuActionThemeClasses,
 } from '@shared/styles/theme'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+
 
 /**
  * Hook de ViewModel do componente de Navegação (NavMenuView).
@@ -39,6 +41,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
   const [routerModel] = useState(() => RouterModel.getInstance())
   const [, forceUpdate] = useState(0)
   const location = useLocation()
+  const navigate = useNavigate()
 
   /**
    * Força atualização manual do componente.
@@ -79,37 +82,49 @@ export function useNavMenuViewModel(isAuthenticated = false) {
   }, [location.pathname])
 
   /**
-   * Fecha o menu mobile e força atualização.
-   * O scroll para o topo é gerenciado pelo componente ScrollToTop.
-   *
-   * @function
-   * @example
-   * handleItemClick()
-   */
-  const handleItemClick = useCallback(() => {
+ * Fecha o menu mobile e navega para a rota clicada.
+ * Se a rota clicada for EXATAMENTE a rota atual (sem filhos), recarrega.
+ * Evita o bug de recarregar /imoveis/{id} ao clicar em /imoveis.
+ */
+  const handleItemClick = useCallback((routePath) => {
     model.closeMobileMenu()
+
+    if (routePath && location.pathname === routePath) {
+      window.location.href = routePath
+      return
+    }
+
     refresh()
-  }, [model, refresh])
+  }, [model, refresh, location.pathname])
 
   /**
    * Executa o processo de logout.
-   * - Reseta scroll para o topo;
-   * - Remove token JWT do `localStorage`;
-   * - Atualiza estado de autenticação;
-   * - Fecha o menu mobile;
-   * - Redireciona para a home (`/`).
+   * - Dispara transição visual
+   * - Reseta scroll para o topo
+   * - Remove token JWT
+   * - Atualiza estado de autenticação
+   * - Fecha o menu mobile
+   * - Redireciona para a home
    *
    * @function
    * @example
    * handleLogout()
    */
   const handleLogout = useCallback(() => {
-    window.scrollTo(0, 0)
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
-    model.setAuthenticationStatus(false)
-    model.closeMobileMenu()
-    window.location.href = routerModel.get('HOME')
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+    }))
+
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+      authSessionUtil.clear()
+      model.setAuthenticationStatus(false)
+      model.closeMobileMenu()
+
+      setTimeout(() => {
+        window.location.href = routerModel.get('HOME')
+      }, 300)
+    }, 300)
   }, [model, routerModel])
 
   /**
@@ -251,5 +266,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
     handleLogout,
     toggleMobileMenu,
     closeMobileMenu,
+    getSectionTitle: (key) => model.getSectionTitle(key),
+    getFooterSectionMobileOrder: (key) => model.getFooterSectionMobileOrder(key),
   }
 }

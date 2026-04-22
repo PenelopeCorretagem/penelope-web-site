@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { getAllAdvertisements } from '@service-penelopec/realEstateAdvertisementService'
+import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { HomeModel } from './HomeModel'
-import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
-import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { AdvertisementCardModel } from '@shared/components/ui/AdvertisementCard/AdvertisementCardModel'
+import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
 export function useHomeViewModel() {
@@ -18,7 +18,7 @@ export function useHomeViewModel() {
   // ======================
   // FETCH: Lançamentos
   // ======================
-  const fetchLaunchProperties = useCallback(async () => {
+  const fetchLaunchAdvertisements = useCallback(async () => {
     try {
       const launchAds = await getAllAdvertisements({
         type: ESTATE_TYPES['LANCAMENTO'].key,
@@ -26,7 +26,7 @@ export function useHomeViewModel() {
       })
 
       if (Array.isArray(launchAds)) {
-        homeModel.setPreLaunchRealEstateAdvertisements(launchAds)
+        homeModel.setPreLaunchAdvertisements(launchAds)
       }
     } catch (error) {
       console.error('❌ Erro ao carregar lançamentos:', error)
@@ -45,7 +45,7 @@ export function useHomeViewModel() {
     refreshUI()
 
     try {
-      await fetchLaunchProperties()
+      await fetchLaunchAdvertisements()
     }
     catch (error) {
       homeModel.setError(error.message || 'Erro ao carregar a Home')
@@ -54,7 +54,7 @@ export function useHomeViewModel() {
       homeModel.setLoading(false)
       refreshUI()
     }
-  }, [homeModel, fetchLaunchProperties, refreshUI])
+  }, [homeModel, fetchLaunchAdvertisements, refreshUI])
 
 
 
@@ -65,27 +65,27 @@ export function useHomeViewModel() {
     fetchHomeData()
   }, [fetchHomeData])
 
-  const mapperPropertyCardModel = useCallback((realEstateAdvertisement, realStateCardMode) => {
-    return !realEstateAdvertisement
+  const mapperAdvertisementCardModel = useCallback((advertisement, advertisementCardMode) => {
+    return !advertisement
       ? null
-      : new PropertyCardModel(
+      : new AdvertisementCardModel(
         {
-          realEstateAdvertisement: realEstateAdvertisement,
-          realStateCardMode: realStateCardMode
+          advertisement: advertisement,
+          advertisementCardMode: advertisementCardMode
         }
       )
   }, [])
 
   // Memoize the mapped properties to avoid recreating arrays on every render
-  const featuredProperty = useMemo(() =>
-    mapperPropertyCardModel(homeModel.featuredRealEstateAdvertisement, REAL_STATE_CARD_MODES.DISTAC),
-  [homeModel.featuredRealEstateAdvertisement, mapperPropertyCardModel]
+  const featuredAdvertisement = useMemo(() =>
+    mapperAdvertisementCardModel(homeModel.featuredAdvertisement, ADVERTISEMENT_CARD_MODES.DISTAC),
+  [homeModel.featuredAdvertisement, mapperAdvertisementCardModel]
   )
 
-  // Don't map to PropertyCardModel here - let PropertiesCarouselView handle it
-  const launchProperties = useMemo(() =>
-    homeModel.preLaunchRealEstateAdvertisements,
-  [homeModel.preLaunchRealEstateAdvertisements]
+  // Don't map to AdvertisementCardModel here - let AdvertisementsCarouselView handle it
+  const launchAdvertisements = useMemo(() =>
+    homeModel.preLaunchAdvertisements,
+  [homeModel.preLaunchAdvertisements]
   )
 
 
@@ -98,12 +98,12 @@ export function useHomeViewModel() {
     isLoading: homeModel.isLoading,
     error: homeModel.error,
 
-    hasFeaturedProperty: !!homeModel.featuredRealEstateAdvertisement,
-    hasLaunchProperties: homeModel.preLaunchRealEstateAdvertisements.length > 0,
+    hasFeaturedAdvertisement: !!homeModel.featuredAdvertisement,
+    hasLaunchAdvertisements: homeModel.preLaunchAdvertisements.length > 0,
 
-    featureImageCoverUrl: homeModel.featuredRealEstateAdvertisement !== null ? homeModel.featuredRealEstateAdvertisement.estate.getCoverImageUrl() : null,
-    featuredProperty,
-    launchProperties,
+    featureImageCoverUrl: homeModel.featuredAdvertisement !== null ? homeModel.featuredAdvertisement.estate.getCoverImageUrl() : null,
+    featuredAdvertisement,
+    launchAdvertisements,
 
     refresh: fetchHomeData
   }

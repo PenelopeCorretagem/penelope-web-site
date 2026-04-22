@@ -31,14 +31,14 @@ export const IMAGE_TYPE_LIST = Object.values(IMAGE_TYPES)
  * Verifica se um tipo de imagem é válido por descrição
  */
 export const isValidImageType = (description) => {
-  return Object.prototype.hasOwnProperty.call(IMAGE_TYPE_BY_DESCRIPTION, description)
+  return Object.prototype.hasOwnAdvertisement.call(IMAGE_TYPE_BY_DESCRIPTION, description)
 }
 
 /**
  * Verifica se um ID de tipo de imagem é válido
  */
 export const isValidImageTypeId = (id) => {
-  return Object.prototype.hasOwnProperty.call(IMAGE_TYPE_BY_ID, id)
+  return Object.prototype.hasOwnAdvertisement.call(IMAGE_TYPE_BY_ID, id)
 }
 
 /**
