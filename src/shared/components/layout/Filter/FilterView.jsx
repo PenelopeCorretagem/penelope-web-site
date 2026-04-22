@@ -80,35 +80,39 @@ export const FilterView = ({
             </div>
           ))}
 
-          {showSortButton && (
-            <div className="flex-1 min-w-[calc(50%-6px)]">
-              <ButtonView
-                type="button"
-                width="full"
-                color={viewModel.filterModel.sortOrder !== 'none' ? 'pink' : 'brown'}
-                onClick={viewModel.handleSortOrderChange}
-                shape="square"
-                title={viewModel.getSortTitle()}
-              >
-                {createElement(viewModel.getSortIcon(), { size: 16 })}
-              </ButtonView>
-            </div>
-          )}
+          <div className="flex gap-3 flex-1 min-w-[calc(50%-6px)] items-stretch">
+            {showSortButton && (
+              <div className="flex-1">
+                <ButtonView
+                  type="button"
+                  width="full"
+                  color={viewModel.filterModel.sortOrder !== 'none' ? 'pink' : 'brown'}
+                  onClick={viewModel.handleSortOrderChange}
+                  shape="square"
+                  title={viewModel.getSortTitle()}
+                  className="h-full"
+                >
+                  {createElement(viewModel.getSortIcon(), { size: 16 })}
+                </ButtonView>
+              </div>
+            )}
 
-          {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
-            <div className="flex-1 min-w-[calc(50%-6px)]">
-              <ButtonView
-                type="button"
-                width="full"
-                color="brown"
-                onClick={viewModel.handleResetFilters}
-                shape="square"
-                title="Limpar filtros"
-              >
-                Limpar
-              </ButtonView>
-            </div>
-          )}
+            {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
+              <div className="flex-1">
+                <ButtonView
+                  type="button"
+                  width="full"
+                  color="brown"
+                  onClick={viewModel.handleResetFilters}
+                  shape="square"
+                  title="Limpar filtros"
+                  className="h-full"
+                >
+                  Limpar
+                </ButtonView>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
