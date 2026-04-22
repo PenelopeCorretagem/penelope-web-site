@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import * as LucideIcons from 'lucide-react'
 import { X } from 'lucide-react'
-import { getAllLucideIcons, isValidIcon } from '@management/utils/lucideIconsUtil'
+import { getAllLucideIcons, isValidIcon } from '@shared/utils/lucideIcons/lucideIconsUtil'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'

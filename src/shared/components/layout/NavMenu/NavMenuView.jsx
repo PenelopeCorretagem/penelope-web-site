@@ -124,19 +124,15 @@ export function NavMenuView({
     )
   }
 
-  // Ordem das seções no mobile para grid 2 colunas equilibrada (Geral|Contatos, Vendas|Acesso)
-  const mobileOrderClasses = {
-    geral: 'order-1 md:order-none',
-    contatos: 'order-2 md:order-none',
-    vendas: 'order-3 md:order-none',
-    acesso: 'order-4 md:order-none'
-  }
-
   const renderFooterSection = (sectionName, items) => (
-    <div key={sectionName} className={viewModel.getFooterSectionClasses() + ' ' + (mobileOrderClasses[sectionName] || '')}>
+    <div
+      key={sectionName}
+      className={`${viewModel.getFooterSectionClasses()} ${viewModel.getFooterSectionMobileOrder(sectionName)}`}
+    >
       <HeadingView level={6} className='text-distac-primary font-extrabold'>
-        {getSectionTitle(sectionName)}
+        {viewModel.getSectionTitle(sectionName)}
       </HeadingView>
+      
       {items.map(item => (
         item.openInNewTab ? (
           <a
@@ -179,16 +175,6 @@ export function NavMenuView({
       ))}
     </div>
   )
-
-  const getSectionTitle = (sectionName) => {
-    const titles = {
-      geral: 'Geral',
-      vendas: 'Vendas',
-      acesso: 'Acesso',
-      contatos: 'Contatos'
-    }
-    return titles[sectionName] || sectionName
-  }
 
   // Footer variant
   if (variant === 'footer') {

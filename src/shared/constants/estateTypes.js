@@ -31,14 +31,14 @@ export const ESTATE_TYPE_LIST = Object.values(ESTATE_TYPES)
  * Verifica se um tipo é válido pela key
  */
 export const isValidEstateType = (key) => {
-  return Object.prototype.hasOwnProperty.call(ESTATE_TYPE_BY_KEY, key)
+  return Object.prototype.hasOwnAdvertisement.call(ESTATE_TYPE_BY_KEY, key)
 }
 
 /**
  * Verifica se um friendlyName é válido
  */
 export const isValidEstateFriendlyName = (friendlyName) => {
-  return Object.prototype.hasOwnProperty.call(ESTATE_TYPE_BY_FRIENDLY_NAME, friendlyName)
+  return Object.prototype.hasOwnAdvertisement.call(ESTATE_TYPE_BY_FRIENDLY_NAME, friendlyName)
 }
 
 /**

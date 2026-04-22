@@ -1,6 +1,25 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AmenitiesModel } from './AmenitiesModel'
-import { getAllLucideIcons } from '@management/utils/lucideIconsUtil'
+import { getAllLucideIcons } from '@shared/utils/lucideIcons/lucideIconsUtil'
+import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
+
+const DUPLICATE_AMENITY_MESSAGE = 'Não é possível criar este diferencial pois já existe um diferencial com essa descrição.'
+
+const isDuplicateAmenityError = (error) => {
+  const rawMessage = [
+    error?.response?.data?.message,
+    error?.response?.data?.error,
+    error?.message,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return rawMessage.includes('já existe um diferencial com a descrição')
+    || rawMessage.includes('já existe um diferencial com essa descrição')
+    || rawMessage.includes('duplicate')
+    || rawMessage.includes('constraint')
+}
 
 /**
  * useAmenitiesViewModel - Hook ViewModel para Amenities com paginação
@@ -22,6 +41,14 @@ export const useAmenitiesViewModel = () => {
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
 
+  // Estado de filtros via FilterModel
+  const [filterModel, setFilterModel] = useState(() => new FilterModel({
+    filters: {
+      initialFilter: 'TODOS'
+    },
+    sortOrder: 'none'
+  }))
+
   // Estado do modal
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -33,17 +60,24 @@ export const useAmenitiesViewModel = () => {
   // Estado do seletor de ícone
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false)
 
+  // Alerta específico para erros de criação/edição
+  const [formAlertConfig, setFormAlertConfig] = useState(null)
+
   // Estado de confirmação para deletar
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
   /**
-   * Carrega amenities ao montar componente ou mudar página
+   * Carrega amenities ao montar componente, mudar página ou alterar filtros
    */
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true)
+        model.searchTerm = filterModel.searchTerm
+        model.sortOrder = filterModel.sortOrder === 'none' ? '' : filterModel.sortOrder
+        const initial = filterModel.getFilter('initialFilter')
+        model.initialFilter = initial === 'TODOS' ? '' : initial
         await model.loadAmenities(currentPage, pageSize)
         setAmenities(model.amenities)
         setTotalPages(model.totalPages)
@@ -56,8 +90,13 @@ export const useAmenitiesViewModel = () => {
       }
     }
 
-    loadData()
-  }, [model, currentPage, pageSize])
+    // Usamos um debounce simples para a busca
+    const timeoutId = setTimeout(() => {
+      loadData()
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [model, currentPage, pageSize, filterModel])
 
   /**
    * Abre modal para adicionar nova amenity
@@ -93,6 +132,14 @@ export const useAmenitiesViewModel = () => {
     setIsModalOpen(false)
     model.clearSelection()
   }, [model])
+
+  const handleCloseError = useCallback(() => {
+    setError(null)
+  }, [])
+
+  const handleCloseFormAlert = useCallback(() => {
+    setFormAlertConfig(null)
+  }, [])
 
   /**
    * Atualiza campo do formulário
@@ -132,7 +179,15 @@ export const useAmenitiesViewModel = () => {
     } catch (err) {
       // Tenta extrair mensagem da resposta da API
       const errorMessage = err.response?.data?.message || err.message || 'Erro ao salvar diferencial'
-      setError(errorMessage)
+      if (!isEditMode && isDuplicateAmenityError(err)) {
+        setFormAlertConfig({
+          type: 'warning',
+          message: DUPLICATE_AMENITY_MESSAGE,
+        })
+        setError(null)
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
@@ -224,6 +279,22 @@ export const useAmenitiesViewModel = () => {
     setCurrentPage(1) // Volta para página 1 ao mudar o tamanho
   }, [])
 
+  /**
+   * Atualiza os filtros via FilterModel
+   */
+  const handleFiltersChange = useCallback((filterKey, filterValue) => {
+    setFilterModel(prev => {
+      if (filterKey === 'searchTerm') {
+        return prev.with({ searchTerm: filterValue })
+      } else if (filterKey === 'sortOrder') {
+        return prev.with({ sortOrder: filterValue })
+      } else {
+        return prev.withFilter(filterKey, filterValue)
+      }
+    })
+    setCurrentPage(1) // Volta para a primeira página ao filtrar
+  }, [])
+
   return {
     // Estado
     amenities,
@@ -234,12 +305,16 @@ export const useAmenitiesViewModel = () => {
     formData,
     isIconPickerOpen,
     isConfirmDeleteOpen,
+    formAlertConfig,
 
     // Paginação
     currentPage,
     pageSize,
     totalPages,
     totalElements,
+
+    // Filtros
+    filterModel,
 
     // Métodos
     handleAdd,
@@ -248,13 +323,17 @@ export const useAmenitiesViewModel = () => {
     handleConfirmDelete,
     handleCancelDelete,
     handleCloseModal,
+    handleCloseError,
     handleFormChange,
     handleSave,
     handleSelectIcon,
     setIsIconPickerOpen,
+    handleCloseFormAlert,
     handlePreviousPage,
     handleNextPage,
     handleGoToPage,
     handlePageSizeChange,
+    handleFiltersChange,
   }
 }
+

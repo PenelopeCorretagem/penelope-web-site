@@ -59,6 +59,16 @@ export const updateAdvertisementStatus = async (id, active) => {
 }
 
 /**
+ * Remove um anúncio definitivamente.
+ * @param {number} id - ID do anúncio
+ * @returns {Promise<{id: number}>}
+ */
+export const deleteAdvertisement = async (id) => {
+  await advertisementApi.deleteAdvertisement(id)
+  return { id }
+}
+
+/**
  * Alias para compatibilidade
  */
 export const listAllAdvertisements = getAllAdvertisements

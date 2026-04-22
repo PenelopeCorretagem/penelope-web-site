@@ -1,15 +1,14 @@
-import { useState } from 'react'
 import * as LucideIcons from 'lucide-react'
-import { Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useAmenitiesViewModel } from './useAmenitiesViewModel'
-import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
-import { AmenitiesFormView } from '../../components/ui/AmenitiesFormView/AmenitiesFormView'
+import { AmenitiesFormView } from '@management/components/AmenitiesForm/AmenitiesFormView'
 import { IconPickerView } from '@management/components/IconPicker/IconPickerView'
-import { isValidIcon } from '@management/utils/lucideIconsUtil'
+import { isValidIcon } from '@shared/utils/lucideIcons/lucideIconsUtil'
+import { FilterView } from '@shared/components/layout/Filter/FilterView'
 
 /**
  * AmenitiesView - Tela de gerenciamento de amenities/comodidades
@@ -20,7 +19,6 @@ import { isValidIcon } from '@management/utils/lucideIconsUtil'
  * - Permitir seleção de ícones
  */
 export function AmenitiesView() {
-  const headerHeight = useHeaderHeight()
   const {
     amenities,
     loading,
@@ -30,24 +28,26 @@ export function AmenitiesView() {
     formData,
     isIconPickerOpen,
     isConfirmDeleteOpen,
+    formAlertConfig,
     currentPage,
-    pageSize,
     totalPages,
     totalElements,
+    filterModel,
     handleAdd,
     handleEdit,
     handleDelete,
     handleConfirmDelete,
     handleCancelDelete,
     handleCloseModal,
+    handleCloseError,
     handleFormChange,
     handleSave,
     handleSelectIcon,
+    handleCloseFormAlert,
     setIsIconPickerOpen,
     handlePreviousPage,
     handleNextPage,
-    handleGoToPage,
-    handlePageSizeChange,
+    handleFiltersChange,
   } = useAmenitiesViewModel()
 
   const renderIcon = (iconName, isWhite = false) => {
@@ -67,26 +67,54 @@ export function AmenitiesView() {
   return (
     <SectionView className="flex flex-col overflow-hidden h-full !gap-subsection md:!gap-subsection-md relative">
       {/* Header com título e botão de adicionar */}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <HeadingView level={2} className="text-distac-primary">
-          Diferenciais
-        </HeadingView>
-        <ButtonView
-          variant="distac"
-          onClick={handleAdd}
-          className="flex items-center gap-2"
-          width="fit"
-        >
-          <Plus size={18} />
-          Adicionar Diferencial
-        </ButtonView>
+      <div className="flex flex-col gap-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <HeadingView level={2} className="text-distac-primary">
+            Diferenciais
+          </HeadingView>
+          <ButtonView
+            variant="distac"
+            onClick={handleAdd}
+            className="flex items-center gap-2"
+            width="fit"
+          >
+            <Plus size={18} />
+            Adicionar Diferencial
+          </ButtonView>
+        </div>
+
+        {/* Filtros */}
+        <div className="flex flex-col gap-3">
+          <FilterView
+            searchPlaceholder="Buscar diferencial..."
+            filterConfigs={[
+              {
+                key: 'initialFilter',
+                options: [
+                  { value: 'TODOS', label: 'Letra Inicial: Todas' },
+                  ...Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map(letter => ({ value: letter, label: letter }))
+                ],
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+              }
+            ]}
+            defaultFilters={{ initialFilter: 'TODOS' }}
+            defaultSortOrder="none"
+            onFiltersChange={handleFiltersChange}
+          />
+        </div>
       </div>
 
       {/* Alertas */}
       {error && (
-        <AlertView variant="error" className="flex-shrink-0">
-          {error}
-        </AlertView>
+        <AlertView
+          isVisible={!!error}
+          type="error"
+          message={error}
+          onClose={handleCloseError}
+          hasCloseButton={true}
+        />
       )}
 
       {/* Tabela de amenities */}
@@ -97,26 +125,39 @@ export function AmenitiesView() {
           </div>
         ) : (
           <>
-            <div className="overflow-y-auto flex-1 min-h-0">
-              <table className="w-full">
+            {/* Header da Tabela (Fixo com compensação de scrollbar) */}
+            <div className="bg-slate-50 border-b border-slate-200">
+              <div className="overflow-y-scroll invisible">
+                <table className="w-full table-fixed visible bg-slate-50">
+                  <colgroup>
+                    <col className="w-[100px]" />
+                    <col className="w-auto" />
+                    <col className="w-[160px]" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
+                        Ícone
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
+                        Diferencial
+                      </th>
+                      <th className="px-6 py-3 text-right text-sm font-semibold text-default-dark">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+
+            <div className="overflow-y-scroll flex-1 min-h-0">
+              <table className="w-full table-fixed">
                 <colgroup>
-                  <col style={{ width: 'auto' }} />
-                  <col style={{ width: '100%' }} />
-                  <col style={{ width: 'auto' }} />
+                  <col className="w-[100px]" />
+                  <col className="w-auto" />
+                  <col className="w-[160px]" />
                 </colgroup>
-                <thead className="sticky top-0 bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
-                      Ícone
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
-                      Diferencial
-                    </th>
-                    <th className="px-6 py-3 text-right text-sm font-semibold text-default-dark">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
                 <tbody className="divide-y divide-slate-100">
                   {amenities.length === 0 ? (
                     <tr>
@@ -178,7 +219,7 @@ export function AmenitiesView() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-4">
                   <ButtonView
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1 || loading}
@@ -216,6 +257,14 @@ export function AmenitiesView() {
         onFormChange={handleFormChange}
         onSave={handleSave}
         onIconPickerOpen={() => setIsIconPickerOpen(true)}
+      />
+
+      <AlertView
+        isVisible={!!formAlertConfig}
+        type={formAlertConfig?.type || 'warning'}
+        message={formAlertConfig?.message || 'Não foi possível salvar o diferencial.'}
+        onClose={handleCloseFormAlert}
+        hasCloseButton={true}
       />
 
       {/* Icon Picker Modal */}

@@ -2,22 +2,22 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { PropertyCardView } from '@shared/components/ui/PropertyCard/PropertyCardView'
+import { AdvertisementCardView } from '@shared/components/ui/AdvertisementCard/AdvertisementCardView'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
-import { PropertiesCarouselView } from '@shared/components/ui/PropertiesCarousel/PropertiesCarouselView'
+import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 
 import { useHomeViewModel } from './useHomeViewModel'
 
 export function HomeView() {
   const {
-    featuredProperty,
-    launchProperties,
+    featuredAdvertisement,
+    launchAdvertisements,
     isLoading,
     error,
-    hasFeaturedProperty,
-    hasLaunchProperties,
+    hasFeaturedAdvertisement,
+    hasLaunchAdvertisements,
     refresh
   } = useHomeViewModel()
 
@@ -45,32 +45,22 @@ export function HomeView() {
   return (
     <>
       <div className='flex flex-col items-center  bg-default-light-alt'>
-        {/*Destac Announcement Property*/}
+        {/*Destac Announcement Advertisement*/}
         <SectionView className='!p-0'>
-          {hasFeaturedProperty ? (
-            <PropertyCardView
-              advertisement={featuredProperty.advertisement}
-              realStateCardMode={featuredProperty.realStateCardMode}
+          {hasFeaturedAdvertisement ? (
+            <AdvertisementCardView
+              advertisement={featuredAdvertisement.advertisement}
+              advertisementCardMode={featuredAdvertisement.advertisementCardMode}
             />
           ) : null}
         </SectionView>
-
-        {/* <div className='flex flex-col items-center gap-subsection md:gap-subsection-md p-card md:p-card-md rounded-sm w-fit shadow bg-default-light relative bottom-6 -mb-6'>
-          <HeadingView
-            level={4}
-            className='text-center mt-section-y md:mt-section-y-md text-distac-secondary'
-          >
-            Encontre seu imóvel ideal
-          </HeadingView>
-          <SearchFilterView className="w-fit !bg-default-light !p-0" selectClassName="!bg-default-light-muted" />
-        </div> */}
       </div>
 
-      {/*Destac Properties*/}
+      {/*Destac Advertisements*/}
       <SectionView className="bg-default-light">
-        {hasLaunchProperties ? (
-          <PropertiesCarouselView
-            advertisements={launchProperties}
+        {hasLaunchAdvertisements ? (
+          <AdvertisementsCarouselView
+            advertisements={launchAdvertisements}
             titleCarousel="Nossos Lançamentos"
             showActionButton={true}
             actionButtonText="Ver Todos"

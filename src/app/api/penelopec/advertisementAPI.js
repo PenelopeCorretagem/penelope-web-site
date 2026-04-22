@@ -100,6 +100,20 @@ export const updateAdvertisementStatus = async (id, active) => {
 }
 
 /**
+ * Remove um anúncio definitivamente.
+ * @param {number} id - O ID do anúncio
+ * @returns {Promise<void>}
+ */
+export const deleteAdvertisement = async (id) => {
+  try {
+    await axiosInstance.delete(`/advertisements/${id}`)
+  } catch (error) {
+    console.error(`❌ [ADVERTISEMENTS API] Erro ao excluir anúncio ${id}:`, error)
+    throw error
+  }
+}
+
+/**
  * Alias para compatibilidade
  */
 export const listAllAdvertisements = getAllAdvertisements

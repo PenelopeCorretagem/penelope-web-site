@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { HomeModel } from './HomeModel'
-import { PropertyCardModel } from '@shared/components/ui/PropertyCard/PropertyCardModel'
-import { REAL_STATE_CARD_MODES } from '@constant/realStateCardModes'
+import { AdvertisementCardModel } from '@shared/components/ui/AdvertisementCard/AdvertisementCardModel'
+import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
 export function useHomeViewModel() {
@@ -18,7 +18,7 @@ export function useHomeViewModel() {
   // ======================
   // FETCH: Lançamentos
   // ======================
-  const fetchLaunchProperties = useCallback(async () => {
+  const fetchLaunchAdvertisements = useCallback(async () => {
     try {
       const launchAds = await getAllAdvertisements({
         type: ESTATE_TYPES['LANCAMENTO'].key,
@@ -45,7 +45,7 @@ export function useHomeViewModel() {
     refreshUI()
 
     try {
-      await fetchLaunchProperties()
+      await fetchLaunchAdvertisements()
     }
     catch (error) {
       homeModel.setError(error.message || 'Erro ao carregar a Home')
@@ -54,7 +54,7 @@ export function useHomeViewModel() {
       homeModel.setLoading(false)
       refreshUI()
     }
-  }, [homeModel, fetchLaunchProperties, refreshUI])
+  }, [homeModel, fetchLaunchAdvertisements, refreshUI])
 
 
 
@@ -65,25 +65,25 @@ export function useHomeViewModel() {
     fetchHomeData()
   }, [fetchHomeData])
 
-  const mapperPropertyCardModel = useCallback((advertisement, realStateCardMode) => {
+  const mapperAdvertisementCardModel = useCallback((advertisement, advertisementCardMode) => {
     return !advertisement
       ? null
-      : new PropertyCardModel(
+      : new AdvertisementCardModel(
         {
           advertisement: advertisement,
-          realStateCardMode: realStateCardMode
+          advertisementCardMode: advertisementCardMode
         }
       )
   }, [])
 
   // Memoize the mapped properties to avoid recreating arrays on every render
-  const featuredProperty = useMemo(() =>
-    mapperPropertyCardModel(homeModel.featuredAdvertisement, REAL_STATE_CARD_MODES.DISTAC),
-  [homeModel.featuredAdvertisement, mapperPropertyCardModel]
+  const featuredAdvertisement = useMemo(() =>
+    mapperAdvertisementCardModel(homeModel.featuredAdvertisement, ADVERTISEMENT_CARD_MODES.DISTAC),
+  [homeModel.featuredAdvertisement, mapperAdvertisementCardModel]
   )
 
-  // Don't map to PropertyCardModel here - let PropertiesCarouselView handle it
-  const launchProperties = useMemo(() =>
+  // Don't map to AdvertisementCardModel here - let AdvertisementsCarouselView handle it
+  const launchAdvertisements = useMemo(() =>
     homeModel.preLaunchAdvertisements,
   [homeModel.preLaunchAdvertisements]
   )
@@ -98,12 +98,12 @@ export function useHomeViewModel() {
     isLoading: homeModel.isLoading,
     error: homeModel.error,
 
-    hasFeaturedProperty: !!homeModel.featuredAdvertisement,
-    hasLaunchProperties: homeModel.preLaunchAdvertisements.length > 0,
+    hasFeaturedAdvertisement: !!homeModel.featuredAdvertisement,
+    hasLaunchAdvertisements: homeModel.preLaunchAdvertisements.length > 0,
 
     featureImageCoverUrl: homeModel.featuredAdvertisement !== null ? homeModel.featuredAdvertisement.estate.getCoverImageUrl() : null,
-    featuredProperty,
-    launchProperties,
+    featuredAdvertisement,
+    launchAdvertisements,
 
     refresh: fetchHomeData
   }

@@ -13,6 +13,8 @@ import {
   getNavMenuItemThemeClasses,
   getNavMenuActionThemeClasses,
 } from '@shared/styles/theme'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+
 
 /**
  * Hook de ViewModel do componente de Navegação (NavMenuView).
@@ -80,26 +82,20 @@ export function useNavMenuViewModel(isAuthenticated = false) {
   }, [location.pathname])
 
   /**
-   * Fecha o menu mobile e força atualização.
-   * Se a rota clicada for a mesma que está ativa, recarrega a página.
-   * O scroll para o topo é gerenciado pelo componente ScrollToTop.
-   *
-   * @function
-   * @param {string} [routePath] - Caminho da rota que foi clicada (opcional).
-   * @example
-   * handleItemClick('/imoveis')
-   */
+ * Fecha o menu mobile e navega para a rota clicada.
+ * Se a rota clicada for EXATAMENTE a rota atual (sem filhos), recarrega.
+ * Evita o bug de recarregar /imoveis/{id} ao clicar em /imoveis.
+ */
   const handleItemClick = useCallback((routePath) => {
     model.closeMobileMenu()
-    
-    // Se foi fornecida uma rota e ela é igual à rota atual, recarrega
-    if (routePath && isItemActive(routePath)) {
-      window.location.href = window.location.pathname
+
+    if (routePath && location.pathname === routePath) {
+      window.location.href = routePath
       return
     }
-    
+
     refresh()
-  }, [model, refresh, isItemActive])
+  }, [model, refresh, location.pathname])
 
   /**
    * Executa o processo de logout.
@@ -115,27 +111,16 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    * handleLogout()
    */
   const handleLogout = useCallback(() => {
-    // Dispara evento de transição para PageView exibir AuthTransitionView
     window.dispatchEvent(new CustomEvent('authTransition', {
       detail: { type: 'logout', message: 'Encerrando sua sessão...' }
     }))
 
-    // Aguarda transição renderizar
     setTimeout(() => {
       window.scrollTo(0, 0)
-      sessionStorage.removeItem('jwtToken')
-      sessionStorage.removeItem('userRole')
-      sessionStorage.removeItem('userId')
-      sessionStorage.removeItem('userEmail')
-      sessionStorage.removeItem('userName')
-      sessionStorage.removeItem('token')
-      sessionStorage.removeItem('_hadToken')
-      localStorage.removeItem('jwtToken')
-      localStorage.removeItem('userRole')
+      authSessionUtil.clear()
       model.setAuthenticationStatus(false)
       model.closeMobileMenu()
-      
-      // Aguarda animação terminar antes de redirecionar
+
       setTimeout(() => {
         window.location.href = routerModel.get('HOME')
       }, 300)
@@ -281,5 +266,7 @@ export function useNavMenuViewModel(isAuthenticated = false) {
     handleLogout,
     toggleMobileMenu,
     closeMobileMenu,
+    getSectionTitle: (key) => model.getSectionTitle(key),
+    getFooterSectionMobileOrder: (key) => model.getFooterSectionMobileOrder(key),
   }
 }

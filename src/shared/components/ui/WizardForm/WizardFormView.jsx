@@ -6,12 +6,14 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { AlertView, useAlert } from '@shared/components/feedback/Alert/AlertView'
 import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
-import { useState, useRef, useMemo } from 'react'
-import { GripVertical, Plus } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { GripVertical, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { formatArea } from '@shared/utils/area/formatAreaUtil'
 import { formatCEP } from '@shared/utils/CEP/formatCEPUtil'
 import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
+
+const DIFFERENTIALS_PAGE_SIZE = 12
 
 export function WizardFormView(props) {
   const vm = useWizardFormViewModel(props)
@@ -20,6 +22,7 @@ export function WizardFormView(props) {
   const [alertType, setAlertType] = useState('warning')
   const [direction, setDirection] = useState('forward')
   const [differentialsFilters, setDifferentialsFilters] = useState({})
+  const [differentialsPagination, setDifferentialsPagination] = useState({})
   const fileInputRefs = useRef({})
   const [draggedIndex, setDraggedIndex] = useState(null)
   const [dragOverIndex, setDragOverIndex] = useState(null)
@@ -145,7 +148,7 @@ export function WizardFormView(props) {
   }
 
   // Hook para preenchimento automático de CEP do IMÓVEL
-  const cepAutoFillProperty = useCEPAutoFill(
+  const cepAutoFillAdvertisement = useCEPAutoFill(
     (addressData) => {
       // Preencher apenas campos do IMÓVEL
       if (addressData.street) {
@@ -253,7 +256,7 @@ export function WizardFormView(props) {
 
         // Disparar busca automática apenas para campos do IMÓVEL
         setTimeout(() => {
-          cepAutoFillProperty.searchCEP(value)
+          cepAutoFillAdvertisement.searchCEP(value)
         }, 100)
       }
     }
@@ -393,7 +396,9 @@ export function WizardFormView(props) {
     }
 
     if (field.type === 'differentials-grid') {
-      const currentValue = vm.getFieldValue(field.name) || []
+      const currentValue = Array.isArray(vm.getFieldValue(field.name))
+        ? vm.getFieldValue(field.name)
+        : []
       
       // Obter filtros do estado compartilhado
       const filters = differentialsFilters[field.name] || {
@@ -401,6 +406,8 @@ export function WizardFormView(props) {
         initialLetter: '',
         sortOrder: 'none'
       }
+
+      const currentPage = differentialsPagination[field.name] || 1
       
       const handleFilterChange = (filterKey, filterValue) => {
         setDifferentialsFilters(prev => ({
@@ -409,6 +416,35 @@ export function WizardFormView(props) {
             ...filters,
             [filterKey]: filterValue
           }
+        }))
+
+        // Volta para a primeira página sempre que alterar os filtros
+        setDifferentialsPagination(prev => ({
+          ...prev,
+          [field.name]: 1,
+        }))
+      }
+
+      const handleClearFilters = () => {
+        setDifferentialsFilters(prev => ({
+          ...prev,
+          [field.name]: {
+            searchTerm: '',
+            initialLetter: '',
+            sortOrder: 'none',
+          },
+        }))
+
+        setDifferentialsPagination(prev => ({
+          ...prev,
+          [field.name]: 1,
+        }))
+      }
+
+      const handlePageChange = (nextPage) => {
+        setDifferentialsPagination(prev => ({
+          ...prev,
+          [field.name]: nextPage,
         }))
       }
       
@@ -459,9 +495,16 @@ export function WizardFormView(props) {
 
         return filtered
       })()
+
+      const totalPages = Math.max(1, Math.ceil(filteredOptions.length / DIFFERENTIALS_PAGE_SIZE))
+      const safeCurrentPage = Math.min(currentPage, totalPages)
+      const startIndex = (safeCurrentPage - 1) * DIFFERENTIALS_PAGE_SIZE
+      const paginatedOptions = filteredOptions.slice(startIndex, startIndex + DIFFERENTIALS_PAGE_SIZE)
+
+      const hasActiveFilters = Boolean(filters.searchTerm || filters.initialLetter || filters.sortOrder !== 'none')
       
       return (
-        <div className={`w-full flex flex-col gap-4 ${field.className || ''}`}>
+        <div className={`w-full h-full flex flex-col gap-4 ${field.className || ''}`}>
           {field.label && (
             <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
               {field.label}:
@@ -514,44 +557,166 @@ export function WizardFormView(props) {
                 color="brown"
               />
             </div>
+
+            <div className="w-full md:w-fit">
+              <ButtonView
+                type="button"
+                width="fit"
+                color="soft-gray"
+                shape="square"
+                onClick={handleClearFilters}
+                disabled={!hasActiveFilters}
+                title="Limpar filtros"
+              >
+                Limpar
+              </ButtonView>
+            </div>
           </div>
 
           {/* Grid de Diferenciais */}
-          <div className="w-full h-full overflow-hidden bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200">
+          <div className="w-full h-full overflow-hidden bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200 flex flex-col">
             {filteredOptions.length === 0 ? (
               <div className="w-full h-full overflow-y-auto flex items-center justify-center text-default-dark-muted text-sm py-8">
                 Nenhum diferencial encontrado com esses critérios
               </div>
             ) : (
-              <div className="w-full h-full overflow-y-auto grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4">
-                {filteredOptions.map(option => {
-                  const isSelected = currentValue.includes(option.value)
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => {
-                        const newValue = isSelected
-                          ? currentValue.filter(v => v !== option.value)
-                          : [...currentValue, option.value]
-                        vm.handleFieldChange(field.name)(newValue)
-                      }}
-                      disabled={field.disabled}
-                      className={`p-3 rounded-lg transition text-center font-medium text-sm flex flex-col items-center gap-2 ${
-                        isSelected
-                          ? 'bg-distac-primary text-white'
-                          : 'bg-white text-distac-primary border-2 border-distac-primary hover:bg-slate-50'
-                      } ${field.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <div className={`flex items-center justify-center flex-shrink-0 ${
-                        isSelected ? 'text-white' : 'text-distac-primary'
-                      }`}>
-                        {renderIcon(option.icon)}
-                      </div>
-                      <span>{option.label}</span>
-                    </button>
-                  )
-                })}
+              <>
+                <div className="w-full h-full flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4">
+                  {paginatedOptions.map(option => {
+                    const isSelected = currentValue.includes(option.value)
+                    const btnClass = `p-3 rounded-lg transition text-center h-fit font-medium text-sm flex flex-col items-center gap-2 ${
+                      isSelected
+                        ? 'bg-distac-primary text-white'
+                        : 'bg-white text-distac-primary border-2 border-distac-primary hover:bg-slate-50'
+                    } ${field.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`
+                    const iconDivClass = `flex items-center justify-center flex-shrink-0 ${
+                      isSelected ? 'text-white' : 'text-distac-primary'
+                    }`
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          const newValue = isSelected
+                            ? currentValue.filter(v => v !== option.value)
+                            : [...currentValue, option.value]
+                          vm.handleFieldChange(field.name)(newValue)
+                        }}
+                        disabled={field.disabled}
+                        className={btnClass}
+                      >
+                        <div className={iconDivClass}>
+                          {renderIcon(option.icon)}
+                        </div>
+                        <span>{option.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-3 pt-3 border-t border-default-light-muted flex items-center justify-between">
+                    <div className="text-sm text-default-dark-muted">
+                      Página <span className="font-semibold text-default-dark">{safeCurrentPage}</span> de{' '}
+                      <span className="font-semibold text-default-dark">{totalPages}</span>
+                      <span className="ml-2 text-xs">({filteredOptions.length} itens)</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <ButtonView
+                        type="button"
+                        onClick={() => handlePageChange(Math.max(1, safeCurrentPage - 1))}
+                        disabled={safeCurrentPage === 1 || field.disabled}
+                        shape="square"
+                        width="fit"
+                        color="gray"
+                        title="Página anterior"
+                      >
+                        <ChevronLeft size={18} />
+                      </ButtonView>
+                      <ButtonView
+                        type="button"
+                        onClick={() => handlePageChange(Math.min(totalPages, safeCurrentPage + 1))}
+                        disabled={safeCurrentPage === totalPages || field.disabled}
+                        shape="square"
+                        width="fit"
+                        color="gray"
+                        title="Próxima página"
+                      >
+                        <ChevronRight size={18} />
+                      </ButtonView>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    if (field.type === 'custom-cover-preview') {
+      const coverFile = vm.getFieldValue('cover')
+      const hasCover = Boolean(coverFile)
+      const coverPreview = hasCover && (coverFile.preview || coverFile.url) ? (coverFile.preview || coverFile.url) : null
+
+      return (
+        <div className={`w-full h-full flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>
+          {/* Upload de Capa */}
+          <div className="w-full flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
+                CAPA:
+              </label>
+              <button
+                type="button"
+                onClick={() => handleFileButtonClick('cover')}
+                className="text-distac-primary hover:scale-105 transition-all cursor-pointer"
+                title="Adicionar capa"
+              >
+                <Plus size={30} />
+              </button>
+            </div>
+
+            <input
+              ref={el => fileInputRefs.current['cover'] = el}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange('cover', false)}
+              className="hidden"
+              id="cover-file-input"
+            />
+
+            {hasCover && coverPreview ? (
+              <div className="relative w-full h-72 bg-distac-primary-light rounded-sm overflow-hidden group">
+                <img
+                  src={coverPreview}
+                  alt="Capa"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => vm.handleFieldChange('cover')(null)}
+                  className="absolute top-2 right-2 bg-distac-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-xl cursor-pointer hover:bg-distac-secondary transition-colors shadow-lg opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-white"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <div
+                className="w-full h-72 bg-distac-primary-light rounded-sm px-4 py-8 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors"
+                onClick={() => handleFileButtonClick('cover')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleFileButtonClick('cover')
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Selecionar arquivo de capa"
+              >
+                Nenhuma capa selecionada
               </div>
             )}
           </div>
@@ -726,10 +891,19 @@ export function WizardFormView(props) {
     return (
       <InputView
         key={field.name}
-        {...commonProps}
+        id={commonProps.id}
+        name={commonProps.name}
+        value={commonProps.value}
+        onChange={commonProps.onChange}
+        hasLabel={commonProps.hasLabel}
+        required={commonProps.required}
+        disabled={commonProps.disabled}
         type={field.type || 'text'}
         placeholder={field.placeholder || field.label || ''}
-      />
+        className={commonProps.className}
+      >
+        {commonProps.children}
+      </InputView>
     )
   }
 
@@ -749,6 +923,18 @@ export function WizardFormView(props) {
           >
             LIMPAR
           </ButtonView>
+
+          {vm.onDisable && (
+            <ButtonView
+              type="button"
+              width="fit"
+              color="gray"
+              onClick={vm.handleDisable}
+            >
+              Desabilitar
+            </ButtonView>
+          )}
+
           {vm.onDelete && (
             <ButtonView
               type="button"
@@ -854,8 +1040,7 @@ export function WizardFormView(props) {
               type="button"
               width="fit"
               color="gray"
-              onClick={(e) => {
-
+              onClick={() => {
                 vm.handleCancel()
               }}
             >

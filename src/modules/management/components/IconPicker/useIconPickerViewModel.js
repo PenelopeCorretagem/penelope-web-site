@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
-import { getAllLucideIcons } from '@management/utils/lucideIconsUtil'
+import { getAllLucideIcons } from '@shared/utils/lucideIcons/lucideIconsUtil'
 
 /**
  * useIconPickerViewModel - Hook para gerenciar estado do IconPicker

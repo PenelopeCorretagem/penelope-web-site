@@ -74,24 +74,24 @@ export class Advertisement {
   /**
    * Retorna uma lista de características do imóvel.
    */
-  getFeatures() {
+  getAmenities() {
     if (!this.#estate) return []
 
-    const features = []
+    const amenities = []
 
     if (this.#estate.numberOfRooms) {
-      features.push(`${this.#estate.numberOfRooms} dormitórios`)
+      amenities.push(`${this.#estate.numberOfRooms} dormitórios`)
     }
 
-    if (this.#estate.features?.length > 0) {
-      features.push(this.#estate.features[0].description)
+    if (this.#estate.amenities?.length > 0) {
+      amenities.push(this.#estate.amenities[0].description)
     }
 
     if (this.#estate.area) {
-      features.push(`${this.#estate.area}m²`)
+      amenities.push(`${this.#estate.area}m²`)
     }
 
-    return features
+    return amenities
   }
 
   /**

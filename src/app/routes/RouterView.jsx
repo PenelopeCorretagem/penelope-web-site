@@ -2,16 +2,16 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
 import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { HomeView } from '@institutional/pages/Home/HomeView'
-import { PropertiesView } from '@institutional/pages/Properties/PropertiesView'
-import { PropertyDetailsView } from '@institutional/pages/PropertyDetails/PropertyDetailsView'
+import { AdvertisementsView } from '@institutional/pages/Advertisements/AdvertisementsView'
+import { AdvertisementDetailsView } from '@institutional/pages/AdvertisementDetails/AdvertisementDetailsView'
 import { AboutView } from '@institutional/pages/About/AboutView'
 import { ContactsView } from '@institutional/pages/Contacts/ContactsView'
 import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
 import { ProfileView } from '@management/pages/Profile/ProfileView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
 import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
-import { PropertyConfigView } from '@management/pages/PropertyConfig/PropertyConfigView'
-import { PropertiesConfigView } from '@management/pages/PropertiesConfig/PropertiesConfigView'
+import { AdvertisementConfigView } from '@management/pages/AdvertisementConfig/AdvertisementConfigView'
+import { AdvertisementsConfigView } from '@management/pages/AdvertisementsConfig/AdvertisementsConfigView'
 import { UsersView } from '@management/pages/Users/UsersView'
 import { UserConfigView } from '@management/pages/UserConfig/UserConfigView'
 import { AccountView } from '@management/pages/Account/AccountView'
@@ -77,8 +77,8 @@ export function RouterView({
       <Routes>
         {/* ===== ROTAS PÚBLICAS ===== */}
         <Route path={routes.HOME} element={<HomeView />} />
-        <Route path={routes.PROPERTIES} element={<PropertiesView />} />
-        <Route path={routes.PROPERTY_DETAIL} element={<PropertyDetailsView />} />
+        <Route path={routes.PROPERTIES} element={<AdvertisementsView />} />
+        <Route path={routes.PROPERTY_DETAIL} element={<AdvertisementDetailsView />} />
         <Route path={routes.ABOUT} element={<AboutView />} />
         <Route path={routes.CONTACTS} element={<ContactsView />} />
 
@@ -169,7 +169,7 @@ export function RouterView({
           path={routes.ADMIN_PROPERTIES}
           element={(
             <ProtectedRoute protection={adminAccess}>
-              <PropertiesConfigView />
+              <AdvertisementsConfigView />
             </ProtectedRoute>
           )}
         />
@@ -177,7 +177,7 @@ export function RouterView({
           path={routes.ADMIN_PROPERTIES_CONFIG}
           element={(
             <ProtectedRoute protection={adminAccess}>
-              <PropertyConfigView />
+              <AdvertisementConfigView />
             </ProtectedRoute>
           )}
         />

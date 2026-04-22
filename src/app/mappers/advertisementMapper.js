@@ -87,7 +87,7 @@ export class AdvertisementMapper {
       })
     }
 
-    const featuresSource = data.estate?.amenities ?? data.estate?.amenitiesIds ?? []
+    const amenitiesSource = data.estate?.amenities ?? data.estate?.amenitiesIds ?? []
 
     const estate = data.estate
       ? new Estate({
@@ -113,7 +113,7 @@ export class AdvertisementMapper {
           : [],
         address: mapAddressToEntity(data.estate.address),
         standAddress: mapAddressToEntity(data.estate.addressStand),
-        features: featuresSource
+        amenities: amenitiesSource
           .map(mapFeatureToEntity)
           .filter(Boolean),
       })
@@ -240,8 +240,8 @@ export class AdvertisementMapper {
               complement: advertisement.estate.standAddress.complement,
             }
             : null,
-          amenities: advertisement.estate.features
-            ? advertisement.estate.features.map(diff => ({
+          amenities: advertisement.estate.amenities
+            ? advertisement.estate.amenities.map(diff => ({
               id: diff.id,
               description: diff.description,
             }))

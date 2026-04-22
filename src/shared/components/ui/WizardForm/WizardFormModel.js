@@ -8,6 +8,7 @@ export class WizardFormModel {
     initialData = {},
     onSubmit = null,
     onDelete = null,
+    onDisable = null,
     onClear = null,
   } = {}) {
     this.title = title
@@ -17,6 +18,7 @@ export class WizardFormModel {
     this.fieldErrors = {}
     this.onSubmit = onSubmit
     this.onDelete = onDelete
+    this.onDisable = onDisable
     this.onClear = onClear
     this.isLoading = false
     this.errorMessages = []
@@ -49,6 +51,10 @@ export class WizardFormModel {
 
   get hasDeleteAction() {
     return typeof this.onDelete === 'function'
+  }
+
+  get hasDisableAction() {
+    return typeof this.onDisable === 'function'
   }
 
   nextStep() {
@@ -194,6 +200,7 @@ export class WizardFormModel {
       hasErrors: this.hasErrors,
       hasSuccess: this.hasSuccess,
       hasDeleteAction: this.hasDeleteAction,
+      hasDisableAction: this.hasDisableAction,
       errorMessages: this.errorMessages,
       successMessage: this.successMessage,
       isLoading: this.isLoading,

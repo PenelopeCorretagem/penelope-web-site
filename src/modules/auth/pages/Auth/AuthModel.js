@@ -199,7 +199,7 @@ export class AuthModel {
     return this.routerModel.getRoute('PROFILE')
   }
 
-  getAdminPropertiesRoute() {
+  getAdminAdvertisementsRoute() {
     return this.routerModel.getRoute('ADMIN_PROPERTIES')
   }
 

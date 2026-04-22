@@ -152,6 +152,12 @@ export function useWizardFormViewModel(initialProps = {}) {
     }
   }, [model])
 
+  const handleDisable = useCallback(() => {
+    if (model.onDisable) {
+      model.onDisable(model.fieldValues)
+    }
+  }, [model])
+
   const handleClear = useCallback(() => {
     // Limpa apenas os campos da etapa atual
     model.clearCurrentStep()
@@ -189,10 +195,12 @@ export function useWizardFormViewModel(initialProps = {}) {
     hasErrors: model.hasErrors,
     hasSuccess: model.hasSuccess,
     hasDeleteAction: model.hasDeleteAction,
+    hasDisableAction: model.hasDisableAction,
     errorMessages: model.errorMessages,
     successMessage: model.successMessage,
     isLoading: model.isLoading,
     onDelete: model.onDelete, // Expose onDelete for conditional rendering
+    onDisable: model.onDisable,
 
     // Event Handlers
     handleFieldChange,
@@ -201,6 +209,7 @@ export function useWizardFormViewModel(initialProps = {}) {
     handleCancel,
     handleSubmit,
     handleDelete,
+    handleDisable,
     handleClear,
     goToStep,
 

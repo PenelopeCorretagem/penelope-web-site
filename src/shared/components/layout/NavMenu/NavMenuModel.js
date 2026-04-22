@@ -74,12 +74,6 @@ export class NavMenuModel {
     ]
   }
 
-  #getAuthenticatedMenuItems() {
-    const routes = this.routerModel.getAllRoutes()
-
-    return []
-  }
-
   #getGuestUserActions() {
     const routes = this.routerModel.getAllRoutes()
 
@@ -135,8 +129,7 @@ export class NavMenuModel {
    */
   getMenuItems() {
     const publicItems = this.#getPublicMenuItems()
-    const authItems = this.isAuthenticated ? this.#getAuthenticatedMenuItems() : []
-    return [...publicItems, ...authItems]
+    return [...publicItems]
   }
 
   /**
@@ -284,5 +277,35 @@ export class NavMenuModel {
         onClick: () => {}
       }
     ]
+  }
+
+  /**
+ * Retorna o título legível de uma seção do rodapé.
+ * @param {string} sectionKey
+ * @returns {string}
+ */
+  getSectionTitle(sectionKey) {
+    const titles = {
+      geral: 'Geral',
+      vendas: 'Vendas',
+      acesso: 'Acesso',
+      contatos: 'Contatos'
+    }
+    return titles[sectionKey] ?? sectionKey
+  }
+
+  /**
+ * Retorna a ordem CSS do mobile para cada seção do rodapé (grid 2 colunas).
+ * @param {string} sectionKey
+ * @returns {string}
+ */
+  getFooterSectionMobileOrder(sectionKey) {
+    const orders = {
+      geral:     'order-1 md:order-none',
+      contatos:  'order-2 md:order-none',
+      vendas:    'order-3 md:order-none',
+      acesso:    'order-4 md:order-none'
+    }
+    return orders[sectionKey] ?? ''
   }
 }

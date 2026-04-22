@@ -12,8 +12,8 @@ import { AmenityMapper } from '@mappers/AmenityMapper'
  * @param {number} pageSize - Tamanho da página
  * @returns {Promise<Object>} { content: Amenity[], pageable: {...} }
  */
-export const getAllAmenities = async (page = 1, pageSize = 10) => {
-  const response = await amenitiesApi.getAllAmenities(page, pageSize)
+export const getAllAmenities = async (page = 1, pageSize = 10, search = '', sort = '', initial = '') => {
+  const response = await amenitiesApi.getAllAmenities(page, pageSize, search, sort, initial)
   return AmenityMapper.toPaginatedEntityList(response)
 }
 
