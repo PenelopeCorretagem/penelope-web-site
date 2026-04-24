@@ -57,11 +57,12 @@ import { Link } from 'react-router-dom'
  */
 export function NavMenuView({
   isAuthenticated = false,
+  isAdmin = false,
   className = '',
   variant = 'navigation',
   hideLogo = false,
 }) {
-  const viewModel = useNavMenuViewModel(isAuthenticated)
+  const viewModel = useNavMenuViewModel(isAuthenticated, isAdmin)
 
   // Render helpers
   const renderIcon = (iconName) => {
@@ -215,15 +216,13 @@ export function NavMenuView({
         className="flex items-center w-full justify-between md:hidden"
         style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
       >
-        {!hideLogo && (
-          <Link
-            to='/'
-            className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
-            style={{marginLeft: 0, padding: 0}}
-          >
-            <LogoView height={'40'} className='text-distac-primary fill-current' />
-          </Link>
-        )}
+        <Link
+          to='/'
+          className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
+          style={{marginLeft: 0, padding: 0}}
+        >
+          <LogoView height={'40'} className='text-distac-primary fill-current' />
+        </Link>
         <button
           onClick={viewModel.toggleMobileMenu}
           className={viewModel.getHamburgerClasses()}
@@ -237,7 +236,7 @@ export function NavMenuView({
       {/* Mobile: dropdown do menu (escondido em md+, via tema) */}
       {viewModel.isMobileMenuOpen && (
         <div className={viewModel.getMenuItemsClasses(true) + ' items-center text-center'}>
-          {viewModel.menuItems.map(renderMenuItem)}
+          {viewModel.menuItems.filter(item => !item.mobileOnly).map(renderMenuItem)}
           {!isAuthenticated && (
             <Link
               to={viewModel.userActions.find(action => action.id === 'login' || action.route === '/login')?.route || '/login'}
@@ -247,6 +246,20 @@ export function NavMenuView({
               {renderIcon('User')}
               <span>Acessar</span>
             </Link>
+          )}
+          {isAuthenticated && (
+            <>
+              <div className="w-3/4 h-px bg-default-dark-muted/30 my-2" />
+              {viewModel.menuItems.filter(item => item.mobileOnly).map(renderMenuItem)}
+              <div className="w-3/4 h-px bg-default-dark-muted/30 my-2" />
+              <button
+                onClick={() => { viewModel.handleLogout(); viewModel.closeMobileMenu(); }}
+                className="px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base text-default-dark hover:text-distac-primary justify-center"
+              >
+                {renderIcon('LogOut')}
+                <span>Sair</span>
+              </button>
+            </>
           )}
         </div>
       )}
@@ -265,7 +278,7 @@ export function NavMenuView({
 
       {/* Desktop: itens do menu (hidden md:flex via tema) */}
       <div className={viewModel.getMenuItemsClasses(false)}>
-        {viewModel.menuItems.map(renderMenuItem)}
+        {viewModel.menuItems.filter(item => !item.mobileOnly).map(renderMenuItem)}
       </div>
 
       {/* Desktop: botão de usuário (hidden md:flex via tema) */}

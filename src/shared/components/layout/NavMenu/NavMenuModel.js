@@ -19,8 +19,9 @@ import { RouterModel } from '@routes/RouterModel'
  * const userActions = navMenu.getUserActions();
  */
 export class NavMenuModel {
-  constructor(isAuthenticated = false) {
+  constructor(isAuthenticated = false, isAdmin = false) {
     this.isAuthenticated = isAuthenticated
+    this.isAdmin = isAdmin
     this.isMobileMenuOpen = false
     this.routerModel = RouterModel.getInstance()
   }
@@ -75,7 +76,66 @@ export class NavMenuModel {
   #getAuthenticatedMenuItems() {
     const routes = this.routerModel.getAllRoutes()
 
-    return []
+    const items = [
+      this.#createMenuItem({
+        id: 'schedule',
+        label: 'Agenda',
+        icon: 'Calendar',
+        route: routes.SCHEDULE,
+        requiresAuth: true,
+        mobileOnly: true,
+      }),
+    ]
+
+    if (this.isAdmin) {
+      items.push(
+        this.#createMenuItem({
+          id: 'admin-properties',
+          label: 'Imóveis',
+          icon: 'Building2',
+          route: routes.ADMIN_PROPERTIES,
+          requiresAuth: true,
+          mobileOnly: true,
+        }),
+        this.#createMenuItem({
+          id: 'admin-amenities',
+          label: 'Diferenciais',
+          icon: 'Zap',
+          route: routes.ADMIN_AMENITIES,
+          requiresAuth: true,
+          mobileOnly: true,
+        }),
+        this.#createMenuItem({
+          id: 'admin-users',
+          label: 'Usuários',
+          icon: 'Users',
+          route: routes.ADMIN_USERS,
+          requiresAuth: true,
+          mobileOnly: true,
+        }),
+      )
+    }
+
+    items.push(
+      this.#createMenuItem({
+        id: 'profile',
+        label: 'Meu Perfil',
+        icon: 'User',
+        route: this.isAdmin ? routes.ADMIN_PROFILE : routes.PROFILE,
+        requiresAuth: true,
+        mobileOnly: true,
+      }),
+      this.#createMenuItem({
+        id: 'account',
+        label: 'Minha Conta',
+        icon: 'Lock',
+        route: this.isAdmin ? routes.ADMIN_ACCOUNT : routes.ACCOUNT,
+        requiresAuth: true,
+        mobileOnly: true,
+      }),
+    )
+
+    return items
   }
 
   #getGuestUserActions() {
@@ -163,6 +223,15 @@ export class NavMenuModel {
    */
   setAuthenticationStatus(isAuthenticated) {
     this.isAuthenticated = isAuthenticated
+  }
+
+  /**
+   * Updates the admin status.
+   *
+   * @param {boolean} isAdmin - New admin status.
+   */
+  setAdminStatus(isAdmin) {
+    this.isAdmin = isAdmin
   }
 
   /**

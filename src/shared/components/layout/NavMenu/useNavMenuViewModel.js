@@ -33,9 +33,9 @@ import {
  * const viewModel = useNavMenuViewModel(true)
  * viewModel.menuItems.map(item => console.log(item.label))
  */
-export function useNavMenuViewModel(isAuthenticated = false) {
+export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
   /** @type {NavMenuModel} Instância do modelo do menu. */
-  const [model] = useState(() => new NavMenuModel(isAuthenticated))
+  const [model] = useState(() => new NavMenuModel(isAuthenticated, isAdmin))
   const [routerModel] = useState(() => RouterModel.getInstance())
   const [, forceUpdate] = useState(0)
   const location = useLocation()
@@ -58,8 +58,9 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    */
   useEffect(() => {
     model.setAuthenticationStatus(isAuthenticated)
+    model.setAdminStatus(isAdmin)
     refresh()
-  }, [isAuthenticated, model, refresh])
+  }, [isAuthenticated, isAdmin, model, refresh])
 
   /**
    * Verifica se uma rota está ativa com base na URL atual.
@@ -105,11 +106,16 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    */
   const handleLogout = useCallback(() => {
     window.scrollTo(0, 0)
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
+    sessionStorage.removeItem('jwtToken')
+    sessionStorage.removeItem('userRole')
+    sessionStorage.removeItem('userId')
+    sessionStorage.removeItem('userEmail')
+    sessionStorage.removeItem('userName')
+    sessionStorage.removeItem('token')
     model.setAuthenticationStatus(false)
     model.closeMobileMenu()
-    window.location.href = routerModel.get('HOME')
+    window.dispatchEvent(new CustomEvent('authChanged'))
+    window.location.href = routerModel.getRoute('HOME')
   }, [model, routerModel])
 
   /**

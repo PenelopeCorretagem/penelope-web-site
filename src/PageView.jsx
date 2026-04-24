@@ -132,11 +132,13 @@ export function PageView() {
   return (
     <div className='flex h-screen w-full overflow-hidden'>
       {shouldShowSidebar && (
-        <SidebarView open={sidebarOpen} onToggle={toggleSidebar} isAdmin={isAdmin} />
+        <div className="hidden md:flex">
+          <SidebarView open={sidebarOpen} onToggle={toggleSidebar} isAdmin={isAdmin} />
+        </div>
       )}
 
       <div className='flex flex-col w-full h-full overflow-hidden'>
-        {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} sidebarVisible={shouldShowSidebar} />}
+        {!isAuthPage && <HeaderView isAuthenticated={isAuthenticated} isAdmin={isAdmin} sidebarVisible={shouldShowSidebar} />}
 
         <div className='flex-1 overflow-x-hidden overflow-y-auto'>
           <RouterView isAuthenticated={isAuthenticated} isAdmin={isAdmin} authReady={authReady} />

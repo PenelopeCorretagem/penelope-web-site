@@ -3,6 +3,7 @@ import { NavMenuView } from '@shared/components/layout/NavMenu/NavMenuView'
 
 export function HeaderView({
   isAuthenticated = false,
+  isAdmin = false,
   sticky = true,
   showShadow = true,
   sidebarVisible = false,
@@ -20,7 +21,7 @@ export function HeaderView({
 
   return (
     <header className={headerClasses} role="banner">
-      <NavMenuView isAuthenticated={isAuthenticated} hideLogo={sidebarVisible} />
+      <NavMenuView isAuthenticated={isAuthenticated} isAdmin={isAdmin} hideLogo={sidebarVisible} />
     </header>
   )
 }

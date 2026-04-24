@@ -321,3 +321,17 @@
 @media (min-width: 768px) {
   .property-features-marquee { gap: var(--gap-card-md); }
 }
+
+/* Centraliza texto nativo do input date no mobile */
+@media (max-width: 767px) {
+  input[type="date"] {
+    display: flex;
+    justify-content: center;
+  }
+  input[type="date"]::-webkit-datetime-edit {
+    text-align: center;
+  }
+  input[type="date"]::-webkit-date-and-time-value {
+    text-align: center;
+  }
+}

@@ -6,10 +6,10 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
   const baseClasses = [
     'font-semibold uppercase',
     'text-form-control md:text-form-control-md',
-    'text-left',
+    'text-center md:text-left',
     'p-select md:p-select-md',
     'transition-colors duration-200',
-    'flex items-center justify-between',
+    'flex items-center justify-center md:justify-between',
     'gap-select md:gap-select-md',
   ]
 
@@ -92,6 +92,8 @@ function getLabelClasses({ hasErrors, required }) {
     'text-form-control',
     'leading-none',
     'md:text-form-control-md',
+    'text-center',
+    'md:text-left',
   )
 
   if (hasErrors) classes.push('text-distac-primary')
