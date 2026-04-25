@@ -92,12 +92,11 @@ HomeView.jsx → useHomeViewModel.js → HomeModel.js
 ```
 src/
 ├── app/                    # Core da aplicação
-│   ├── model/entities/     # Classes de domínio (User, Estate, Address, etc.)
+│   ├── api/                # Módulos de API (penelopec, viacep, calservice)
+│   ├── dtos/               # Classes de domínio (User, Estate, Address, etc.)
+│   ├── mappers/            # Conversão API ↔ Entidades de domínio
 │   ├── routes/             # RouterModel, RouterView, useRouterViewModel
-│   └── services/
-│       ├── api/            # Módulos Axios (authApi, realEstateAdvertisementAPI, etc.)
-│       └── mapper/         # Conversão API ↔ Entidades de domínio
-├── constants/              # Constantes globais (routes, estateTypes, imageTypes, etc.)
+│   └── services/           # Camada de orquestração/negócio por integração
 ├── modules/                # Módulos de funcionalidade
 │   ├── auth/               # Autenticação (login, registro, reset senha)
 │   ├── institutional/      # Páginas públicas (Home, Properties, About, Contacts)
@@ -105,6 +104,7 @@ src/
 └── shared/                 # Código reutilizável
     ├── assets/             # Fontes, imagens
     ├── components/         # Componentes compartilhados (layout/, ui/, feedback/)
+    ├── constants/          # Constantes globais (routes, estateTypes, imageTypes, etc.)
     ├── hooks/              # Hooks customizados (useCEPAutoFill, useHeaderHeight)
     ├── pages/              # Páginas genéricas (Loading, NotFound, Unauthorized)
     ├── styles/             # style.css (tokens), theme.js (mapeamento semântico)
@@ -133,10 +133,10 @@ Usar **imports absolutos** via aliases definidos no `vite.config.js`:
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { formatCurrency } from '@utils/formatCurrencyUtil'
 import { ROUTES } from '@constant/routes'
-import axiosInstance from '@penelopec/axiosInstance'
+import axiosInstance from '@api/axiosInstance'
 ```
 
-Aliases disponíveis: `@shared`, `@institutional`, `@auth`, `@management`, `@routes`, `@utils`, `@services`, `@penelopec`, `@viacep`, `@mappers`, `@dtos`, `@mocks`, `@constant`.
+Aliases disponíveis: `@shared`, `@institutional`, `@auth`, `@management`, `@app`, `@routes`, `@api`, `@services`, `@mappers`, `@dtos`, `@mocks`, `@utils`, `@constant`, `@service-penelopec`, `@service-viacep`, `@service-calservice`, `@api-penelopec`, `@api-viacep`, `@api-calservice`.
 
 **Nunca** usar caminhos relativos longos (`../../../`).
 
@@ -192,7 +192,7 @@ export class RealEstateAdvertisementMapper {
 
 ## Entidades de Domínio
 
-Classes em `src/app/model/entities/` com:
+Classes em `src/app/dtos/` com:
 
 - Campos privados (`#field`)
 - Getters e setters
@@ -214,7 +214,7 @@ export class User {
 
 ## Roteamento
 
-- Rotas definidas como objetos em `src/constants/routes.js` com `key`, `path`, `friendlyName`
+- Rotas definidas como objetos em `src/shared/constants/routes.js` com `key`, `path`, `friendlyName`
 - Três níveis de proteção: `publicRoutes`, `authRequiredRoutes`, `adminRequiredRoutes`
 - Componente `ProtectedRoute` redireciona usuários não autorizados
 - Rotas seguem o padrão MVVM: `RouterModel` → `useRouterViewModel` → `RouterView`
@@ -232,7 +232,7 @@ export class User {
 9. **Sempre** escrever código e comentários em **Português Brasileiro** quando for texto de negócio/UI
 10. **Sempre** validar acessibilidade (atributos `aria-*`, `alt` em imagens, semântica HTML)
 11. **Nunca** usar Redux, Zustand ou gerenciamento de estado global — usar estado local + sessionStorage
-12. **Nunca** importar Axios diretamente — usar `axiosInstance` configurado em `@penelopec/axiosInstance`
+12. **Nunca** importar Axios diretamente — usar `axiosInstance` configurado em `@api/axiosInstance`
 
 ## Scripts Disponíveis
 
@@ -247,4 +247,4 @@ npm run check:prod  # Lint + format check + build
 
 ## Variáveis de Ambiente
 
-Usar `import.meta.env.VITE_*` para acessar variáveis. Arquivos `.env.{mode}` suportados: `development`, `homologation`, `production`.
+Usar variáveis de ambiente via `import.meta.env.*` conforme `vite.config.js` (ex.: `VITE_API_BASE_URL`, `VITE_CAL_SERVICE_URL`, `VITE_VIACEP_BASE_URL`). Arquivos `.env.{mode}` suportados: `development`, `homologation`, `production`.
