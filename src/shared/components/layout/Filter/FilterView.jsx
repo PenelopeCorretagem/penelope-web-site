@@ -4,7 +4,7 @@ import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
 import { useState } from 'react'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 
 // ============================================
 // VIEW - FilterView.jsx
@@ -33,28 +33,16 @@ export const FilterView = ({
       {/* Mobile: search bar + icons */}
       <div className="flex md:hidden gap-3 items-center">
         {!hideSearch && (
-          <>
-            <div className="flex-1">
-              <InputView
-                type="text"
-                placeholder={searchPlaceholder}
-                value={viewModel.filterModel.searchTerm}
-                onChange={viewModel.handleSearchChange}
-                hasLabel={false}
-                isActive={true}
-              />
-            </div>
-            <ButtonView
-              type="button"
-              width="fit"
-              color="brown"
-              onClick={() => viewModel.handleSearchChange({ target: { value: viewModel.filterModel.searchTerm } })}
-              shape="square"
-              title="Buscar"
-            >
-              <Search size={16} />
-            </ButtonView>
-          </>
+          <div className="flex-1">
+            <InputView
+              type="text"
+              placeholder={searchPlaceholder}
+              value={viewModel.filterModel.searchTerm}
+              onChange={viewModel.handleSearchChange}
+              hasLabel={false}
+              isActive={true}
+            />
+          </div>
         )}
         <ButtonView
           type="button"
