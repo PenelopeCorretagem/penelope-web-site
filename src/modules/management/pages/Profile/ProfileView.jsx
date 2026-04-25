@@ -7,7 +7,7 @@ export function ProfileView({ targetUserId = null }) {
 
   if (vm.isLoading) {
     return (
-      <SectionView className='flex flex-col h-screen gap-subsection subsection md:gap-subsection-md'>
+      <SectionView className='flex flex-col min-h-screen gap-subsection subsection md:gap-subsection-md'>
         <div className="w-full p-4 text-center">Carregando...</div>
       </SectionView>
     )
@@ -15,7 +15,7 @@ export function ProfileView({ targetUserId = null }) {
 
   if (vm.error) {
     return (
-      <SectionView className='flex flex-col h-screen gap-subsection subsection md:gap-subsection-md'>
+      <SectionView className='flex flex-col min-h-screen gap-subsection subsection md:gap-subsection-md'>
         <div className="w-full p-4 text-center text-red-600">{vm.error}</div>
       </SectionView>
     )
@@ -24,7 +24,7 @@ export function ProfileView({ targetUserId = null }) {
   const title = vm.isEditingOwnProfile ? 'MEU PERFIL' : 'EDITAR USUÁRIO'
 
   return (
-    <SectionView className='flex flex-col h-full gap-subsection subsection md:gap-subsection-md'>
+      <SectionView className='flex flex-col min-h-screen gap-subsection subsection md:gap-subsection-md'>
       <EditFormView
         title={title}
         fields={vm.profileFields}

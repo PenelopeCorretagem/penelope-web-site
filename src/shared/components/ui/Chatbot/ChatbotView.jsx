@@ -42,10 +42,10 @@ export function ChatbotView() {
           width="fit"
           shape="circle"
           variant="primary"
-          className="fixed bottom-7 right-11 z-[999999] shadow-lg w-16 h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
+          className="fixed bottom-7 right-11 z-[999999] shadow-lg w-12 h-12 md:w-16 md:h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
 
         >
-          <FaComments className="text-white text-3xl" />
+          <FaComments className="text-white text-xl md:text-3xl" />
         </ButtonView>
       )}
 
@@ -54,7 +54,7 @@ export function ChatbotView() {
       )}
 
       {isOpen && (
-        <div className="fixed bottom-7 right-11 w-80 md:w-96 bg-white shadow-xl rounded-2xl z-[999999] overflow-hidden flex flex-col h-[500px] animate-slideUp">
+        <div className="fixed bottom-7 right-4 md:right-11 w-72 md:w-96 bg-white shadow-xl rounded-2xl z-[999999] overflow-hidden flex flex-col h-[440px] md:h-[500px] animate-slideUp">
 
           {/* HEADER */}
           <div className="bg-distac-primary text-white p-4 flex justify-between items-center">

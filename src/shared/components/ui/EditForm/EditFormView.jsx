@@ -5,6 +5,16 @@ import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/Error
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useEditFormViewModel } from './useEditFormViewModel'
 
+// Mapeamento de colunas para classes responsivas (mobile: full-width, desktop: grid original)
+const RESPONSIVE_GRID_COLUMNS = {
+  'col-span-1': 'col-span-6 md:col-span-1',
+  'col-span-2': 'col-span-6 md:col-span-2',
+  'col-span-3': 'col-span-6 md:col-span-3',
+  'col-span-4': 'col-span-6 md:col-span-4',
+  'col-span-5': 'col-span-6 md:col-span-5',
+  'col-span-6': 'col-span-6',
+}
+
 /**
  * EditFormView - Formulário especializado para operações CRUD
  */
@@ -42,9 +52,9 @@ export function EditFormView({
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center md:justify-between">
         {vm.title && (
-          <HeadingView level={2} className="text-distac-primary">
+          <HeadingView level={2} className="text-distac-primary text-center md:text-left max-md:!w-full">
             {vm.title}
           </HeadingView>
         )}
@@ -77,7 +87,7 @@ export function EditFormView({
               {visibleFields
                 .filter(field => !field.hideInViewMode)
                 .map((field) => (
-                  <div key={field.name} className={field.gridColumn || 'col-span-6'}>
+                  <div key={field.name} className={RESPONSIVE_GRID_COLUMNS[field.gridColumn] || 'col-span-6'}>
                     {field.type === 'select' ? (
                       <SelectView
                         value={vm.getFieldValue(field.name)}
@@ -167,7 +177,7 @@ export function EditFormView({
           <form onSubmit={vm.handleSubmit} className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md">
             <div className="w-full grid grid-cols-6 gap-4">
               {visibleFields.map((field) => (
-                <div key={field.name} className={field.gridColumn || 'col-span-6'}>
+                <div key={field.name} className={RESPONSIVE_GRID_COLUMNS[field.gridColumn] || 'col-span-6'}>
                   {field.type === 'select' ? (
                     <SelectView
                       value={vm.getFieldValue(field.name)}
