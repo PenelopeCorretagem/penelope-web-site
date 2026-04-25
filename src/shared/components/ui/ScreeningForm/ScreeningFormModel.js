@@ -1,7 +1,7 @@
 // ScreeningFormModel.js
 import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
-import { formatCurrency } from '@shared/utils/currency/formatCurrencyUtil'
+import { formatCurrencyInput } from '@shared/utils/currency/formatCurrencyUtil'
 
 const formatCpfMask = (value) => {
   const digits = cleanCPF(value).slice(0, 11)
@@ -50,7 +50,7 @@ export const ScreeningFormModel = {
       column: 2,
       inputMode: 'numeric',
       formatOnChange: true,
-      formatter: formatCurrency
+      formatter: formatCurrencyInput
     },
     {
       name: 'lgpdConsent',
