@@ -35,9 +35,9 @@ import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
  * const viewModel = useNavMenuViewModel(true)
  * viewModel.menuItems.map(item => console.log(item.label))
  */
-export function useNavMenuViewModel(isAuthenticated = false) {
+export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
   /** @type {NavMenuModel} Instância do modelo do menu. */
-  const [model] = useState(() => new NavMenuModel(isAuthenticated))
+  const [model] = useState(() => new NavMenuModel(isAuthenticated, isAdmin))
   const [routerModel] = useState(() => RouterModel.getInstance())
   const [, forceUpdate] = useState(0)
   const location = useLocation()
@@ -61,8 +61,9 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    */
   useEffect(() => {
     model.setAuthenticationStatus(isAuthenticated)
+    model.setAdminStatus(isAdmin)
     refresh()
-  }, [isAuthenticated, model, refresh])
+  }, [isAuthenticated, isAdmin, model, refresh])
 
   /**
    * Verifica se uma rota está ativa com base na URL atual.
@@ -111,21 +112,21 @@ export function useNavMenuViewModel(isAuthenticated = false) {
    * handleLogout()
    */
   const handleLogout = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('authTransition', {
-      detail: { type: 'logout', message: 'Encerrando sua sessão...' }
-    }))
-
-    setTimeout(() => {
-      window.scrollTo(0, 0)
-      authSessionUtil.clear()
-      model.setAuthenticationStatus(false)
-      model.closeMobileMenu()
+      window.dispatchEvent(new CustomEvent('authTransition', {
+        detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+      }))
 
       setTimeout(() => {
-        window.location.href = routerModel.get('HOME')
+        window.scrollTo(0, 0)
+        authSessionUtil.clear()
+        model.setAuthenticationStatus(false)
+        model.closeMobileMenu()
+
+        setTimeout(() => {
+          window.location.href = routerModel.getRoute('HOME')
+        }, 300)
       }, 300)
-    }, 300)
-  }, [model, routerModel])
+    }, [model, routerModel])
 
   /**
    * Alterna o estado de abertura do menu mobile.
