@@ -148,6 +148,10 @@ export function FormView({
               hasLabel={field.hasLabel !== undefined ? field.hasLabel : Boolean(field.label)}
               required={field.required || false}
               showPasswordToggle={field.showPasswordToggle || false}
+              formatOnChange={field.formatOnChange || false}
+              formatter={field.formatter || null}
+              maxLength={field.maxLength}
+              inputMode={field.inputMode}
               isActive={!formIsLoading}
               link={field.link}
             >
