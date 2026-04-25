@@ -1,12 +1,16 @@
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { TextView } from '@shared/components/ui/Text/TextView'
+import { BackButtonView } from '@shared/components/ui/BackButton/BackButtonView'
 import { PanelHeader } from '../PanelHeader/PanelHeader'
 import { getAuthSignUpPanelThemeClasses, getAuthBackButtonThemeClasses, getAuthLinkContainerThemeClasses, getAuthLinkButtonThemeClasses } from '@shared/styles/theme'
 
 export function NewPasswordPanel({ formConfig, onSubmit, isLoading, error, onBackToLogin, isActive }) {
   return (
     <div className={getAuthSignUpPanelThemeClasses({ isActive })}>
-      <div className={getAuthBackButtonThemeClasses({ variant: 'rightPanel' })}>
+      <div className="flex justify-start w-full md:hidden">
+        <BackButtonView className="text-distac-primary" />
+      </div>
+      <div className={getAuthBackButtonThemeClasses({ variant: 'rightPanel', className: 'hidden md:flex' })}>
         <PanelHeader variant="rightPanel" />
       </div>
 

@@ -3,7 +3,7 @@ import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
-import { createElement, useState } from 'react'
+import { useState } from 'react'
 import { Search, SlidersHorizontal } from 'lucide-react'
 
 // ============================================
@@ -88,36 +88,40 @@ export const FilterView = ({
             </div>
           ))}
 
-          {showSortButton && (
-            <div className="flex-1 min-w-[calc(50%-6px)]">
-              <SortButtonView
-                sortOrder={
-                  viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
-                  viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
-                }
-                onSortChange={viewModel.handleSortOrderChange}
-                title={viewModel.getSortTitle()}
-                width="full"
-                shape="square"
-                color="brown"
-              />
-            </div>
-          )}
+          <div className="flex gap-3 flex-1 min-w-[calc(50%-6px)] items-stretch">
+            {showSortButton && (
+              <div className="flex-1">
+                <SortButtonView
+                  sortOrder={
+                    viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
+                    viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+                  }
+                  onSortChange={viewModel.handleSortOrderChange}
+                  title={viewModel.getSortTitle()}
+                  width="full"
+                  shape="square"
+                  color="brown"
+                  className="h-full"
+                />
+              </div>
+            )}
 
-          {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
-            <div className="flex-1 min-w-[calc(50%-6px)]">
-              <ButtonView
-                type="button"
-                width="full"
-                color="soft-gray"
-                onClick={viewModel.handleResetFilters}
-                shape="square"
-                title="Limpar filtros"
-              >
-                Limpar
-              </ButtonView>
-            </div>
-          )}
+            {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
+              <div className="flex-1">
+                <ButtonView
+                  type="button"
+                  width="full"
+                  color="soft-gray"
+                  onClick={viewModel.handleResetFilters}
+                  shape="square"
+                  title="Limpar filtros"
+                  className="h-full"
+                >
+                  Limpar
+                </ButtonView>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

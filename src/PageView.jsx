@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { HeaderView } from '@shared/components/layout/Header/HeaderView'
 import { RouterView } from '@routes/RouterView'
-import { useRouter } from '@routes/useRouterViewModel'
 import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionView'
@@ -28,15 +27,17 @@ export function PageView() {
   return (
     <div className='flex h-screen w-full overflow-hidden'>
       {shouldShowSidebar && (
-        <SidebarView
-          open={sidebarOpen}
-          onToggle={() => setSidebarOpen(p => !p)}
-          isAdmin={isAdmin}
-        />
+        <div className="hidden md:flex">
+          <SidebarView
+            open={sidebarOpen}
+            onToggle={() => setSidebarOpen(p => !p)}
+            isAdmin={isAdmin}
+          />
+        </div>
       )}
       <div className='flex flex-col w-full h-full overflow-hidden'>
         {!isAuthPage && (
-          <HeaderView isAuthenticated={isAuthenticated} sidebarVisible={shouldShowSidebar} />
+          <HeaderView isAuthenticated={isAuthenticated} isAdmin={isAdmin} sidebarVisible={shouldShowSidebar} />
         )}
         <div className='flex-1 overflow-x-hidden overflow-y-hidden'>
           <RouterView
