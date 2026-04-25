@@ -1,15 +1,14 @@
-import { useState } from 'react'
 import * as LucideIcons from 'lucide-react'
-import { Plus, Edit2, Trash2, X } from 'lucide-react'
+import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { InputView } from '@shared/components/ui/Input/InputView'
 import { useAmenitiesViewModel } from './useAmenitiesViewModel'
-import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
+import { AmenitiesFormView } from '@management/components/AmenitiesForm/AmenitiesFormView'
 import { IconPickerView } from '@management/components/IconPicker/IconPickerView'
-import { isValidIcon } from '@management/utils/lucideIconsUtil'
+import { isValidIcon } from '@shared/utils/lucideIcons/lucideIconsUtil'
+import { FilterView } from '@shared/components/layout/Filter/FilterView'
 
 /**
  * AmenitiesView - Tela de gerenciamento de amenities/comodidades
@@ -20,7 +19,6 @@ import { isValidIcon } from '@management/utils/lucideIconsUtil'
  * - Permitir seleção de ícones
  */
 export function AmenitiesView() {
-  const headerHeight = useHeaderHeight()
   const {
     amenities,
     loading,
@@ -29,14 +27,27 @@ export function AmenitiesView() {
     isEditMode,
     formData,
     isIconPickerOpen,
+    isConfirmDeleteOpen,
+    formAlertConfig,
+    currentPage,
+    totalPages,
+    totalElements,
+    filterModel,
     handleAdd,
     handleEdit,
     handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
     handleCloseModal,
+    handleCloseError,
     handleFormChange,
     handleSave,
     handleSelectIcon,
+    handleCloseFormAlert,
     setIsIconPickerOpen,
+    handlePreviousPage,
+    handleNextPage,
+    handleFiltersChange,
   } = useAmenitiesViewModel()
 
   const renderIcon = (iconName, isWhite = false) => {
@@ -48,26 +59,16 @@ export function AmenitiesView() {
       const Icon = LucideIcons[iconName]
       return <Icon size={20} className={isWhite ? 'text-white' : ''} />
     } catch (error) {
-      console.warn(`Erro ao renderizar ícone ${iconName}:`, error)
       return <span className={`text-xs ${isWhite ? 'text-white' : 'text-gray-400'}`}>Erro</span>
     }
   }
 
-  if (loading && amenities.length === 0) {
-    return (
-      <div style={{ '--header-height': `${headerHeight}px` }}>
-        <SectionView className="flex items-center justify-center min-h-[calc(100vh-var(--header-height))]">
-          <p className="text-muted">Carregando diferenciais...</p>
-        </SectionView>
-      </div>
-    )
-  }
 
   return (
-    <div style={{ '--header-height': `${headerHeight}px` }}>
-      <SectionView className="flex flex-col subsection h-[calc(100vh-var(--header-height))] min-h-[calc(100vh-var(--header-height))] max-h-[calc(100vh-var(--header-height))] overflow-hidden !gap-subsection md:!gap-subsection-md">
-        {/* Header com título e botão de adicionar */}
-        <div className="flex items-center justify-between flex-shrink-0">
+    <SectionView className="flex flex-col overflow-hidden h-full !gap-subsection md:!gap-subsection-md relative">
+      {/* Header com título e botão de adicionar */}
+      <div className="flex flex-col gap-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
           <HeadingView level={2} className="text-distac-primary">
             Diferenciais
           </HeadingView>
@@ -82,156 +83,189 @@ export function AmenitiesView() {
           </ButtonView>
         </div>
 
-        {/* Alertas */}
-        {error && (
-          <AlertView variant="error" className="flex-shrink-0">
-            {error}
-          </AlertView>
-        )}
+        {/* Filtros */}
+        <div className="flex flex-col gap-3">
+          <FilterView
+            searchPlaceholder="Buscar diferencial..."
+            filterConfigs={[
+              {
+                key: 'initialFilter',
+                options: [
+                  { value: 'TODOS', label: 'Letra Inicial: Todas' },
+                  ...Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ').map(letter => ({ value: letter, label: letter }))
+                ],
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+              }
+            ]}
+            defaultFilters={{ initialFilter: 'TODOS' }}
+            defaultSortOrder="none"
+            onFiltersChange={handleFiltersChange}
+          />
+        </div>
+      </div>
 
-        {/* Tabela de amenities */}
-        <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-lg shadow">
-          <div className="overflow-x-auto overflow-y-auto flex-1">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark">
-                    Ícone
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark">
-                    Diferencial
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark">
-                    Nome do Ícone
-                  </th>
-                  <th className="px-6 py-3 text-right text-sm font-semibold text-default-dark">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {amenities.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-muted">
-                      Nenhum diferencial cadastrado. Clique em "Adicionar Diferencial" para começar.
-                    </td>
-                  </tr>
-                ) : (
-                  amenities.map(amenity => (
-                    <tr key={amenity.id} className="border-b border-slate-100 hover:bg-slate-50 transition">
-                      <td className="px-6 py-3 text-default-dark">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-distac-primary">
-                          {renderIcon(amenity.icon, true)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-3 text-default-dark font-medium">
-                        {amenity.description}
-                      </td>
-                      <td className="px-6 py-3 text-muted text-sm">
-                        {amenity.icon}
-                      </td>
-                      <td className="px-6 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleEdit(amenity)}
-                            className="p-2 text-distac-primary hover:bg-distac-primary hover:text-white rounded transition"
-                            title="Editar"
-                          >
-                            <Edit2 size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(amenity.id)}
-                            className="p-2 text-distac-primary hover:bg-red-50 rounded transition"
-                            title="Deletar"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
+      {/* Alertas */}
+      {error && (
+        <AlertView
+          isVisible={!!error}
+          type="error"
+          message={error}
+          onClose={handleCloseError}
+          hasCloseButton={true}
+        />
+      )}
+
+      {/* Tabela de amenities */}
+      <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-lg shadow min-h-0">
+        {loading && amenities.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted">Carregando diferenciais...</p>
+          </div>
+        ) : (
+          <>
+            {/* Header da Tabela (Fixo com compensação de scrollbar) */}
+            <div className="bg-slate-50 border-b border-slate-200">
+              <div className="overflow-y-scroll invisible">
+                <table className="w-full table-fixed visible bg-slate-50">
+                  <colgroup>
+                    <col className="w-[100px]" />
+                    <col className="w-auto" />
+                    <col className="w-[160px]" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
+                        Ícone
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-default-dark border-r border-slate-200">
+                        Diferencial
+                      </th>
+                      <th className="px-6 py-3 text-right text-sm font-semibold text-default-dark">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+
+            <div className="overflow-y-scroll flex-1 min-h-0">
+              <table className="w-full table-fixed">
+                <colgroup>
+                  <col className="w-[100px]" />
+                  <col className="w-auto" />
+                  <col className="w-[160px]" />
+                </colgroup>
+                <tbody className="divide-y divide-slate-100">
+                  {amenities.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="px-6 py-8 text-center text-muted">
+                        Nenhum diferencial cadastrado. Clique em "Adicionar Diferencial" para começar.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </SectionView>
-
-      {/* Modal de criar/editar */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-default-dark">
-                {isEditMode ? 'Editar Diferencial' : 'Adicionar Diferencial'}
-              </h3>
-              <button
-                onClick={handleCloseModal}
-                className="p-1 hover:bg-slate-100 rounded transition"
-              >
-                <X size={20} />
-              </button>
+                  ) : (
+                    amenities.map(amenity => (
+                      <tr key={amenity.id} className="hover:bg-slate-50 transition">
+                        <td className="px-6 py-3 text-default-dark border-r border-slate-200">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-distac-primary">
+                            {renderIcon(amenity.icon, true)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 text-default-dark font-medium border-r border-slate-200">
+                          {amenity.description}
+                        </td>
+                        <td className="px-6 py-3 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <ButtonView
+                              onClick={() => handleEdit(amenity)}
+                              shape="square"
+                              width="fit"
+                              color="pink"
+                              title="Editar"
+                              disabled={loading}
+                            >
+                              <Edit2 size={18} />
+                            </ButtonView>
+                            <ButtonView
+                              onClick={() => handleDelete(amenity.id)}
+                              shape="square"
+                              width="fit"
+                              color="pink"
+                              title="Deletar"
+                              disabled={loading}
+                            >
+                              <Trash2 size={18} />
+                            </ButtonView>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            {/* Body */}
-            <div className="p-6 space-y-4">
-              {/* Diferencial */}
-              <div>
-                <label className="text-sm font-medium text-default-dark mb-2 block">
-                  Diferencial
-                </label>
-                <InputView
-                  type="text"
-                  placeholder="Ex: Wi-Fi"
-                  value={formData.description}
-                  onChange={(value) => handleFormChange('description', value)}
-                  hasLabel={false}
-                  isActive={true}
-                />
-              </div>
-
-              {/* Seletor de ícone */}
-              <div>
-                <label className="text-sm font-medium text-default-dark mb-2 block">
-                  Ícone
-                </label>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setIsIconPickerOpen(true)}
-                    className="flex-1 flex items-center gap-3 px-4 py-2 border border-slate-200 rounded-md hover:border-distac-primary transition"
+            {/* Rodapé com paginação */}
+            {totalPages > 1 && (
+              <div className="flex-shrink-0 border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                <div className="text-sm text-muted">
+                  Página <span className="font-semibold text-default-dark">{currentPage}</span> de{' '}
+                  <span className="font-semibold text-default-dark">{totalPages}</span>
+                  {totalElements > 0 && (
+                    <span className="ml-2 text-xs">
+                      ({totalElements} {totalElements === 1 ? 'item' : 'itens'})
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 px-4">
+                  <ButtonView
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1 || loading}
+                    shape="square"
+                    width="fit"
+                    color="gray"
+                    title="Página anterior"
                   >
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-distac-primary">
-                      {renderIcon(formData.icon, true)}
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm font-medium text-default-dark">{formData.icon}</p>
-                      <p className="text-xs text-muted">Clique para alterar</p>
-                    </div>
-                  </button>
+                    <ChevronLeft size={18} />
+                  </ButtonView>
+                  <ButtonView
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || loading}
+                    shape="square"
+                    width="fit"
+                    color="gray"
+                    title="Próxima página"
+                  >
+                    <ChevronRight size={18} />
+                  </ButtonView>
                 </div>
               </div>
-            </div>
+            )}
+          </>
+        )}
+      </div>
 
-            {/* Footer */}
-            <div className="border-t border-slate-200 p-6 flex gap-3">
-              <button
-                onClick={handleCloseModal}
-                className="flex-1 px-4 py-2 border border-slate-200 rounded-md font-medium text-default-dark hover:bg-slate-50 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={!formData.description.trim() || loading}
-                className="flex-1 px-4 py-2 bg-distac-primary text-white rounded-md font-medium hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Salvando...' : 'Salvar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de criar/editar */}
+      <AmenitiesFormView
+        isOpen={isModalOpen}
+        isEditMode={isEditMode}
+        formData={formData}
+        loading={loading}
+        onClose={handleCloseModal}
+        onFormChange={handleFormChange}
+        onSave={handleSave}
+        onIconPickerOpen={() => setIsIconPickerOpen(true)}
+      />
+
+      <AlertView
+        isVisible={!!formAlertConfig}
+        type={formAlertConfig?.type || 'warning'}
+        message={formAlertConfig?.message || 'Não foi possível salvar o diferencial.'}
+        onClose={handleCloseFormAlert}
+        hasCloseButton={true}
+      />
 
       {/* Icon Picker Modal */}
       <IconPickerView
@@ -240,6 +274,25 @@ export function AmenitiesView() {
         onSelectIcon={handleSelectIcon}
         currentIcon={formData.icon}
       />
-    </div>
+
+      {/* Confirmation Delete Alert */}
+      <AlertView
+        isVisible={isConfirmDeleteOpen}
+        type="warning"
+        message="Tem certeza que deseja deletar este diferencial? Esta ação não poderá ser desfeita."
+        hasCloseButton={true}
+        buttonsLayout="row"
+        onClose={handleCancelDelete}
+      >
+        <ButtonView
+          variant="danger"
+          onClick={handleConfirmDelete}
+          disabled={loading}
+          width="fit"
+        >
+          {loading ? 'Deletando...' : 'Deletar'}
+        </ButtonView>
+      </AlertView>
+    </SectionView>
   )
 }

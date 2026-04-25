@@ -213,7 +213,6 @@ export class RouterModel {
     let route = this.getRoute(routeName)
 
     if (!route) {
-      console.error(`Rota ${routeName} não encontrada`)
       return '/'
     }
 

@@ -122,6 +122,7 @@ export function SelectView({
   hasLabel = false,
   hasErrors = false,
   onChange,
+  size,
 }) {
   const selectProps = useSelectViewModel({
     value,
@@ -251,7 +252,10 @@ export function SelectView({
           <ul
             role="listbox"
             className={getDropdownClasses({ variant: selectProps.variant, isAnimating })}
-            style={{ transformOrigin: 'top center' }}
+            style={{ 
+              transformOrigin: 'top center',
+              ...(size ? { maxHeight: `calc(${size} * 2.5rem)` } : {})
+            }}
           >
             {selectProps.options.map(({ label, value: optionValue }) => (
               <li

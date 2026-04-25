@@ -9,7 +9,7 @@ import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 import { useScreeningFormViewModel } from './useScreeningFormViewModel'
 
-export function ScreeningFormView({ onClose, realEstateAdvertisement = null }) {
+export function ScreeningFormView({ onClose, advertisement = null }) {
 
   const {
     fieldsColumn1,
@@ -19,7 +19,7 @@ export function ScreeningFormView({ onClose, realEstateAdvertisement = null }) {
     enviarWhatsApp,
     alertConfig,
     handleCloseAlert
-  } = useScreeningFormViewModel(realEstateAdvertisement)
+  } = useScreeningFormViewModel(advertisement)
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">

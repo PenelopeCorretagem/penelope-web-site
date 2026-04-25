@@ -292,8 +292,8 @@
   }
 }
 
-/* marquee track for property features */
-.property-features-marquee {
+/* marquee track for property amenities */
+.property-amenities-marquee {
   display: flex;
   gap: var(--gap-card);
   align-items: center;
@@ -304,7 +304,7 @@
 }
 
 /* ensure child items keep their intrinsic width for smooth scrolling */
-.property-features-marquee > * {
+.property-amenities-marquee > * {
   flex: 0 0 auto;
 }
 
@@ -312,14 +312,14 @@
    Apply the animation on hover; when hover ends animation is removed and the
    transition above smoothly returns the track to translateX(0). */
 @media (hover: hover) {
-  .group:hover .property-features-marquee {
+  .group:hover .property-amenities-marquee {
     animation: marquee 6s linear infinite;
   }
 }
 
 /* mobile/medium spacing fallback (respect md:gap-card-md applied in markup) */
 @media (min-width: 768px) {
-  .property-features-marquee { gap: var(--gap-card-md); }
+  .property-amenities-marquee { gap: var(--gap-card-md); }
 }
 
 /* Centraliza texto nativo do input date no mobile */

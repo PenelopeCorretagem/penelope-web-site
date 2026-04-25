@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ScheduleModel } from './ScheduleModel'
-import { listAppointments, mapAppointmentsToModel } from '@app/api/calservice/appointmentCalApi'
+import { listAppointments, mapAppointmentsToModel } from '@api-calservice/appointmentCalApi'
 
 export function useScheduleViewModel() {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
