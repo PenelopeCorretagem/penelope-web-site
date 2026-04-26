@@ -5,7 +5,7 @@ import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionView'
 import { useAuthTransitionViewModel } from '@shared/pages/AuthTransition/useAuthTransitionViewModel'
-import { usePageViewModel } from '@shared/pages/PageView/usePageViewModel'
+import { usePageViewModel } from './usePageViewModel'
 
 /**
  * PageView - Componente raiz da aplicação

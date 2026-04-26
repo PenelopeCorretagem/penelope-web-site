@@ -49,7 +49,7 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     }
 
     const handleStorageChange = (event) => {
-      if (['jwtToken', 'userRole', 'userId', 'userEmail'].includes(event.key)) {
+      if (['token', 'userRole', 'userId', 'userEmail'].includes(event.key)) {
         handleAuthChange()
       }
     }

@@ -1,5 +1,7 @@
 import axiosInstance from '@api/axiosInstance'
 
+const PENELOPEC_API_BASE_URL = import.meta.env.PENELOPEC_URL
+
 /**
  * Camada de API - Responsável apenas por requisições HTTP
  * Retorna dados brutos sem transformação de negócio
@@ -24,13 +26,8 @@ export const getAllAdvertisements = async (filters = {}) => {
     featured: filters.featured,
   }
 
-  try {
-    const response = await axiosInstance.get('/advertisements', { params })
-    return response.data
-  } catch (error) {
-    console.error('❌ [ADVERTISEMENTS_API] Erro na requisição:', error.message)
-    throw error
-  }
+  const response = await axiosInstance.get('/advertisements', { params, baseURL: PENELOPEC_API_BASE_URL })
+  return response.data
 }
 
 /**
@@ -39,7 +36,7 @@ export const getAllAdvertisements = async (filters = {}) => {
  * @returns {Promise<object>} Dados brutos do anúncio
  */
 export const getAdvertisementById = async (id) => {
-  const response = await axiosInstance.get(`/advertisements/${id}`)
+  const response = await axiosInstance.get(`/advertisements/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data
 }
 
@@ -51,6 +48,7 @@ export const getAdvertisementById = async (id) => {
 export const createAdvertisement = async (advertisementRequest) => {
   try {
     const response = await axiosInstance.post('/advertisements', advertisementRequest, {
+      baseURL: PENELOPEC_API_BASE_URL,
       headers: {
         'Content-Type': 'application/json'
       }
@@ -74,13 +72,8 @@ export const createAdvertisement = async (advertisementRequest) => {
  * @returns {Promise<object>} Dados brutos do anúncio atualizado
  */
 export const updateAdvertisement = async (id, advertisementData) => {
-  try {
-    const response = await axiosInstance.put(`/advertisements/${id}`, advertisementData)
-    return response.data
-  } catch (error) {
-    console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar anúncio ${id}:`, error)
-    throw error
-  }
+  const response = await axiosInstance.put(`/advertisements/${id}`, advertisementData, { baseURL: PENELOPEC_API_BASE_URL })
+  return response.data
 }
 
 /**
@@ -90,13 +83,8 @@ export const updateAdvertisement = async (id, advertisementData) => {
  * @returns {Promise<object>} Dados brutos do anúncio atualizado
  */
 export const updateAdvertisementStatus = async (id, active) => {
-  try {
-    const response = await axiosInstance.patch(`/advertisements/${id}/status`, { active })
-    return response.data
-  } catch (error) {
-    console.error(`❌ [ADVERTISEMENTS API] Erro ao atualizar status do anúncio ${id}:`, error)
-    throw error
-  }
+  const response = await axiosInstance.patch(`/advertisements/${id}/status`, { active }, { baseURL: PENELOPEC_API_BASE_URL })
+  return response.data
 }
 
 /**
@@ -105,12 +93,7 @@ export const updateAdvertisementStatus = async (id, active) => {
  * @returns {Promise<void>}
  */
 export const deleteAdvertisement = async (id) => {
-  try {
-    await axiosInstance.delete(`/advertisements/${id}`)
-  } catch (error) {
-    console.error(`❌ [ADVERTISEMENTS API] Erro ao excluir anúncio ${id}:`, error)
-    throw error
-  }
+  await axiosInstance.delete(`/advertisements/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
 }
 
 /**

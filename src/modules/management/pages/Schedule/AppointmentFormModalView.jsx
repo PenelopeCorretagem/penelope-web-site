@@ -3,7 +3,7 @@
  * Modal para criar/editar agendamentos
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X, AlertCircle, Check, Image as ImageIcon } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
@@ -16,15 +16,28 @@ export function AppointmentFormModalView({
   selectedDate = new Date(),
   selectedHour = 10,
   allAppointments = [],
+  appointment = null,
+  mode = 'create',
 }) {
-  const vm = useAppointmentFormViewModel(selectedDate, selectedHour, allAppointments)
+  const vm = useAppointmentFormViewModel(
+    selectedDate,
+    selectedHour,
+    allAppointments,
+    isOpen,
+    appointment,
+    mode
+  )
   const [selectedEstateId, setSelectedEstateId] = useState(null)
-  const [alertMessage, setAlertMessage] = useState('')
-  const [alertType, setAlertType] = useState('info')
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedEstateId(null)
+    }
+  }, [isOpen, selectedDate, selectedHour, appointment, mode])
 
   if (!isOpen) return null
 
-  const selectedEstate = vm.estates.find(e => e.id === selectedEstateId)
+  const isRescheduleMode = vm.isRescheduleMode
   const availableHours = vm.getAvailableHours()
 
   const handleSelectEstate = (estate) => {
@@ -36,7 +49,7 @@ export function AppointmentFormModalView({
     const datetimeString = e.target.value
     if (!datetimeString) return
 
-    const date = new Date(datetimeString + 'Z')
+    const date = new Date(datetimeString)
     vm.updateField('startDateTime', date)
   }
 
@@ -47,15 +60,10 @@ export function AppointmentFormModalView({
   const handleSubmit = async () => {
     const success = await vm.handleSubmit()
     if (success) {
-      setAlertMessage('Agendamento criado com sucesso!')
-      setAlertType('success')
-      setTimeout(() => {
-        onClose()
-        onSubmitSuccess()
-      }, 1500)
+      onClose()
+      onSubmitSuccess()
     } else if (vm.submitError) {
-      setAlertMessage(vm.submitError)
-      setAlertType('error')
+      // O erro de submissão já é exibido na seção de validação.
     }
   }
 
@@ -75,15 +83,27 @@ export function AppointmentFormModalView({
     vm.updateField('notes', e.target.value)
   }
 
+  const handleReasonChange = (e) => {
+    vm.updateField('reason', e.target.value)
+  }
+
+  const modalTitle = isRescheduleMode ? 'Reagendar Visita' : 'Agendar Visita'
+  const submitLabel = isRescheduleMode ? 'Salvar reagendamento' : 'Agendar'
+  const submittingLabel = isRescheduleMode ? 'Reagendando...' : 'Agendando...'
+
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="Fechar modal"
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        onClick={onClose}
+      />
 
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
           <HeadingView level={2} className="text-distac-primary m-0">
-            Agendar Visita
+            {modalTitle}
           </HeadingView>
           <button
             onClick={onClose}
@@ -94,92 +114,100 @@ export function AppointmentFormModalView({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Seleção de Imóvel */}
-          <div>
-            <label className="block text-sm font-semibold text-default-dark mb-3 uppercase">
-              Selecione o Imóvel
-            </label>
+          {isRescheduleMode && appointment && (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+              <p className="font-semibold text-default-dark mb-1">Agendamento selecionado</p>
+              <p>{appointment.title || 'Agendamento'}</p>
+              <p>
+                {appointment.startDateTime?.toLocaleDateString('pt-BR')} às{' '}
+                {appointment.startDateTime?.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+              {appointment.attendeeName && <p>Visitante: {appointment.attendeeName}</p>}
+            </div>
+          )}
 
-            {vm.loadingEstates ? (
-              <div className="text-center py-8 text-muted">
-                Carregando imóveis...
-              </div>
-            ) : vm.estatesError ? (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-                {vm.estatesError}
-              </div>
-            ) : vm.estates.length === 0 ? (
-              <div className="bg-slate-50 border border-slate-200 text-slate-600 p-4 rounded-lg text-center">
-                Nenhum imóvel disponível para agendamento
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {vm.estates.map((estate, estateIdx) => {
-                  const imageUrl = vm.getEstateImageUrl(estate.estate)
-                  const isSelected = selectedEstateId === estate.id
+          {!isRescheduleMode && (
+            <div>
+              <label className="block text-sm font-semibold text-default-dark mb-3 uppercase">
+                Selecione o Imóvel
+              </label>
 
-                  return (
-                    <button
-                      key={estate.id}
-                      type="button"
-                      onClick={() => handleSelectEstate(estate)}
-                      className={`p-3 rounded-lg border-2 transition text-left ${
-                        isSelected
-                          ? 'border-distac-primary bg-distac-primary/5'
-                          : 'border-slate-200 bg-white hover:border-distac-primary/50'
-                      }`}
-                    >
-                      <div className="flex gap-3">
-                        {/* Imagem */}
-                        <div className="w-20 h-20 flex-shrink-0 rounded-lg bg-slate-100 overflow-hidden">
-                          {imageUrl ? (
-                            <img
-                              src={imageUrl}
-                              alt={vm.getEstateTitle(estate.estate)}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImageIcon size={24} className="text-slate-300" />
-                            </div>
-                          )}
-                        </div>
+              {vm.loadingEstates ? (
+                <div className="text-center py-8 text-muted">
+                  Carregando imóveis...
+                </div>
+              ) : vm.estatesError ? (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
+                  {vm.estatesError}
+                </div>
+              ) : vm.estates.length === 0 ? (
+                <div className="bg-slate-50 border border-slate-200 text-slate-600 p-4 rounded-lg text-center">
+                  Nenhum imóvel disponível para agendamento
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {vm.estates.map((estate) => {
+                    const imageUrl = vm.getEstateImageUrl(estate.estate)
+                    const isSelected = selectedEstateId === estate.id
 
-                        {/* Info */}
-                        <div className="flex-1 overflow-hidden">
-                          <p className="font-semibold text-sm text-default-dark truncate">
-                            {vm.getEstateTitle(estate.estate)}
-                          </p>
-                          <p className="text-xs text-muted mt-1">
-                            {estate.estate?.type || 'Imóvel'}
-                          </p>
-                          {estate.estate?.address && (
-                            <p className="text-xs text-muted truncate mt-1">
-                              {estate.estate.address.street}, {estate.estate.address.number}
-                              {estate.estate.address.neighborhood && ` - ${estate.estate.address.neighborhood}`}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Check */}
-                        {isSelected && (
-                          <div className="flex items-start justify-end">
-                            <div className="bg-distac-primary text-white rounded-full p-1">
-                              <Check size={16} />
-                            </div>
+                    return (
+                      <button
+                        key={estate.id}
+                        type="button"
+                        onClick={() => handleSelectEstate(estate)}
+                        className={`p-3 rounded-lg border-2 transition text-left ${
+                          isSelected
+                            ? 'border-distac-primary bg-distac-primary/5'
+                            : 'border-slate-200 bg-white hover:border-distac-primary/50'
+                        }`}
+                      >
+                        <div className="flex gap-3">
+                          <div className="w-20 h-20 flex-shrink-0 rounded-lg bg-slate-100 overflow-hidden">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={vm.getEstateTitle(estate.estate)}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImageIcon size={24} className="text-slate-300" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
 
-          {/* Data/Hora */}
+                          <div className="flex-1 overflow-hidden">
+                            <p className="font-semibold text-sm text-default-dark truncate">
+                              {vm.getEstateTitle(estate.estate)}
+                            </p>
+                            <p className="text-xs text-muted mt-1">
+                              {estate.estate?.type || 'Imóvel'}
+                            </p>
+                            {estate.estate?.address && (
+                              <p className="text-xs text-muted truncate mt-1">
+                                {estate.estate.address.street}, {estate.estate.address.number}
+                                {estate.estate.address.neighborhood && ` - ${estate.estate.address.neighborhood}`}
+                              </p>
+                            )}
+                          </div>
+
+                          {isSelected && (
+                            <div className="flex items-start justify-end">
+                              <div className="bg-distac-primary text-white rounded-full p-1">
+                                <Check size={16} />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-default-dark mb-2 uppercase">
@@ -212,54 +240,68 @@ export function AppointmentFormModalView({
             </div>
           </div>
 
-          {/* Informações do Visitante */}
-          <div>
-            <label className="block text-sm font-semibold text-default-dark mb-3 uppercase">
-              Informações do Visitante
-            </label>
+          {!isRescheduleMode && (
+            <div>
+              <label className="block text-sm font-semibold text-default-dark mb-3 uppercase">
+                Informações do Visitante
+              </label>
 
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nome do visitante"
-                value={vm.model.visitorName}
-                onChange={handleVisitorNameChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
-              />
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Nome do visitante"
+                  value={vm.model.visitorName}
+                  onChange={handleVisitorNameChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
+                />
 
-              <input
-                type="email"
-                placeholder="Email do visitante"
-                value={vm.model.visitorEmail}
-                onChange={handleVisitorEmailChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
-              />
+                <input
+                  type="email"
+                  placeholder="Email do visitante"
+                  value={vm.model.visitorEmail}
+                  onChange={handleVisitorEmailChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
+                />
 
-              <input
-                type="tel"
-                placeholder="Telefone do visitante"
-                value={vm.model.visitorPhone}
-                onChange={handleVisitorPhoneChange}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
+                <input
+                  type="tel"
+                  placeholder="Telefone do visitante"
+                  value={vm.model.visitorPhone}
+                  onChange={handleVisitorPhoneChange}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
+                />
+              </div>
+            </div>
+          )}
+
+          {isRescheduleMode ? (
+            <div>
+              <label className="block text-sm font-semibold text-default-dark mb-2 uppercase">
+                Motivo do reagendamento
+              </label>
+              <textarea
+                placeholder="Descreva o motivo do reagendamento..."
+                value={vm.model.reason}
+                onChange={handleReasonChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none resize-none"
               />
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-semibold text-default-dark mb-2 uppercase">
+                Notas (opcional)
+              </label>
+              <textarea
+                placeholder="Adicione observações sobre o agendamento..."
+                value={vm.model.notes}
+                onChange={handleNotesChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none resize-none"
+              />
+            </div>
+          )}
 
-          {/* Notas */}
-          <div>
-            <label className="block text-sm font-semibold text-default-dark mb-2 uppercase">
-              Notas (opcional)
-            </label>
-            <textarea
-              placeholder="Adicione observações sobre o agendamento..."
-              value={vm.model.notes}
-              onChange={handleNotesChange}
-              rows={3}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none resize-none"
-            />
-          </div>
-
-          {/* Erros de Validação */}
           {vm.validationErrors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex gap-2 mb-2">
@@ -274,8 +316,13 @@ export function AppointmentFormModalView({
             </div>
           )}
 
-          {/* Horários Disponíveis */}
-          {vm.model.selectedEstate && (
+          {vm.submitError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-700">{vm.submitError}</p>
+            </div>
+          )}
+
+          {!isRescheduleMode && vm.model.selectedEstate && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm font-semibold text-blue-900 mb-2">
                 Horários disponíveis para este imóvel neste dia:
@@ -300,7 +347,6 @@ export function AppointmentFormModalView({
           )}
         </div>
 
-        {/* Footer */}
         <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-6 flex gap-3 justify-end">
           <ButtonView
             type="button"
@@ -317,7 +363,7 @@ export function AppointmentFormModalView({
             onClick={handleSubmit}
             disabled={vm.isSubmitting || vm.validationErrors.length > 0}
           >
-            {vm.isSubmitting ? 'Agendando...' : 'Agendar'}
+            {vm.isSubmitting ? submittingLabel : submitLabel}
           </ButtonView>
         </div>
       </div>

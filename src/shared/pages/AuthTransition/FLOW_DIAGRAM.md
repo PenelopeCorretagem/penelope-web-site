@@ -43,7 +43,7 @@
 │  - userId: "12345"                                              │
 │  - userRole: "CLIENTE" | "ADMINISTRADOR"                       │
 │  - userEmail: "user@example.com"                               │
-│  - _hadToken: "true" (flag para sincronização)                 │
+│  - hadToken: "true" (flag para sincronização)                 │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -109,7 +109,7 @@
 │  - userEmail (removido)                                         │
 │  - userName (removido)                                          │
 │  - token (removido)                                             │
-│  - _hadToken (removido)                                         │
+│  - hadToken (removido)                                         │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼

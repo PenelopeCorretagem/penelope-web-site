@@ -3,6 +3,8 @@ import { IMAGE_TYPE_IDS } from '@constant/imageTypes'
 import { imageEstateMapper } from '@mappers/imageEstateMapper'
 import { imageEstateTypeMapper } from '@mappers/imageEstateTypeMapper'
 
+const PENELOPEC_API_BASE_URL = import.meta.env.PENELOPEC_URL
+
 /**
  * Camada de API - Responsável apenas por requisições HTTP
  * Retorna dados brutos sem transformação de negócio
@@ -26,6 +28,7 @@ export const uploadImages = async (files) => {
     })
 
     const response = await axiosInstance.post('/images', formData, {
+      baseURL: PENELOPEC_API_BASE_URL,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -90,6 +93,7 @@ export const uploadEstateImages = async (estateId, files, typeId = IMAGE_TYPE_ID
   formData.append('typeId', typeId.toString())
 
   const response = await axiosInstance.post(`/empreendimentos/${estateId}/imagens`, formData, {
+    baseURL: PENELOPEC_API_BASE_URL,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -135,7 +139,7 @@ export const uploadFloorPlanImages = async (estateId, files) => {
  * @returns {Promise<object[]>} Dados brutos das imagens
  */
 export const getEstateImages = async (estateId) => {
-  const response = await axiosInstance.get(`/empreendimentos/${estateId}/imagens`)
+  const response = await axiosInstance.get(`/empreendimentos/${estateId}/imagens`, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data
 }
 
@@ -146,7 +150,7 @@ export const getEstateImages = async (estateId) => {
  * @returns {Promise<ImageEstate>} Entidade ImageEstate
  */
 export const getImageById = async (imageId) => {
-  const response = await axiosInstance.get(`/imagens/${imageId}`)
+  const response = await axiosInstance.get(`/imagens/${imageId}`, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateMapper.toEntity(response.data)
 }
 
@@ -158,7 +162,7 @@ export const getImageById = async (imageId) => {
  */
 export const updateImage = async (imageId, imageData) => {
   const payload = imageEstateMapper.toRequestPayload(imageData)
-  const response = await axiosInstance.put(`/imagens/${imageId}`, payload)
+  const response = await axiosInstance.put(`/imagens/${imageId}`, payload, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateMapper.toEntity(response.data)
 }
 
@@ -168,7 +172,7 @@ export const updateImage = async (imageId, imageData) => {
  * @returns {Promise<void>}
  */
 export const deleteImage = async (imageId) => {
-  await axiosInstance.delete(`/imagens/${imageId}`)
+  await axiosInstance.delete(`/imagens/${imageId}`, { baseURL: PENELOPEC_API_BASE_URL })
 }
 
 /**
@@ -176,7 +180,7 @@ export const deleteImage = async (imageId) => {
  * @returns {Promise<ImageEstateType[]>} Lista de entidades ImageEstateType
  */
 export const getImageTypes = async () => {
-  const response = await axiosInstance.get('/tipos-imagem')
+  const response = await axiosInstance.get('/tipos-imagem', { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateTypeMapper.toEntityList(response.data)
 }
 
@@ -186,7 +190,7 @@ export const getImageTypes = async () => {
  * @returns {Promise<ImageEstateType>} Entidade ImageEstateType
  */
 export const getImageTypeById = async (id) => {
-  const response = await axiosInstance.get(`/tipos-imagem/${id}`)
+  const response = await axiosInstance.get(`/tipos-imagem/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateTypeMapper.toEntity(response.data)
 }
 
@@ -196,7 +200,7 @@ export const getImageTypeById = async (id) => {
  * @returns {Promise<ImageEstateType>} Entidade ImageEstateType
  */
 export const fetchImageTypeByDescription = async (description) => {
-  const response = await axiosInstance.get(`/tipos-imagem/descricao/${description}`)
+  const response = await axiosInstance.get(`/tipos-imagem/descricao/${description}`, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateTypeMapper.toEntity(response.data)
 }
 
@@ -207,7 +211,7 @@ export const fetchImageTypeByDescription = async (description) => {
  * @returns {Promise<ImageEstate[]>} Lista de entidades ImageEstate
  */
 export const getEstateImagesByType = async (estateId, typeId) => {
-  const response = await axiosInstance.get(`/empreendimentos/${estateId}/imagens/tipo/${typeId}`)
+  const response = await axiosInstance.get(`/empreendimentos/${estateId}/imagens/tipo/${typeId}`, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateMapper.toEntityList(response.data)
 }
 
@@ -245,6 +249,6 @@ export const getEstateFloorPlanImages = async (estateId) => {
  * @returns {Promise<ImageEstate>} Entidade ImageEstate atualizada
  */
 export const setAsCoverImage = async (estateId, imageId) => {
-  const response = await axiosInstance.patch(`/empreendimentos/${estateId}/imagens/${imageId}/capa`)
+  const response = await axiosInstance.patch(`/empreendimentos/${estateId}/imagens/${imageId}/capa`, null, { baseURL: PENELOPEC_API_BASE_URL })
   return imageEstateMapper.toEntity(response.data)
 }

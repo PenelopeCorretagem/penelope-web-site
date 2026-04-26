@@ -8,10 +8,10 @@ export function usePageViewModel() {
   const { currentRoute } = useRouter()
 
   const checkAuth = () => {
-    const jwtToken = sessionStorage.getItem('jwtToken')
+    const token = sessionStorage.getItem('token')
     const userId = sessionStorage.getItem('userId')
     const userRole = sessionStorage.getItem('userRole')
-    setIsAuthenticated(!!jwtToken && !!userId)
+    setIsAuthenticated(!!token && !!userId)
     setIsAdmin(userRole === 'ADMINISTRADOR')
   }
 
@@ -20,7 +20,7 @@ export function usePageViewModel() {
     setAuthReady(true)
 
     const onStorage = (e) => {
-      if (['jwtToken', 'userRole', 'userId'].includes(e.key)) checkAuth()
+      if (['token', 'userRole', 'userId'].includes(e.key)) checkAuth()
     }
     const onAuthChanged = () => checkAuth()
 

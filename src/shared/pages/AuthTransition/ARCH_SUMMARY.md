@@ -72,7 +72,7 @@ src/shared/hooks/
    ├─ Detecta logout em outra aba via storage event
    ├─ Detecta login em outra aba
    ├─ Propaga mudanças via authChanged event
-   └─ _hadToken flag para tracking
+   └─ hadToken flag para tracking
 
 ✅ INTEGRAÇÃO SEMÂNTICA
    ├─ Nome: AuthTransitionView (mais semântico que LoadingView)

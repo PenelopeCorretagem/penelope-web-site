@@ -658,7 +658,7 @@ export function WizardFormView(props) {
     if (field.type === 'custom-cover-preview') {
       const coverFile = vm.getFieldValue('cover')
       const hasCover = Boolean(coverFile)
-      const coverPreview = hasCover && (coverFile.preview || coverFile.url) ? (coverFile.preview || coverFile.url) : null
+      const coverPreview = hasCover ? getImagePreview(coverFile) : null
 
       return (
         <div className={`w-full h-full flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>

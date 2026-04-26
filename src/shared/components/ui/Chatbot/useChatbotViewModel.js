@@ -33,7 +33,7 @@ export function useChatbotViewModel() {
   function handleOptionClick(option) {
     setMessages((prev) => [...prev, { sender: 'user', text: option }])
 
-    const isAuthenticated = Boolean(sessionStorage.getItem('jwtToken') && sessionStorage.getItem('userId'))
+    const isAuthenticated = Boolean(sessionStorage.getItem('token') && sessionStorage.getItem('userId'))
 
     if (option === 'Ver Imóveis') {
       setIsOpen(false)

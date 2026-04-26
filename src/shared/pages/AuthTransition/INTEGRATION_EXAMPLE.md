@@ -67,7 +67,7 @@ export function SignInPanelExample() {
       sessionStorage.setItem('userId', response.data.userId)
       sessionStorage.setItem('userRole', response.data.role)
       sessionStorage.setItem('userEmail', response.data.email)
-      sessionStorage.setItem('_hadToken', 'true')
+      sessionStorage.setItem('hadToken', 'true')
 
       // 5. Notificar mudança
       window.dispatchEvent(new CustomEvent('authChanged'))
@@ -121,7 +121,7 @@ export function SignInPanelExample() {
       sessionStorage.setItem('userId', response.data.userId)
       sessionStorage.setItem('userRole', response.data.role)
       sessionStorage.setItem('userEmail', response.data.email)
-      sessionStorage.setItem('_hadToken', 'true')
+      sessionStorage.setItem('hadToken', 'true')
       
       window.dispatchEvent(new CustomEvent('authChanged'))
       

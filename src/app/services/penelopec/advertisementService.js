@@ -1,4 +1,4 @@
-import * as advertisementApi from '@api-penelopec/advertisementAPI'
+import * as advertisementApi from '@api-penelopec/advertisementApi'
 import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
 
 /**

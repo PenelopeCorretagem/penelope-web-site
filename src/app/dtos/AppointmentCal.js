@@ -15,6 +15,10 @@ export class AppointmentCal {
   #status
   #startDateTime
   #endDateTime
+  #attendeeName
+  #attendeeEmail
+  #notes
+  #reason
   #createdAt
   #updatedAt
 
@@ -29,6 +33,10 @@ export class AppointmentCal {
     status = 'PENDING',
     startDateTime = null,
     endDateTime = null,
+    attendeeName = '',
+    attendeeEmail = '',
+    notes = '',
+    reason = '',
     createdAt = null,
     updatedAt = null,
   }) {
@@ -42,6 +50,10 @@ export class AppointmentCal {
     this.#status = status
     this.#startDateTime = startDateTime ? new Date(startDateTime) : null
     this.#endDateTime = endDateTime ? new Date(endDateTime) : null
+    this.#attendeeName = attendeeName
+    this.#attendeeEmail = attendeeEmail
+    this.#notes = notes
+    this.#reason = reason
     this.#createdAt = createdAt ? new Date(createdAt) : null
     this.#updatedAt = updatedAt ? new Date(updatedAt) : null
   }
@@ -56,6 +68,10 @@ export class AppointmentCal {
   get status() { return this.#status }
   get startDateTime() { return this.#startDateTime }
   get endDateTime() { return this.#endDateTime }
+  get attendeeName() { return this.#attendeeName }
+  get attendeeEmail() { return this.#attendeeEmail }
+  get notes() { return this.#notes }
+  get reason() { return this.#reason }
   get createdAt() { return this.#createdAt }
   get updatedAt() { return this.#updatedAt }
 
@@ -96,6 +112,9 @@ export class AppointmentCal {
       estateId: this.#estateId,
       startDateTime: this.#startDateTime,
       endDateTime: this.#endDateTime,
+      attendeeName: this.#attendeeName,
+      attendeeEmail: this.#attendeeEmail,
+      notes: this.#notes,
     }
   }
 
@@ -115,6 +134,10 @@ export class AppointmentCal {
       status: data.status,
       startDateTime: data.startDateTime,
       endDateTime: data.endDateTime,
+      attendeeName: data.attendeeName,
+      attendeeEmail: data.attendeeEmail,
+      notes: data.notes,
+      reason: data.reason,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     })

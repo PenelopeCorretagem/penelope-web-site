@@ -25,6 +25,16 @@ export class ScheduleModel {
     this.appointments.push(appointment)
   }
 
+  replaceById(appointmentId, updatedAppointment) {
+    this.appointments = this.appointments.map(appointment =>
+      appointment.id === appointmentId ? updatedAppointment : appointment
+    )
+  }
+
+  removeById(appointmentId) {
+    this.appointments = this.appointments.filter(appointment => appointment.id !== appointmentId)
+  }
+
   setAppointments(appointments = []) {
     this.appointments = Array.isArray(appointments) ? appointments : []
   }

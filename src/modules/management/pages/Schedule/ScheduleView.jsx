@@ -20,10 +20,12 @@ const STATUS_LABELS = {
 
 export function ScheduleView() {
   const headerHeight = useHeaderHeight()
-  const [viewMode, setViewMode] = useState('week') // 'week' ou 'day'
+  const [viewMode, setViewMode] = useState('week')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModalDate, setSelectedModalDate] = useState(new Date())
   const [selectedModalHour, setSelectedModalHour] = useState(10)
+  const [appointmentToEdit, setAppointmentToEdit] = useState(null)
+  const [busyAppointmentId, setBusyAppointmentId] = useState(null)
 
   const {
     selectedDate,
@@ -36,50 +38,99 @@ export function ScheduleView() {
     upcomingAppointments,
     monthCount,
     allAppointments,
+    refreshAppointments,
+    confirmAppointment,
+    concludeAppointment,
+    cancelAppointment,
   } = useScheduleViewModel()
 
   const handleTimeSlotClick = (date, hour) => {
-    // ✅ Validar se a data é no passado
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     const clickedDate = new Date(date)
     clickedDate.setHours(0, 0, 0, 0)
-    
+
     if (clickedDate < today) {
-      // Silenciosamente ignorar clicks em datas passadas
       return
     }
-    
+
     setSelectedModalDate(date)
     setSelectedModalHour(hour)
+    setAppointmentToEdit(null)
     setIsModalOpen(true)
   }
 
-  // ✅ Função para verificar se data é no passado
+  const handleRescheduleAppointment = (appointment) => {
+    if (!appointment) return
+
+    setAppointmentToEdit(appointment)
+    setSelectedModalDate(appointment.startDateTime)
+    setSelectedModalHour(appointment.startDateTime.getHours())
+    setIsModalOpen(true)
+  }
+
   const isPastDate = (date) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     const checkDate = new Date(date)
     checkDate.setHours(0, 0, 0, 0)
-    
+
     return checkDate < today
   }
 
   const handleModalClose = () => {
     setIsModalOpen(false)
+    setAppointmentToEdit(null)
   }
 
-  const handleAppointmentCreated = () => {
-    // Recarregar dados quando novo agendamento é criado
-    // O useScheduleViewModel já deve recarregar automaticamente
+  const handleAppointmentSaved = async () => {
+    await refreshAppointments()
+  }
+
+  const handleConfirm = async (appointmentId) => {
+    if (!window.confirm('Deseja confirmar este agendamento?')) return
+
+    try {
+      setBusyAppointmentId(appointmentId)
+      await confirmAppointment(appointmentId)
+    } catch {
+      // O erro já é exibido pelo estado do ViewModel.
+    } finally {
+      setBusyAppointmentId(null)
+    }
+  }
+
+  const handleConclude = async (appointmentId) => {
+    if (!window.confirm('Deseja concluir este agendamento?')) return
+
+    try {
+      setBusyAppointmentId(appointmentId)
+      await concludeAppointment(appointmentId)
+    } catch {
+      // O erro já é exibido pelo estado do ViewModel.
+    } finally {
+      setBusyAppointmentId(null)
+    }
+  }
+
+  const handleCancel = async (appointmentId) => {
+    if (!window.confirm('Deseja cancelar este agendamento?')) return
+
+    try {
+      setBusyAppointmentId(appointmentId)
+      await cancelAppointment(appointmentId, 'Cancelado pelo gestor no painel de agenda')
+    } catch {
+      // O erro já é exibido pelo estado do ViewModel.
+    } finally {
+      setBusyAppointmentId(null)
+    }
   }
 
   const weekdayLabels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
   const currentMonthName = selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 
-  // Mini calendário
   const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate()
   const monthStartOffset = (firstDayOfMonth.getDay() + 6) % 7
@@ -90,7 +141,6 @@ export function ScheduleView() {
     return [...blanks, ...days]
   }, [daysInMonth, monthStartOffset])
 
-  // Contagem de agendamentos por dia
   const appointmentsCountByDate = useMemo(() => {
     return allAppointments.reduce((acc, appointment) => {
       const key = appointment.startDateTime.toISOString().split('T')[0]
@@ -99,25 +149,23 @@ export function ScheduleView() {
     }, {})
   }, [allAppointments])
 
-  // Semana do dia selecionado
   const getWeekDates = (date) => {
     const d = new Date(date)
     const day = d.getDay()
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Segunda = 1
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1)
     const monday = new Date(d.setDate(diff))
-    
+
     const week = []
     for (let i = 0; i < 7; i++) {
-      const date = new Date(monday)
-      date.setDate(monday.getDate() + i)
-      week.push(date)
+      const currentDate = new Date(monday)
+      currentDate.setDate(monday.getDate() + i)
+      week.push(currentDate)
     }
     return week
   }
 
   const weekDates = useMemo(() => getWeekDates(selectedDate), [selectedDate])
 
-  // Agendamentos organizados por dia da semana
   const appointmentsByDay = useMemo(() => {
     const result = {}
     weekDates.forEach(date => {
@@ -130,8 +178,7 @@ export function ScheduleView() {
     return result
   }, [weekDates, allAppointments])
 
-  // Horas do dia
-  const hours = Array.from({ length: 13 }, (_, i) => i + 7) // 07:00 - 19:00
+  const hours = Array.from({ length: 13 }, (_, i) => i + 7)
 
   const handleChangeMonth = (direction) => {
     const nextMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + direction, 1)
@@ -151,7 +198,7 @@ export function ScheduleView() {
   }
 
   const renderMiniCalendarDay = (day, index) => {
-    if (!day) return <div key={`empty-${index}`} className="bg-slate-50"></div>
+    if (!day) return <div key={`empty-${index}`} className="bg-slate-50" />
 
     const cellDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day)
     const isCurrent = day === selectedDate.getDate()
@@ -175,7 +222,7 @@ export function ScheduleView() {
         <div className="relative h-full flex items-center justify-center">
           {day}
           {count > 0 && !isPassedDay && (
-            <div className="absolute top-1 right-1 w-2 h-2 bg-distac-primary rounded-full"></div>
+            <div className="absolute top-1 right-1 w-2 h-2 bg-distac-primary rounded-full" />
           )}
         </div>
       </button>
@@ -199,7 +246,6 @@ export function ScheduleView() {
         )}
 
         <div className="flex-1 overflow-hidden flex gap-6">
-          {/* Mini Calendário - Esquerda */}
           <aside className="w-72 bg-white rounded-lg shadow p-4 overflow-y-auto flex flex-col">
             <div>
               <p className="text-xs uppercase tracking-widest text-muted mb-2">Data selecionada</p>
@@ -219,6 +265,9 @@ export function ScheduleView() {
                         <div className="flex-1">
                           <p className="font-semibold text-sm text-default-dark">{appt.title || 'Agendamento'}</p>
                           <p className="text-xs text-muted mt-1">{STATUS_LABELS[appt.status]}</p>
+                          {appt.attendeeName && (
+                            <p className="text-xs text-muted mt-1">Visitante: {appt.attendeeName}</p>
+                          )}
                         </div>
                         <span className="text-xs font-semibold text-default-dark whitespace-nowrap">
                           {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(appt.startDateTime.getMinutes()).padStart(2, '0')}
@@ -227,15 +276,58 @@ export function ScheduleView() {
                       <p className="text-xs text-muted mt-2">
                         Duração: {appt.durationMinutes} min
                       </p>
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        {(appt.status === 'PENDING' || appt.status === 'CONFIRMED') && (
+                          <button
+                            type="button"
+                            onClick={() => handleRescheduleAppointment(appt)}
+                            disabled={busyAppointmentId === appt.id}
+                            className="text-[10px] px-2 py-1 rounded bg-distac-primary text-white disabled:opacity-60"
+                          >
+                            Reagendar
+                          </button>
+                        )}
+
+                        {appt.status === 'PENDING' && (
+                          <button
+                            type="button"
+                            onClick={() => handleConfirm(appt.id)}
+                            disabled={busyAppointmentId === appt.id}
+                            className="text-[10px] px-2 py-1 rounded bg-distac-secondary text-white disabled:opacity-60"
+                          >
+                            Confirmar
+                          </button>
+                        )}
+
+                        {appt.status === 'CONFIRMED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleConclude(appt.id)}
+                            disabled={busyAppointmentId === appt.id}
+                            className="text-[10px] px-2 py-1 rounded bg-green-600 text-white disabled:opacity-60"
+                          >
+                            Concluir
+                          </button>
+                        )}
+
+                        {(appt.status === 'PENDING' || appt.status === 'CONFIRMED') && (
+                          <button
+                            type="button"
+                            onClick={() => handleCancel(appt.id)}
+                            disabled={busyAppointmentId === appt.id}
+                            className="text-[10px] px-2 py-1 rounded bg-slate-500 text-white disabled:opacity-60"
+                          >
+                            Cancelar
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </aside>
-          
 
-          {/* Calendário da Semana - Centro */}
           <div className="flex-1 bg-white rounded-lg shadow p-6 overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -245,8 +337,7 @@ export function ScheduleView() {
                 <h2 className="text-xl font-semibold">
                   {viewMode === 'week'
                     ? `${weekDates[0].toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })} - ${weekDates[6].toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}`
-                    : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-                  }
+                    : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </h2>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -315,14 +406,11 @@ export function ScheduleView() {
               </div>
             </div>
 
-            {/* Timeline */}
             <div className="flex-1 overflow-y-auto">
               {viewMode === 'week' ? (
-                // Visualização Semanal
                 <div className="grid grid-cols-8 gap-2 min-w-full">
-                  {/* Coluna de horas */}
                   <div className="w-16 flex-shrink-0">
-                    <div className="h-8"></div>
+                    <div className="h-8" />
                     {hours.map(hour => (
                       <div key={hour} className="h-12 text-xs text-muted flex items-start justify-end pr-2">
                         {String(hour).padStart(2, '0')}:00
@@ -330,7 +418,6 @@ export function ScheduleView() {
                     ))}
                   </div>
 
-                  {/* Colunas dos dias */}
                   {weekDates.map((date, dayIndex) => {
                     const isSelectedDay = date.toDateString() === selectedDate.toDateString()
                     const dateKey = date.toISOString().split('T')[0]
@@ -346,14 +433,9 @@ export function ScheduleView() {
                           <p className="text-sm font-bold text-distac-primary">{date.getDate()}</p>
                         </div>
 
-                        {/* Slots de hora */}
                         <div className="relative">
                           {hours.map((hour) => {
-                            // Eventos neste slot específico
-                            const slotAppointments = dayAppointments.filter(appt => {
-                              const apptHour = appt.startDateTime.getHours()
-                              return apptHour === hour
-                            })
+                            const slotAppointments = dayAppointments.filter(appt => appt.startDateTime.getHours() === hour)
 
                             return (
                               <button
@@ -367,7 +449,6 @@ export function ScheduleView() {
                                     : 'hover:bg-distac-primary/5'
                                 }`}
                               >
-                                {/* Eventos neste slot */}
                                 <div className="absolute inset-0 pointer-events-none">
                                   {slotAppointments.map(appt => {
                                     const startMinutes = appt.startDateTime.getMinutes()
@@ -377,12 +458,25 @@ export function ScheduleView() {
                                     return (
                                       <div
                                         key={appt.id}
-                                        className={`absolute left-1 right-1 rounded-md p-1 text-white text-[10px] overflow-hidden ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={(event) => {
+                                          event.stopPropagation()
+                                          handleRescheduleAppointment(appt)
+                                        }}
+                                        onKeyDown={(event) => {
+                                          if (event.key === 'Enter' || event.key === ' ') {
+                                            event.preventDefault()
+                                            event.stopPropagation()
+                                            handleRescheduleAppointment(appt)
+                                          }
+                                        }}
+                                        className={`absolute left-1 right-1 rounded-md p-1 text-white text-[10px] overflow-hidden cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                         style={{
                                           top: `${topOffset}px`,
                                           minHeight: `${Math.max(height, 20)}px`,
                                         }}
-                                        title={appt.title || 'Agendamento'}
+                                        title={`${appt.title || 'Agendamento'} - Clique para reagendar`}
                                       >
                                         <p className="font-semibold truncate text-xs">{appt.title || 'Agendamento'}</p>
                                         <p className="text-[9px] opacity-90">
@@ -401,7 +495,6 @@ export function ScheduleView() {
                   })}
                 </div>
               ) : (
-                // Visualização Diária
                 <div className="min-w-full h-full flex flex-col">
                   <div className="flex flex-col">
                     <div className="flex items-center justify-center pb-4 border-b border-slate-200">
@@ -412,7 +505,6 @@ export function ScheduleView() {
                     </div>
 
                     <div className="flex-1 relative mt-4">
-                      {/* Coluna de horas com layout vertical */}
                       <div className="flex gap-4">
                         <div className="w-16 flex-shrink-0">
                           {hours.map(hour => (
@@ -422,15 +514,9 @@ export function ScheduleView() {
                           ))}
                         </div>
 
-                        {/* Timeline do dia */}
                         <div className="flex-1 relative">
-                          {/* Linhas de hora */}
                           {hours.map((hour) => {
-                            // Eventos neste slot específico
-                            const slotAppointments = appointmentsForSelectedDate.filter(appt => {
-                              const apptHour = appt.startDateTime.getHours()
-                              return apptHour === hour
-                            })
+                            const slotAppointments = appointmentsForSelectedDate.filter(appt => appt.startDateTime.getHours() === hour)
 
                             return (
                               <button
@@ -444,7 +530,6 @@ export function ScheduleView() {
                                     : 'hover:bg-distac-primary/5'
                                 }`}
                               >
-                                {/* Eventos neste slot */}
                                 <div className="absolute inset-0 pointer-events-none">
                                   {slotAppointments.map(appt => {
                                     const startMinutes = appt.startDateTime.getMinutes()
@@ -454,12 +539,25 @@ export function ScheduleView() {
                                     return (
                                       <div
                                         key={appt.id}
-                                        className={`absolute left-2 right-2 rounded-lg p-2 text-white text-xs overflow-hidden shadow-md ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={(event) => {
+                                          event.stopPropagation()
+                                          handleRescheduleAppointment(appt)
+                                        }}
+                                        onKeyDown={(event) => {
+                                          if (event.key === 'Enter' || event.key === ' ') {
+                                            event.preventDefault()
+                                            event.stopPropagation()
+                                            handleRescheduleAppointment(appt)
+                                          }
+                                        }}
+                                        className={`absolute left-2 right-2 rounded-lg p-2 text-white text-xs overflow-hidden shadow-md cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                         style={{
                                           top: `${topOffset}px`,
                                           minHeight: `${Math.max(height, 35)}px`,
                                         }}
-                                        title={appt.title || 'Agendamento'}
+                                        title={`${appt.title || 'Agendamento'} - Clique para reagendar`}
                                       >
                                         <p className="font-semibold text-xs">{appt.title || 'Agendamento'}</p>
                                         <p className="text-[10px] opacity-90 mt-1">
@@ -487,18 +585,16 @@ export function ScheduleView() {
               )}
             </div>
 
-            {/* Legenda */}
             <div className="mt-4 pt-4 border-t flex gap-4 justify-center flex-wrap text-xs">
               {Object.entries(STATUS_LABELS).map(([status, label]) => (
                 <div key={status} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded ${STATUS_COLORS[status]}`}></div>
+                  <div className={`w-3 h-3 rounded ${STATUS_COLORS[status]}`} />
                   <span className="text-muted">{label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Painel Direita - Agendamentos do Dia */}
           <aside className="w-64 bg-white rounded-lg shadow p-4 overflow-y-auto flex flex-col">
             <div className="mb-4">
               <div className="flex items-center justify-between mb-3">
@@ -568,18 +664,18 @@ export function ScheduleView() {
               </div>
             </div>
           </aside>
-          
         </div>
       </main>
 
-      {/* Modal de Agendamento */}
       <AppointmentFormModalView
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSubmitSuccess={handleAppointmentCreated}
+        onSubmitSuccess={handleAppointmentSaved}
         selectedDate={selectedModalDate}
         selectedHour={selectedModalHour}
         allAppointments={allAppointments}
+        appointment={appointmentToEdit}
+        mode={appointmentToEdit ? 'reschedule' : 'create'}
       />
     </div>
   )

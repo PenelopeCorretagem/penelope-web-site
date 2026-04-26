@@ -26,8 +26,6 @@ export function AdvertisementCardView({
     isCarouselItem,
   )
 
-  console.log('ViewModel:', viewModel) // Log para depuração
-
   const containerClasses = () => {
     const baseClasses = ['flex', 'flex-col', 'w-[280px]', 'md:w-[340px]', 'relative', 'justify-between']
     baseClasses.push('group')
@@ -229,7 +227,6 @@ export function AdvertisementCardView({
                       const iconName = amenity?.icon
                       const IconComponent = iconName ? LucideIcons[iconName] : null
                       
-                      console.log('Amenity:', amenity) // Log para depuração
                       return (
                         <div
                           key={amenity?.id}

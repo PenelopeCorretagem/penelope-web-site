@@ -1,5 +1,7 @@
 import axiosInstance from '@api/axiosInstance'
 
+const PENELOPEC_API_BASE_URL = import.meta.env.PENELOPEC_URL
+
 /**
  * Camada de API - Responsável apenas por requisições HTTP
  * Retorna dados brutos sem transformação de negócio
@@ -11,22 +13,14 @@ import axiosInstance from '@api/axiosInstance'
  * @returns {Promise<object>} Dados brutos da resposta
  */
 export const login = async (credentials) => {
-  try {
-    const response = await axiosInstance.post('/auth/login', {
-      email: credentials.email,
-      password: credentials.password,
-    })
+  const response = await axiosInstance.post('/auth/login', {
+    email: credentials.email,
+    password: credentials.password,
+  }, {
+    baseURL: PENELOPEC_API_BASE_URL,
+  })
 
-    return response.data
-  } catch (error) {
-    console.error('❌ [AUTH API] Erro no login:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-    })
-    throw error
-  }
+  return response.data
 }
 
 /**
@@ -35,19 +29,16 @@ export const login = async (credentials) => {
  * @returns {Promise<object>} Dados brutos da resposta
  */
 export const register = async (userData) => {
-  try {
-    const response = await axiosInstance.post('/users', {
-      name: userData.name,
-      email: userData.email,
-      password: userData.password,
-      accessLevel: userData.accessLevel || 'CLIENTE',
-    })
+  const response = await axiosInstance.post('/users', {
+    name: userData.name,
+    email: userData.email,
+    password: userData.password,
+    accessLevel: userData.accessLevel || 'CLIENTE',
+  }, {
+    baseURL: PENELOPEC_API_BASE_URL,
+  })
 
-    return response.data
-  } catch (error) {
-    console.error('❌ [AUTH API] Erro no registro:', error.response?.data)
-    throw error
-  }
+  return response.data
 }
 
 /**
@@ -56,7 +47,7 @@ export const register = async (userData) => {
  * @returns {Promise<object>} Dados brutos da resposta
  */
 export const validateResetToken = async (token) => {
-  const response = await axiosInstance.post('/auth/validate-reset-token', { token })
+  const response = await axiosInstance.post('/auth/validate-reset-token', { token }, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data
 }
 
@@ -70,6 +61,8 @@ export const resetPassword = async (token, newPassword) => {
   const response = await axiosInstance.post('/auth/reset-password', {
     token,
     newPassword,
+  }, {
+    baseURL: PENELOPEC_API_BASE_URL,
   })
   return response.data
 }

@@ -1,29 +1,25 @@
 export const authSessionUtil = {
-  save({ token, userId, email, isAdmin, name }) {
-    sessionStorage.setItem('jwtToken', token)
+  save({ token, userId, email, isAdmin }) {
     sessionStorage.setItem('token', token)
     sessionStorage.setItem('userId', String(userId))
     sessionStorage.setItem('userEmail', email)
-    sessionStorage.setItem('userName', name || email)
     sessionStorage.setItem('userRole', isAdmin ? 'ADMINISTRADOR' : 'CLIENTE')
-    sessionStorage.setItem('_hadToken', 'true')
+    sessionStorage.setItem('hadToken', 'true')
   },
 
   clear() {
-    const keys = ['jwtToken', 'token', 'userId', 'userEmail', 'userName',
-                  'userRole', '_hadToken']
+    const keys = ['token', 'userId', 'userEmail',
+      'userRole', 'hadToken']
     keys.forEach(k => sessionStorage.removeItem(k))
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
   },
 
   get() {
     return {
-      token:  sessionStorage.getItem('jwtToken'),
+      token:  sessionStorage.getItem('token'),
       userId: sessionStorage.getItem('userId'),
       email:  sessionStorage.getItem('userEmail'),
       role:   sessionStorage.getItem('userRole'),
-      name:   sessionStorage.getItem('userName'),
+      hadToken: sessionStorage.getItem('hadToken') === 'true'
     }
   }
 }

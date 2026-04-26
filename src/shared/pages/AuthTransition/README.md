@@ -97,7 +97,7 @@ const handleLoginSubmit = async (credentials) => {
     sessionStorage.setItem('jwtToken', response.data.token)
     sessionStorage.setItem('userId', response.data.userId)
     sessionStorage.setItem('userRole', response.data.role)
-    sessionStorage.setItem('_hadToken', 'true')
+    sessionStorage.setItem('hadToken', 'true')
     
     // Disparar evento de auth
     window.dispatchEvent(new CustomEvent('authChanged'))
@@ -128,7 +128,7 @@ const handleDevLogin = () => {
     sessionStorage.setItem('jwtToken', `token-${Date.now()}`)
     sessionStorage.setItem('userRole', 'CLIENTE')
     sessionStorage.setItem('userId', '1')
-    sessionStorage.setItem('_hadToken', 'true')
+    sessionStorage.setItem('hadToken', 'true')
     window.dispatchEvent(new CustomEvent('authChanged'))
     window.location.href = '/'
   }, 500)
@@ -227,7 +227,7 @@ export function SignInPanel() {
       sessionStorage.setItem('userId', response.userId)
       sessionStorage.setItem('userRole', response.role)
       sessionStorage.setItem('userEmail', response.email)
-      sessionStorage.setItem('_hadToken', 'true')
+      sessionStorage.setItem('hadToken', 'true')
       
       // Notificar PageView
       window.dispatchEvent(new CustomEvent('authChanged'))
