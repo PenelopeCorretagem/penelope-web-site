@@ -112,7 +112,6 @@ export class AdvertisementMapper {
           ).filter(Boolean)
           : [],
         address: mapAddressToEntity(data.estate.address),
-        standAddress: mapAddressToEntity(data.estate.addressStand),
         amenities: amenitiesSource
           .map(mapFeatureToEntity)
           .filter(Boolean),
@@ -164,7 +163,6 @@ export class AdvertisementMapper {
         ? {
           id: data.eventTypeId.id,
           title: data.eventTypeId.title,
-          slug: data.eventTypeId.slug,
         }
         : null,
     })
@@ -225,19 +223,6 @@ export class AdvertisementMapper {
               // Use 'cep' in the outgoing API payload and include complement if exists
               cep: advertisement.estate.address.zipCode,
               complement: advertisement.estate.address.complement,
-            }
-            : null,
-          addressStand: advertisement.estate.standAddress
-            ? {
-              id: advertisement.estate.standAddress.id,
-              street: advertisement.estate.standAddress.street,
-              number: advertisement.estate.standAddress.number,
-              neighborhood: advertisement.estate.standAddress.neighborhood,
-              city: advertisement.estate.standAddress.city,
-              uf: advertisement.estate.standAddress.uf,
-              region: advertisement.estate.standAddress.region,
-              cep: advertisement.estate.standAddress.zipCode,
-              complement: advertisement.estate.standAddress.complement,
             }
             : null,
           amenities: advertisement.estate.amenities

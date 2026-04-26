@@ -7,11 +7,11 @@ import zonaCentro from '@institutional/assets/regions/zona-central.jpg'
 const REGIONS_LIST = ['sul', 'leste', 'norte', 'oeste', 'centro']
 
 const REGION_TEXTS = {
-  sul: 'A região Sul é referência em qualidade de vida e áreas verdes...',
-  leste: 'A região Leste de São Paulo é ideal para quem busca conveniência...',
-  norte: 'A região Norte de São Paulo oferece um equilíbrio...',
-  oeste: 'A região Oeste é conhecida por seu alto padrão...',
-  centro: 'A região Centro é o coração pulsante da cidade...'
+  sul: 'A região Sul de São Paulo é reconhecida pela excelente qualidade de vida, com ruas arborizadas, ampla presença de parques e uma atmosfera mais tranquila. É uma ótima escolha para quem busca conforto, segurança e proximidade com a natureza, sem abrir mão de boas opções de comércio e serviços.',
+  leste: 'A região Leste de São Paulo se destaca pela praticidade e pelo custo-benefício. Com uma grande variedade de comércios, transporte público acessível e bairros em constante desenvolvimento, é ideal para quem valoriza conveniência no dia a dia e fácil acesso a diferentes pontos da cidade.',
+  norte: 'A região Norte oferece um equilíbrio interessante entre urbanização e áreas verdes. Próxima à Serra da Cantareira, proporciona um clima mais ameno e contato com a natureza, além de contar com infraestrutura crescente, sendo uma boa opção para quem busca tranquilidade com mobilidade.',
+  oeste: 'A região Oeste é conhecida pelo seu alto padrão e infraestrutura completa. Com bairros valorizados, excelente oferta gastronômica, vida cultural ativa e fácil acesso a importantes vias da cidade, é perfeita para quem busca sofisticação, comodidade e qualidade de vida.',
+  centro: 'A região Central é o verdadeiro coração de São Paulo, reunindo diversidade cultural, histórica e urbana. Com acesso facilitado a praticamente toda a cidade, grande oferta de transporte, comércio, serviços e entretenimento, é ideal para quem valoriza praticidade e uma vida dinâmica.'
 }
 
 const REGION_PHOTOS = {

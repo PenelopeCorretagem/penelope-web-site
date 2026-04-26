@@ -181,7 +181,7 @@ export function NavMenuView({
   if (variant === 'footer') {
     return (
       <div className={viewModel.getFooterClasses()}>
-        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-2 md:col-span-1'>
+        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-1'>
           <LogoView hasHoverEffect={true} />
           <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
             Seu sonho começa com uma chave

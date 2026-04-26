@@ -9,7 +9,7 @@ export function formatCPF(cpf) {
   if (!cpf) return ''
 
   // Remove tudo que não é número
-  const cleanCpf = cpf.replace(/\D/g, '')
+  const cleanCpf = String(cpf).replace(/\D/g, '').slice(0, 11)
 
   // Se tem 11 dígitos (CPF completo)
   if (cleanCpf.length === 11) {
@@ -41,5 +41,5 @@ export function formatCPF(cpf) {
  */
 export function cleanCPF(cpf) {
   if (!cpf) return ''
-  return cpf.replace(/\D/g, '')
+  return String(cpf).replace(/\D/g, '').slice(0, 11)
 }
