@@ -1,4 +1,61 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatCEP } from '@shared/utils/CEP/formatCEPUtil'
+import { formatCPF } from '@shared/utils/CPF/formatCPFUtil'
+import { formatPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
+
+const CEP_FIELD_NAME_REGEX = /cep|zipcode/i
+const CPF_FIELD_NAME_REGEX = /cpf/i
+const PHONE_FIELD_NAME_REGEX = /phone|telefone|celular|whatsapp/i
+
+function isMaskableValue(value) {
+  return typeof value === 'string' || typeof value === 'number'
+}
+
+function shouldApplyCEPMask(field = {}) {
+  return CEP_FIELD_NAME_REGEX.test(field.name || '')
+}
+
+function shouldApplyCPFMask(field = {}) {
+  return CPF_FIELD_NAME_REGEX.test(field.name || '')
+}
+
+function shouldApplyPhoneMask(field = {}) {
+  return PHONE_FIELD_NAME_REGEX.test(field.name || '')
+}
+
+function applyInitialFieldMasks(data = {}, fields = []) {
+  const maskedData = { ...data }
+
+  fields.forEach((field) => {
+    if (!field?.name) return
+
+    const value = maskedData[field.name]
+    if (value === undefined || value === null || value === '' || !isMaskableValue(value)) {
+      return
+    }
+
+    if (field.formatOnChange && typeof field.formatter === 'function') {
+      maskedData[field.name] = field.formatter(String(value))
+      return
+    }
+
+    if (shouldApplyCEPMask(field)) {
+      maskedData[field.name] = formatCEP(String(value))
+      return
+    }
+
+    if (shouldApplyCPFMask(field)) {
+      maskedData[field.name] = formatCPF(String(value))
+      return
+    }
+
+    if (shouldApplyPhoneMask(field)) {
+      maskedData[field.name] = formatPhoneNumber(String(value))
+    }
+  })
+
+  return maskedData
+}
 
 export function useEditFormViewModel({
   title = '',
@@ -8,6 +65,7 @@ export function useEditFormViewModel({
   onCancel,
   onDelete,
   isEditing: initialIsEditing = false,
+  useNativeDeleteConfirm = true,
 }) {
   const [isEditing, setIsEditing] = useState(initialIsEditing)
   const [formData, setFormData] = useState({})
@@ -15,20 +73,15 @@ export function useEditFormViewModel({
   const [isLoading, setIsLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Inicializar formData com dados iniciais
+  // Sincronizar formData quando initialData muda, aplicando máscaras de campos
   useEffect(() => {
-    if (Object.keys(initialData).length > 0) {
-      setFormData(initialData)
-    }
-  }, [initialData])
+    const maskedInitialData = applyInitialFieldMasks(initialData, fields)
 
-  // Sincronizar formData quando initialData muda
-  useEffect(() => {
     setFormData(prevData => ({
       ...prevData,
-      ...initialData
+      ...maskedInitialData
     }))
-  }, [initialData])
+  }, [initialData, fields])
 
   const getFieldValue = useCallback((fieldName) => {
     return formData[fieldName] || ''
@@ -45,6 +98,21 @@ export function useEditFormViewModel({
       // Aplicar formatação se o campo tiver formatter e formatOnChange
       if (field && field.formatOnChange && field.formatter && typeof field.formatter === 'function') {
         processedValue = field.formatter(value)
+      }
+
+      // Garantir máscara de CEP em qualquer campo de CEP, mesmo sem formatter explícito
+      if (field && shouldApplyCEPMask(field) && isMaskableValue(processedValue)) {
+        processedValue = formatCEP(String(processedValue))
+      }
+
+      // Garantir máscara de CPF em qualquer campo de CPF, mesmo sem formatter explícito
+      if (field && shouldApplyCPFMask(field) && isMaskableValue(processedValue)) {
+        processedValue = formatCPF(String(processedValue))
+      }
+
+      // Garantir máscara de telefone em qualquer campo de telefone, mesmo sem formatter explícito
+      if (field && shouldApplyPhoneMask(field) && isMaskableValue(processedValue)) {
+        processedValue = formatPhoneNumber(String(processedValue))
       }
 
       setFormData(prev => {
@@ -153,24 +221,26 @@ export function useEditFormViewModel({
     setSuccessMessage('')
 
     // Restaurar dados iniciais
-    setFormData(initialData)
+    setFormData(applyInitialFieldMasks(initialData, fields))
 
     onCancel?.()
-  }, [initialData, onCancel])
+  }, [initialData, fields, onCancel])
 
   const handleDelete = useCallback(async () => {
-    if (window.confirm('Tem certeza que deseja excluir este item?')) {
-      setIsLoading(true)
-      try {
-        await onDelete?.()
-      } catch (error) {
-        console.error('Erro ao excluir:', error)
-        setErrors({ general: 'Erro ao excluir. Tente novamente.' })
-      } finally {
-        setIsLoading(false)
-      }
+    if (useNativeDeleteConfirm && !window.confirm('Tem certeza que deseja excluir este item?')) {
+      return
     }
-  }, [onDelete])
+
+    setIsLoading(true)
+    try {
+      await onDelete?.()
+    } catch (error) {
+      console.error('Erro ao excluir:', error)
+      setErrors({ general: 'Erro ao excluir. Tente novamente.' })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [onDelete, useNativeDeleteConfirm])
 
   return {
     // Estado

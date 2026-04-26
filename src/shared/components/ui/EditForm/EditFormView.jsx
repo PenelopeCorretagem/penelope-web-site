@@ -27,6 +27,7 @@ export function EditFormView({
   onDelete,
   isEditing: initialIsEditing = false,
   showDeleteButton = true,
+  useNativeDeleteConfirm = true,
 }) {
   const vm = useEditFormViewModel({
     title,
@@ -36,6 +37,7 @@ export function EditFormView({
     onCancel,
     onDelete,
     isEditing: initialIsEditing,
+    useNativeDeleteConfirm,
   })
 
   // Função para verificar se um campo deve ser exibido com base em condições
@@ -135,6 +137,7 @@ export function EditFormView({
                         name={field.name}
                         type={field.type || 'text'}
                         value={vm.getFieldValue(field.name)}
+                        maxLength={/cep|zipcode/i.test(field.name || '') ? 9 : /cpf/i.test(field.name || '') ? 14 : /phone|telefone|celular|whatsapp/i.test(field.name || '') ? 15 : field.maxLength}
                         hasLabel={Boolean(field.label)}
                         disabled={true}
                         isActive={false}
@@ -252,6 +255,7 @@ export function EditFormView({
                       disabled={field.disabled}
                       formatOnChange={field.formatOnChange}
                       formatter={field.formatter}
+                      maxLength={/cep|zipcode/i.test(field.name || '') ? 9 : /cpf/i.test(field.name || '') ? 14 : /phone|telefone|celular|whatsapp/i.test(field.name || '') ? 15 : field.maxLength}
                     >
                       {field.label || ''}
                     </InputView>

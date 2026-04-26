@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { X, AlertCircle, Check, Image as ImageIcon } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { formatPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
 import { useAppointmentFormViewModel } from './useAppointmentFormViewModel'
 
 export function AppointmentFormModalView({
@@ -68,7 +69,7 @@ export function AppointmentFormModalView({
   }
 
   const handleVisitorPhoneChange = (e) => {
-    vm.updateField('visitorPhone', e.target.value)
+    vm.updateField('visitorPhone', formatPhoneNumber(e.target.value))
   }
 
   const handleNotesChange = (e) => {
@@ -240,6 +241,7 @@ export function AppointmentFormModalView({
                 placeholder="Telefone do visitante"
                 value={vm.model.visitorPhone}
                 onChange={handleVisitorPhoneChange}
+                maxLength={15}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-distac-primary focus:border-transparent outline-none"
               />
             </div>

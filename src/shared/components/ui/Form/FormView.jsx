@@ -6,6 +6,7 @@ import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/Error
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useFormViewModel } from '@shared/components/ui/Form/useFormViewModel'
+import { Info } from 'lucide-react'
 
 /**
  * FormView - Componente de formulário genérico
@@ -154,6 +155,7 @@ export function FormView({
               inputMode={field.inputMode}
               isActive={!formIsLoading}
               link={field.link}
+              checkboxCentered={field.checkboxCentered}
             >
               {field.label || ''}
             </InputView>
@@ -168,8 +170,9 @@ export function FormView({
 
           {/* Texto auxiliar/informativo */}
           {field.helperText && (
-            <div className="text-default-dark-muted text-m mt-2 font-bold">
-              {field.helperText}
+            <div className="flex items-center justify-center gap-2 text-default-dark-muted text-m mt-2 font-bold text-center w-full">
+              {field.helperIcon === 'info' && <Info size={16} aria-hidden="true" className="shrink-0" />}
+              <span>{field.helperText}</span>
             </div>
           )}
         </div>

@@ -12,7 +12,6 @@ import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView.jsx'
-import { X } from 'lucide-react'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView.jsx'
 
 import { useAdvertisementDetailsViewModel } from './useAdvertisementDetailsViewModel'
@@ -142,7 +141,7 @@ export function AdvertisementDetailsView() {
   }
 
   return (
-    <div className="relative h-fit">
+    <div className="relative h-fit pb-24 lg:pb-0">
       {/* Hero */}
       <SectionView className="!p-0">
         <AdvertisementCardView
@@ -213,20 +212,11 @@ export function AdvertisementDetailsView() {
             <HeadingView level={2} className="text-default-light mb-10 text-center md:text-left max-md:!w-full">
               Localização
             </HeadingView>
-            <div className={`grid gap-8 auto-rows-fr ${advertisement.estate?.address && advertisement.estate?.standAddress ? 'grid-cols-1 md:grid-cols-2' : advertisement.estate?.address || advertisement.estate?.standAddress ? 'grid-cols-1' : ''}`}>
-
+            <div className="grid gap-8 auto-rows-fr">
               {advertisement.estate?.address && (
-              <AdvertisementLocation
-                address={advertisement.estate?.address}
-                type="building"
-              />
-              )}
-
-              {advertisement.estate?.hasStandAddress() && (
-              <AdvertisementLocation
-                address={advertisement.estate?.standAddress}
-                type="stand"
-              />
+                <AdvertisementLocation
+                  address={advertisement.estate?.address}
+                />
               )}
             </div>
           </SectionView>
@@ -276,21 +266,20 @@ export function AdvertisementDetailsView() {
         </SectionView>
       )}
 
-      {isScreeningFormOpen && (
-        <div className="fixed inset-0 bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
-            <div className="flex justify-between items-center mb-4">
-              <HeadingView level={3}>Formulário de Triagem</HeadingView>
-              <button
-                onClick={() => setIsScreeningFormOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <ScreeningFormView advertisement={advertisement} onClose={() => setIsScreeningFormOpen(false)} />
-          </div>
+      {advertisement && !isScreeningFormOpen && (
+        <div className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-default-light/95 backdrop-blur border-t border-default-light-muted p-3">
+          <ButtonView
+            width="full"
+            color="pink"
+            onClick={() => setIsScreeningFormOpen(true)}
+          >
+            Falar com corretor
+          </ButtonView>
         </div>
+      )}
+
+      {isScreeningFormOpen && (
+        <ScreeningFormView advertisement={advertisement} onClose={() => setIsScreeningFormOpen(false)} />
       )}
     </div>
   )

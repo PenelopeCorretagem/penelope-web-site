@@ -11,7 +11,6 @@ import { IMAGE_TYPES } from '@constant/imageTypes'
  * - #numberOfRooms
  * - #type
  * - #address
- * - #standAddress
  * - #images (Array<ImageEstate>)
  * - #amenities (Array<Feature>)
  *
@@ -25,7 +24,6 @@ export class Estate {
   #numberOfRooms
   #type
   #address
-  #standAddress
   #images
   #amenities
 
@@ -37,7 +35,6 @@ export class Estate {
     numberOfRooms,
     type,
     address,
-    standAddress,
     images = [],
     amenities = [],
   }) {
@@ -48,7 +45,6 @@ export class Estate {
     this.#numberOfRooms = numberOfRooms
     this.#type = type
     this.#address = address
-    this.#standAddress = standAddress
     this.#images = images
     this.#amenities = amenities
   }
@@ -76,9 +72,6 @@ export class Estate {
 
   get address() { return this.#address }
   set address(value) { this.#address = value }
-
-  get standAddress() { return this.#standAddress }
-  set standAddress(value) { this.#standAddress = value }
 
   get images() { return this.#images }
   set images(value) { this.#images = Array.isArray(value) ? value : [] }
@@ -142,32 +135,5 @@ export class Estate {
 
   isRealEstateInstance(object){
     return object instanceof Estate
-  }
-
-  hasStandAddress(){
-    return(
-      this.#standAddress?.id === null
-      && this.#standAddress?.street !== undefined
-      && this.#standAddress?.street !== null
-      && this.#standAddress?.street !== ''
-      && this.#standAddress?.number !== undefined
-      && this.#standAddress?.number !== null
-      && this.#standAddress?.neighborhood !== undefined
-      && this.#standAddress?.neighborhood !== null
-      && this.#standAddress?.neighborhood !== ''
-      && this.#standAddress?.city !== undefined
-      && this.#standAddress?.city !== null
-      && this.#standAddress?.city !== ''
-      && this.#standAddress?.uf !== undefined
-      && this.#standAddress?.uf !== null
-      && this.#standAddress?.uf !== ''
-      && this.#standAddress?.region !== undefined
-      && this.#standAddress?.region !== null
-      && this.#standAddress?.region !== ''
-      && this.#standAddress?.zipCode !== undefined
-      && this.#standAddress?.zipCode !== null
-      && this.#standAddress?.zipCode !== ''
-    )
-
   }
 }

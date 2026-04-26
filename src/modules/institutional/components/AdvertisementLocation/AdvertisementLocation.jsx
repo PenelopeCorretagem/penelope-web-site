@@ -1,8 +1,8 @@
-import { Store, Building } from 'lucide-react'
+import { Building } from 'lucide-react'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
 import { TextView } from '@shared/components/ui/Text/TextView.jsx'
 
-export function AdvertisementLocation({ address, type }) {
+export function AdvertisementLocation({ address }) {
   const generateMapUrl = (address) => {
     // Use address if available, otherwise use location title/subtitle
     const searchQuery = address?.getFullAddress() || `${address.neighborhood} ${address.city} ${address.state}`
@@ -14,22 +14,12 @@ export function AdvertisementLocation({ address, type }) {
     <div className="flex flex-col h-full gap-subsection md:gap-subsection-md justify-between">
       <div className="flex items-start gap-card md:gap-card-md">
         <div className="bg-default-light rounded-lg p-4">
-          {type === 'stand' ? (
-            <Store size={40} className="text-distac-primary" />
-          ) : type === 'building' ? (
-            <Building size={40} className="text-distac-primary" />
-          ) : null}
+          <Building size={40} className="text-distac-primary" />
         </div>
         <div>
-          {type === 'stand' ? (
-            <HeadingView level={4} className="text-default-light mb-0">
-              Stand de Vendas
-            </HeadingView>
-          ) : type === 'building' ? (
-            <HeadingView level={4} className="text-default-light mb-0">
-              Empreendiento
-            </HeadingView>
-          ) : null}
+          <HeadingView level={4} className="text-default-light mb-0">
+            Localização do Imóvel
+          </HeadingView>
           {address && (
           <TextView className="text-default-light font-medium text-lg mt-3">
             {address.getFullAddress()}

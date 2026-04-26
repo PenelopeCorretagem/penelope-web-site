@@ -179,6 +179,7 @@ export function InputView({
   onChange,
   onClick,
   link = null,
+  checkboxCentered = false,
   // Props customizadas que não devem ir para o input HTML
   formatOnChange = false,
   formatter = null,
@@ -276,7 +277,7 @@ export function InputView({
             : 'bg-distac-primary-light'
         }`}
         >
-          <label className={`flex items-start gap-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <label className={`flex gap-2 w-full ${checkboxCentered ? 'flex-col md:flex-row items-center justify-center text-center gap-3 md:gap-2' : 'items-start'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               className={inputClasses}
               type="checkbox"
@@ -289,7 +290,7 @@ export function InputView({
               onClick={onClick}
               {...htmlProps}
             />
-            <span className={`text-[12px] md:text-[16px] text-default-dark flex-1`}>
+            <span className={`text-[12px] md:text-[16px] text-default-dark ${checkboxCentered ? 'w-full max-w-none md:max-w-4xl text-center leading-relaxed' : 'flex-1'}`}>
               {placeholder || label}
               {link && (
                 <>
