@@ -1,5 +1,5 @@
 import * as amenitiesApi from '@api-penelopec/amenitiesApi'
-import { AmenityMapper } from '@mappers/AmenityMapper'
+import { AmenityMapper } from '@mappers/amenityMapper'
 
 /**
  * Camada de Serviço - Orquestra a chamada à API e transformação de dados

@@ -1,5 +1,5 @@
 import * as advertisementApi from '@api-penelopec/advertisementAPI'
-import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
+import { AdvertisementMapper } from '@mappers/advertisementMapper'
 
 /**
  * Camada de Serviço - Orquestra a chamada à API e transformação de dados
