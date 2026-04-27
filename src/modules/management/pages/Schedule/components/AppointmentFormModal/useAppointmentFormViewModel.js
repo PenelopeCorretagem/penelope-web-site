@@ -6,6 +6,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AppointmentFormModel } from './AppointmentFormModel'
 import { getAllAdvertisements } from '@api-penelopec/advertisementApi'
+import { getUserById } from '@api-penelopec/userApi'
 import { createAppointment, rescheduleAppointment } from '@service-calservice/appointmentCalService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
 
@@ -27,6 +28,7 @@ export function useAppointmentFormViewModel(
   mode = 'create'
 ) {
   const isRescheduleMode = mode === 'reschedule'
+  const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
 
   const buildInitialModel = useCallback(() => {
     if (isRescheduleMode && appointmentToEdit) {
@@ -48,6 +50,51 @@ export function useAppointmentFormViewModel(
     setValidationErrors([])
     setSubmitError(null)
   }, [buildInitialModel, isOpen])
+
+  // Preenche automaticamente os dados do visitante para usuários não-admin.
+  useEffect(() => {
+    if (!isOpen || isRescheduleMode || isAdminUser) {
+      return
+    }
+
+    const prefillVisitorData = async () => {
+      const userId = sessionStorage.getItem('userId')
+      const userEmailFromSession = sessionStorage.getItem('userEmail') || ''
+
+      let visitorName = ''
+      let visitorEmail = userEmailFromSession
+      let visitorPhone = ''
+
+      if (userId) {
+        try {
+          const user = await getUserById(userId)
+          visitorName = user?.name || user?.nomeCompleto || ''
+          visitorEmail = user?.email || userEmailFromSession
+          visitorPhone = user?.phone || ''
+        } catch {
+          // Em caso de falha, mantém os dados disponíveis em sessão.
+        }
+      }
+
+      setModel(prev => {
+        const updated = new AppointmentFormModel({
+          selectedEstate: prev.selectedEstate,
+          startDateTime: prev.startDateTime,
+          durationMinutes: prev.durationMinutes,
+          visitorName,
+          visitorEmail,
+          visitorPhone,
+          status: prev.status,
+          notes: prev.notes,
+          reason: prev.reason,
+        })
+
+        return updated
+      })
+    }
+
+    prefillVisitorData()
+  }, [isOpen, isRescheduleMode, isAdminUser])
 
   const [estates, setEstates] = useState([])
   const [loadingEstates, setLoadingEstates] = useState(false)
@@ -138,17 +185,39 @@ export function useAppointmentFormViewModel(
 
     setValidationErrors(errors)
 
-    // Verifica conflitos de horário
-    const hasConflict = allAppointments.some(appt => {
-      if (isRescheduleMode && appt.id === appointmentToEdit?.id) {
-        return false
-      }
+    // Verifica conflitos de horário por corretor em agendamentos ativos.
+    const selectedEstateAgentId = model.selectedEstate?.responsible?.id
+    const targetEstateAgentId = isRescheduleMode
+      ? appointmentToEdit?.estateAgentId
+      : (selectedEstateAgentId ? Number(selectedEstateAgentId) : null)
 
-      return model.hasTimeConflictWith(appt)
-    })
+    const isActiveAppointment = (status) => status === 'PENDING' || status === 'CONFIRMED'
+    const nextStart = new Date(model.startDateTime).getTime()
+    const nextEnd = nextStart + (60 * 60 * 1000)
+
+    const hasConflict = targetEstateAgentId
+      ? allAppointments.some(appt => {
+        if (isRescheduleMode && appt.id === appointmentToEdit?.id) {
+          return false
+        }
+
+        if (!isActiveAppointment(appt.status)) {
+          return false
+        }
+
+        if (Number(appt.estateAgentId) !== Number(targetEstateAgentId)) {
+          return false
+        }
+
+        const apptStart = new Date(appt.startDateTime).getTime()
+        const apptEnd = new Date(appt.endDateTime).getTime()
+
+        return !(nextEnd <= apptStart || nextStart >= apptEnd)
+      })
+      : false
 
     if (hasConflict) {
-      errors.push('Este horário entra em conflito com outro agendamento do mesmo imóvel')
+      errors.push('Este horário entra em conflito com outro agendamento ativo do corretor')
       setValidationErrors(errors)
       return false
     }
@@ -186,7 +255,11 @@ export function useAppointmentFormViewModel(
         throw new Error('Não foi encontrado tipo de evento ativo para o imóvel selecionado.')
       }
 
-      const agentId = model.selectedEstate?.responsible?.id || userId
+      const agentId = model.selectedEstate?.responsible?.id
+      if (!agentId) {
+        throw new Error('O imóvel selecionado não possui corretor responsável para este agendamento.')
+      }
+
       const payload = model.toRequestPayload({
         clientId: userId,
         eventTypeId: eventType.id,
@@ -267,7 +340,7 @@ export function useAppointmentFormViewModel(
 
   const getAvailableHours = useCallback(() => {
     // Retorna um array de horas disponíveis para o dia selecionado
-    const hours = Array.from({ length: 13 }, (_, i) => i + 7) // 07:00 - 19:00
+    const hours = Array.from({ length: 11 }, (_, i) => i + 9) // 09:00 - 19:00
     return hours.filter(hour => getAvailableTime(hour))
   }, [getAvailableTime])
 

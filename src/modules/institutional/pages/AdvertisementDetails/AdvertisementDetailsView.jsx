@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { AdvertisementTabsView } from '@institutional/components/AdvertisementTabs/AdvertisementTabsView.jsx'
+import { AdvertisementTabsView } from './components/AdvertisementTabs/AdvertisementTabsView.jsx'
 import { SectionView } from '@shared/components/layout/Section/SectionView.jsx'
-import { AdvertisementLocation } from '@institutional/components/AdvertisementLocation/AdvertisementLocation.jsx'
+import { AdvertisementLocation } from './components/AdvertisementLocation/AdvertisementLocation.jsx'
 import * as LucideIcons from 'lucide-react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { ImageView } from '@shared/components/ui/Image/ImageView.jsx'
@@ -184,7 +184,7 @@ export function AdvertisementDetailsView() {
               {advertisement.estate?.amenities?.map((feature) => {
                 const iconName = feature?.icon
                 const IconComponent = iconName ? LucideIcons[iconName] : null
-                
+
                 return (
                   <div key={feature.id} className="snap-start md:h-full flex items-center w-full justify-center gap-3 bg-default-dark-light rounded-sm p-3">
                     {IconComponent && (

@@ -1,4 +1,4 @@
-import { useContactIconViewModel } from '@institutional/components/ContactIcon/useContactIconViewModel'
+import { useContactIconViewModel } from './useContactIconViewModel'
 
 export function ContactIconView({ children, size, onClick, href, className }) {
   const {

@@ -106,6 +106,11 @@ function getLabelClasses({ hasErrors, required }) {
   return classes.join(' ')
 }
 
+function hasSelectionChangedFromDefault(value, defaultValue) {
+  if (defaultValue === undefined) return false
+  return value !== defaultValue
+}
+
 export function SelectView({
   value,
   name,
@@ -113,6 +118,7 @@ export function SelectView({
   options = [],
   width = 'fit',
   variant = 'default',
+  defaultValue = undefined,
   shape = 'square',
   disabled = false,
   required = false,
@@ -202,7 +208,7 @@ export function SelectView({
 
 
   const selectClasses = getSelectClasses({
-    variant,
+    variant: hasSelectionChangedFromDefault(value, defaultValue) ? 'pink' : variant,
     shape,
     width,
     disabled,
@@ -264,6 +270,12 @@ export function SelectView({
                 aria-selected={String(optionValue === selectProps.value)}
                 tabIndex={0}
                 onClick={() => handleOptionSelect(optionValue)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    handleOptionSelect(optionValue)
+                  }
+                }}
                 className={getOptionClasses({ isSelected: optionValue === selectProps.value })}
               >
                 {label}

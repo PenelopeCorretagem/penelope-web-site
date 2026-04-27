@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react'
-import { ContactIconModel } from '@institutional/components/ContactIcon/ContactIconModel'
+import { ContactIconModel } from './ContactIconModel'
 
 export function useContactIconViewModel({
   children,

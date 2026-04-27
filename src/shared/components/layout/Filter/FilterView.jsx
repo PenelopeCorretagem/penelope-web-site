@@ -46,13 +46,13 @@ export const FilterView = ({
         )}
         <ButtonView
           type="button"
-          width={hideSearch ? "full" : "fit"}
+          width={hideSearch ? 'full' : 'fit'}
           color={filtersExpanded ? 'pink' : 'brown'}
           onClick={() => setFiltersExpanded(!filtersExpanded)}
           shape="square"
           title="Expandir filtros"
         >
-          {hideSearch ? "Filtros" : <SlidersHorizontal size={16} />}
+          {hideSearch ? 'Filtros' : <SlidersHorizontal size={16} />}
         </ButtonView>
       </div>
 
@@ -68,6 +68,7 @@ export const FilterView = ({
                 options={config.options}
                 width="full"
                 variant={config.variant || 'brown'}
+                defaultValue={config.defaultValue}
                 shape={config.shape || 'square'}
                 hasLabel={false}
                 onChange={(e) => viewModel.handleFilterChange(config.key, e.target.value)}
@@ -82,7 +83,7 @@ export const FilterView = ({
                 <SortButtonView
                   sortOrder={
                     viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
-                    viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+                      viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
                   }
                   onSortChange={viewModel.handleSortOrderChange}
                   title={viewModel.getSortTitle()}
@@ -141,6 +142,7 @@ export const FilterView = ({
               options={config.options}
               width={config.width || 'fit'}
               variant={config.variant || 'brown'}
+              defaultValue={config.defaultValue}
               shape={config.shape || 'square'}
               hasLabel={false}
               onChange={(e) => viewModel.handleFilterChange(config.key, e.target.value)}
@@ -153,7 +155,7 @@ export const FilterView = ({
             <SortButtonView
               sortOrder={
                 viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
-                viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+                  viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
               }
               onSortChange={viewModel.handleSortOrderChange}
               title={viewModel.getSortTitle()}
@@ -169,12 +171,12 @@ export const FilterView = ({
           <div className="w-fit">
             <ButtonView
               type="button"
-              width="fit"
+              width="full"
               color="soft-gray"
               onClick={viewModel.handleResetFilters}
               shape="square"
               title="Limpar filtros"
-              disabled={!viewModel.filterModel.hasActiveFilters(defaultFilters)}
+              className="h-full"
             >
               Limpar
             </ButtonView>

@@ -18,18 +18,32 @@ const parsePaginatedAppointments = (data) => ({
  * @returns {Promise<Object>} Objeto com appointments[], page, size, totalElements, totalPages
  */
 export const listAppointments = async (filters = {}) => {
+  const userRole = sessionStorage.getItem('userRole')
+  const authenticatedUserId = sessionStorage.getItem('userId')
+
+  const normalizedFilters = {
+    ...filters,
+  }
+
+  if (userRole === 'CLIENTE') {
+    if (!authenticatedUserId) {
+      throw new Error('Não foi possível identificar o cliente autenticado para listar os agendamentos')
+    }
+    normalizedFilters.clientId = authenticatedUserId
+  }
+
   const params = new URLSearchParams()
-  if (filters.clientId) params.append('clientId', filters.clientId)
-  if (filters.estateAgentId) params.append('estateAgentId', filters.estateAgentId)
-  if (filters.estateId) params.append('estateId', filters.estateId)
-  if (filters.status) params.append('status', filters.status)
+  if (normalizedFilters.clientId) params.append('clientId', normalizedFilters.clientId)
+  if (normalizedFilters.estateAgentId) params.append('estateAgentId', normalizedFilters.estateAgentId)
+  if (normalizedFilters.estateId) params.append('estateId', normalizedFilters.estateId)
+  if (normalizedFilters.status) params.append('status', normalizedFilters.status)
   // Cal-Api usa startDateTime e endDateTime, não dateFrom/dateTo
-  if (filters.startDateTime) params.append('startDateTime', filters.startDateTime)
-  if (filters.endDateTime) params.append('endDateTime', filters.endDateTime)
-  if (filters.dateFrom) params.append('startDateTime', filters.dateFrom) // backward compatibility
-  if (filters.dateTo) params.append('endDateTime', filters.dateTo) // backward compatibility
-  if (filters.page !== undefined) params.append('page', filters.page)
-  if (filters.size !== undefined) params.append('size', filters.size)
+  if (normalizedFilters.startDateTime) params.append('startDateTime', normalizedFilters.startDateTime)
+  if (normalizedFilters.endDateTime) params.append('endDateTime', normalizedFilters.endDateTime)
+  if (normalizedFilters.dateFrom) params.append('startDateTime', normalizedFilters.dateFrom) // backward compatibility
+  if (normalizedFilters.dateTo) params.append('endDateTime', normalizedFilters.dateTo) // backward compatibility
+  if (normalizedFilters.page !== undefined) params.append('page', normalizedFilters.page)
+  if (normalizedFilters.size !== undefined) params.append('size', normalizedFilters.size)
 
   const response = await axiosInstance.get('/appointments', {
     baseURL: CAL_SERVICE_BASE_URL,
@@ -52,7 +66,7 @@ export const getAppointmentById = async (id) => {
 
 /**
  * Cria um novo appointment
- * @param {object} appointmentData - Dados do appointment
+ * @param {object} appointmentData - Dados do appointment { eventTypeId, clientId, estateAgentId, startDateTime, attendeeName, attendeeEmail, notes }
  * @returns {Promise<object>} Appointment criado com bookingUid
  */
 export const createAppointment = async (appointmentData) => {
@@ -65,7 +79,7 @@ export const createAppointment = async (appointmentData) => {
 /**
  * Reagenda um appointment
  * @param {number} id - ID do appointment
- * @param {object} rescheduleData - { startDateTime, endDateTime }
+ * @param {object} rescheduleData - { startDateTime, reason }
  * @returns {Promise<object>} Appointment atualizado
  */
 export const rescheduleAppointment = async (id, rescheduleData) => {
@@ -119,6 +133,11 @@ export const cancelAppointment = async (id, reason = null) => {
  * @returns {Promise<void>}
  */
 export const deleteAppointment = async (id) => {
+  const userRole = sessionStorage.getItem('userRole')
+  if (userRole !== 'ADMINISTRADOR') {
+    throw new Error('Apenas usuários ADMINISTRADOR podem excluir agendamentos')
+  }
+
   await axiosInstance.delete(`/appointments/${id}`, {
     baseURL: CAL_SERVICE_BASE_URL,
   })

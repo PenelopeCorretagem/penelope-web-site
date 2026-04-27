@@ -5,8 +5,8 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useAmenitiesViewModel } from './useAmenitiesViewModel'
-import { AmenitiesFormView } from '@management/components/AmenitiesForm/AmenitiesFormView'
-import { IconPickerView } from '@management/components/IconPicker/IconPickerView'
+import { AmenitiesFormView } from './components/AmenitiesForm/AmenitiesFormView'
+import { IconPickerView } from './components/IconPicker/IconPickerView'
 import { isValidIcon } from '@shared/utils/lucideIcons/lucideIconsUtil'
 import { FilterView } from '@shared/components/layout/Filter/FilterView'
 
@@ -54,7 +54,7 @@ export function AmenitiesView() {
     if (!isValidIcon(iconName)) {
       return <span className={`text-xs ${isWhite ? 'text-white' : 'text-gray-400'}`}>Sem ícone</span>
     }
-    
+
     try {
       const Icon = LucideIcons[iconName]
       return <Icon size={20} className={isWhite ? 'text-white' : ''} />

@@ -6,7 +6,7 @@ import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { useUsersViewModel } from './useUsersViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
-import { UsersList } from '@management/components/UsersList/UsersList'
+import { UsersList } from './components/UsersList/UsersList'
 import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown, Plus } from 'lucide-react'
 
 export function UsersView() {
@@ -64,7 +64,7 @@ export function UsersView() {
       <SectionView
         className="flex flex-col subsection h-[calc(100vh-var(--header-height))] min-h-[calc(100vh-var(--header-height))]  max-h-[calc(100vh-var(--header-height))] overflow-hidden !gap-subsection md:!gap-subsection-md"
       >
-        
+
 
         <div className="flex w-full items-center justify-between flex-shrink-0">
           <HeadingView level={2} className="text-distac-primary flex-shrink-0">

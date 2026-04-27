@@ -1,10 +1,10 @@
 // modules/institutional/pages/Contacts/ContactsView.jsx
 import { useContactsViewModel } from '@institutional/pages/Contacts/ContactsViewModel'
-import { ContactIconListView } from '@institutional/components/ContactIconList/ContactIconListView'
+import { ContactIconListView } from './components/ContactIconList/ContactIconListView'
 import { CardImageView } from '@shared/components/ui/CardImage/CardImageView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { ContactFormView } from '@institutional/components/ContactForm/ContactFormView'
+import { ContactFormView } from './components/ContactForm/ContactFormView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import HappyCoupleDancing from '@institutional/assets/happy-couple-dancing.jpg'
 

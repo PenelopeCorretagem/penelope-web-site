@@ -39,7 +39,7 @@ export const createAppointment = async (appointmentData) => {
 /**
  * Reagenda um appointment
  * @param {number} id - ID do appointment
- * @param {object} rescheduleData - { startDateTime, endDateTime }
+ * @param {object} rescheduleData - { startDateTime, reason }
  * @returns {Promise<AppointmentCal>} Appointment atualizado
  */
 export const rescheduleAppointment = async (id, rescheduleData) => {

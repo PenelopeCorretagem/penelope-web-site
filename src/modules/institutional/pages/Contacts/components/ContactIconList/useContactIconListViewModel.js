@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ContactIconListModel } from '@institutional/components/ContactIconList/ContactIconListModel'
+import { ContactIconListModel } from './ContactIconListModel'
 
 export function useContactIconListViewModel({
   contacts = ContactIconListModel.getDefaultContacts(),

@@ -17,7 +17,7 @@ export class AppointmentFormModel {
   constructor({
     selectedEstate = null,
     startDateTime = new Date(),
-    durationMinutes = 30,
+    durationMinutes = 60,
     visitorName = '',
     visitorEmail = '',
     visitorPhone = '',
@@ -40,7 +40,7 @@ export class AppointmentFormModel {
     return new AppointmentFormModel({
       selectedEstate: appointment.estate || null,
       startDateTime: appointment.startDateTime ? new Date(appointment.startDateTime) : new Date(),
-      durationMinutes: appointment.durationMinutes || 30,
+      durationMinutes: appointment.durationMinutes || 60,
       visitorName: appointment.attendeeName || '',
       visitorEmail: appointment.attendeeEmail || '',
       visitorPhone: '',
@@ -71,7 +71,7 @@ export class AppointmentFormModel {
   }
 
   set durationMinutes(value) {
-    this.#durationMinutes = value
+    this.#durationMinutes = Number(value) > 0 ? 60 : 60
   }
 
   get visitorName() {
@@ -157,7 +157,7 @@ export class AppointmentFormModel {
     return (
       this.#selectedEstate?.id &&
       this.#startDateTime &&
-      this.#durationMinutes > 0 &&
+      this.#durationMinutes === 60 &&
       this.#visitorName.trim().length > 0 &&
       this.#visitorEmail.trim().length > 0 &&
       this.#visitorPhone.trim().length > 0
@@ -191,8 +191,8 @@ export class AppointmentFormModel {
       }
     }
 
-    if (this.#durationMinutes <= 0) {
-      errors.push('A duração deve ser maior que 0 minutos')
+    if (this.#durationMinutes !== 60) {
+      errors.push('A duração do agendamento é fixa em 60 minutos')
     }
 
     if (!isRescheduleMode && this.#visitorName.trim().length === 0) {
@@ -232,9 +232,6 @@ export class AppointmentFormModel {
    * @param {number|string} ids.estateAgentId - ID do corretor responsável
    */
   toRequestPayload({ clientId, eventTypeId, estateAgentId }) {
-    const endDateTime = new Date(this.#startDateTime)
-    endDateTime.setMinutes(endDateTime.getMinutes() + this.#durationMinutes)
-
     // Converter para número se necessário
     const normalizedClientId = clientId ? Number(clientId) : null
     const eventId = Number(eventTypeId)
@@ -273,7 +270,6 @@ export class AppointmentFormModel {
       estateAgentId: agentId,
       eventTypeId: eventId,
       startDateTime: formatAsLocalIso(this.#startDateTime),
-      endDateTime: formatAsLocalIso(endDateTime),
       attendeeName: this.#visitorName.trim(),
       attendeeEmail: this.#visitorEmail.trim(),
       notes,
@@ -281,9 +277,6 @@ export class AppointmentFormModel {
   }
 
   toReschedulePayload() {
-    const endDateTime = new Date(this.#startDateTime)
-    endDateTime.setMinutes(endDateTime.getMinutes() + this.#durationMinutes)
-
     const formatAsLocalIso = (date) => {
       const year = date.getFullYear()
       const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -296,7 +289,6 @@ export class AppointmentFormModel {
 
     return {
       startDateTime: formatAsLocalIso(this.#startDateTime),
-      endDateTime: formatAsLocalIso(endDateTime),
       reason: this.#reason.trim() || 'Reagendado pelo gestor no painel de agenda',
     }
   }

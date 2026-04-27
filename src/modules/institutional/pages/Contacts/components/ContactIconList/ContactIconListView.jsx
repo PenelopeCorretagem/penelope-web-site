@@ -1,5 +1,5 @@
-import { ContactIconView } from '@institutional/components/ContactIcon/ContactIconView'
-import { useContactIconListViewModel } from '@institutional/components/ContactIconList/useContactIconListViewModel'
+import { ContactIconView } from '../ContactIcon/ContactIconView'
+import { useContactIconListViewModel } from './useContactIconListViewModel'
 import {
   FaEnvelope,
   FaWhatsapp,
