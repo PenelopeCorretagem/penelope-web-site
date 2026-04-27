@@ -58,9 +58,11 @@ export const ScreeningFormModel = {
       hasLabel: false,
       required: true,
       column: 3,
+      checkboxCentered: true,
       label: 'Aceito os termos da Lei Geral de Proteção de Dados (LGPD) e autorizo o uso das minhas informações pessoais para os fins descritos.',
       link: { text: 'Saiba mais sobre LGPD', url: 'https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd' },
-      helperText: 'ℹ️ Os dados preenchidos neste formulário não serão salvos, seu uso é exclusivamente para facilitar a comunicação entre você e nosso especialista.'
+      helperIcon: 'info',
+      helperText: 'Os dados preenchidos neste formulário não serão salvos, seu uso é exclusivamente para facilitar a comunicação entre você e nosso especialista.'
     },
   ],
 

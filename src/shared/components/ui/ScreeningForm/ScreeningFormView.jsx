@@ -22,16 +22,16 @@ export function ScreeningFormView({ onClose, advertisement = null }) {
   } = useScreeningFormViewModel(advertisement)
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
-      <div className="relative bg-default-light rounded-lg shadow-2xl p-16 w-full max-w-6xl mx-4 border-2 border-distac-primary flex flex-col space-y-6">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-2 md:p-4">
+      <div className="relative bg-default-light rounded-lg shadow-2xl p-4 md:p-10 lg:p-16 w-full max-w-6xl border-2 border-distac-primary flex flex-col space-y-6 max-h-[92vh] overflow-y-auto">
 
         <HeadingView
           level={4}
-          className="grid grid-cols-3 items-center w-full mb-10 text-distac-primary font-semibold"
+          className="grid grid-cols-[1fr_auto] md:grid-cols-3 items-center w-full mb-6 md:mb-10 text-distac-primary font-semibold gap-2"
         >
-          <div></div>
+          <div className="hidden md:block"></div>
 
-          <div className="text-center">Formulário de Triagem</div>
+          <div className="text-center md:text-center">Formulário de Triagem</div>
 
           <div className="flex justify-end">
             <ButtonView
@@ -63,22 +63,20 @@ export function ScreeningFormView({ onClose, advertisement = null }) {
           />
         </div>
 
-        {/* Campo LGPD centralizado */}
-        <div className="w-full flex justify-center">
-          <div className="w-full md:w-2/3">
-            <FormView
-              fields={fieldsColumn3}
-              onChange={handleFieldChange}
-              submitText=""
-            />
-          </div>
+        {/* Campo LGPD de ponta a ponta */}
+        <div className="w-full">
+          <FormView
+            fields={fieldsColumn3}
+            onChange={handleFieldChange}
+            submitText=""
+          />
         </div>
 
         <div className="w-full flex justify-center mt-6">
           <ButtonView
             width="full"
             onClick={enviarWhatsApp}
-            className="w-1/3"
+            className="w-full md:w-1/3"
           >
             Enviar pelo WhatsApp
           </ButtonView>

@@ -1,3 +1,56 @@
+import { formatCEP } from '@shared/utils/CEP/formatCEPUtil'
+import { formatCPF } from '@shared/utils/CPF/formatCPFUtil'
+import { formatPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
+
+const CEP_FIELD_NAME_REGEX = /cep|zipcode/i
+const CPF_FIELD_NAME_REGEX = /cpf/i
+const PHONE_FIELD_NAME_REGEX = /phone|telefone|celular|whatsapp/i
+
+function isMaskableValue(value) {
+  return typeof value === 'string' || typeof value === 'number'
+}
+
+function getAllFieldsFromSteps(steps = []) {
+  return (steps || []).flatMap(step =>
+    (step.groups || []).flatMap(group => group.fields || [])
+  )
+}
+
+function normalizeInitialFieldValues(initialData = {}, steps = []) {
+  const normalizedData = { ...initialData }
+  const fields = getAllFieldsFromSteps(steps)
+
+  fields.forEach((field) => {
+    if (!field?.name) return
+
+    const value = normalizedData[field.name]
+    if (value === undefined || value === null || value === '' || !isMaskableValue(value)) {
+      return
+    }
+
+    if (field.formatOnChange && typeof field.formatter === 'function') {
+      normalizedData[field.name] = field.formatter(String(value))
+      return
+    }
+
+    if (CEP_FIELD_NAME_REGEX.test(field.name)) {
+      normalizedData[field.name] = formatCEP(String(value))
+      return
+    }
+
+    if (CPF_FIELD_NAME_REGEX.test(field.name)) {
+      normalizedData[field.name] = formatCPF(String(value))
+      return
+    }
+
+    if (PHONE_FIELD_NAME_REGEX.test(field.name)) {
+      normalizedData[field.name] = formatPhoneNumber(String(value))
+    }
+  })
+
+  return normalizedData
+}
+
 /**
  * WizardFormModel - Modelo de dados para formulários em etapas (wizard)
  */
@@ -14,7 +67,7 @@ export class WizardFormModel {
     this.title = title
     this.steps = steps
     this.currentStep = 0
-    this.fieldValues = { ...initialData }
+    this.fieldValues = normalizeInitialFieldValues(initialData, steps)
     this.fieldErrors = {}
     this.onSubmit = onSubmit
     this.onDelete = onDelete

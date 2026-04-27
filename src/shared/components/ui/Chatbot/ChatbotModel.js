@@ -58,7 +58,7 @@ export const chatbotModel = {
 
     agendamento: {
       botResponse:
-        'Perfeito! Trabalhamos com Visitas Presenciais aos nossos Stands, e visitas totalmente Online. Deseja agendar uma visita?',
+        'Perfeito! Trabalhamos com visitas presenciais e visitas totalmente online. Deseja agendar uma visita?',
       options: [
         'Agendar agora!',
         'Voltar para o inicio',

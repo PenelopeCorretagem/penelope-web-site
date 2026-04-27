@@ -9,7 +9,7 @@ export function formatCEP(cep) {
   if (!cep) return ''
 
   // Remove tudo que não é número
-  const cleanCep = cep.replace(/\D/g, '')
+  const cleanCep = String(cep).replace(/\D/g, '').slice(0, 8)
 
   // Se tem 8 dígitos (CEP completo)
   if (cleanCep.length === 8) {

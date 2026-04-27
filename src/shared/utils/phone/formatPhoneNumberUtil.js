@@ -10,7 +10,7 @@ export function formatPhoneNumber(phone) {
   if (!phone) return ''
 
   // Remove tudo que não é número
-  const cleanPhone = phone.replace(/\D/g, '')
+  const cleanPhone = String(phone).replace(/\D/g, '').slice(0, 11)
 
   // Se tem 11 dígitos (celular com 9)
   if (cleanPhone.length === 11) {
@@ -47,5 +47,5 @@ export function formatPhoneNumber(phone) {
  */
 export function cleanPhoneNumber(phone) {
   if (!phone) return ''
-  return phone.replace(/\D/g, '')
+  return String(phone).replace(/\D/g, '').slice(0, 11)
 }

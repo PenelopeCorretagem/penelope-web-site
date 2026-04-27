@@ -173,32 +173,6 @@ export function WizardFormView(props) {
     }
   )
 
-  // Hook para preenchimento automático de CEP do STAND
-  const cepAutoFillStand = useCEPAutoFill(
-    (addressData) => {
-      // Preencher apenas campos do STAND
-      if (addressData.street) {
-        vm.handleFieldChange('standStreet')(addressData.street)
-      }
-      if (addressData.neighborhood) {
-        vm.handleFieldChange('standNeighborhood')(addressData.neighborhood)
-      }
-      if (addressData.city) {
-        vm.handleFieldChange('standCity')(addressData.city)
-      }
-      if (addressData.uf) {
-        vm.handleFieldChange('standState')(addressData.uf)
-      }
-    },
-    {
-      debounceDelay: 800,
-      enableAutoFill: true,
-      onError: (error) => {
-        showAlert(error, 'warning')
-      }
-    }
-  )
-
   const renderField = (field) => {
     const commonProps = {
       id: field.name,
@@ -211,16 +185,7 @@ export function WizardFormView(props) {
       className: field.className || '',
     }
 
-    // Verificar se é um campo do stand e se deve ser desabilitado
-    const isStandField = field.name.startsWith('stand') && field.name !== 'enableStandAddress'
-    const standEnabled = Boolean(vm.getFieldValue('enableStandAddress'))
-
-    // Se é campo do stand e o checkbox não está marcado, desabilitar
-    if (isStandField && !standEnabled) {
-      commonProps.disabled = true
-    } else {
-      commonProps.disabled = field.disabled || false
-    }
+    commonProps.disabled = field.disabled || false
 
     // Aplicar formatação para campos específicos
     if (field.name === 'area' && field.type === 'text') {
@@ -249,6 +214,7 @@ export function WizardFormView(props) {
     if (field.name === 'cep' && field.type === 'text') {
       commonProps.formatOnChange = true
       commonProps.formatter = formatCEP
+      commonProps.maxLength = 9
 
       const originalOnChange = commonProps.onChange
       commonProps.onChange = (value) => {
@@ -261,22 +227,12 @@ export function WizardFormView(props) {
       }
     }
 
-    // Aplicar formatação para CEP do STAND
-    if (field.name === 'standCep' && field.type === 'text') {
-      commonProps.formatOnChange = true
-      commonProps.formatter = formatCEP
+    if (/cpf/i.test(field.name || '')) {
+      commonProps.maxLength = 14
+    }
 
-      const originalOnChange = commonProps.onChange
-      commonProps.onChange = (value) => {
-        originalOnChange(value)
-
-        // Disparar busca automática apenas para campos do STAND (se habilitado)
-        if (standEnabled) {
-          setTimeout(() => {
-            cepAutoFillStand.searchCEP(value)
-          }, 100)
-        }
-      }
+    if (/phone|telefone|celular|whatsapp/i.test(field.name || '')) {
+      commonProps.maxLength = 15
     }
 
     if (field.type === 'heading') {
@@ -898,6 +854,9 @@ export function WizardFormView(props) {
         hasLabel={commonProps.hasLabel}
         required={commonProps.required}
         disabled={commonProps.disabled}
+        formatOnChange={commonProps.formatOnChange}
+        formatter={commonProps.formatter}
+        maxLength={commonProps.maxLength}
         type={field.type || 'text'}
         placeholder={field.placeholder || field.label || ''}
         className={commonProps.className}

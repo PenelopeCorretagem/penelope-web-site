@@ -50,24 +50,6 @@ export class AdvertisementConfigModel {
     }
 
 
-
-    // Stand address
-    const standAddressData = estate?.standAddress
-
-
-    this.standAddress = {
-      cep: standAddressData?.zipCode || '',
-      number: standAddressData?.number || '',
-      region: standAddressData?.region || '',
-      street: standAddressData?.street || '',
-      neighborhood: standAddressData?.neighborhood || '',
-      city: standAddressData?.city || '',
-      state: standAddressData?.uf || ''
-    }
-
-    this.enableStandAddress = !!standAddressData && Object.values(standAddressData).some(v => v)
-
-
     // Images
     const images = estate?.images || []
 
@@ -254,14 +236,6 @@ export class AdvertisementConfigModel {
       neighborhood: this.address.neighborhood,
       city: this.address.city,
       state: this.address.state,
-      standCep: this.standAddress.cep,
-      standNumber: this.standAddress.number,
-      standRegion: this.standAddress.region,
-      standStreet: this.standAddress.street,
-      standNeighborhood: this.standAddress.neighborhood,
-      standCity: this.standAddress.city,
-      standState: this.standAddress.state,
-      enableStandAddress: this.enableStandAddress,
       video: this.images.video,
       cover: this.images.cover,
       gallery: this.images.gallery,
@@ -513,17 +487,6 @@ export class AdvertisementConfigModel {
           complement: null,
           region: sanitizeString(formData.region, 50)
         },
-        addressStand: (formData.enableStandAddress && formData.standStreet) ? {
-          id: this.originalAdvertisementData?.estate?.standAddress?.id || null,
-          street: sanitizeString(formData.standStreet, 255),
-          number: sanitizeString(formData.standNumber, 20),
-          neighborhood: sanitizeString(formData.standNeighborhood, 100),
-          city: sanitizeString(formData.standCity, 100),
-          uf: sanitizeString(formData.standState, 2),
-          zipCode: formatCep(formData.standCep),
-          complement: null,
-          region: sanitizeString(formData.standRegion, 50)
-        } : null,
         amenitiesIds: mapDifferentialsToIds(formData.differentials),
         images
       }
