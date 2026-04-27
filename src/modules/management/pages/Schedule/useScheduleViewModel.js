@@ -21,9 +21,11 @@ export function useScheduleViewModel() {
   const [canSelectEstateAgent, setCanSelectEstateAgent] = useState(false)
   const [estateAgentFilterOptions, setEstateAgentFilterOptions] = useState([])
   const [selectedEstateAgentFilter, setSelectedEstateAgentFilter] = useState('')
+  const [defaultEstateAgentFilter, setDefaultEstateAgentFilter] = useState('')
 
   const [selectedDate, setSelectedDate] = useState(() => new Date())
   const selectedDateRef = useRef(selectedDate)
+  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
 
   // Hooks especializados
   const appointmentService = useScheduleAppointments()
@@ -33,6 +35,7 @@ export function useScheduleViewModel() {
   const calendarData = useScheduleCalendarData(selectedDate, filterService.filteredAppointments)
   const uiState = useScheduleUIState()
   const actions = useScheduleAppointmentActions(appointmentService)
+  const navigateLabels = useMemo(() => ScheduleModel.getPeriodNavigationLabels(uiState.viewMode), [uiState.viewMode])
 
   const appointmentScopeFilters = useMemo(() => {
     if (isClientUser) {
@@ -75,6 +78,15 @@ export function useScheduleViewModel() {
 
   const handleFiltersChange = filterService.handleFiltersChange
 
+  const handleScheduleFiltersChange = useCallback((filterKey, filterValue) => {
+    if (filterKey === 'estateAgentScopeFilter') {
+      setSelectedEstateAgentFilter(filterValue)
+      return
+    }
+
+    handleFiltersChange(filterKey, filterValue)
+  }, [handleFiltersChange])
+
   const loadAppointmentsWithScope = useCallback(async () => {
     if (isScopeLoading) {
       return
@@ -107,6 +119,7 @@ export function useScheduleViewModel() {
         if (!authenticatedUserId) {
           setCanSelectEstateAgent(false)
           setSelectedEstateAgentFilter('')
+          setDefaultEstateAgentFilter('')
           return
         }
 
@@ -117,6 +130,7 @@ export function useScheduleViewModel() {
           setCanSelectEstateAgent(false)
           setEstateAgentFilterOptions([])
           setSelectedEstateAgentFilter(String(authenticatedUserId))
+          setDefaultEstateAgentFilter(String(authenticatedUserId))
           return
         }
 
@@ -130,11 +144,14 @@ export function useScheduleViewModel() {
 
         setCanSelectEstateAgent(true)
         setEstateAgentFilterOptions(agentOptions)
-        setSelectedEstateAgentFilter(prev => prev || agentOptions[0]?.value || '')
+        const initialAgentFilter = agentOptions[0]?.value || ''
+        setSelectedEstateAgentFilter(prev => prev || initialAgentFilter)
+        setDefaultEstateAgentFilter(initialAgentFilter)
       } catch {
         setCanSelectEstateAgent(false)
         setEstateAgentFilterOptions([])
         setSelectedEstateAgentFilter('')
+        setDefaultEstateAgentFilter('')
       } finally {
         setIsScopeLoading(false)
       }
@@ -188,13 +205,17 @@ export function useScheduleViewModel() {
 
   // Handlers para ações dentro do modal de ferramentas
   const handleRescheduleFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.handleRescheduleAppointment(uiState.selectedAppointmentForTools)
     uiState.handleCloseAppointmentTools()
-  }, [uiState])
+  }, [isReadOnlyAdminView, uiState])
 
   const handleConfirmFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.openConfirmationAlert({
@@ -214,9 +235,11 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleConcludeFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.openConfirmationAlert({
@@ -235,9 +258,11 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleCancelFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.openConfirmationAlert({
@@ -257,9 +282,11 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleDeleteFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.openConfirmationAlert({
@@ -279,7 +306,7 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   // Dados derivados
   const upcomingAppointments = useMemo(() => {
@@ -308,17 +335,20 @@ export function useScheduleViewModel() {
 
     // Permissões
     isAdminUser,
+    isReadOnlyAdminView,
+    canManageAppointments: !isReadOnlyAdminView,
 
     // Filtros
     selectedStatusFilter: filterService.selectedStatusFilter,
     selectedEstateFilter: filterService.selectedEstateFilter,
     selectedEstateTypeFilter: filterService.selectedEstateTypeFilter,
     selectedEstateAgentFilter,
+    defaultEstateAgentFilter,
     showEstateAgentScopeSelect: isAdminUser && canSelectEstateAgent,
     estateAgentScopeFilterOptions,
     filterConfigs,
     defaultFilters,
-    handleFiltersChange,
+    handleFiltersChange: handleScheduleFiltersChange,
     handleEstateAgentScopeFilterChange: setSelectedEstateAgentFilter,
 
     // UI State
@@ -338,7 +368,7 @@ export function useScheduleViewModel() {
     hours: calendarData.hours,
     currentMonthName: calendarData.currentMonthName,
     calendarDays: calendarData.calendarDays,
-    navigateLabels: calendarData.navigateLabels,
+    navigateLabels,
     weekDates: calendarData.weekDates,
     appointmentsByDay: calendarData.appointmentsByDay,
     appointmentsCountByDate: calendarData.appointmentsCountByDate,

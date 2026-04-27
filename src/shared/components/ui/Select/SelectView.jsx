@@ -51,7 +51,7 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
     .join(' ')
 }
 
-function getDropdownClasses({ variant, isAnimating }) {
+function getDropdownClasses({ variant, isAnimating, dropdownClassName }) {
   const dropdownVariants = {
     default: 'bg-default-light border-default-dark/20',
     pink: 'bg-default-light border-distac-primary/20',
@@ -67,16 +67,18 @@ function getDropdownClasses({ variant, isAnimating }) {
     'transform-gpu',
     isAnimating ? 'opacity-100 translate-y-0 scale-y-100' : 'opacity-0 -translate-y-2 scale-y-95',
     dropdownVariants[variant] || dropdownVariants.default,
+    dropdownClassName,
   ].join(' ')
 }
 
-function getOptionClasses({ isSelected }) {
+function getOptionClasses({ isSelected, optionClassName }) {
   return [
     'px-4 py-2 cursor-pointer transition-colors duration-150',
     'hover:bg-distac-primary hover:text-white',
     'first:rounded-t-lg last:rounded-b-lg',
     'text-default-dark font-semibold uppercase',
     isSelected ? 'bg-distac-primary text-white' : '',
+    optionClassName,
   ]
     .filter(Boolean)
     .join(' ')
@@ -129,6 +131,8 @@ export function SelectView({
   hasErrors = false,
   onChange,
   size,
+  dropdownClassName = '',
+  optionClassName = '',
 }) {
   const selectProps = useSelectViewModel({
     value,
@@ -222,6 +226,8 @@ export function SelectView({
     if (onChange) onChange({ target: { name: selectProps.name, value: optionValue } })
   }
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
   return (
     <div className={`${selectProps.width === 'full' ? 'w-full' : 'w-fit'} flex flex-col gap-2`}>
 
@@ -249,16 +255,16 @@ export function SelectView({
         >
           <span>{selectProps.displayValue}</span>
           <ChevronDown
-            size={16}
-            className={`transition-transform duration-200 stroke-4 p-0 ${selectProps.isOpen ? 'rotate-180' : ''}`}
+            size={isMobile ? 12 : 16}
+            className={`transition-transform duration-200 ${isMobile ? 'stroke-3' : 'stroke-4'} p-0 ${selectProps.isOpen ? 'rotate-180' : ''}`}
           />
         </div>
 
         {shouldRender && (
           <ul
             role="listbox"
-            className={getDropdownClasses({ variant: selectProps.variant, isAnimating })}
-            style={{ 
+            className={getDropdownClasses({ variant: selectProps.variant, isAnimating, dropdownClassName })}
+            style={{
               transformOrigin: 'top center',
               ...(size ? { maxHeight: `calc(${size} * 2.5rem)` } : {})
             }}
@@ -276,7 +282,7 @@ export function SelectView({
                     handleOptionSelect(optionValue)
                   }
                 }}
-                className={getOptionClasses({ isSelected: optionValue === selectProps.value })}
+                className={getOptionClasses({ isSelected: optionValue === selectProps.value, optionClassName })}
               >
                 {label}
               </li>

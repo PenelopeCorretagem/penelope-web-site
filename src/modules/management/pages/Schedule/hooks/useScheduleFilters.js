@@ -42,7 +42,7 @@ export function useScheduleFilters(appointments = []) {
         shape: 'square',
         options: statusOptions.map(status => ({
           value: status,
-          label: status === 'TODOS' ? 'Todos' : (STATUS_LABELS[status] || status),
+          label: status === 'TODOS' ? 'Todos os status' : (STATUS_LABELS[status] || status),
         })),
       },
       {

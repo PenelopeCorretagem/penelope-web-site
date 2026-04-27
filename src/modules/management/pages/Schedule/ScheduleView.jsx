@@ -1,4 +1,3 @@
-import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { AppointmentFormModalView } from './components/AppointmentFormModal/AppointmentFormModalView'
 import { ScheduleModel } from './ScheduleModel'
@@ -11,7 +10,6 @@ import { AppointmentToolsModalView } from './components/AppointmentToolsModalVie
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { SelectView } from '@shared/components/ui/Select/SelectView'
 
 export function ScheduleView() {
   const vm = useScheduleViewModel()
@@ -52,25 +50,6 @@ export function ScheduleView() {
 
   const mobileExpandedContent = (
     <div className="flex flex-col gap-4 w-full bg-default-light rounded-lg border border-default-light-muted p-4 shadow-sm mt-2 xl:hidden">
-      {/* Estate Agent Selector Mobile */}
-      {vm.showEstateAgentScopeSelect && (
-        <div className="pb-3 mb-1 border-b border-default-light-muted">
-          <p className="text-xs uppercase tracking-widest text-muted mb-2">Corretor</p>
-          <SelectView
-            id="estateAgentScopeFilterMobile"
-            name="estateAgentScopeFilterMobile"
-            value={vm.selectedEstateAgentFilter}
-            defaultValue={vm.selectedEstateAgentFilter}
-            options={vm.estateAgentScopeFilterOptions}
-            width="full"
-            variant="brown"
-            shape="square"
-            hasLabel={false}
-            onChange={(event) => vm.handleEstateAgentScopeFilterChange(event.target.value)}
-          />
-        </div>
-      )}
-
       {/* Mini Calendar Mobile */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -117,32 +96,6 @@ export function ScheduleView() {
           {vm.calendarDays.map((day, index) => renderMiniCalendarDay(day, index))}
         </div>
       </div>
-
-      <div className="border-t border-default-light-muted pt-3 mt-1">
-        <div className="flex gap-2">
-          <ButtonView
-            type="button"
-            onClick={() => vm.handleNavigatePeriod(-1)}
-            color="white"
-            width="fit"
-            shape="rectangle"
-            className='flex-1 !border-2 !border-default-light-muted !bg-default-light !text-default-dark
-            hover:!border-distac-primary'
-          >
-            {vm.navigateLabels.previous}
-          </ButtonView>
-          <ButtonView
-            type="button"
-            onClick={() => vm.handleNavigatePeriod(1)}
-            color="white"
-            width="fit"
-            shape="rectangle"
-            className='flex-1 !border-2 !border-default-light-muted !bg-default-light !text-default-dark hover:!border-distac-primary'
-          >
-            {vm.navigateLabels.next}
-          </ButtonView>
-        </div>
-      </div>
     </div>
   )
 
@@ -152,21 +105,25 @@ export function ScheduleView() {
       <div className="relative z-20">
         <ScheduleFiltersToolbarView
           filterConfigs={vm.filterConfigs}
-          defaultFilters={vm.defaultFilters}
+          defaultFilters={vm.showEstateAgentScopeSelect
+            ? { ...vm.defaultFilters, estateAgentScopeFilter: vm.defaultEstateAgentFilter }
+            : vm.defaultFilters}
           onFiltersChange={vm.handleFiltersChange}
-          onNavigatePeriod={vm.handleNavigatePeriod}
-          navigateLabels={vm.navigateLabels}
+          showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
+          estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
           mobileExpandedContent={mobileExpandedContent}
         />
       </div>
 
       <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 md:gap-6 xl:h-full xl:overflow-hidden relative z-0">
-        
+
         {/* Main Calendar Panel - Rendered first in DOM for mobile */}
         <div className="xl:order-2 flex-1 min-h-0 min-w-0 flex flex-col">
           <ScheduleCalendarPanelView
             viewMode={vm.viewMode}
             setViewMode={vm.setViewMode}
+            onNavigatePeriod={vm.handleNavigatePeriod}
+            navigateLabels={vm.navigateLabels}
             weekdayLabels={vm.weekdayLabels}
             weekDates={vm.weekDates}
             selectedDate={vm.selectedDate}
@@ -177,7 +134,7 @@ export function ScheduleView() {
             appointmentsByDay={vm.appointmentsByDay}
             onSelectDate={vm.setSelectedDate}
             onOpenAppointmentTools={vm.handleOpenAppointmentTools}
-            onTimeSlotClick={vm.handleTimeSlotClick}
+            onTimeSlotClick={vm.canManageAppointments ? vm.handleTimeSlotClick : undefined}
             isPastDate={ScheduleModel.isPastDate}
             isSameDay={ScheduleModel.isSameDay}
           />
@@ -189,11 +146,8 @@ export function ScheduleView() {
             selectedDate={vm.selectedDate}
             selectedDateAppointments={vm.selectedDateAppointments}
             selectedDateAppointmentsByStatus={vm.selectedDateAppointmentsByStatus}
-            showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
-            estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
-            selectedEstateAgentFilter={vm.selectedEstateAgentFilter}
-            onEstateAgentScopeFilterChange={vm.handleEstateAgentScopeFilterChange}
             onOpenAppointmentTools={vm.handleOpenAppointmentTools}
+            canManageAppointments={vm.canManageAppointments}
           />
         </div>
 
@@ -250,7 +204,7 @@ export function ScheduleView() {
       <AppointmentToolsModalView
         appointment={vm.selectedAppointmentForTools}
         busyAppointmentId={vm.busyAppointmentId}
-        isAdminUser={vm.isAdminUser}
+        canManageAppointments={vm.canManageAppointments}
         onClose={vm.handleCloseAppointmentTools}
         onReschedule={vm.handleRescheduleFromTools}
         onConfirm={vm.handleConfirmFromTools}
@@ -259,16 +213,18 @@ export function ScheduleView() {
         onDelete={vm.handleDeleteFromTools}
       />
 
-      <AppointmentFormModalView
-        isOpen={vm.isModalOpen}
-        onClose={vm.handleModalClose}
-        onSubmitSuccess={vm.handleAppointmentSaved}
-        selectedDate={vm.selectedModalDate}
-        selectedHour={vm.selectedModalHour}
-        allAppointments={vm.allAppointments}
-        appointment={vm.appointmentToEdit}
-        mode={vm.appointmentToEdit ? 'reschedule' : 'create'}
-      />
+      {vm.canManageAppointments && (
+        <AppointmentFormModalView
+          isOpen={vm.isModalOpen}
+          onClose={vm.handleModalClose}
+          onSubmitSuccess={vm.handleAppointmentSaved}
+          selectedDate={vm.selectedModalDate}
+          selectedHour={vm.selectedModalHour}
+          allAppointments={vm.allAppointments}
+          appointment={vm.appointmentToEdit}
+          mode={vm.appointmentToEdit ? 'reschedule' : 'create'}
+        />
+      )}
     </SectionView>
   )
 }

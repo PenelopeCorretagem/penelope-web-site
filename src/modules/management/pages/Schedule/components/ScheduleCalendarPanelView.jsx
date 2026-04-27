@@ -1,10 +1,12 @@
-import { Calendar, CalendarDays, Calendar1, Wrench } from 'lucide-react'
+import { Calendar, CalendarDays, Calendar1, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { STATUS_COLORS, STATUS_LABELS } from '../ScheduleModel'
 
 export function ScheduleCalendarPanelView({
   viewMode,
   setViewMode,
+  onNavigatePeriod,
+  navigateLabels,
   weekdayLabels,
   weekDates,
   selectedDate,
@@ -19,6 +21,15 @@ export function ScheduleCalendarPanelView({
   isPastDate,
   isSameDay,
 }) {
+  const handleKeyActivate = (event, onActivate) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onActivate()
+    }
+  }
+
+  const canCreateAppointments = typeof onTimeSlotClick === 'function'
+
   return (
     <div className="flex-1 min-h-[500px] xl:min-h-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 md:p-6 overflow-hidden flex flex-col">
       <div className="flex items-start justify-between mb-6 gap-4">
@@ -35,53 +46,150 @@ export function ScheduleCalendarPanelView({
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <ButtonView
-            type="button"
-            onClick={() => setViewMode('day')}
-            active={viewMode === 'day'}
-            color="white"
-            width="fit"
-            shape="square"
-            className="!p-2 !min-w-0"
-            title="Visualizacao diaria"
-          >
-            <Calendar1 size={18} />
-          </ButtonView>
-          <ButtonView
-            type="button"
-            onClick={() => setViewMode('week')}
-            active={viewMode === 'week'}
-            color="white"
-            width="fit"
-            shape="square"
-            className="!p-2 !min-w-0"
-            title="Visualizacao semanal"
-          >
-            <Calendar size={18} />
-          </ButtonView>
-          <ButtonView
-            type="button"
-            onClick={() => setViewMode('month')}
-            active={viewMode === 'month'}
-            color="white"
-            width="fit"
-            shape="square"
-             className="!p-2 !min-w-0"
-            title="Visualizacao mensal"
-          >
-            <CalendarDays size={18} />
-          </ButtonView>
+        <div className="flex flex-col items-end gap-2 xl:hidden">
+          <div className="flex items-center gap-1">
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('day')}
+              active={viewMode === 'day'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-1.5 !min-w-0"
+              title="Visualizacao diaria"
+            >
+              <Calendar1 size={14} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('week')}
+              active={viewMode === 'week'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-1.5 !min-w-0"
+              title="Visualizacao semanal"
+            >
+              <Calendar size={14} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('month')}
+              active={viewMode === 'month'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-1.5 !min-w-0"
+              title="Visualizacao mensal"
+            >
+              <CalendarDays size={14} />
+            </ButtonView>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <ButtonView
+              type="button"
+              onClick={() => onNavigatePeriod(-1)}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-1.5 !min-w-0"
+              title="Período anterior"
+              aria-label="Período anterior"
+            >
+              <ChevronLeft size={14} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => onNavigatePeriod(1)}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-1.5 !min-w-0"
+              title="Próximo período"
+              aria-label="Próximo período"
+            >
+              <ChevronRight size={14} />
+            </ButtonView>
+          </div>
+        </div>
+
+        <div className="hidden xl:flex flex-col items-end gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('day')}
+              active={viewMode === 'day'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-2 !min-w-0"
+              title="Visualizacao diaria"
+            >
+              <Calendar1 size={18} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('week')}
+              active={viewMode === 'week'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-2 !min-w-0"
+              title="Visualizacao semanal"
+            >
+              <Calendar size={18} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => setViewMode('month')}
+              active={viewMode === 'month'}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-2 !min-w-0"
+              title="Visualizacao mensal"
+            >
+              <CalendarDays size={18} />
+            </ButtonView>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <ButtonView
+              type="button"
+              onClick={() => onNavigatePeriod(-1)}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-2 !min-w-0"
+              title={navigateLabels.previous}
+              aria-label={navigateLabels.previous}
+            >
+              <ChevronLeft size={18} />
+            </ButtonView>
+            <ButtonView
+              type="button"
+              onClick={() => onNavigatePeriod(1)}
+              color="white"
+              width="fit"
+              shape="square"
+              className="!p-2 !min-w-0"
+              title={navigateLabels.next}
+              aria-label={navigateLabels.next}
+            >
+              <ChevronRight size={18} />
+            </ButtonView>
+          </div>
         </div>
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
         {viewMode === 'week' ? (
-          <div className="grid grid-cols-8 gap-2 min-w-full">
-            <div className="w-16 flex-shrink-0">
+          <div className="grid grid-cols-8 gap-0.5 md:gap-2 min-w-full">
+            <div className="w-8 md:w-16 flex-shrink-0">
               <div className="h-12" />
               {hours.map(hour => (
-                <div key={hour} className="h-12 text-xs text-muted flex items-start justify-end pr-2">
+                <div key={hour} className="h-7 md:h-12 text-[9px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2">
                   {String(hour).padStart(2, '0')}:00
                 </div>
               ))}
@@ -97,70 +205,79 @@ export function ScheduleCalendarPanelView({
                   key={dateKey}
                   className={`flex-1 border-l ${isSelectedDay ? 'bg-distac-primary/5 border-distac-primary' : 'border-default-light-muted'}`}
                 >
-                  <div className="h-12 flex flex-col items-center justify-center border-b border-default-light-muted">
+                  <button
+                    type="button"
+                    onClick={() => onSelectDate(date)}
+                    className="h-12 w-full flex flex-col items-center justify-center border-b border-default-light-muted hover:bg-distac-primary/5 transition"
+                    aria-label={`Selecionar ${weekdayLabels[dayIndex]} ${date.getDate()}`}
+                  >
                     <p className="text-xs font-semibold text-default-dark">{weekdayLabels[dayIndex]}</p>
                     <p className="text-sm font-bold text-distac-primary">{date.getDate()}</p>
-                  </div>
+                  </button>
 
                   <div className="relative">
                     {hours.map(hour => {
                       const slotAppointments = dayAppointments.filter(appt => appt.startDateTime.getHours() === hour)
 
                       return (
-                        <button
+                        <div
                           key={`${dateKey}-${hour}`}
-                          type="button"
-                          onClick={() => onTimeSlotClick(date, hour)}
-                          disabled={isPastDate(date)}
-                          className={`h-10 border-b border-default-light-muted w-full transition relative block p-1 ${
+                          role={canCreateAppointments && !isPastDate(date) ? 'button' : undefined}
+                          tabIndex={canCreateAppointments && !isPastDate(date) ? 0 : -1}
+                          onClick={canCreateAppointments ? () => onTimeSlotClick(date, hour) : undefined}
+                          onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(date, hour)) : undefined}
+                          className={`h-7 md:h-10 border-b border-default-light-muted w-full transition relative block md:p-1 ${
                             isPastDate(date)
                               ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
-                              : 'bg-default-light hover:bg-distac-primary-light'
+                              : canCreateAppointments
+                                ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
+                                : 'bg-default-light'
                           }`}
                         >
                           <div className="absolute inset-0 pointer-events-none">
                             {slotAppointments.map((appt, index) => {
                               const startMinutes = appt.startDateTime.getMinutes()
-                              const slotRowHeight = 40
-                              const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
-                              const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
+                              const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
+                              const slotRowHeight = isDesktop ? 40 : 28
+                              const heightMultiplier = isDesktop ? 0.95 : 0.85
+                              const topOffset = (startMinutes / 60) * slotRowHeight * heightMultiplier
+                              const height = (appt.durationMinutes / 60) * slotRowHeight * heightMultiplier
                               const horizontalOffset = index * 10
                               const rightOffset = (slotAppointments.length - 1 - index) * 10
 
                               return (
                                 <div
                                   key={appt.id}
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={(event) => {
+                                    event.stopPropagation()
+                                    onOpenAppointmentTools(appt)
+                                  }}
+                                  onKeyDown={(event) => {
+                                    event.stopPropagation()
+                                    handleKeyActivate(event, () => onOpenAppointmentTools(appt))
+                                  }}
                                   className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                   style={{
                                     top: `${topOffset}px`,
                                     left: `${4 + horizontalOffset}px`,
                                     right: `${4 + rightOffset}px`,
-                                    minHeight: `${Math.max(height, 12)}px`,
-                                    maxHeight: `${slotRowHeight - 6}px`,
+                                    minHeight: `${Math.max(height, isDesktop ? 12 : 8)}px`,
+                                    maxHeight: `${slotRowHeight - (isDesktop ? 2 : 3)}px`,
                                     zIndex: 10 + index,
                                   }}
                                   title={appt.title || 'Agendamento'}
                                 >
                                   <p className="font-semibold truncate text-xs">{appt.title || 'Agendamento'}</p>
-                                  <p className="text-[9px] opacity-90">
+                                  <p className="hidden md:block text-[9px] opacity-90">
                                     {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')}
                                   </p>
-                                  <button
-                                    type="button"
-                                    onClick={(event) => {
-                                      event.stopPropagation()
-                                      onOpenAppointmentTools(appt)
-                                    }}
-                                    className="absolute top-1 right-1 rounded-sm bg-default-light/90 p-0.5 text-default-dark hover:bg-default-light"
-                                    aria-label="Abrir ferramentas do agendamento"
-                                  >
-                                    <Wrench size={10} />
-                                  </button>
                                 </div>
                               )
                             })}
                           </div>
-                        </button>
+                        </div>
                       )
                     })}
                   </div>
@@ -181,10 +298,10 @@ export function ScheduleCalendarPanelView({
               </div>
 
               <div className="flex-1 relative mt-4">
-                <div className="flex gap-4">
-                  <div className="w-16 flex-shrink-0">
+                <div className="flex gap-2 md:gap-4">
+                  <div className="w-10 md:w-16 flex-shrink-0">
                     {hours.map(hour => (
-                      <div key={hour} className="h-20 text-xs text-muted flex items-start justify-end pr-2 font-medium">
+                      <div key={hour} className="h-20 text-[10px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2 font-medium">
                         {String(hour).padStart(2, '0')}:00
                       </div>
                     ))}
@@ -197,15 +314,18 @@ export function ScheduleCalendarPanelView({
                       )
 
                       return (
-                        <button
+                        <div
                           key={`hour-${hour}`}
-                          type="button"
-                          onClick={() => onTimeSlotClick(selectedDate, hour)}
-                          disabled={isPastDate(selectedDate)}
+                          role={canCreateAppointments && !isPastDate(selectedDate) ? 'button' : undefined}
+                          tabIndex={canCreateAppointments && !isPastDate(selectedDate) ? 0 : -1}
+                          onClick={canCreateAppointments ? () => onTimeSlotClick(selectedDate, hour) : undefined}
+                          onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(selectedDate, hour)) : undefined}
                           className={`h-16 border-b border-default-light-muted w-full transition relative block p-1 ${
                             isPastDate(selectedDate)
                               ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
-                              : 'bg-default-light hover:bg-distac-primary-light'
+                              : canCreateAppointments
+                                ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
+                                : 'bg-default-light'
                           }`}
                         >
                           <div className="absolute inset-0 pointer-events-none">
@@ -220,6 +340,16 @@ export function ScheduleCalendarPanelView({
                               return (
                                 <div
                                   key={appt.id}
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={(event) => {
+                                    event.stopPropagation()
+                                    onOpenAppointmentTools(appt)
+                                  }}
+                                  onKeyDown={(event) => {
+                                    event.stopPropagation()
+                                    handleKeyActivate(event, () => onOpenAppointmentTools(appt))
+                                  }}
                                   className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden shadow-md cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                   style={{
                                     top: `${topOffset}px`,
@@ -236,22 +366,11 @@ export function ScheduleCalendarPanelView({
                                     {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}min)
                                   </p>
                                   <p className="text-[10px] opacity-75 mt-1">{STATUS_LABELS[appt.status]}</p>
-                                  <button
-                                    type="button"
-                                    onClick={(event) => {
-                                      event.stopPropagation()
-                                      onOpenAppointmentTools(appt)
-                                    }}
-                                    className="absolute top-1 right-1 rounded-sm bg-default-light/90 p-0.5 text-default-dark hover:bg-default-light"
-                                    aria-label="Abrir ferramentas do agendamento"
-                                  >
-                                    <Wrench size={11} />
-                                  </button>
                                 </div>
                               )
                             })}
                           </div>
-                        </button>
+                        </div>
                       )
                     })}
                   </div>
@@ -261,19 +380,19 @@ export function ScheduleCalendarPanelView({
           </div>
         ) : (
           <div className="min-w-full">
-            <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-semibold text-muted uppercase tracking-widest">
+            <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2 text-center text-xs font-semibold text-muted uppercase tracking-widest">
               {weekdayLabels.map(label => (
                 <div key={`month-header-${label}`}>{label}</div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
               {calendarDays.map((day, index) => {
                 if (!day) {
                   return (
                     <div
                       key={`month-empty-${index}`}
-                      className="min-h-32 bg-default-light-muted border border-default-light-muted"
+                      className="min-h-16 md:min-h-32 bg-default-light-muted border border-default-light-muted"
                     />
                   )
                 }
@@ -287,20 +406,22 @@ export function ScheduleCalendarPanelView({
                 const isPastCellDate = isPastDate(cellDate)
 
                 return (
-                  <button
+                  <div
                     key={`month-day-${day}`}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSelectDate(cellDate)}
+                    onKeyDown={(event) => handleKeyActivate(event, () => onSelectDate(cellDate))}
                     className={[
-                      'min-h-32 rounded-lg border p-2 text-left transition flex flex-col gap-1',
+                      'min-h-16 md:min-h-32 rounded-lg border p-1 md:p-2 text-left transition flex flex-col gap-0.5 md:gap-1 overflow-hidden',
                       isSelectedDay ? 'border-distac-primary bg-distac-primary/5' : 'border-default-light-muted',
                       isPastCellDate ? 'bg-default-dark-light opacity-80' : 'bg-default-light-alt hover:border-distac-primary/60 hover:bg-distac-primary/5',
                     ].filter(Boolean).join(' ')}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-default-dark">{day}</span>
+                    <div className="flex items-center justify-between gap-1 overflow-hidden">
+                      <span className="text-[11px] md:text-sm font-semibold text-default-dark">{day}</span>
                       {dayAppointments.length > 0 && (
-                        <span className="text-[10px] font-semibold rounded-full bg-distac-primary text-default-light px-2 py-0.5">
+                        <span className="text-[9px] md:text-[10px] font-semibold rounded-full bg-distac-primary text-default-light px-1.5 py-0.5">
                           {dayAppointments.length}
                         </span>
                       )}
@@ -308,27 +429,31 @@ export function ScheduleCalendarPanelView({
 
                     <div className="space-y-1 overflow-hidden">
                       {dayAppointments.slice(0, 3).map(appt => (
-                        <button
+                        <div
                           key={appt.id}
-                          type="button"
+                          role="button"
+                          tabIndex={0}
                           onClick={(event) => {
                             event.stopPropagation()
                             onOpenAppointmentTools(appt)
                           }}
-                          className={`w-full rounded px-2 py-1 text-[10px] text-left flex items-center justify-between gap-2 ${STATUS_COLORS[appt.status] || 'bg-slate-400 text-default-light'}`}
+                          onKeyDown={(event) => {
+                            event.stopPropagation()
+                            handleKeyActivate(event, () => onOpenAppointmentTools(appt))
+                          }}
+                          className={`w-4 h-1.5 md:w-full md:h-auto rounded-md md:rounded md:px-2 md:py-1 text-[10px] text-left flex items-center justify-between gap-2 overflow-hidden ${STATUS_COLORS[appt.status] || 'bg-slate-400 text-default-light'}`}
                         >
-                          <span className="truncate">
+                          <span className="hidden md:block truncate">
                             {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(appt.startDateTime.getMinutes()).padStart(2, '0')} {appt.title || 'Agendamento'}
                           </span>
-                          <Wrench size={10} />
-                        </button>
+                        </div>
                       ))}
 
                       {dayAppointments.length > 3 && (
                         <p className="text-[10px] text-muted">+{dayAppointments.length - 3} agendamento(s)</p>
                       )}
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>

@@ -3,7 +3,7 @@ import { STATUS_LABELS } from '../ScheduleModel'
 export function AppointmentToolsModalView({
   appointment,
   busyAppointmentId,
-  isAdminUser,
+  canManageAppointments = true,
   onClose,
   onReschedule,
   onConfirm,
@@ -59,53 +59,53 @@ export function AppointmentToolsModalView({
           )}
         </div>
 
-        <div className="border-t border-slate-200 px-4 py-3">
-          <div className="flex flex-wrap gap-2">
-            {(appointment.status === 'PENDING' || appointment.status === 'CONFIRMED') && (
-              <button
-                type="button"
-                onClick={onReschedule}
-                disabled={busyAppointmentId === appointment.id}
-                className="rounded-md bg-distac-primary px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
-              >
-                Reagendar
-              </button>
-            )}
+        {canManageAppointments && (
+          <div className="border-t border-slate-200 px-4 py-3">
+            <div className="flex flex-wrap gap-2">
+              {(appointment.status === 'PENDING' || appointment.status === 'CONFIRMED') && (
+                <button
+                  type="button"
+                  onClick={onReschedule}
+                  disabled={busyAppointmentId === appointment.id}
+                  className="rounded-md bg-distac-primary px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  Reagendar
+                </button>
+              )}
 
-            {appointment.status === 'PENDING' && (
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={busyAppointmentId === appointment.id}
-                className="rounded-md bg-distac-secondary px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
-              >
-                Confirmar
-              </button>
-            )}
+              {appointment.status === 'PENDING' && (
+                <button
+                  type="button"
+                  onClick={onConfirm}
+                  disabled={busyAppointmentId === appointment.id}
+                  className="rounded-md bg-distac-secondary px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  Confirmar
+                </button>
+              )}
 
-            {isAdminUser && appointment.status === 'CONFIRMED' && (
-              <button
-                type="button"
-                onClick={onConclude}
-                disabled={busyAppointmentId === appointment.id}
-                className="rounded-md bg-distac-secondary-light px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
-              >
-                Concluir
-              </button>
-            )}
+              {appointment.status === 'CONFIRMED' && (
+                <button
+                  type="button"
+                  onClick={onConclude}
+                  disabled={busyAppointmentId === appointment.id}
+                  className="rounded-md bg-distac-secondary-light px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  Concluir
+                </button>
+              )}
 
-            {(appointment.status === 'PENDING' || appointment.status === 'CONFIRMED') && (
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={busyAppointmentId === appointment.id}
-                className="rounded-md bg-default-dark-light px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
-              >
-                Cancelar
-              </button>
-            )}
+              {(appointment.status === 'PENDING' || appointment.status === 'CONFIRMED') && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={busyAppointmentId === appointment.id}
+                  className="rounded-md bg-default-dark-light px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  Cancelar
+                </button>
+              )}
 
-            {isAdminUser && (
               <button
                 type="button"
                 onClick={onDelete}
@@ -114,9 +114,9 @@ export function AppointmentToolsModalView({
               >
                 Excluir
               </button>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

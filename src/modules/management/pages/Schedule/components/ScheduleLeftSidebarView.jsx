@@ -1,41 +1,24 @@
 import { Wrench } from 'lucide-react'
 import { STATUS_COLORS, STATUS_LABELS } from '../ScheduleModel'
-import { SelectView } from '@shared/components/ui/Select/SelectView'
 
 export function ScheduleLeftSidebarView({
   selectedDate,
   selectedDateAppointments,
   selectedDateAppointmentsByStatus,
-  showEstateAgentScopeSelect,
-  estateAgentScopeFilterOptions,
-  selectedEstateAgentFilter,
-  onEstateAgentScopeFilterChange,
   onOpenAppointmentTools,
+  canManageAppointments = true,
 }) {
+  const handleKeyActivate = (event, onActivate) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onActivate()
+    }
+  }
+
   return (
     <aside
-      className={`w-full xl:w-80 flex-shrink-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col ${
-        showEstateAgentScopeSelect ? 'xl:pt-0' : ''
-      }`}
+      className="w-full xl:w-80 flex-shrink-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col"
     >
-      {showEstateAgentScopeSelect && (
-        <div className="hidden xl:block sticky top-0 z-10 bg-default-light pb-3 mb-1 border-b border-default-light-muted pt-4">
-          <p className="text-xs uppercase tracking-widest text-muted mb-2">Corretor</p>
-          <SelectView
-            id="estateAgentScopeFilter"
-            name="estateAgentScopeFilter"
-            value={selectedEstateAgentFilter}
-            defaultValue={selectedEstateAgentFilter}
-            options={estateAgentScopeFilterOptions}
-            width="full"
-            variant="brown"
-            shape="square"
-            hasLabel={false}
-            onChange={(event) => onEstateAgentScopeFilterChange(event.target.value)}
-          />
-        </div>
-      )}
-
       <div>
         <div className="mb-4 rounded-lg border border-default-light-muted p-3">
           <p className="text-xs uppercase tracking-widest text-muted mb-1">Data selecionada</p>
@@ -82,7 +65,11 @@ export function ScheduleLeftSidebarView({
             {selectedDateAppointments.map(appt => (
               <div
                 key={appt.id}
-                className={`rounded-lg p-3 border-l-4 ${STATUS_COLORS[appt.status] || 'bg-default-light-muted border-default-light-muted'} bg-opacity-10`}
+                role="button"
+                tabIndex={0}
+                onClick={() => onOpenAppointmentTools(appt)}
+                onKeyDown={(event) => handleKeyActivate(event, () => onOpenAppointmentTools(appt))}
+                className={`rounded-lg p-3 border-l-4 ${STATUS_COLORS[appt.status] || 'bg-default-light-muted border-default-light-muted'} bg-opacity-10 cursor-pointer transition hover:brightness-105`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
@@ -104,14 +91,19 @@ export function ScheduleLeftSidebarView({
                 </div>
                 <p className="text-xs text-muted mt-2">Duracao: {appt.durationMinutes} min</p>
                 <div className="mt-3 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => onOpenAppointmentTools(appt)}
-                    className="inline-flex items-center gap-1 rounded-md border border-default-light-muted px-2 py-1 text-[11px] font-semibold bg-default-light text-default-dark hover:border-distac-primary hover:text-distac-primary transition"
-                  >
-                    <Wrench size={12} />
-                    Ferramentas
-                  </button>
+                  {canManageAppointments && (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onOpenAppointmentTools(appt)
+                      }}
+                      className="inline-flex items-center gap-1 rounded-md border border-default-light-muted px-2 py-1 text-[11px] font-semibold bg-default-light text-default-dark hover:border-distac-primary hover:text-distac-primary transition"
+                    >
+                      <Wrench size={12} />
+                      Ferramentas
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
