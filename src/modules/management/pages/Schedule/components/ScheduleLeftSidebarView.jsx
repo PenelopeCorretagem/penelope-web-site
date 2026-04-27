@@ -14,12 +14,12 @@ export function ScheduleLeftSidebarView({
 }) {
   return (
     <aside
-  className={`w-80 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col ${
-    showEstateAgentScopeSelect ? 'pt-0' : ''
-  }`}
->
+      className={`w-full xl:w-80 flex-shrink-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col ${
+        showEstateAgentScopeSelect ? 'xl:pt-0' : ''
+      }`}
+    >
       {showEstateAgentScopeSelect && (
-        <div className="sticky top-0 z-10 bg-default-light pb-3 mb-1 border-b border-default-light-muted pt-4">
+        <div className="hidden xl:block sticky top-0 z-10 bg-default-light pb-3 mb-1 border-b border-default-light-muted pt-4">
           <p className="text-xs uppercase tracking-widest text-muted mb-2">Corretor</p>
           <SelectView
             id="estateAgentScopeFilter"

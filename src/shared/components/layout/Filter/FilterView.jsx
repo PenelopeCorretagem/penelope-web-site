@@ -18,6 +18,7 @@ export const FilterView = ({
   showResetButton = true,
   showSortButton = true,
   hideSearch = false,
+  mobileExpandedContent = null,
   className = ''
 }) => {
   const viewModel = useFilterViewModel({
@@ -111,6 +112,12 @@ export const FilterView = ({
               </div>
             )}
           </div>
+          
+          {mobileExpandedContent && (
+            <div className="w-full mt-2 flex flex-col gap-4">
+              {mobileExpandedContent}
+            </div>
+          )}
         </div>
       )}
 

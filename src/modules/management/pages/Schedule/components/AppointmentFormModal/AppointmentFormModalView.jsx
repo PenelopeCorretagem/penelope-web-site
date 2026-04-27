@@ -126,7 +126,7 @@ export function AppointmentFormModalView({
         onClick={onClose}
       />
 
-      <div className="absolute top-1/2 left-1/2 z-50 w-full max-w-5xl -translate-x-1/2 -translate-y-1/2 transform overflow-hidden rounded-lg bg-white shadow-2xl max-h-[70vh] flex flex-col mx-4">
+      <div className="absolute top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 transform overflow-hidden rounded-lg bg-white shadow-2xl max-h-[90vh] md:max-h-[80vh] flex flex-col">
         <div className="z-10 bg-white border-b border-slate-200 p-6 flex items-center justify-between flex-shrink-0">
           <HeadingView level={2} className="text-distac-primary m-0">
             {modalTitle}

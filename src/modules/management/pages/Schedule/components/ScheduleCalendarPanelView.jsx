@@ -20,7 +20,7 @@ export function ScheduleCalendarPanelView({
   isSameDay,
 }) {
   return (
-    <div className="flex-1 min-h-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-6 overflow-hidden flex flex-col">
+    <div className="flex-1 min-h-[500px] xl:min-h-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 md:p-6 overflow-hidden flex flex-col">
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
           <p className="text-sm uppercase tracking-widest text-muted mb-1">
@@ -75,7 +75,7 @@ export function ScheduleCalendarPanelView({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
         {viewMode === 'week' ? (
           <div className="grid grid-cols-8 gap-2 min-w-full">
             <div className="w-16 flex-shrink-0">

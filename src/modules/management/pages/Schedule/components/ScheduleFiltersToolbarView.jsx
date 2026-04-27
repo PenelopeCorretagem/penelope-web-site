@@ -8,6 +8,7 @@ export function ScheduleFiltersToolbarView({
   onFiltersChange,
   onNavigatePeriod,
   navigateLabels,
+  mobileExpandedContent,
 }) {
   return (
     <div className="rounded-lg border border-default-light-muted bg-default-light px-4 py-3 shadow-sm">
@@ -21,10 +22,11 @@ export function ScheduleFiltersToolbarView({
             onFiltersChange={onFiltersChange}
             showSortButton={false}
             showResetButton={true}
+            mobileExpandedContent={mobileExpandedContent}
           />
         </div>
 
-        <div className="flex flex-wrap items-end gap-2 xl:justify-end">
+        <div className="hidden xl:flex flex-wrap items-end gap-2 xl:justify-end">
           <div className="flex gap-2">
             <ButtonView
               type="button"

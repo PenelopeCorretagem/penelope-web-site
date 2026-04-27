@@ -50,8 +50,8 @@ export function ScheduleRightSidebarView({
   }
 
   return (
-    <aside className="w-64 bg-default-light rounded-lg shadow p-4 overflow-y-auto flex flex-col">
-      <div className="mb-4">
+    <aside className="w-full xl:w-64 flex-shrink-0 bg-default-light rounded-lg shadow p-4 overflow-y-auto flex flex-col">
+      <div className="hidden xl:block mb-4">
         <div className="flex items-center justify-between gap-2 mb-3">
           <h3 className="text-sm font-semibold text-default-dark">Navegação</h3>
           <ButtonView
@@ -97,7 +97,7 @@ export function ScheduleRightSidebarView({
         </div>
       </div>
 
-      <div className="border-t pt-4 space-y-3">
+      <div className="xl:border-t pt-2 xl:pt-4 space-y-3">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted mb-2">Resumo mensal por status</p>
           <div className="space-y-2 text-sm">
