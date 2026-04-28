@@ -9,10 +9,10 @@ const API_URL = '/amenities'
  * @param {number} pageSize - Tamanho da página
  * @returns {Promise<Object>} Objeto com content e pageable
  */
-export const getAllAmenities = async (page = 1, pageSize = 10, search = '', sort = '', initial = '') => {
+export const getAllAmenities = async (page = 1, pageSize = 10, name = '', sort = '', initial = '') => {
   try {
     const response = await axiosInstance.get(API_URL, {
-      params: { page, pageSize, search, sort, initial }
+      params: { page, pageSize, name, sort, initial }
     })
     return response.data
   } catch (error) {
