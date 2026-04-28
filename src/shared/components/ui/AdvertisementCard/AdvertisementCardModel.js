@@ -122,6 +122,12 @@ const videoButton = (onClick = null) => new ButtonModel(
   onClick
 )
 
+const normalizeMediaType = (value) => String(value ?? '')
+  .trim()
+  .toUpperCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+
 const hasMediaType = (advertisement, type) => {
   const images = advertisement?.estate?.images
   if (!Array.isArray(images) || images.length === 0) {
@@ -129,8 +135,11 @@ const hasMediaType = (advertisement, type) => {
   }
 
   return images.some((image) => {
-    const description = String(image?.type?.description ?? '').trim().toUpperCase()
-    return description === type.toUpperCase()
+    const description = normalizeMediaType(image?.type?.description)
+    const normalizedType = normalizeMediaType(type)
+    const typeId = Number(image?.type?.id)
+
+    return description === normalizedType || (normalizedType === 'VIDEO' && typeId === 4)
   })
 }
 
@@ -141,8 +150,11 @@ const getFirstMediaUrlByType = (advertisement, type) => {
   }
 
   const media = images.find((image) => {
-    const description = String(image?.type?.description ?? '').trim().toUpperCase()
-    return description === type.toUpperCase()
+    const description = normalizeMediaType(image?.type?.description)
+    const normalizedType = normalizeMediaType(type)
+    const typeId = Number(image?.type?.id)
+
+    return description === normalizedType || (normalizedType === 'VIDEO' && typeId === 4)
   })
 
   return media?.url || null

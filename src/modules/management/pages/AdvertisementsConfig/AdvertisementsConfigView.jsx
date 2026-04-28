@@ -247,7 +247,7 @@ export function AdvertisementsConfigView() {
               <ButtonView
                 type="button"
                 color="pink"
-                onClick={handleAddAdvertisement}
+                onClick={() => handleAddAdvertisement()}
                 shape="square"
               >
                 <Plus size={16} />

@@ -4,7 +4,8 @@
 export const IMAGE_TYPES = {
   COVER: { id: 1, description: 'Capa', friendlyName: 'Capa' },
   GALLERY: { id: 2, description: 'Galeria', friendlyName: 'Galeria' },
-  FLOOR_PLAN: { id: 3, description: 'Planta', friendlyName: 'Planta' }
+  FLOOR_PLAN: { id: 3, description: 'Planta', friendlyName: 'Planta' },
+  VIDEO: { id: 4, description: 'Video', friendlyName: 'Vídeo' }
 }
 
 /**
@@ -13,13 +14,17 @@ export const IMAGE_TYPES = {
 export const IMAGE_TYPE_BY_ID = {
   1: IMAGE_TYPES.COVER,
   2: IMAGE_TYPES.GALLERY,
-  3: IMAGE_TYPES.FLOOR_PLAN
+  3: IMAGE_TYPES.FLOOR_PLAN,
+  4: IMAGE_TYPES.VIDEO
 }
 
 export const IMAGE_TYPE_BY_DESCRIPTION = {
   'Capa': IMAGE_TYPES.COVER,
   'Galeria': IMAGE_TYPES.GALLERY,
-  'Planta': IMAGE_TYPES.FLOOR_PLAN
+  'Planta': IMAGE_TYPES.FLOOR_PLAN,
+  'Video': IMAGE_TYPES.VIDEO,
+  'Vídeo': IMAGE_TYPES.VIDEO,
+  'VIDEO': IMAGE_TYPES.VIDEO
 }
 
 /**
@@ -61,7 +66,8 @@ export const getImageTypeByDescription = (description) => {
 export const IMAGE_TYPE_IDS = {
   COVER: 1,
   GALLERY: 2,
-  FLOOR_PLAN: 3
+  FLOOR_PLAN: 3,
+  VIDEO: 4
 }
 
 /**
@@ -70,5 +76,6 @@ export const IMAGE_TYPE_IDS = {
 export const IMAGE_TYPE_DESCRIPTIONS = {
   COVER: 'Capa',
   GALLERY: 'Galeria',
-  FLOOR_PLAN: 'Planta'
+  FLOOR_PLAN: 'Planta',
+  VIDEO: 'Video'
 }

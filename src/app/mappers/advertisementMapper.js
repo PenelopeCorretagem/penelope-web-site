@@ -45,6 +45,9 @@ export class AdvertisementMapper {
         planta: 'Planta',
         floor_plan: 'Planta',
         floorplan: 'Planta',
+        video: 'Video',
+        vídeo: 'Video',
+        video_url: 'Video',
       }
 
       const mappedDescription = normalizedMap[normalizedType]
