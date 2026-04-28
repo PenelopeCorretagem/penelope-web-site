@@ -143,12 +143,10 @@ export class ProfileModel {
 
           const numericValue = formatCurrencyForDatabase(value)
 
-          if (isNaN(numericValue) || numericValue <= 0) {
+          if (isNaN(numericValue) || numericValue < 0) {
             return 'Renda deve ser um valor positivo'
-          }
-
-          if (numericValue > 1000000) {
-            return 'Valor de renda muito alto'
+          }else if(numericValue === 0){
+            return 'Renda deve ser maior que zero'
           }
 
           return true

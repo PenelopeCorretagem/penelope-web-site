@@ -50,7 +50,7 @@ export function ScheduleRightSidebarView({
   }
 
   return (
-    <aside className="w-full xl:w-64 flex-shrink-0 bg-default-light rounded-lg shadow p-4 overflow-y-auto flex flex-col">
+    <aside className="w-full xl:w-64 flex-shrink-0 bg-default-light rounded-lg shadow p-4 overflow-y-auto flex flex-col xl:h-full xl:min-h-0">
       <div className="hidden xl:block mb-4">
         <div className="flex items-center justify-between gap-2 mb-3">
           <h3 className="text-sm font-semibold text-default-dark">Navegação</h3>

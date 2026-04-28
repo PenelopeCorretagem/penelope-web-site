@@ -12,7 +12,6 @@ import { useAppointmentFormViewModel } from './useAppointmentFormViewModel'
 import { EstateSelectionView } from '../EstateSelectionView'
 import { DateTimeSelectionView } from '../DateTimeSelectionView'
 import { VisitorInfoView } from '../VisitorInfoView'
-import { AvailableHoursSection } from '../AvailableHoursSection'
 import { NotesSection } from '../NotesSection'
 import { RescheduleContextSection } from '../RescheduleContextSection'
 
@@ -68,7 +67,6 @@ export function AppointmentFormModalView({
   if (!isOpen) return null
 
   const isRescheduleMode = vm.isRescheduleMode
-  const availableHours = vm.getAvailableHours()
 
   const handleSelectEstate = (estate) => {
     setSelectedEstateId(estate.id)
@@ -126,7 +124,7 @@ export function AppointmentFormModalView({
         onClick={onClose}
       />
 
-      <div className="absolute top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 transform overflow-hidden rounded-lg bg-white shadow-2xl max-h-[90vh] md:max-h-[80vh] flex flex-col">
+      <div className="fixed md:absolute top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 transform overflow-hidden rounded-lg bg-white shadow-2xl max-h-[65vh] md:max-h-[80vh] flex flex-col">
         <div className="z-10 bg-white border-b border-slate-200 p-6 flex items-center justify-between flex-shrink-0">
           <HeadingView level={2} className="text-distac-primary m-0">
             {modalTitle}
@@ -166,7 +164,7 @@ export function AppointmentFormModalView({
           <DateTimeSelectionView
             dateTimeValue={vm.model.getDateTimeLocalString()}
             onDateTimeChange={handleDateTimeChange}
-            leftFooter={
+            leftFooter={(
               <div className="space-y-4">
                 {!isRescheduleMode && (
                   <VisitorInfoView
@@ -185,12 +183,7 @@ export function AppointmentFormModalView({
                   onChange={isRescheduleMode ? handleReasonChange : handleNotesChange}
                 />
               </div>
-            }
-          />
-
-          <AvailableHoursSection
-            availableHours={availableHours}
-            selectedEstate={vm.model.selectedEstate}
+            )}
           />
         </div>
 

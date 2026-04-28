@@ -1,5 +1,5 @@
 import * as advertisementApi from '@api-penelopec/advertisementApi'
-import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
+import { AdvertisementMapper } from '@app/mappers/advertisementMapper'
 
 /**
  * Camada de Serviço - Orquestra a chamada à API e transformação de dados
@@ -13,7 +13,7 @@ import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
  */
 export const getAllAdvertisements = async (filters = {}) => {
   const response = await advertisementApi.getAllAdvertisements(filters)
-  return RealEstateAdvertisementMapper.toEntityList(response)
+  return AdvertisementMapper.toEntityList(response)
 }
 
 /**
@@ -23,7 +23,7 @@ export const getAllAdvertisements = async (filters = {}) => {
  */
 export const getAdvertisementById = async (id) => {
   const response = await advertisementApi.getAdvertisementById(id)
-  return RealEstateAdvertisementMapper.toEntity(response)
+  return AdvertisementMapper.toEntity(response)
 }
 
 /**
@@ -33,7 +33,7 @@ export const getAdvertisementById = async (id) => {
  */
 export const createAdvertisement = async (advertisementRequest) => {
   const response = await advertisementApi.createAdvertisement(advertisementRequest)
-  return RealEstateAdvertisementMapper.toEntity(response)
+  return AdvertisementMapper.toEntity(response)
 }
 
 /**
@@ -44,7 +44,7 @@ export const createAdvertisement = async (advertisementRequest) => {
  */
 export const updateAdvertisement = async (id, advertisementData) => {
   const response = await advertisementApi.updateAdvertisement(id, advertisementData)
-  return RealEstateAdvertisementMapper.toEntity(response)
+  return AdvertisementMapper.toEntity(response)
 }
 
 /**
@@ -56,6 +56,15 @@ export const updateAdvertisement = async (id, advertisementData) => {
 export const updateAdvertisementStatus = async (id, active) => {
   await advertisementApi.updateAdvertisementStatus(id, active)
   return { id, active }
+}
+
+/**
+ * Remove um anúncio definitivamente.
+ * @param {number} id - O ID do anúncio
+ * @returns {Promise<void>}
+ */
+export const deleteAdvertisement = async (id) => {
+  await advertisementApi.deleteAdvertisement(id)
 }
 
 /**

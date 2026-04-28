@@ -17,7 +17,7 @@ export function ScheduleLeftSidebarView({
 
   return (
     <aside
-      className="w-full xl:w-80 flex-shrink-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col"
+      className="w-full xl:w-80 flex-shrink-0 bg-default-light border-2 border-default-light-muted rounded-lg shadow p-4 overflow-y-auto flex flex-col xl:h-full xl:min-h-0"
     >
       <div>
         <div className="mb-4 rounded-lg border border-default-light-muted p-3">

@@ -4,6 +4,7 @@ export function AppointmentToolsModalView({
   appointment,
   busyAppointmentId,
   canManageAppointments = true,
+  isClientUser = false,
   onClose,
   onReschedule,
   onConfirm,
@@ -84,7 +85,7 @@ export function AppointmentToolsModalView({
                 </button>
               )}
 
-              {appointment.status === 'CONFIRMED' && (
+              {!isClientUser && appointment.status === 'CONFIRMED' && (
                 <button
                   type="button"
                   onClick={onConclude}
@@ -106,14 +107,16 @@ export function AppointmentToolsModalView({
                 </button>
               )}
 
-              <button
-                type="button"
-                onClick={onDelete}
-                disabled={busyAppointmentId === appointment.id}
-                className="rounded-md bg-default-dark-muted px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
-              >
-                Excluir
-              </button>
+              {!isClientUser && (
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  disabled={busyAppointmentId === appointment.id}
+                  className="rounded-md bg-default-dark-muted px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  Excluir
+                </button>
+              )}
             </div>
           </div>
         )}

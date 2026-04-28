@@ -34,8 +34,8 @@ export function ScheduleView() {
           isCurrent
             ? 'bg-distac-primary text-default-light'
             : isPassedDay
-              ? 'bg-default-light-muted text-default-dark-light opacity-60'
-              : 'bg-default-light-alt text-default-dark hover:bg-default-light-muted'
+              ? 'bg-default-light-muted opacity-60'
+              : 'bg-default-light-alt hover:bg-default-light-muted'
         }`}
       >
         <div className="relative h-full flex items-center justify-center">
@@ -141,7 +141,7 @@ export function ScheduleView() {
         </div>
 
         {/* Left Sidebar - Second on mobile, First on desktop */}
-        <div className="xl:order-1 flex-shrink-0">
+        <div className="xl:order-1 flex-shrink-0 xl:h-full xl:min-h-0">
           <ScheduleLeftSidebarView
             selectedDate={vm.selectedDate}
             selectedDateAppointments={vm.selectedDateAppointments}
@@ -152,7 +152,7 @@ export function ScheduleView() {
         </div>
 
         {/* Right Sidebar - Third on mobile, Third on desktop */}
-        <div className="xl:order-3 flex-shrink-0">
+        <div className="xl:order-3 flex-shrink-0 xl:h-full xl:min-h-0">
           <ScheduleRightSidebarView
             currentMonthName={vm.currentMonthName}
             weekdayLabels={vm.weekdayLabels}
@@ -174,20 +174,23 @@ export function ScheduleView() {
         type={vm.confirmationAlert?.type || 'warning'}
         message={vm.confirmationAlert?.message || ''}
         hasCloseButton={false}
+        disableBackdropClose={vm.isConfirmationAlertProcessing}
         buttonsLayout="row"
         actions={vm.confirmationAlert ? [
-          {
-            label: vm.confirmationAlert.confirmLabel || 'Confirmar',
-            color: vm.confirmationAlert.confirmColor || 'pink',
-            onClick: vm.runConfirmationAlertAction,
-            ariaLabel: vm.confirmationAlert.confirmLabel || 'Confirmar acao',
-          },
           {
             label: 'Voltar',
             color: 'soft-gray',
             onClick: vm.closeConfirmationAlert,
+            disabled: vm.isConfirmationAlertProcessing,
             ariaLabel: 'Voltar ação',
           },
+          {
+            label: vm.confirmationAlert.confirmLabel || 'Confirmar',
+            color: vm.confirmationAlert.confirmColor || 'pink',
+            onClick: vm.runConfirmationAlertAction,
+            disabled: vm.isConfirmationAlertProcessing,
+            ariaLabel: vm.confirmationAlert.confirmLabel || 'Confirmar acao',
+          }
         ] : []}
         onClose={vm.closeConfirmationAlert}
       />
@@ -201,10 +204,20 @@ export function ScheduleView() {
         onClose={vm.closeSuccessAlert}
       />
 
+      <AlertView
+        isVisible={Boolean(vm.errorAlert)}
+        type="error"
+        message={vm.errorAlert?.message || ''}
+        hasCloseButton={true}
+        actions={[]}
+        onClose={vm.closeErrorAlert}
+      />
+
       <AppointmentToolsModalView
         appointment={vm.selectedAppointmentForTools}
         busyAppointmentId={vm.busyAppointmentId}
         canManageAppointments={vm.canManageAppointments}
+        isClientUser={vm.isClientUser}
         onClose={vm.handleCloseAppointmentTools}
         onReschedule={vm.handleRescheduleFromTools}
         onConfirm={vm.handleConfirmFromTools}

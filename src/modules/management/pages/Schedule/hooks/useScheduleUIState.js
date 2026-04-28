@@ -14,8 +14,11 @@ export function useScheduleUIState() {
   const [busyAppointmentId, setBusyAppointmentId] = useState(null)
   const [selectedAppointmentForTools, setSelectedAppointmentForTools] = useState(null)
   const [confirmationAlert, setConfirmationAlert] = useState(null)
+  const [isConfirmationAlertProcessing, setIsConfirmationAlertProcessing] = useState(false)
   const [successAlert, setSuccessAlert] = useState(null)
+  const [errorAlert, setErrorAlert] = useState(null)
   const successAlertTimeoutRef = useRef(null)
+  const errorAlertTimeoutRef = useRef(null)
 
   const handleTimeSlotClick = useCallback((date, hour, isPastDate) => {
     if (isPastDate) return
@@ -52,10 +55,12 @@ export function useScheduleUIState() {
 
   const closeConfirmationAlert = useCallback(() => {
     setConfirmationAlert(null)
+    setIsConfirmationAlertProcessing(false)
   }, [])
 
   const openConfirmationAlert = useCallback(({ type = 'warning', message, confirmLabel, confirmColor = 'pink', onConfirm }) => {
     setConfirmationAlert({ type, message, confirmLabel, confirmColor, onConfirm })
+    setIsConfirmationAlertProcessing(false)
   }, [])
 
   const closeSuccessAlert = useCallback(() => {
@@ -67,7 +72,7 @@ export function useScheduleUIState() {
     }
   }, [])
 
-  const openSuccessAlert = useCallback((message) => {
+  const openSuccessAlert = useCallback((message, durationMs = 2000) => {
     if (!message) return
 
     setSuccessAlert({ type: 'success', message })
@@ -79,21 +84,57 @@ export function useScheduleUIState() {
     successAlertTimeoutRef.current = setTimeout(() => {
       setSuccessAlert(null)
       successAlertTimeoutRef.current = null
-    }, 2000)
+    }, durationMs)
+  }, [])
+
+  const closeErrorAlert = useCallback(() => {
+    setErrorAlert(null)
+
+    if (errorAlertTimeoutRef.current) {
+      clearTimeout(errorAlertTimeoutRef.current)
+      errorAlertTimeoutRef.current = null
+    }
+  }, [])
+
+  const openErrorAlert = useCallback((message, durationMs = 0) => {
+    if (!message) return
+
+    setErrorAlert({ type: 'error', message })
+
+    if (errorAlertTimeoutRef.current) {
+      clearTimeout(errorAlertTimeoutRef.current)
+      errorAlertTimeoutRef.current = null
+    }
+
+    if (durationMs > 0) {
+      errorAlertTimeoutRef.current = setTimeout(() => {
+        setErrorAlert(null)
+        errorAlertTimeoutRef.current = null
+      }, durationMs)
+    }
   }, [])
 
   const runConfirmationAlertAction = useCallback(async () => {
     if (!confirmationAlert?.onConfirm) return
 
     const action = confirmationAlert.onConfirm
-    setConfirmationAlert(null)
-    await action()
+    setIsConfirmationAlertProcessing(true)
+
+    try {
+      await action()
+    } finally {
+      setIsConfirmationAlertProcessing(false)
+    }
   }, [confirmationAlert])
 
   useEffect(() => {
     return () => {
       if (successAlertTimeoutRef.current) {
         clearTimeout(successAlertTimeoutRef.current)
+      }
+
+      if (errorAlertTimeoutRef.current) {
+        clearTimeout(errorAlertTimeoutRef.current)
       }
     }
   }, [])
@@ -109,7 +150,9 @@ export function useScheduleUIState() {
     setBusyAppointmentId,
     selectedAppointmentForTools,
     confirmationAlert,
+    isConfirmationAlertProcessing,
     successAlert,
+    errorAlert,
     handleTimeSlotClick,
     handleRescheduleAppointment,
     handleModalClose,
@@ -119,6 +162,8 @@ export function useScheduleUIState() {
     openConfirmationAlert,
     closeSuccessAlert,
     openSuccessAlert,
+    closeErrorAlert,
+    openErrorAlert,
     runConfirmationAlertAction,
   }
 }

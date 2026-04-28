@@ -139,7 +139,7 @@ export const FilterView = ({
                   disabled={!hasActiveFilters}
                   shape="square"
                   title="Limpar filtros"
-                  className="h-full"
+                  className="!text-[9px] !leading-none !py-1.5 !px-2 h-full"
                 >
                   Limpar
                 </ButtonView>

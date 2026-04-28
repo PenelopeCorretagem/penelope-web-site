@@ -37,6 +37,20 @@ export function useScheduleViewModel() {
   const actions = useScheduleAppointmentActions(appointmentService)
   const navigateLabels = useMemo(() => ScheduleModel.getPeriodNavigationLabels(uiState.viewMode), [uiState.viewMode])
 
+  const getApiErrorMessage = useCallback((error, fallbackMessage) => {
+    const apiMessage = error?.response?.data?.message
+
+    if (typeof apiMessage === 'string' && apiMessage.trim()) {
+      return apiMessage.trim()
+    }
+
+    if (typeof error?.message === 'string' && error.message.trim()) {
+      return error.message.trim()
+    }
+
+    return fallbackMessage
+  }, [])
+
   const appointmentScopeFilters = useMemo(() => {
     if (isClientUser) {
       return {}
@@ -228,7 +242,11 @@ export function useScheduleViewModel() {
         try {
           const updated = await actions.executeConfirm(uiState.selectedAppointmentForTools.id)
           await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
           uiState.openSuccessAlert('Agendamento confirmado com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao confirmar agendamento'))
         } finally {
           uiState.setBusyAppointmentId(null)
         }
@@ -252,6 +270,11 @@ export function useScheduleViewModel() {
         try {
           const updated = await actions.executeConclude(uiState.selectedAppointmentForTools.id)
           await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento concluído com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao concluir agendamento'))
         } finally {
           uiState.setBusyAppointmentId(null)
         }
@@ -275,7 +298,11 @@ export function useScheduleViewModel() {
         try {
           const updated = await actions.executeCancel(uiState.selectedAppointmentForTools.id)
           await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
           uiState.openSuccessAlert('Agendamento cancelado com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao cancelar agendamento'))
         } finally {
           uiState.setBusyAppointmentId(null)
         }
@@ -298,8 +325,11 @@ export function useScheduleViewModel() {
         uiState.setBusyAppointmentId(uiState.selectedAppointmentForTools.id)
         try {
           await actions.executeDelete(uiState.selectedAppointmentForTools.id)
-          await appointmentService.deleteAppointment(uiState.selectedAppointmentForTools.id, selectedDate)
-          uiState.openSuccessAlert('Agendamento excluído com sucesso.')
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento excluído com sucesso.', 2000)
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao excluir agendamento'))
         } finally {
           uiState.setBusyAppointmentId(null)
         }
@@ -335,6 +365,7 @@ export function useScheduleViewModel() {
 
     // Permissões
     isAdminUser,
+    isClientUser,
     isReadOnlyAdminView,
     canManageAppointments: !isReadOnlyAdminView,
 
@@ -361,7 +392,9 @@ export function useScheduleViewModel() {
     busyAppointmentId: uiState.busyAppointmentId,
     selectedAppointmentForTools: uiState.selectedAppointmentForTools,
     confirmationAlert: uiState.confirmationAlert,
+    isConfirmationAlertProcessing: uiState.isConfirmationAlertProcessing,
     successAlert: uiState.successAlert,
+    errorAlert: uiState.errorAlert,
 
     // Dados de calendário
     weekdayLabels: calendarData.weekdayLabels,
@@ -390,6 +423,7 @@ export function useScheduleViewModel() {
     handleCloseAppointmentTools: uiState.handleCloseAppointmentTools,
     closeConfirmationAlert: uiState.closeConfirmationAlert,
     closeSuccessAlert: uiState.closeSuccessAlert,
+    closeErrorAlert: uiState.closeErrorAlert,
     runConfirmationAlertAction: uiState.runConfirmationAlertAction,
     handleAppointmentSaved,
     handleNavigatePeriod,

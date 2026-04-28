@@ -1,8 +1,13 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormView } from '@shared/components/ui/Form/FormView'
-import { sendContactMessage } from '@api-penelopec/contactUsApi'
+import { sendContactMessage } from '@service-penelopec/contactUsService'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 
 export function ContactFormView() {
-  const fields = [
+  const [successAlertMessage, setSuccessAlertMessage] = useState('')
+  const successAlertTimeoutRef = useRef(null)
+
+  const fields = useMemo(() => ([
     {
       name: 'nome',
       label: 'Nome completo',
@@ -37,35 +42,77 @@ export function ContactFormView() {
       hasLabel: true,
       rows: 6,
       validate: (value) => {
-        if (value.trim().length < 10) throw new Error('A mensagem deve ter pelo menos 10 caracteres')
+        if (value.trim().length < 10) {
+          return 'A mensagem deve ter pelo menos 10 caracteres'
+        }
+
         return true
       },
     },
-  ]
+  ]), [])
 
-  const handleSubmit = async (formData) => {
+  const closeSuccessAlert = useCallback(() => {
+    setSuccessAlertMessage('')
+
+    if (successAlertTimeoutRef.current) {
+      clearTimeout(successAlertTimeoutRef.current)
+      successAlertTimeoutRef.current = null
+    }
+  }, [])
+
+  const handleSubmit = useCallback(async (formData) => {
     try {
       await sendContactMessage(formData)
 
+      setSuccessAlertMessage('Mensagem enviada com sucesso!')
+
+      if (successAlertTimeoutRef.current) {
+        clearTimeout(successAlertTimeoutRef.current)
+      }
+
+      successAlertTimeoutRef.current = setTimeout(() => {
+        setSuccessAlertMessage('')
+        successAlertTimeoutRef.current = null
+      }, 2000)
+
       return {
         success: true,
-        message: 'Mensagem enviada com sucesso!',
         reset: true,
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Ocorreu um erro ao enviar sua mensagem. Tente novamente.'
       return { success: false, error: errorMessage }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (successAlertTimeoutRef.current) {
+        clearTimeout(successAlertTimeoutRef.current)
+      }
+    }
+  }, [])
 
   return (
-    <FormView
-      title=""
-      subtitle="Envie sua mensagem e nossa equipe responderá o mais rápido possível."
-      fields={fields}
-      submitText="Enviar mensagem"
-      submitWidth="full"
-      onSubmit={handleSubmit}
-    />
+    <>
+      <FormView
+        key="contact-form"
+        title=""
+        subtitle="Envie sua mensagem e nossa equipe responderá o mais rápido possível."
+        fields={fields}
+        submitText="Enviar mensagem"
+        submitWidth="full"
+        onSubmit={handleSubmit}
+      />
+
+      <AlertView
+        isVisible={Boolean(successAlertMessage)}
+        type="success"
+        message={successAlertMessage}
+        hasCloseButton={false}
+        actions={[]}
+        onClose={closeSuccessAlert}
+      />
+    </>
   )
 }

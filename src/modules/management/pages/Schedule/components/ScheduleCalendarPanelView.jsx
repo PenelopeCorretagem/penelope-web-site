@@ -242,8 +242,8 @@ export function ScheduleCalendarPanelView({
                               const heightMultiplier = isDesktop ? 0.95 : 0.85
                               const topOffset = (startMinutes / 60) * slotRowHeight * heightMultiplier
                               const height = (appt.durationMinutes / 60) * slotRowHeight * heightMultiplier
-                              const horizontalOffset = index * 10
-                              const rightOffset = (slotAppointments.length - 1 - index) * 10
+                              const widthPercent = 100 / slotAppointments.length
+                              const leftPercent = index * widthPercent
 
                               return (
                                 <div
@@ -261,8 +261,8 @@ export function ScheduleCalendarPanelView({
                                   className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                   style={{
                                     top: `${topOffset}px`,
-                                    left: `${4 + horizontalOffset}px`,
-                                    right: `${4 + rightOffset}px`,
+                                    left: `calc(${leftPercent}% + 2px)`,
+                                    width: `calc(${widthPercent}% - 4px)`,
                                     minHeight: `${Math.max(height, isDesktop ? 12 : 8)}px`,
                                     maxHeight: `${slotRowHeight - (isDesktop ? 2 : 3)}px`,
                                     zIndex: 10 + index,
@@ -334,8 +334,8 @@ export function ScheduleCalendarPanelView({
                               const slotRowHeight = 64
                               const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
                               const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
-                              const horizontalOffset = index * 10
-                              const rightOffset = (slotAppointments.length - 1 - index) * 10
+                              const widthPercent = 100 / slotAppointments.length
+                              const leftPercent = index * widthPercent
 
                               return (
                                 <div
@@ -353,8 +353,8 @@ export function ScheduleCalendarPanelView({
                                   className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden shadow-md cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
                                   style={{
                                     top: `${topOffset}px`,
-                                    left: `${4 + horizontalOffset}px`,
-                                    right: `${4 + rightOffset}px`,
+                                    left: `calc(${leftPercent}% + 2px)`,
+                                    width: `calc(${widthPercent}% - 4px)`,
                                     minHeight: `${Math.max(height, 14)}px`,
                                     maxHeight: `${slotRowHeight - 8}px`,
                                     zIndex: 10 + index,

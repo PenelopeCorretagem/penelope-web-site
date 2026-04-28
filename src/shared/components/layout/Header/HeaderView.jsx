@@ -26,13 +26,6 @@ export function HeaderView({
     <header className={headerClasses} role="banner">
       <NavMenuView isAuthenticated={isAuthenticated} isAdmin={isAdmin} hideLogo={sidebarVisible} />
 
-      {/* Timer de sessão no canto superior direito */}
-      {isAuthenticated && remainingFormatted && (
-        <div className="hidden rounded-sm bg-default-dark-light px-3 py-1 text-button font-medium text-default-light shadow-sm text-center items-center justify-center w-fit md:flex md:text-button-md">
-          Sessão: {remainingFormatted}
-        </div>
-      )}
-
       <AlertView
         isVisible={expired}
         type="info"
