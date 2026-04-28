@@ -1,5 +1,5 @@
 import { Amenity } from '@dtos/Amenity'
-import * as amenitiesApi from '@api-penelopec/amenitiesApi'
+import * as amenitiesService from '@service-penelopec/amenitiesService'
 
 /**
  * AmenitiesModel - Lógica de negócio de amenities
@@ -109,13 +109,13 @@ export class AmenitiesModel {
     this.#pageSize = pageSize
 
     try {
-      const response = await amenitiesApi.getAllAmenities(page, pageSize, this.#searchTerm, this.#sortOrder, this.#initialFilter)
-      
+      const response = await amenitiesService.getAllAmenities(page, pageSize, this.#searchTerm, this.#sortOrder, this.#initialFilter)
+
       // Assumindo que a API retorna um objeto com content e pageable
       if (response.content) {
         this.#amenities = response.content
-        this.#totalElements = response.pageable?.totalElements || 0
-        this.#totalPages = response.pageable?.totalPages || 0
+        this.#totalElements = response.pageable?.totalElements ?? response.totalElements ?? 0
+        this.#totalPages = response.pageable?.totalPages ?? response.totalPages ?? 0
       } else {
         // Fallback se a API não seguir o padrão paginado
         this.#amenities = Array.isArray(response) ? response : []
@@ -140,7 +140,7 @@ export class AmenitiesModel {
     this.#error = null
 
     try {
-      await amenitiesApi.createAmenity(amenity)
+      await amenitiesService.createAmenity(amenity)
       // Volta para primeira página após criar
       await this.loadAmenities(1, this.#pageSize)
     } catch (error) {
@@ -162,7 +162,7 @@ export class AmenitiesModel {
     this.#error = null
 
     try {
-      await amenitiesApi.updateAmenity(id, amenity)
+      await amenitiesService.updateAmenity(id, amenity)
       // Recarrega a página atual
       await this.loadAmenities(this.#currentPage, this.#pageSize)
     } catch (error) {
@@ -183,7 +183,7 @@ export class AmenitiesModel {
     this.#error = null
 
     try {
-      await amenitiesApi.deleteAmenity(id)
+      await amenitiesService.deleteAmenity(id)
       // Se ficou vazio, volta para página anterior se houver
       if (this.#amenities.length === 1 && this.#currentPage > 1) {
         await this.loadAmenities(this.#currentPage - 1, this.#pageSize)

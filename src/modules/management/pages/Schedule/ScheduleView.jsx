@@ -236,6 +236,7 @@ export function ScheduleView() {
           allAppointments={vm.allAppointments}
           appointment={vm.appointmentToEdit}
           mode={vm.appointmentToEdit ? 'reschedule' : 'create'}
+          preselectedEstateReference={vm.preselectedEstateReference}
         />
       )}
     </SectionView>

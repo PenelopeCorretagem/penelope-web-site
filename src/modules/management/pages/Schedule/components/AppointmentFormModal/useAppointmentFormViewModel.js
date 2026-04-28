@@ -9,6 +9,7 @@ import { getAllAdvertisements } from '@api-penelopec/advertisementApi'
 import { getUserById } from '@api-penelopec/userApi'
 import { createAppointment, rescheduleAppointment } from '@service-calservice/appointmentCalService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
+import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 const getApiErrorMessage = (error, fallbackMessage) => {
   const violations = error?.response?.data?.violations
@@ -25,7 +26,8 @@ export function useAppointmentFormViewModel(
   allAppointments = [],
   isOpen = false,
   appointmentToEdit = null,
-  mode = 'create'
+  mode = 'create',
+  preselectedEstateReference = null
 ) {
   const isRescheduleMode = mode === 'reschedule'
   const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
@@ -41,6 +43,14 @@ export function useAppointmentFormViewModel(
   }, [appointmentToEdit, initialDate, initialHour, isRescheduleMode])
 
   const [model, setModel] = useState(() => buildInitialModel())
+  const [estates, setEstates] = useState([])
+  const [loadingEstates, setLoadingEstates] = useState(false)
+  const [estatesError, setEstatesError] = useState(null)
+  const [eventTypes, setEventTypes] = useState([])
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
+  const [validationErrors, setValidationErrors] = useState([])
 
   // Recria o formulário quando o slot muda e ao abrir o modal.
   useEffect(() => {
@@ -50,6 +60,52 @@ export function useAppointmentFormViewModel(
     setValidationErrors([])
     setSubmitError(null)
   }, [buildInitialModel, isOpen])
+
+  useEffect(() => {
+    if (!isOpen || isRescheduleMode || !preselectedEstateReference) {
+      return
+    }
+
+    if (!Array.isArray(estates) || estates.length === 0) {
+      return
+    }
+
+    const targetEstateId = Number(preselectedEstateReference.preselectedEstateId)
+    const targetEstateTitle = String(preselectedEstateReference.preselectedEstateTitle || '').trim()
+    const targetEstateSlug = String(preselectedEstateReference.preselectedEstateSlug || '').trim()
+
+    const matchedEstate = estates.find((estate) => {
+      const estateId = Number(estate?.id ?? estate?.estate?.id)
+      const estateTitle = String(estate?.estate?.title ?? estate?.title ?? '').trim()
+      const estateSlug = generateSlug(estateTitle)
+
+      return (targetEstateId && estateId === targetEstateId)
+        || (targetEstateTitle && estateTitle === targetEstateTitle)
+        || (targetEstateSlug && estateSlug === targetEstateSlug)
+    })
+
+    if (!matchedEstate) {
+      return
+    }
+
+    setModel(prev => {
+      if (prev.selectedEstate?.id === matchedEstate?.id || prev.selectedEstate?.estate?.id === matchedEstate?.estate?.id) {
+        return prev
+      }
+
+      return new AppointmentFormModel({
+        selectedEstate: matchedEstate,
+        startDateTime: prev.startDateTime,
+        durationMinutes: prev.durationMinutes,
+        visitorName: prev.visitorName,
+        visitorEmail: prev.visitorEmail,
+        visitorPhone: prev.visitorPhone,
+        status: prev.status,
+        notes: prev.notes,
+        reason: prev.reason,
+      })
+    })
+  }, [estates, isOpen, isRescheduleMode, preselectedEstateReference])
 
   // Preenche automaticamente os dados do visitante para usuários não-admin.
   useEffect(() => {
@@ -76,34 +132,21 @@ export function useAppointmentFormViewModel(
         }
       }
 
-      setModel(prev => {
-        const updated = new AppointmentFormModel({
-          selectedEstate: prev.selectedEstate,
-          startDateTime: prev.startDateTime,
-          durationMinutes: prev.durationMinutes,
-          visitorName,
-          visitorEmail,
-          visitorPhone,
-          status: prev.status,
-          notes: prev.notes,
-          reason: prev.reason,
-        })
-
-        return updated
-      })
+      setModel(prev => new AppointmentFormModel({
+        selectedEstate: prev.selectedEstate,
+        startDateTime: prev.startDateTime,
+        durationMinutes: prev.durationMinutes,
+        visitorName,
+        visitorEmail,
+        visitorPhone,
+        status: prev.status,
+        notes: prev.notes,
+        reason: prev.reason,
+      }))
     }
 
     prefillVisitorData()
   }, [isOpen, isRescheduleMode, isAdminUser])
-
-  const [estates, setEstates] = useState([])
-  const [loadingEstates, setLoadingEstates] = useState(false)
-  const [estatesError, setEstatesError] = useState(null)
-  const [eventTypes, setEventTypes] = useState([])
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState(null)
-  const [validationErrors, setValidationErrors] = useState([])
 
   // Carrega imóveis ativos e event types ao montar
   useEffect(() => {

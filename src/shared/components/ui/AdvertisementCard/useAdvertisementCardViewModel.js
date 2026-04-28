@@ -5,7 +5,19 @@ import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { RouterModel } from '@app/routes/RouterModel'
 import { ROUTES } from '@constant/routes'
 
-const DEFAULT_VIDEO = 'https://www.youtube.com/embed/NA0u8QCrZfY'
+const getFirstMediaUrlByType = (advertisement, type) => {
+  const images = advertisement?.estate?.images
+  if (!Array.isArray(images) || images.length === 0) {
+    return null
+  }
+
+  const media = images.find((image) => {
+    const description = String(image?.type?.description ?? '').trim().toUpperCase()
+    return description === type.toUpperCase()
+  })
+
+  return media?.url || null
+}
 
 export function useAdvertisementCardViewModel(
   advertisement,
@@ -68,42 +80,31 @@ export function useAdvertisementCardViewModel(
     setIsActiveAdvertisement(Boolean(advertisement?.active))
   }, [advertisement])
 
-  const onGalleryClick = () => {
+  const onGalleryClick = useCallback(() => {
     const galleryImages = advertisement?.estate?.getGalleryImages?.() || []
     setMedias(Array.isArray(galleryImages) ? galleryImages : [galleryImages])
     setShowLightbox(true)
-  }
+  }, [advertisement])
 
-  const onFloorplanClick = () => {
+  const onFloorplanClick = useCallback(() => {
     const floorplanImages = advertisement?.estate?.getFloorPlanImages?.() || []
     setMedias(Array.isArray(floorplanImages) ? floorplanImages : [floorplanImages])
     setShowLightbox(true)
-  }
+  }, [advertisement])
 
-  const onVideoClick = () => {
+  const onVideoClick = useCallback(() => {
+    const videoUrl = getFirstMediaUrlByType(advertisement, 'VIDEO')
+
+    if (!videoUrl) return
+
     setMedias([
       {
         type: 'video',
-        url: DEFAULT_VIDEO
+        url: videoUrl
       }
     ])
     setShowLightbox(true)
-  }
-
-  const onScheduleClick = useMemo(() => {
-    if (advertisementCardMode !== ADVERTISEMENT_CARD_MODES.REDIRECTION) return null
-
-    return () => {
-      const advertisementTitle = advertisement?.estate?.title
-      if (advertisementTitle) {
-        navigate('/agenda', {
-          state: { advertisementTitle }
-        })
-      } else {
-        navigate('/agenda')
-      }
-    }
-  }, [advertisement, advertisementCardMode, navigate])
+  }, [advertisement])
 
   const advertisementCardModel = useMemo(
     () => new AdvertisementCardModel({
@@ -170,13 +171,13 @@ export function useAdvertisementCardViewModel(
     }
   }, [alertConfig, isProcessingStatus, advertisementCardModel, advertisement])
 
-  const handleCarouselItemClick = useCallback(() => {
-    if (isCarouselItem && advertisement) {
-      const router = RouterModel.getInstance()
-      const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisement.id })
-      navigate(route)
-    }
-  }, [isCarouselItem, advertisement, navigate])
+  const handleCardClick = useCallback(() => {
+    if (!(isCarouselItem || advertisementCardMode === ADVERTISEMENT_CARD_MODES.DISTAC) || !advertisement) return
+
+    const router = RouterModel.getInstance()
+    const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisement.id })
+    navigate(route)
+  }, [advertisement, advertisementCardMode, isCarouselItem, navigate])
 
   return {
     // Dados do card
@@ -211,6 +212,6 @@ export function useAdvertisementCardViewModel(
     alertConfig,
     handleCloseAlert,
     handleConfirmAction,
-    handleCarouselItemClick,
+    handleCardClick,
   }
 }

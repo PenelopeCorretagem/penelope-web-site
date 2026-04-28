@@ -189,6 +189,14 @@ export function RouterView({
             </ProtectedRoute>
           )}
         />
+        <Route
+          path="/admin/amenities"
+          element={(
+            <ProtectedRoute protection={adminAccess}>
+              <Navigate to={routes.ADMIN_AMENITIES} replace />
+            </ProtectedRoute>
+          )}
+        />
 
         {/* ===== PÁGINAS DE ERRO ===== */}
         <Route path={routes.UNAUTHORIZED} element={<UnauthorizedView />} />

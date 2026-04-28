@@ -5,11 +5,21 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useAdvertisementConfigViewModel } from './useAdvertisementConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
+import { useLocation } from 'react-router-dom'
+import { useMemo } from 'react'
 
 export function AdvertisementConfigView() {
   const { id } = useRouteParams()
+  const location = useLocation()
+  const headerHeight = useHeaderHeight()
   const [showDisableConfirmation, setShowDisableConfirmation] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const presetAdvertisementType = location.state?.advertisementType || ''
+
+  const wizardMaxHeight = headerHeight > 0
+    ? `calc(100dvh - ${headerHeight}px)`
+    : 'calc(100dvh - 96px)'
 
   const {
     loading,
@@ -28,7 +38,22 @@ export function AdvertisementConfigView() {
     handleClear,
     handleCancel
   } = useAdvertisementConfigViewModel(id)
-  
+
+  const wizardInitialData = useMemo(() => {
+    if (!initialData) return initialData
+
+    if (!presetAdvertisementType || !isNew) {
+      return initialData
+    }
+
+    return {
+      ...initialData,
+      advertisementType: presetAdvertisementType,
+    }
+  }, [initialData, isNew, presetAdvertisementType])
+
+  const wizardInstanceKey = `${id || 'new'}-${isNew ? (presetAdvertisementType || 'default') : 'edit'}`
+
   // Só monta o formulário quando os usuários e amenities estiverem carregados
   if (loading || loadingUsers || loadingAmenities) {
     return (
@@ -106,9 +131,9 @@ export function AdvertisementConfigView() {
               type: 'select',
               options: [
                 { value: '', label: 'Selecione o tipo' },
+                { value: 'LANCAMENTO', label: 'Lançamento' },
                 { value: 'DISPONIVEL', label: 'Disponível' },
-                { value: 'EM_OBRAS', label: 'Em Obras' },
-                { value: 'LANCAMENTO', label: 'Lançamento' }
+                { value: 'EM_OBRAS', label: 'Em Obras' }
               ],
               required: true,
               containerClassName: 'w-full md:col-span-2',
@@ -302,7 +327,7 @@ export function AdvertisementConfigView() {
     },
     {
       title: 'GALERIA E PLANTAS',
-      className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
+      className: 'w-full h-full overflow-hidden flex flex-col gap-card md:gap-card-md',
       groups: [
         {
           className: 'w-full h-full flex-1 flex flex-col md:flex-row gap-card md:gap-card-md',
@@ -313,8 +338,8 @@ export function AdvertisementConfigView() {
               type: 'file',
               accept: 'image/*',
               multiple: true,
-              containerClassName: 'w-full h-full flex-1 md:w-1/2',
-              className: 'w-full h-full flex-1',
+              containerClassName: 'w-full h-full flex-1 md:w-1/2 ',
+              className: 'w-full h-full flex-1 p-1',
             },
             {
               name: 'floorPlans',
@@ -323,7 +348,7 @@ export function AdvertisementConfigView() {
               accept: 'image/*',
               multiple: true,
               containerClassName: 'w-full h-full flex-1 md:w-1/2',
-              className: 'w-full h-full flex-1',
+              className: 'w-full h-full flex-1 p-1',
             },
           ],
         },
@@ -340,7 +365,7 @@ export function AdvertisementConfigView() {
               name: 'video',
               label: 'LINK DO VÍDEO (YOUTUBE)',
               type: 'text',
-              placeholder: 'Ex: https://www.youtube.com/watch?v=...',
+              placeholder: '',
               containerClassName: 'w-full',
               className: 'w-full',
             },
@@ -354,9 +379,12 @@ export function AdvertisementConfigView() {
     <>
       <SectionView className="h-full">
         <WizardFormView
+          className="w-full h-full"
+          style={{ maxHeight: wizardMaxHeight }}
+          cepFieldsToClear={['street', 'neighborhood', 'city', 'state', 'number', 'region']}
           title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
           steps={steps}
-          initialData={initialData}
+          initialData={wizardInitialData}
           onSubmit={(formData) => {
             return handleSubmit(formData)
           }}
@@ -365,7 +393,7 @@ export function AdvertisementConfigView() {
           onClear={handleClear}
           onCancel={handleCancel}
           disabled={submitting}
-          key={id || 'new'}
+          key={wizardInstanceKey}
         />
       </SectionView>
 
