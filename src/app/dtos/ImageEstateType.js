@@ -6,7 +6,7 @@ import {
 } from '@constant/imageTypes'
 
 /**
- * Representa o tipo de uma imagem de imóvel (Capa, Galeria, Planta).
+ * Representa o tipo de uma imagem de imóvel (Capa, Galeria, Planta, Video).
  *
  * Esta classe garante:
  * - Campos privados (#id, #description)
@@ -20,9 +20,9 @@ export class ImageEstateType {
 
   /**
    * Aceita como entrada:
-   * - IMAGE_TYPES.COVER | GALLERY | FLOOR_PLAN
+  * - IMAGE_TYPES.COVER | GALLERY | FLOOR_PLAN | VIDEO
    * - descrição ("Capa")
-   * - id (1, 2, 3)
+  * - id (1, 2, 3, 4)
    * - objeto com { id, description }
    */
   constructor(typeInput) {
@@ -47,18 +47,24 @@ export class ImageEstateType {
       return { id: typeInput.id, description: typeInput.description }
     }
 
-    // 2. Se for string ("Capa", "Galeria", "Planta")
+    // 2. Se for string ("Capa", "Galeria", "Planta", "Video")
     if (typeof typeInput === 'string') {
       return IMAGE_TYPE_BY_DESCRIPTION[typeInput] || null
     }
 
-    // 3. Se for número (1, 2, 3)
+    // 3. Se for número (1, 2, 3, 4)
     if (typeof typeInput === 'number') {
       return IMAGE_TYPE_BY_ID[typeInput] || null
     }
 
     // 4. Se for um objeto com id/description
     if (typeof typeInput === 'object' && typeInput.id && typeInput.description) {
+      const normalizedDescription = String(typeInput.description).trim().toUpperCase()
+
+      if (normalizedDescription === 'VIDEO' || normalizedDescription === 'VÍDEO' || Number(typeInput.id) === IMAGE_TYPE_IDS.VIDEO) {
+        return IMAGE_TYPES.VIDEO
+      }
+
       return IMAGE_TYPES[typeInput.description?.toUpperCase()] || typeInput
     }
 
@@ -100,6 +106,10 @@ export class ImageEstateType {
     return this.#id === IMAGE_TYPE_IDS.FLOOR_PLAN
   }
 
+  isVideoType() {
+    return this.#id === IMAGE_TYPE_IDS.VIDEO
+  }
+
   // ===============================================
   // =              FACTORY METHODS                 =
   // ===============================================
@@ -113,5 +123,9 @@ export class ImageEstateType {
 
   static createFloorPlanType() {
     return new ImageEstateType(IMAGE_TYPES.FLOOR_PLAN)
+  }
+
+  static createVideoType() {
+    return new ImageEstateType(IMAGE_TYPES.VIDEO)
   }
 }
