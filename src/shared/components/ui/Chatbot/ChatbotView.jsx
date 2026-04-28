@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { FaTimes, FaComments } from 'react-icons/fa'
+import { GripVertical } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView'
@@ -13,7 +14,10 @@ export function ChatbotView() {
     messages,
     step,
     responses,
-    handleOpen,
+    iconPosition,
+    cardPosition,
+    beginDrag,
+    handleFloatingButtonClick,
     handleClose,
     handleCloseScreeningForm,
     handleOptionClick,
@@ -38,14 +42,19 @@ export function ChatbotView() {
     <>
       {!isOpen && (
         <ButtonView
-          onClick={handleOpen}
+          onPointerDown={(event) => beginDrag('icon', event)}
+          onClick={handleFloatingButtonClick}
           width="fit"
           shape="circle"
           variant="primary"
-          className="fixed bottom-7 right-11 z-[999999] shadow-lg w-12 h-12 md:w-16 md:h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer"
+          className="fixed z-[999999] shadow-lg w-12 h-12 md:w-16 md:h-16 flex items-center justify-center hover:scale-105 transition cursor-move touch-none select-none"
+          style={{ left: `${iconPosition.x}px`, top: `${iconPosition.y}px` }}
 
         >
-          <FaComments className="text-white text-xl md:text-3xl" />
+          <span className="relative flex items-center justify-center">
+            <FaComments className="text-white text-xl md:text-3xl" />
+            <GripVertical className="absolute -right-3 -top-3 text-white/90 bg-distac-primary rounded-full p-1" size={22} aria-hidden="true" />
+          </span>
         </ButtonView>
       )}
 
@@ -54,12 +63,19 @@ export function ChatbotView() {
       )}
 
       {isOpen && (
-        <div className="fixed bottom-7 right-4 md:right-11 w-72 md:w-96 bg-white shadow-xl rounded-2xl z-[999999] overflow-hidden flex flex-col h-[440px] md:h-[500px] animate-slideUp">
+        <div
+          className="fixed w-72 md:w-96 bg-white shadow-xl rounded-2xl z-[999999] overflow-hidden flex flex-col h-[440px] md:h-[500px] animate-slideUp"
+          style={{ left: `${cardPosition.x}px`, top: `${cardPosition.y}px` }}
+        >
 
           {/* HEADER */}
-          <div className="bg-distac-primary text-white p-4 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <FaComments className="text-3xl" />
+          <div className="bg-distac-primary text-white p-4 flex justify-between items-center gap-3">
+            <div
+              className="flex items-center gap-3 flex-1 cursor-move select-none touch-none"
+              onPointerDown={(event) => beginDrag('card', event)}
+            >
+              <GripVertical className="text-white/90 shrink-0" size={24} aria-hidden="true" />
+              <FaComments className="text-3xl shrink-0" />
               <div>
                 <TextView className="font-bold text-white pb-2">PENÉLOPE</TextView>
                 <TextView className="text-sm opacity-90 -mt-1 text-white">
@@ -121,7 +137,7 @@ export function ChatbotView() {
             )}
           </div>
 
-          <div className="bg-distac-primary text-white p-4"></div>
+          <div className="bg-distac-primary text-white p-4" />
         </div>
       )}
     </>
