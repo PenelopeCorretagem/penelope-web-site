@@ -73,7 +73,9 @@ export function useEditFormViewModel({
   const [isLoading, setIsLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  // Sincronizar formData quando initialData muda, aplicando máscaras de campos
+  // Sincronizar formData quando initialData muda, aplicando máscaras de campos.
+  // Usa JSON.stringify para evitar re-sincronização por mudança de referência do objeto.
+  const initialDataKey = JSON.stringify(initialData)
   useEffect(() => {
     const maskedInitialData = applyInitialFieldMasks(initialData, fields)
 
@@ -81,7 +83,8 @@ export function useEditFormViewModel({
       ...prevData,
       ...maskedInitialData
     }))
-  }, [initialData, fields])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDataKey])
 
   const getFieldValue = useCallback((fieldName) => {
     return formData[fieldName] || ''
