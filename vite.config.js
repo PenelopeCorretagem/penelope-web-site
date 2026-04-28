@@ -22,6 +22,11 @@ function composeUrl(env, mode, { protocolKey, ipKey, portKey, pathKey }) {
   const ip       = requireEnv(env, ipKey,       mode)
   const port     = requireEnv(env, portKey,     mode)
   const urlPath  = pathKey ? requireEnv(env, pathKey, mode) : ''
+
+  // Se marcado como "_", retorna apenas o path (URL relativa para proxy)
+  if (protocol === '_' || ip === '_') {
+    return urlPath
+  }
   return `${protocol}://${ip}:${port}${urlPath}`
 }
 
