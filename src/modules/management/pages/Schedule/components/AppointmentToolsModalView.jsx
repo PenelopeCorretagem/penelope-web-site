@@ -103,7 +103,7 @@ export function AppointmentToolsModalView({
                   disabled={busyAppointmentId === appointment.id}
                   className="rounded-md bg-default-dark-light px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
                 >
-                  Cancelar
+                  Cancelar Angendamento
                 </button>
               )}
 
