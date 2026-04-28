@@ -1,110 +1,443 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useScheduleAppointments } from './hooks/useScheduleAppointments'
+import { useScheduleFilters } from './hooks/useScheduleFilters'
+import { useScheduleCalendarData } from './hooks/useScheduleCalendarData'
+import { useScheduleUIState } from './hooks/useScheduleUIState'
+import { useScheduleAppointmentActions } from './hooks/useScheduleAppointmentActions'
 import { ScheduleModel } from './ScheduleModel'
-import { listAppointments, mapAppointmentsToModel } from '@api-calservice/appointmentCalApi'
+import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
+
+/**
+ * useScheduleViewModel.js
+ * ViewModel principal que coordena todos os hooks menores
+ */
 
 export function useScheduleViewModel() {
-  const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const [model] = useState(() => new ScheduleModel([]))
-  const [appointmentsForSelectedDate, setAppointmentsForSelectedDate] = useState([])
-  const [totalAppointments, setTotalAppointments] = useState(model.getTotal())
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
+  const isClientUser = sessionStorage.getItem('userRole') === 'CLIENTE'
+  const authenticatedUserId = sessionStorage.getItem('userId')
 
-  // Busca agendamentos da API quando o componente monta
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await listAppointments({ size: 100 })
-        // cal-service retorna appointments array, não content
-        const mapped = mapAppointmentsToModel(response.appointments || [])
-        model.setAppointments(mapped)
-        setTotalAppointments(model.getTotal())
-        const appts = model.getByDate(selectedDate)
-        setAppointmentsForSelectedDate(appts)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
+  const [isScopeLoading, setIsScopeLoading] = useState(isAdminUser)
+  const [canSelectEstateAgent, setCanSelectEstateAgent] = useState(false)
+  const [estateAgentFilterOptions, setEstateAgentFilterOptions] = useState([])
+  const [selectedEstateAgentFilter, setSelectedEstateAgentFilter] = useState('')
+  const [defaultEstateAgentFilter, setDefaultEstateAgentFilter] = useState('')
+
+  const [selectedDate, setSelectedDate] = useState(() => new Date())
+  const selectedDateRef = useRef(selectedDate)
+  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
+
+  // Hooks especializados
+  const appointmentService = useScheduleAppointments()
+  const loadAppointmentsService = appointmentService.loadAppointments
+  const setAppointmentsService = appointmentService.setAppointments
+  const filterService = useScheduleFilters(appointmentService.model.getAll())
+  const calendarData = useScheduleCalendarData(selectedDate, filterService.filteredAppointments)
+  const uiState = useScheduleUIState()
+  const actions = useScheduleAppointmentActions(appointmentService)
+  const navigateLabels = useMemo(() => ScheduleModel.getPeriodNavigationLabels(uiState.viewMode), [uiState.viewMode])
+
+  const getApiErrorMessage = useCallback((error, fallbackMessage) => {
+    const apiMessage = error?.response?.data?.message
+
+    if (typeof apiMessage === 'string' && apiMessage.trim()) {
+      return apiMessage.trim()
+    }
+
+    if (typeof error?.message === 'string' && error.message.trim()) {
+      return error.message.trim()
+    }
+
+    return fallbackMessage
+  }, [])
+
+  const appointmentScopeFilters = useMemo(() => {
+    if (isClientUser) {
+      return {}
+    }
+
+    if (!isAdminUser) {
+      return {}
+    }
+
+    if (canSelectEstateAgent) {
+      if (!selectedEstateAgentFilter) {
+        return null
+      }
+
+      return {
+        estateAgentId: Number(selectedEstateAgentFilter),
       }
     }
-    loadData()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Atualiza a lista filtrada toda vez que a data selecionada muda
+    if (!authenticatedUserId) {
+      return null
+    }
+
+    return {
+      estateAgentId: Number(authenticatedUserId),
+    }
+  }, [isClientUser, isAdminUser, canSelectEstateAgent, selectedEstateAgentFilter, authenticatedUserId])
+
+  const estateAgentScopeFilterOptions = useMemo(() => {
+    if (estateAgentFilterOptions.length > 0) {
+      return estateAgentFilterOptions
+    }
+
+    return [{ value: '', label: 'Nenhum corretor com CRECI' }]
+  }, [estateAgentFilterOptions])
+
+  const filterConfigs = filterService.filterConfigs
+  const defaultFilters = filterService.defaultFilters
+
+  const handleFiltersChange = filterService.handleFiltersChange
+
+  const handleScheduleFiltersChange = useCallback((filterKey, filterValue) => {
+    if (filterKey === 'estateAgentScopeFilter') {
+      setSelectedEstateAgentFilter(filterValue)
+      return
+    }
+
+    handleFiltersChange(filterKey, filterValue)
+  }, [handleFiltersChange])
+
+  const loadAppointmentsWithScope = useCallback(async () => {
+    if (isScopeLoading) {
+      return
+    }
+
+    if (appointmentScopeFilters === null) {
+      setAppointmentsService([], selectedDateRef.current)
+      return
+    }
+
+    await loadAppointmentsService(selectedDateRef.current, appointmentScopeFilters)
+  }, [isScopeLoading, appointmentScopeFilters, loadAppointmentsService, setAppointmentsService])
+
   useEffect(() => {
-    const appts = model.getByDate(selectedDate)
-    setAppointmentsForSelectedDate(appts)
-  }, [model, selectedDate])
+    selectedDateRef.current = selectedDate
+  }, [selectedDate])
 
-  // Substitui todos os agendamentos (usado pelo backend)
-  const setAppointments = useCallback((appointments = []) => {
-    model.setAppointments(appointments)
-    setTotalAppointments(model.getTotal())
+  // Define escopo de visualização para admins com/sem CRECI.
+  useEffect(() => {
+    if (!isAdminUser) {
+      setIsScopeLoading(false)
+      setCanSelectEstateAgent(false)
+      return
+    }
 
-    // Atualiza a lista atualmente visível para a data selecionada
-    const appts = model.getByDate(selectedDate)
-    setAppointmentsForSelectedDate(appts)
-  }, [model, selectedDate])
+    const initializeAdminScope = async () => {
+      setIsScopeLoading(true)
 
-  // Adiciona um único agendamento e atualiza estados
-  const addAppointment = useCallback((appointment) => {
-    model.add(appointment)
-    setTotalAppointments(model.getTotal())
+      try {
+        if (!authenticatedUserId) {
+          setCanSelectEstateAgent(false)
+          setSelectedEstateAgentFilter('')
+          setDefaultEstateAgentFilter('')
+          return
+        }
 
-    const appts = model.getByDate(selectedDate)
-    setAppointmentsForSelectedDate(appts)
-  }, [model, selectedDate])
+        const currentUser = await getUserById(authenticatedUserId)
+        const hasCreci = currentUser?.hasCreci?.() || Boolean(String(currentUser?.creci || '').trim())
 
-  // Helper async para casos em que o consumo de backend seja assíncrono
-  const loadAppointments = useCallback(async (loader) => {
-    // loader deve ser uma função assíncrona que retorna um array de appointments
-    if (typeof loader !== 'function') return
-    const data = await loader()
-    setAppointments(Array.isArray(data) ? data : [])
-  }, [setAppointments])
+        if (hasCreci) {
+          setCanSelectEstateAgent(false)
+          setEstateAgentFilterOptions([])
+          setSelectedEstateAgentFilter(String(authenticatedUserId))
+          setDefaultEstateAgentFilter(String(authenticatedUserId))
+          return
+        }
 
-  const totalAppointmentsToday = appointmentsForSelectedDate.length
+        const usersWithCreci = await getUsersWithCreci()
+        const agentOptions = usersWithCreci
+          .map(user => ({
+            value: String(user.id),
+            label: user.getDisplayName?.() || user.name || `Corretor #${user.id}`,
+          }))
+          .filter(option => Boolean(option.value))
 
-  // Próximos agendamentos (globais) — usa model.getAll()
-  const upcomingAppointments = (() => {
-    const all = model.getAll()
+        setCanSelectEstateAgent(true)
+        setEstateAgentFilterOptions(agentOptions)
+        const initialAgentFilter = agentOptions[0]?.value || ''
+        setSelectedEstateAgentFilter(prev => prev || initialAgentFilter)
+        setDefaultEstateAgentFilter(initialAgentFilter)
+      } catch {
+        setCanSelectEstateAgent(false)
+        setEstateAgentFilterOptions([])
+        setSelectedEstateAgentFilter('')
+        setDefaultEstateAgentFilter('')
+      } finally {
+        setIsScopeLoading(false)
+      }
+    }
+
+    initializeAdminScope()
+  }, [isAdminUser, authenticatedUserId])
+
+  // Carrega agendamentos com escopo definido por perfil.
+  useEffect(() => {
+    loadAppointmentsWithScope()
+  }, [loadAppointmentsWithScope])
+
+  // Handler para navegação de períodos
+  const handleNavigatePeriod = useCallback((direction) => {
+    const nextDate = new Date(selectedDate)
+
+    if (uiState.viewMode === 'week') {
+      nextDate.setDate(nextDate.getDate() + (7 * direction))
+    } else if (uiState.viewMode === 'day') {
+      nextDate.setDate(nextDate.getDate() + direction)
+    } else {
+      nextDate.setMonth(nextDate.getMonth() + direction)
+    }
+
+    setSelectedDate(nextDate)
+  }, [selectedDate, uiState.viewMode])
+
+  // Handler para mudança de mês
+  const handleChangeMonth = useCallback((direction) => {
+    const nextMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + direction, 1)
+    setSelectedDate(nextMonth)
+  }, [selectedDate])
+
+  // Handler para voltar ao dia de hoje
+  const handleGoToToday = useCallback(() => {
+    setSelectedDate(new Date())
+  }, [])
+
+  // Handler para sucesso na submissão do formulário
+  const handleAppointmentSaved = useCallback(async ({ mode = 'create' } = {}) => {
+    await loadAppointmentsWithScope()
+
+    if (mode === 'reschedule') {
+      uiState.openSuccessAlert('Agendamento reagendado com sucesso.')
+      return
+    }
+
+    uiState.openSuccessAlert('Agendamento realizado com sucesso.')
+  }, [loadAppointmentsWithScope, uiState])
+
+  // Handlers para ações dentro do modal de ferramentas
+  const handleRescheduleFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
+    if (!uiState.selectedAppointmentForTools) return
+
+    uiState.handleRescheduleAppointment(uiState.selectedAppointmentForTools)
+    uiState.handleCloseAppointmentTools()
+  }, [isReadOnlyAdminView, uiState])
+
+  const handleConfirmFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
+    if (!uiState.selectedAppointmentForTools) return
+
+    uiState.openConfirmationAlert({
+      type: 'warning',
+      message: 'Deseja confirmar este agendamento?',
+      confirmLabel: 'Confirmar',
+      confirmColor: 'pink',
+      onConfirm: async () => {
+        uiState.setBusyAppointmentId(uiState.selectedAppointmentForTools.id)
+        try {
+          const updated = await actions.executeConfirm(uiState.selectedAppointmentForTools.id)
+          await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento confirmado com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao confirmar agendamento'))
+        } finally {
+          uiState.setBusyAppointmentId(null)
+        }
+      },
+    })
+    uiState.handleCloseAppointmentTools()
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+
+  const handleConcludeFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
+    if (!uiState.selectedAppointmentForTools) return
+
+    uiState.openConfirmationAlert({
+      type: 'warning',
+      message: 'Deseja concluir este agendamento?',
+      confirmLabel: 'Concluir',
+      confirmColor: 'brown',
+      onConfirm: async () => {
+        uiState.setBusyAppointmentId(uiState.selectedAppointmentForTools.id)
+        try {
+          const updated = await actions.executeConclude(uiState.selectedAppointmentForTools.id)
+          await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento concluído com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao concluir agendamento'))
+        } finally {
+          uiState.setBusyAppointmentId(null)
+        }
+      },
+    })
+    uiState.handleCloseAppointmentTools()
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+
+  const handleCancelFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
+    if (!uiState.selectedAppointmentForTools) return
+
+    uiState.openConfirmationAlert({
+      type: 'warning',
+      message: 'Deseja cancelar este agendamento?',
+      confirmLabel: 'Cancelar',
+      confirmColor: 'gray',
+      onConfirm: async () => {
+        uiState.setBusyAppointmentId(uiState.selectedAppointmentForTools.id)
+        try {
+          const updated = await actions.executeCancel(uiState.selectedAppointmentForTools.id)
+          await appointmentService.applyUpdatedAppointment(updated, selectedDate)
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento cancelado com sucesso.')
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao cancelar agendamento'))
+        } finally {
+          uiState.setBusyAppointmentId(null)
+        }
+      },
+    })
+    uiState.handleCloseAppointmentTools()
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+
+  const handleDeleteFromTools = useCallback(() => {
+    if (isReadOnlyAdminView) return
+
+    if (!uiState.selectedAppointmentForTools) return
+
+    uiState.openConfirmationAlert({
+      type: 'warning',
+      message: 'Deseja excluir este agendamento permanentemente?',
+      confirmLabel: 'Excluir',
+      confirmColor: 'pink',
+      onConfirm: async () => {
+        uiState.setBusyAppointmentId(uiState.selectedAppointmentForTools.id)
+        try {
+          await actions.executeDelete(uiState.selectedAppointmentForTools.id)
+          uiState.closeConfirmationAlert()
+          uiState.openSuccessAlert('Agendamento excluído com sucesso.', 2000)
+        } catch (error) {
+          uiState.closeConfirmationAlert()
+          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao excluir agendamento'))
+        } finally {
+          uiState.setBusyAppointmentId(null)
+        }
+      },
+    })
+    uiState.handleCloseAppointmentTools()
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+
+  // Dados derivados
+  const upcomingAppointments = useMemo(() => {
+    const all = appointmentService.model.getAll()
     const now = new Date()
     return all
       .filter(a => a.date >= now)
       .sort((a, b) => a.date - b.date)
       .slice(0, 5)
-  })()
+  }, [appointmentService.model.getTotal()])
 
-  // Total de agendamentos no mês selecionado
-  const monthCount = (() => {
-    const all = model.getAll()
+  const monthCount = useMemo(() => {
+    const all = appointmentService.model.getAll()
     return all.filter(a => {
       const d = a.date
       return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
     }).length
-  })()
+  }, [appointmentService.model.getTotal(), selectedDate])
 
   return {
     // Estado
     selectedDate,
     setSelectedDate,
-    loading,
-    error,
+    loading: appointmentService.loading,
+    error: appointmentService.error,
+
+    // Permissões
+    isAdminUser,
+    isClientUser,
+    isReadOnlyAdminView,
+    canManageAppointments: !isReadOnlyAdminView,
+
+    // Filtros
+    selectedStatusFilter: filterService.selectedStatusFilter,
+    selectedEstateFilter: filterService.selectedEstateFilter,
+    selectedEstateTypeFilter: filterService.selectedEstateTypeFilter,
+    selectedEstateAgentFilter,
+    defaultEstateAgentFilter,
+    showEstateAgentScopeSelect: isAdminUser && canSelectEstateAgent,
+    estateAgentScopeFilterOptions,
+    filterConfigs,
+    defaultFilters,
+    handleFiltersChange: handleScheduleFiltersChange,
+    handleEstateAgentScopeFilterChange: setSelectedEstateAgentFilter,
+
+    // UI State
+    viewMode: uiState.viewMode,
+    setViewMode: uiState.setViewMode,
+    isModalOpen: uiState.isModalOpen,
+    selectedModalDate: uiState.selectedModalDate,
+    selectedModalHour: uiState.selectedModalHour,
+    appointmentToEdit: uiState.appointmentToEdit,
+    busyAppointmentId: uiState.busyAppointmentId,
+    selectedAppointmentForTools: uiState.selectedAppointmentForTools,
+    confirmationAlert: uiState.confirmationAlert,
+    isConfirmationAlertProcessing: uiState.isConfirmationAlertProcessing,
+    successAlert: uiState.successAlert,
+    errorAlert: uiState.errorAlert,
+
+    // Dados de calendário
+    weekdayLabels: calendarData.weekdayLabels,
+    hours: calendarData.hours,
+    currentMonthName: calendarData.currentMonthName,
+    calendarDays: calendarData.calendarDays,
+    navigateLabels,
+    weekDates: calendarData.weekDates,
+    appointmentsByDay: calendarData.appointmentsByDay,
+    appointmentsCountByDate: calendarData.appointmentsCountByDate,
+    selectedDateAppointments: calendarData.selectedDateAppointments,
+    selectedDateAppointmentsByStatus: calendarData.selectedDateAppointmentsByStatus,
+    monthlyAppointmentsByStatus: calendarData.monthlyAppointmentsByStatus,
 
     // Dados
-    appointmentsForSelectedDate,
-    totalAppointments,
-    totalAppointmentsToday,
-    allAppointments: model.getAll(),
-
-    // Commands for integration
-    setAppointments,
-    addAppointment,
-    loadAppointments,
-    // Derivados
+    filteredAppointments: filterService.filteredAppointments,
+    allAppointments: appointmentService.model.getAll(),
+    totalAppointments: appointmentService.totalAppointments,
     upcomingAppointments,
     monthCount,
+
+    // Ações de UI
+    handleTimeSlotClick: (date, hour) => uiState.handleTimeSlotClick(date, hour, ScheduleModel.isPastDate(date)),
+    handleModalClose: uiState.handleModalClose,
+    handleOpenAppointmentTools: uiState.handleOpenAppointmentTools,
+    handleCloseAppointmentTools: uiState.handleCloseAppointmentTools,
+    closeConfirmationAlert: uiState.closeConfirmationAlert,
+    closeSuccessAlert: uiState.closeSuccessAlert,
+    closeErrorAlert: uiState.closeErrorAlert,
+    runConfirmationAlertAction: uiState.runConfirmationAlertAction,
+    handleAppointmentSaved,
+    handleNavigatePeriod,
+    handleChangeMonth,
+    handleGoToToday,
+    handleRescheduleFromTools,
+    handleConfirmFromTools,
+    handleConcludeFromTools,
+    handleCancelFromTools,
+    handleDeleteFromTools,
+
+    // Serviços
+    loadAppointments: () => loadAppointmentsWithScope(),
+    setAppointments: (appointments) => appointmentService.setAppointments(appointments, selectedDate),
+    addAppointment: (appointment) => appointmentService.addAppointment(appointment, selectedDate),
   }
 }

@@ -112,6 +112,7 @@ export function AuthView() {
           alertConfig={alertConfig}
           onForgotPassword={handleAlertForgotPassword}
           onLogin={handleAlertLogin}
+          onClose={handleCloseAlert}
         />
       </AlertView>
 

@@ -1,5 +1,5 @@
-import * as advertisementApi from '@api-penelopec/advertisementAPI'
-import { AdvertisementMapper } from '@mappers/advertisementMapper'
+import * as advertisementApi from '@api-penelopec/advertisementApi'
+import { AdvertisementMapper } from '@app/mappers/advertisementMapper'
 
 /**
  * Camada de Serviço - Orquestra a chamada à API e transformação de dados
@@ -9,7 +9,7 @@ import { AdvertisementMapper } from '@mappers/advertisementMapper'
 /**
  * Lista todos os anúncios com filtros opcionais.
  * @param {object} filters - Filtros de busca
- * @returns {Promise<Advertisement[]>} Lista de entidades Advertisement
+ * @returns {Promise<RealEstateAdvertisement[]>} Lista de entidades Advertisement
  */
 export const getAllAdvertisements = async (filters = {}) => {
   const response = await advertisementApi.getAllAdvertisements(filters)
@@ -19,7 +19,7 @@ export const getAllAdvertisements = async (filters = {}) => {
 /**
  * Busca um anúncio específico por ID.
  * @param {number} id - ID do anúncio
- * @returns {Promise<Advertisement>} Entidade Advertisement
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement
  */
 export const getAdvertisementById = async (id) => {
   const response = await advertisementApi.getAdvertisementById(id)
@@ -29,7 +29,7 @@ export const getAdvertisementById = async (id) => {
 /**
  * Cria um novo anúncio.
  * @param {object} advertisementRequest - Dados do anúncio
- * @returns {Promise<Advertisement>} Entidade Advertisement criada
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement criada
  */
 export const createAdvertisement = async (advertisementRequest) => {
   const response = await advertisementApi.createAdvertisement(advertisementRequest)
@@ -40,7 +40,7 @@ export const createAdvertisement = async (advertisementRequest) => {
  * Atualiza um anúncio completamente.
  * @param {number} id - ID do anúncio
  * @param {object} advertisementData - Dados atualizados
- * @returns {Promise<Advertisement>} Entidade Advertisement atualizada
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada
  */
 export const updateAdvertisement = async (id, advertisementData) => {
   const response = await advertisementApi.updateAdvertisement(id, advertisementData)
@@ -51,7 +51,7 @@ export const updateAdvertisement = async (id, advertisementData) => {
  * Ativa ou desativa um anúncio.
  * @param {number} id - ID do anúncio
  * @param {boolean} active - Status ativo/inativo
- * @returns {Promise<Advertisement>} Entidade Advertisement atualizada
+ * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada
  */
 export const updateAdvertisementStatus = async (id, active) => {
   await advertisementApi.updateAdvertisementStatus(id, active)
@@ -60,12 +60,11 @@ export const updateAdvertisementStatus = async (id, active) => {
 
 /**
  * Remove um anúncio definitivamente.
- * @param {number} id - ID do anúncio
- * @returns {Promise<{id: number}>}
+ * @param {number} id - O ID do anúncio
+ * @returns {Promise<void>}
  */
 export const deleteAdvertisement = async (id) => {
   await advertisementApi.deleteAdvertisement(id)
-  return { id }
 }
 
 /**

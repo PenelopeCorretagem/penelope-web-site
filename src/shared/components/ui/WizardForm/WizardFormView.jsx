@@ -3,7 +3,8 @@ import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/ErrorDisplayView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { AlertView, useAlert } from '@shared/components/feedback/Alert/AlertView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { useAlert } from '@shared/components/feedback/Alert/useAlert'
 import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
 import { useWizardFormViewModel } from './useWizardFormViewModel'
 import { useState, useRef } from 'react'
@@ -355,7 +356,7 @@ export function WizardFormView(props) {
       const currentValue = Array.isArray(vm.getFieldValue(field.name))
         ? vm.getFieldValue(field.name)
         : []
-      
+
       // Obter filtros do estado compartilhado
       const filters = differentialsFilters[field.name] || {
         searchTerm: '',
@@ -364,7 +365,7 @@ export function WizardFormView(props) {
       }
 
       const currentPage = differentialsPagination[field.name] || 1
-      
+
       const handleFilterChange = (filterKey, filterValue) => {
         setDifferentialsFilters(prev => ({
           ...prev,
@@ -403,7 +404,7 @@ export function WizardFormView(props) {
           [field.name]: nextPage,
         }))
       }
-      
+
       const renderIcon = (iconName) => {
         if (!iconName) return null
         try {
@@ -458,7 +459,7 @@ export function WizardFormView(props) {
       const paginatedOptions = filteredOptions.slice(startIndex, startIndex + DIFFERENTIALS_PAGE_SIZE)
 
       const hasActiveFilters = Boolean(filters.searchTerm || filters.initialLetter || filters.sortOrder !== 'none')
-      
+
       return (
         <div className={`w-full h-full flex flex-col gap-4 ${field.className || ''}`}>
           {field.label && (
@@ -614,7 +615,7 @@ export function WizardFormView(props) {
     if (field.type === 'custom-cover-preview') {
       const coverFile = vm.getFieldValue('cover')
       const hasCover = Boolean(coverFile)
-      const coverPreview = hasCover && (coverFile.preview || coverFile.url) ? (coverFile.preview || coverFile.url) : null
+      const coverPreview = hasCover ? getImagePreview(coverFile) : null
 
       return (
         <div className={`w-full h-full flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>

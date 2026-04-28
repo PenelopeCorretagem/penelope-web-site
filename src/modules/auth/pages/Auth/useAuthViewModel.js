@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { login, register } from '@api-penelopec/authApi'
+import { login, register } from '@service-penelopec/authService'
 import { forgotPassword } from '@service-penelopec/userService'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
@@ -76,14 +76,14 @@ const handleLoginSubmit = useCallback(async (formData) => {
     }
 
     const isAdmin = response.accessLevel === 'ADMINISTRADOR'
-    const userId  = response.id ?? formData.email // fallback apenas se API não retornar id
+    const userId  = response.id // fallback apenas se API não retornar id
 
     authSessionUtil.save({
       token,
       userId,
       email: formData.email,
       isAdmin,
-      name: response.user?.nomeCompleto ?? formData.email,
+      name: formData.email,
     })
 
     // Dispara transição de login antes de navegar

@@ -66,11 +66,11 @@ export const useAuthTransitionHandler = () => {
       await new Promise(resolve => setTimeout(resolve, 300))
 
       if (authData) {
-        sessionStorage.setItem('jwtToken', authData.token)
+        sessionStorage.setItem('token', authData.token)
         sessionStorage.setItem('userId', authData.userId)
         sessionStorage.setItem('userRole', authData.userRole)
         sessionStorage.setItem('userEmail', authData.userEmail || '')
-        sessionStorage.setItem('_hadToken', 'true')
+        sessionStorage.setItem('hadToken', 'true')
         
         // 4. Notificar mudança
         window.dispatchEvent(new CustomEvent('authChanged'))
@@ -112,15 +112,12 @@ export const useAuthTransitionHandler = () => {
     await new Promise(resolve => setTimeout(resolve, 300))
 
     // 3. Remover tokens
-    sessionStorage.removeItem('jwtToken')
+    sessionStorage.removeItem('token')
     sessionStorage.removeItem('userRole')
     sessionStorage.removeItem('userId')
     sessionStorage.removeItem('userEmail')
-    sessionStorage.removeItem('userName')
     sessionStorage.removeItem('token')
-    sessionStorage.removeItem('_hadToken')
-    localStorage.removeItem('jwtToken')
-    localStorage.removeItem('userRole')
+    sessionStorage.removeItem('hadToken')
 
     // 4. Notificar mudança
     window.dispatchEvent(new CustomEvent('authChanged'))

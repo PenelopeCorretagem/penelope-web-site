@@ -21,6 +21,13 @@ export function useSelectViewModel(initialProps = {}) {
     }
   }, [initialProps.value, viewModel, refresh])
 
+  // Sincronizar opções externas com o modelo interno
+  useEffect(() => {
+    if (initialProps.options !== undefined && viewModel.updateOptions(initialProps.options)) {
+      refresh()
+    }
+  }, [initialProps.options, viewModel, refresh])
+
   // Fechar ao clicar fora - CORRIGIDO
   useEffect(() => {
     const handleClickOutside = (event) => {

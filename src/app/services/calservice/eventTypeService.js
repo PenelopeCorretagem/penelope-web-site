@@ -8,11 +8,12 @@ import { EventTypeMapper } from '@mappers/EventTypeMapper'
 
 /**
  * Lista todos os event types
+ * @param {object} filters - Filtros de paginação { page, size }
  * @returns {Promise<EventType[]>} Array de event types
  */
-export const getAllEventTypes = async () => {
-  const response = await eventTypeApi.listEventTypes()
-  return EventTypeMapper.toEntityList(response)
+export const getAllEventTypes = async (filters = {}) => {
+  const response = await eventTypeApi.listEventTypes(filters)
+  return EventTypeMapper.toEntityList(response.content || response.eventTypes || response)
 }
 
 /**

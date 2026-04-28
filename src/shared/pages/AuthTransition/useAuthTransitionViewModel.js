@@ -51,19 +51,19 @@ export function useAuthTransitionViewModel() {
    */
   useEffect(() => {
     const handleLogout = () => {
-      const hadToken = sessionStorage.getItem('jwtToken')
+      const hadToken = sessionStorage.getItem('token')
       
       // Se tinha token e agora não tem, é logout
-      if (!hadToken && sessionStorage.getItem('_hadToken') === 'true') {
+      if (!hadToken && sessionStorage.getItem('hadToken') === 'true') {
         showTransition('logout', 'Encerrando sua sessão...')
       }
 
-      sessionStorage.setItem('_hadToken', hadToken ? 'true' : 'false')
+      sessionStorage.setItem('hadToken', hadToken ? 'true' : 'false')
     }
 
     // Verifica no carregamento inicial
-    const initialToken = sessionStorage.getItem('jwtToken')
-    sessionStorage.setItem('_hadToken', initialToken ? 'true' : 'false')
+    const initialToken = sessionStorage.getItem('token')
+    sessionStorage.setItem('hadToken', initialToken ? 'true' : 'false')
 
     // Escuta evento customizado de logout
     window.addEventListener('authLogout', () => {
@@ -72,7 +72,7 @@ export function useAuthTransitionViewModel() {
 
     // Escuta mudanças no storage (outras abas)
     const handleStorageChange = (event) => {
-      if (event.key === 'jwtToken') {
+      if (event.key === 'token') {
         if (!event.newValue && event.oldValue) {
           // Token foi removido = logout
           showTransition('logout', 'Encerrando sua sessão...')

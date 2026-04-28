@@ -97,7 +97,12 @@ export function FormView({
   }, [externalLoading, formIsLoading, setLoading])
 
   return (
-    <form onSubmit={handleSubmit} className={formClasses}>
+    <form
+      onSubmit={(event) => {
+        handleSubmit(event)
+      }}
+      className={formClasses}
+    >
       {/* Título */}
       {hasTitle && (
         <HeadingView level={1} className={titleClasses}>

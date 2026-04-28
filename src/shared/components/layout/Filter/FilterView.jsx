@@ -3,7 +3,7 @@ import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { SortButtonView } from '@shared/components/ui/SortButton/SortButtonView'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
 
 // ============================================
@@ -18,6 +18,7 @@ export const FilterView = ({
   showResetButton = true,
   showSortButton = true,
   hideSearch = false,
+  mobileExpandedContent = null,
   className = ''
 }) => {
   const viewModel = useFilterViewModel({
@@ -27,6 +28,21 @@ export const FilterView = ({
   })
 
   const [filtersExpanded, setFiltersExpanded] = useState(false)
+  const [shouldRenderMobileFilters, setShouldRenderMobileFilters] = useState(false)
+  const [isMobileFiltersAnimating, setIsMobileFiltersAnimating] = useState(false)
+  const hasActiveFilters = viewModel.filterModel.hasActiveFilters(defaultFilters)
+
+  useEffect(() => {
+    if (filtersExpanded) {
+      setShouldRenderMobileFilters(true)
+      const timer = setTimeout(() => setIsMobileFiltersAnimating(true), 10)
+      return () => clearTimeout(timer)
+    }
+
+    setIsMobileFiltersAnimating(false)
+    const timer = setTimeout(() => setShouldRenderMobileFilters(false), 220)
+    return () => clearTimeout(timer)
+  }, [filtersExpanded])
 
   return (
     <div className={`flex flex-col gap-4 flex-shrink-0 ${className}`}>
@@ -46,21 +62,37 @@ export const FilterView = ({
         )}
         <ButtonView
           type="button"
-          width={hideSearch ? "full" : "fit"}
+          width={hideSearch ? 'full' : 'fit'}
           color={filtersExpanded ? 'pink' : 'brown'}
           onClick={() => setFiltersExpanded(!filtersExpanded)}
           shape="square"
           title="Expandir filtros"
         >
-          {hideSearch ? "Filtros" : <SlidersHorizontal size={16} />}
+          {hideSearch ? (
+            <span className="inline-flex items-center gap-2">
+              <SlidersHorizontal size={16} />
+              Filtros
+            </span>
+          ) : (
+            <SlidersHorizontal size={16} />
+          )}
         </ButtonView>
       </div>
 
       {/* Mobile: expandable filters */}
-      {filtersExpanded && (
-        <div className="flex md:hidden flex-wrap gap-3">
+      {shouldRenderMobileFilters && (
+        <div
+          className={`flex md:hidden flex-wrap gap-3 overflow-hidden transition-all duration-200 ease-out transform-gpu ${
+            isMobileFiltersAnimating
+              ? 'max-h-[40rem] opacity-100 translate-y-0'
+              : 'max-h-0 opacity-0 -translate-y-2'
+          }`}
+        >
           {filterConfigs.map((config) => (
-            <div key={config.key} className="flex-1 min-w-[calc(50%-6px)]">
+            <div
+              key={config.key}
+              className={config.mobileFull ? 'w-full' : 'flex-1 min-w-[calc(50%-6px)]'}
+            >
               <SelectView
                 value={viewModel.filterModel.getFilter(config.key, config.defaultValue)}
                 name={config.key}
@@ -68,10 +100,13 @@ export const FilterView = ({
                 options={config.options}
                 width="full"
                 variant={config.variant || 'brown'}
+                defaultValue={config.defaultValue}
                 shape={config.shape || 'square'}
                 hasLabel={false}
                 onChange={(e) => viewModel.handleFilterChange(config.key, e.target.value)}
-                className="!text-[9px] !leading-tight"
+                className="!text-[9px] !leading-none !py-1.5 !px-2"
+                dropdownClassName="!text-[9px]"
+                optionClassName="!px-3 !py-1.5 !text-[9px] !leading-none"
               />
             </div>
           ))}
@@ -82,7 +117,7 @@ export const FilterView = ({
                 <SortButtonView
                   sortOrder={
                     viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
-                    viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+                      viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
                   }
                   onSortChange={viewModel.handleSortOrderChange}
                   title={viewModel.getSortTitle()}
@@ -94,22 +129,29 @@ export const FilterView = ({
               </div>
             )}
 
-            {showResetButton && viewModel.filterModel.hasActiveFilters(defaultFilters) && (
+            {showResetButton && (
               <div className="flex-1">
                 <ButtonView
                   type="button"
                   width="full"
                   color="soft-gray"
                   onClick={viewModel.handleResetFilters}
+                  disabled={!hasActiveFilters}
                   shape="square"
                   title="Limpar filtros"
-                  className="h-full"
+                  className="!text-[9px] !leading-none !py-1.5 !px-2 h-full"
                 >
                   Limpar
                 </ButtonView>
               </div>
             )}
           </div>
+
+          {mobileExpandedContent && (
+            <div className="w-full mt-2 flex flex-col gap-4">
+              {mobileExpandedContent}
+            </div>
+          )}
         </div>
       )}
 
@@ -141,6 +183,7 @@ export const FilterView = ({
               options={config.options}
               width={config.width || 'fit'}
               variant={config.variant || 'brown'}
+              defaultValue={config.defaultValue}
               shape={config.shape || 'square'}
               hasLabel={false}
               onChange={(e) => viewModel.handleFilterChange(config.key, e.target.value)}
@@ -153,7 +196,7 @@ export const FilterView = ({
             <SortButtonView
               sortOrder={
                 viewModel.filterModel.sortOrder === 'asc' ? 'ascending' :
-                viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
+                  viewModel.filterModel.sortOrder === 'desc' ? 'descending' : 'none'
               }
               onSortChange={viewModel.handleSortOrderChange}
               title={viewModel.getSortTitle()}
@@ -169,12 +212,13 @@ export const FilterView = ({
           <div className="w-fit">
             <ButtonView
               type="button"
-              width="fit"
+              width="full"
               color="soft-gray"
               onClick={viewModel.handleResetFilters}
+              disabled={!hasActiveFilters}
               shape="square"
               title="Limpar filtros"
-              disabled={!viewModel.filterModel.hasActiveFilters(defaultFilters)}
+              className="h-full"
             >
               Limpar
             </ButtonView>

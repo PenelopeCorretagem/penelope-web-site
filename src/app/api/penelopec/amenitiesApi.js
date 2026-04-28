@@ -1,6 +1,8 @@
 import axiosInstance from '@api/axiosInstance'
 import { AmenityMapper } from '@mappers/amenityMapper'
 
+const PENELOPEC_API_BASE_URL = import.meta.env.PENELOPEC_URL
+
 const API_URL = '/amenities'
 
 /**
@@ -27,13 +29,8 @@ export const getAllAmenities = async (page = 1, pageSize = 10, name = '', sort =
  * @returns {Promise<Amenity>}
  */
 export const getAmenityById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`${API_URL}/${id}`)
-    return AmenityMapper.toEntity(response.data)
-  } catch (error) {
-    console.error(`Erro ao buscar amenity ${id}:`, error)
-    throw error
-  }
+  const response = await axiosInstance.get(`${API_URL}/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
+  return AmenityMapper.toEntity(response.data)
 }
 
 /**
@@ -42,13 +39,8 @@ export const getAmenityById = async (id) => {
  * @returns {Promise<void>}
  */
 export const createAmenity = async (amenity) => {
-  try {
-    const payload = AmenityMapper.toRequest(amenity)
-    await axiosInstance.post(API_URL, payload)
-  } catch (error) {
-    console.error('Erro ao criar amenity:', error)
-    throw error
-  }
+  const payload = AmenityMapper.toRequest(amenity)
+  await axiosInstance.post(API_URL, payload, { baseURL: PENELOPEC_API_BASE_URL })
 }
 
 /**
@@ -58,14 +50,9 @@ export const createAmenity = async (amenity) => {
  * @returns {Promise<Amenity>}
  */
 export const updateAmenity = async (id, amenity) => {
-  try {
-    const payload = AmenityMapper.toRequest(amenity)
-    const response = await axiosInstance.patch(`${API_URL}/${id}`, payload)
-    return AmenityMapper.toEntity(response.data)
-  } catch (error) {
-    console.error(`Erro ao atualizar amenity ${id}:`, error)
-    throw error
-  }
+  const payload = AmenityMapper.toRequest(amenity)
+  const response = await axiosInstance.patch(`${API_URL}/${id}`, payload, { baseURL: PENELOPEC_API_BASE_URL })
+  return AmenityMapper.toEntity(response.data)
 }
 
 /**
@@ -74,10 +61,5 @@ export const updateAmenity = async (id, amenity) => {
  * @returns {Promise<void>}
  */
 export const deleteAmenity = async (id) => {
-  try {
-    await axiosInstance.delete(`${API_URL}/${id}`)
-  } catch (error) {
-    console.error(`Erro ao deletar amenity ${id}:`, error)
-    throw error
-  }
+  await axiosInstance.delete(`${API_URL}/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
 }

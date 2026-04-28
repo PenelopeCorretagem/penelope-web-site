@@ -23,7 +23,11 @@ export function SignInPanel({ isActive, signInFormConfig, isLoading, onForgotPas
         <TextView className={getAuthLinkContainerThemeClasses()}>
           Esqueceu a senha?
           <button
-            onClick={onForgotPassword}
+            type="button"
+            onClick={(event) => {
+              event.preventDefault()
+              onForgotPassword()
+            }}
             className={getAuthLinkButtonThemeClasses()}
           >
             Redefinir senha
@@ -33,7 +37,11 @@ export function SignInPanel({ isActive, signInFormConfig, isLoading, onForgotPas
         <TextView className={getAuthLinkContainerThemeClasses({ className: 'mt-4 md:hidden' })}>
           Não tem conta?
           <button
-            onClick={onRegister}
+            type="button"
+            onClick={(event) => {
+              event.preventDefault()
+              onRegister()
+            }}
             className={getAuthLinkButtonThemeClasses()}
           >
             Cadastre-se
