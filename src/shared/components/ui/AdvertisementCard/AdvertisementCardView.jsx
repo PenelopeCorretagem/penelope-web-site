@@ -4,7 +4,7 @@ import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useAdvertisementCardViewModel } from './useAdvertisementCardViewModel'
-import { Pencil, X, Check, Trash2 } from 'lucide-react'
+import { Pencil, Eye, EyeOff, Trash2 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { MediaLightboxView } from '@shared/components/ui//MediaLightbox/MediaLightboxView'
@@ -14,9 +14,6 @@ export function AdvertisementCardView({
   advertisementCardMode = ADVERTISEMENT_CARD_MODES.DEFAULT,
   className = '',
   onWhatsAppClick = null,
-  medias,
-  showLightbox,
-  setShowLightbox,
   isCarouselItem = false,
 }) {
   const viewModel = useAdvertisementCardViewModel(
@@ -30,9 +27,9 @@ export function AdvertisementCardView({
     const baseClasses = ['flex', 'flex-col', 'w-[280px]', 'md:w-[340px]', 'relative', 'justify-between']
     baseClasses.push('group')
     if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isRedirectionMode) baseClasses.push('shadow-md shadow-gray-400 h-full')
-    if (viewModel.isConfigMode || viewModel.isDefaultMode || viewModel.isDistacMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
+    if (viewModel.isConfigMode || viewModel.isDefaultMode) baseClasses.push('transition-transform', 'duration-200', 'hover:scale-105')
     if (!viewModel.isDistacMode) baseClasses.push('rounded-sm')
-    if (isCarouselItem && viewModel.isDefaultMode) baseClasses.push('cursor-pointer')
+    if ((isCarouselItem && viewModel.isDefaultMode) || viewModel.isDistacMode) baseClasses.push('cursor-pointer')
     return baseClasses.join(' ')
   }
 
@@ -50,39 +47,86 @@ export function AdvertisementCardView({
   }
 
   const renderButtons = (isDetailsMode, isConfigMode, buttons, isCarousel) => {
+    const visibleButtons = buttons.filter(Boolean)
+
     if (isDetailsMode) {
-      const [galleryButton, floorplanButton, videoButton] = buttons
+      if (visibleButtons.length === 0) {
+        return null
+      }
+
+      if (visibleButtons.length === 1) {
+        const [singleButton] = visibleButtons
+
+        return (
+          <div className="flex w-full">
+            <ButtonView
+              color={singleButton.color}
+              type={singleButton.type}
+              title={singleButton.title}
+              shape={singleButton.shape}
+              onClick={singleButton.onClick}
+              state={singleButton.state}
+              width="full"
+            >
+              {singleButton.text}
+            </ButtonView>
+          </div>
+        )
+      }
+
+      if (visibleButtons.length === 2) {
+        return (
+          <div className="flex gap-2 w-full">
+            {visibleButtons.map((button, index) => (
+              <ButtonView
+                key={`details-button-${index}`}
+                color={button.color}
+                type={button.type}
+                title={button.title}
+                shape={button.shape}
+                onClick={button.onClick}
+                state={button.state}
+                width="full"
+              >
+                {button.text}
+              </ButtonView>
+            ))}
+          </div>
+        )
+      }
+
       return (
         <div className="flex flex-col gap-3 w-full">
           <div className="flex gap-2 w-full">
-            <ButtonView
-              color={galleryButton.color}
-              type={galleryButton.type}
-              title={galleryButton.title}
-              shape={galleryButton.shape}
-              onClick={galleryButton.onClick}
-            >
-              {galleryButton.text}
-            </ButtonView>
-            <ButtonView
-              color={floorplanButton.color}
-              type={floorplanButton.type}
-              title={floorplanButton.title}
-              shape={floorplanButton.shape}
-              onClick={floorplanButton.onClick}
-            >
-              {floorplanButton.text}
-            </ButtonView>
+            {visibleButtons.slice(0, 2).map((button, index) => (
+              <ButtonView
+                key={`details-button-top-${index}`}
+                color={button.color}
+                type={button.type}
+                title={button.title}
+                shape={button.shape}
+                onClick={button.onClick}
+                state={button.state}
+                width="full"
+              >
+                {button.text}
+              </ButtonView>
+            ))}
           </div>
-          <ButtonView
-            color={videoButton.color}
-            type={videoButton.type}
-            title={videoButton.title}
-            shape={videoButton.shape}
-            onClick={videoButton.onClick}
-          >
-            {videoButton.text}
-          </ButtonView>
+          {visibleButtons.slice(2).map((button, index) => (
+            <ButtonView
+              key={`details-button-bottom-${index}`}
+              color={button.color}
+              type={button.type}
+              title={button.title}
+              shape={button.shape}
+              onClick={button.onClick}
+              state={button.state}
+              width="full"
+            >
+              {button.text}
+            </ButtonView>
+          ))}
         </div>
       )
     } else if(!isConfigMode) {
@@ -107,6 +151,7 @@ export function AdvertisementCardView({
               shape={button.shape}
               to={button.to ?? undefined}
               onClick={button.onClick ?? undefined}
+              state={button.state}
             >
               {button.text}
             </ButtonView>
@@ -136,16 +181,16 @@ export function AdvertisementCardView({
             aria-label={`Ver detalhes do imóvel ${viewModel.advertisementCardTitle}`}
             onClick={(e) => {
               if (e.target.closest('button') || e.target.closest('a')) return
-              if (isCarouselItem && viewModel.isDefaultMode) {
-                viewModel.handleCarouselItemClick()
+              if ((isCarouselItem && viewModel.isDefaultMode) || viewModel.isDistacMode) {
+                viewModel.handleCardClick()
               }
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
                 if (e.target.closest('button') || e.target.closest('a')) return
-                if (isCarouselItem && viewModel.isDefaultMode) {
-                  viewModel.handleCarouselItemClick()
+                if ((isCarouselItem && viewModel.isDefaultMode) || viewModel.isDistacMode) {
+                  viewModel.handleCardClick()
                 }
               }
             }}
@@ -161,7 +206,9 @@ export function AdvertisementCardView({
                   className='shadow-md shadow-gray/400 !p-3'
                   width='fit'
                 >
-                  {viewModel.isActiveAdvertisement? (<X size={30} className='text-default-light' />) : (<Check size={30} className='text-default-light' />)}
+                  {viewModel.isActiveAdvertisement
+                    ? (<EyeOff size={30} className='text-default-light' />)
+                    : (<Eye size={30} className='text-default-light' />)}
                 </ButtonView>
 
                 <ButtonView
@@ -181,6 +228,7 @@ export function AdvertisementCardView({
                   type={viewModel.advertisementCardButtons[0].type}
                   to={viewModel.advertisementCardButtons[0].to ?? undefined} // <--- Passe a rota, assim o botão age como link
                   onClick={viewModel.advertisementCardButtons[0].onClick ?? undefined} // <--- fallback para casos onde onClick existe
+                  state={viewModel.advertisementCardButtons[0].state}
                   aria-label={viewModel.advertisementCardButtons[0].title}
                   shape={viewModel.advertisementCardButtons[0].shape}
                   className='shadow-md shadow-gray/400'
@@ -226,7 +274,7 @@ export function AdvertisementCardView({
                     {viewModel.advertisementCardAmenities.slice(0, 4).map((amenity) => {
                       const iconName = amenity?.icon
                       const IconComponent = iconName ? LucideIcons[iconName] : null
-                      
+
                       return (
                         <div
                           key={amenity?.id}

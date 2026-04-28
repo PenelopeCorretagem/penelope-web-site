@@ -29,6 +29,7 @@ export function HeaderView({
       <AlertView
         isVisible={expired}
         type="info"
+        hasCloseButton={false}
         message="Sua sessão expirou. Você será redirecionado para a tela de login em instantes."
         onClose={() => {}}
       />

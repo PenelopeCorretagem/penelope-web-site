@@ -12,6 +12,7 @@ import { useCallback, useMemo } from 'react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { ESTATE_TYPE_KEYS } from '@constant/estateTypes'
 
 export function AdvertisementsConfigView() {
   const navigate = useNavigate()
@@ -39,13 +40,17 @@ export function AdvertisementsConfigView() {
 
   const headerHeight = useHeaderHeight()
 
-  const handleAddAdvertisement = useCallback(() => {
+  const handleAddAdvertisement = useCallback((advertisementType = '') => {
     try {
       const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id: 'new' })
-      navigate(route)
+      navigate(route, {
+        state: advertisementType ? { advertisementType } : undefined,
+      })
     } catch {
       // Fallback direto
-      navigate('/admin/gerenciar-imoveis/new')
+      navigate('/admin/gerenciar-imoveis/new', {
+        state: advertisementType ? { advertisementType } : undefined,
+      })
     }
   }, [navigate, generateRoute])
 
@@ -89,6 +94,10 @@ export function AdvertisementsConfigView() {
     // InputView passes the string value as the first argument
     handleFiltersChange('searchTerm', value ?? '')
   }, [handleFiltersChange])
+
+  const getAddAdvertisementHandler = useCallback((advertisementType) => {
+    return () => handleAddAdvertisement(advertisementType)
+  }, [handleAddAdvertisement])
   if (loading) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
@@ -208,7 +217,7 @@ export function AdvertisementsConfigView() {
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Lançamentos"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={handleAddAdvertisement}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.LANCAMENTO)}
             />
           )}
 
@@ -218,7 +227,7 @@ export function AdvertisementsConfigView() {
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Disponíveis"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={handleAddAdvertisement}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.DISPONIVEL)}
             />
           )}
 
@@ -228,7 +237,7 @@ export function AdvertisementsConfigView() {
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Em Obras"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={handleAddAdvertisement}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.EM_OBRAS)}
             />
           )}
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useScheduleAppointments } from './hooks/useScheduleAppointments'
 import { useScheduleFilters } from './hooks/useScheduleFilters'
 import { useScheduleCalendarData } from './hooks/useScheduleCalendarData'
@@ -13,6 +14,7 @@ import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
  */
 
 export function useScheduleViewModel() {
+  const location = useLocation()
   const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
   const isClientUser = sessionStorage.getItem('userRole') === 'CLIENTE'
   const authenticatedUserId = sessionStorage.getItem('userId')
@@ -89,6 +91,18 @@ export function useScheduleViewModel() {
 
   const filterConfigs = filterService.filterConfigs
   const defaultFilters = filterService.defaultFilters
+
+  const preselectedEstateReference = useMemo(() => {
+    const locationState = location.state || {}
+    const searchParams = new URLSearchParams(location.search)
+    const advertisementSlug = searchParams.get('advertisement') || ''
+
+    return {
+      preselectedEstateId: locationState.preselectedEstateId ?? null,
+      preselectedEstateTitle: locationState.preselectedEstateTitle || locationState.advertisementTitle || '',
+      preselectedEstateSlug: locationState.preselectedEstateSlug || advertisementSlug,
+    }
+  }, [location.search, location.state])
 
   const handleFiltersChange = filterService.handleFiltersChange
 
@@ -439,5 +453,6 @@ export function useScheduleViewModel() {
     loadAppointments: () => loadAppointmentsWithScope(),
     setAppointments: (appointments) => appointmentService.setAppointments(appointments, selectedDate),
     addAppointment: (appointment) => appointmentService.addAppointment(appointment, selectedDate),
+    preselectedEstateReference,
   }
 }

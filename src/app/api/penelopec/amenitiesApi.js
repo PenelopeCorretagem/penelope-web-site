@@ -14,6 +14,7 @@ const API_URL = '/amenities'
 export const getAllAmenities = async (page = 1, pageSize = 10, name = '', sort = '', initial = '') => {
   try {
     const response = await axiosInstance.get(API_URL, {
+      baseURL: PENELOPEC_API_BASE_URL,
       params: { page, pageSize, name, sort, initial }
     })
     return response.data

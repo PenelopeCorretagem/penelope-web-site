@@ -63,14 +63,22 @@ const scheduleButton = (advertisement) => {
   const advertisementTitle = advertisement.estate?.title || 'imóvel'
   const advertisementSlug = generateSlug(advertisementTitle)
   const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?advertisement=${advertisementSlug}`
+  const state = {
+    preselectedEstateId: advertisement?.estate?.id || null,
+    preselectedEstateTitle: advertisementTitle,
+    preselectedEstateSlug: advertisementSlug,
+  }
 
   return new ButtonModel(
-    'Agendar Visita',
+    'Agendar Reunião',
     'brown',
     'link',
     scheduleUrl,
     'rectangle',
-    'Agendar Visita'
+    'Agendar Reunião',
+    null,
+    false,
+    state
   )
 }
 
@@ -113,6 +121,32 @@ const videoButton = (onClick = null) => new ButtonModel(
   'Vídeo',
   onClick
 )
+
+const hasMediaType = (advertisement, type) => {
+  const images = advertisement?.estate?.images
+  if (!Array.isArray(images) || images.length === 0) {
+    return false
+  }
+
+  return images.some((image) => {
+    const description = String(image?.type?.description ?? '').trim().toUpperCase()
+    return description === type.toUpperCase()
+  })
+}
+
+const getFirstMediaUrlByType = (advertisement, type) => {
+  const images = advertisement?.estate?.images
+  if (!Array.isArray(images) || images.length === 0) {
+    return null
+  }
+
+  const media = images.find((image) => {
+    const description = String(image?.type?.description ?? '').trim().toUpperCase()
+    return description === type.toUpperCase()
+  })
+
+  return media?.url || null
+}
 
 /** Valida se o modo do card é válido */
 const validateAdvertisementMode = (mode) => {
@@ -326,13 +360,37 @@ export class AdvertisementCardModel {
       buttons.push(whatsAppButton(this.#onWhatsAppClick))
       buttons.push(scheduleButton(this.#advertisement))
     } else if (this.#advertisementCardMode === ADVERTISEMENT_CARD_MODES.DETAILS) {
-      buttons.push(galleryButton(this.#onGalleryClick))
-      buttons.push(floorplanButton(this.#onFloorplanClick))
-      buttons.push(videoButton(this.#onVideoClick))
+      if (hasMediaType(this.#advertisement, 'GALERIA')) {
+        buttons.push(galleryButton(this.#onGalleryClick))
+      }
+
+      if (hasMediaType(this.#advertisement, 'PLANTA')) {
+        buttons.push(floorplanButton(this.#onFloorplanClick))
+      }
+
+      if (hasMediaType(this.#advertisement, 'VIDEO')) {
+        buttons.push(videoButton(this.#onVideoClick))
+      }
     } else {
       buttons.push(defaultButton(this.#advertisement.id))
     }
     return buttons
+  }
+
+  getVideoUrl() {
+    return getFirstMediaUrlByType(this.#advertisement, 'VIDEO')
+  }
+
+  getGalleryMedias() {
+    return Array.isArray(this.#advertisement?.estate?.getGalleryImages?.())
+      ? this.#advertisement.estate.getGalleryImages()
+      : []
+  }
+
+  getFloorPlanMedias() {
+    return Array.isArray(this.#advertisement?.estate?.getFloorPlanImages?.())
+      ? this.#advertisement.estate.getFloorPlanImages()
+      : []
   }
 
   shouldRenderAdvertisementCategoryLabel() {

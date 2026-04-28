@@ -24,6 +24,7 @@ export function AppointmentFormModalView({
   allAppointments = [],
   appointment = null,
   mode = 'create',
+  preselectedEstateReference = null,
 }) {
   const vm = useAppointmentFormViewModel(
     selectedDate,
@@ -31,17 +32,21 @@ export function AppointmentFormModalView({
     allAppointments,
     isOpen,
     appointment,
-    mode
+    mode,
+    preselectedEstateReference
   )
   const [selectedEstateId, setSelectedEstateId] = useState(null)
   const [isFormAlertVisible, setIsFormAlertVisible] = useState(false)
   const [formAlertMessage, setFormAlertMessage] = useState('')
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) {
       setSelectedEstateId(null)
+      return
     }
-  }, [isOpen, selectedDate, selectedHour, appointment, mode])
+
+    setSelectedEstateId(vm.model.selectedEstate?.id || vm.model.selectedEstate?.estate?.id || null)
+  }, [isOpen, vm.model.selectedEstate])
 
   useEffect(() => {
     if (!isOpen) {
@@ -144,7 +149,7 @@ export function AppointmentFormModalView({
           />
 
           {!isRescheduleMode && (
-            <div>
+            <div className="max-h-72 overflow-y-auto pr-2">
               <label className="block text-sm font-semibold text-default-dark mb-3 uppercase">
                 Selecione o Imóvel
               </label>

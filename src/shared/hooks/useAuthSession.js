@@ -55,9 +55,14 @@ export function useAuthSession() {
     if (remainingMs > 0) return
 
     const timeout = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('authTransition', {
+        detail: { type: 'logout', message: 'Encerrando sua sessão...' }
+      }))
+
       authSessionUtil.clear()
+      window.dispatchEvent(new CustomEvent('authChanged'))
       navigateTo('/login')
-    }, 2000)
+    }, 3000)
 
     return () => clearTimeout(timeout)
   }, [remainingMs, sessionExpiresAt, navigateTo])

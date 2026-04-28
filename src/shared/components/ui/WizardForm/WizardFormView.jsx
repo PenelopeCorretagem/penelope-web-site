@@ -17,6 +17,7 @@ import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 const DIFFERENTIALS_PAGE_SIZE = 12
 
 export function WizardFormView(props) {
+  const { className = '', style, cepFieldsToClear = [] } = props
   const vm = useWizardFormViewModel(props)
   const alert = useAlert(false)
   const [alertMessage, setAlertMessage] = useState('')
@@ -134,7 +135,7 @@ export function WizardFormView(props) {
   const isImageFile = (file) => {
     if (!file) return false
 
-    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/avif']
 
     if (file.type) {
       return imageTypes.includes(file.type)
@@ -142,7 +143,7 @@ export function WizardFormView(props) {
 
     if (file.name) {
       const ext = file.name.split('.').pop()?.toLowerCase()
-      return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)
+      return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'].includes(ext)
     }
 
     return false
@@ -220,6 +221,12 @@ export function WizardFormView(props) {
       const originalOnChange = commonProps.onChange
       commonProps.onChange = (value) => {
         originalOnChange(value)
+
+        if (Array.isArray(cepFieldsToClear) && cepFieldsToClear.length > 0) {
+          cepFieldsToClear.forEach((fieldName) => {
+            vm.handleFieldChange(fieldName)('')
+          })
+        }
 
         // Disparar busca automática apenas para campos do IMÓVEL
         setTimeout(() => {
@@ -688,7 +695,7 @@ export function WizardFormView(props) {
         : Boolean(currentFiles)
 
       return (
-        <div className={`w-full h-full flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>
+        <div className={`w-full h-full min-h-0 flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>
           <div className="flex items-center justify-between">
             {field.label && (
               <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
@@ -716,10 +723,10 @@ export function WizardFormView(props) {
           />
 
           {hasFiles ? (
-            <div className="flex flex-col gap-card md:gap-card-md flex-1 h-full max-h-[400px]">
+            <div className="flex min-h-0 flex-col gap-card md:gap-card-md flex-1 h-full max-h-[400px] overflow-hidden">
               {field.multiple ? (
                 <div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 h-full overflow-y-auto content-start min-h-[160px]"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden content-start auto-rows-[minmax(8rem,auto)]"
                   onClick={() => handleFileButtonClick(field.name)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -753,7 +760,7 @@ export function WizardFormView(props) {
                         role="listitem"
                         tabIndex={0}
                         aria-label={`Arquivo ${file.name}, posição ${index + 1}`}
-                        className={`relative aspect-square rounded-lg overflow-hidden group cursor-move shadow-sm border-2 transition-all bg-white ${
+                        className={`relative aspect-square min-h-0 rounded-lg overflow-hidden group cursor-move shadow-sm border-2 transition-all bg-white ${
                           draggedIndex === index ? 'opacity-50 border-distac-primary' : 'border-transparent hover:border-distac-primary/50'
                         } ${
                           dragOverIndex === index && draggedIndex !== index ? 'border-distac-primary scale-105' : ''
@@ -868,7 +875,10 @@ export function WizardFormView(props) {
   }
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div
+      className={`w-full h-full min-h-0 overflow-hidden flex flex-col gap-6 ${className}`}
+      style={style}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <HeadingView level={2} className="text-distac-primary">
@@ -928,13 +938,13 @@ export function WizardFormView(props) {
 
       {/* Form */}
       <form
-        className="w-full h-full flex-1 flex flex-col gap-card md:gap-card-md"
+        className="w-full h-full min-h-0 flex-1 flex flex-col gap-card md:gap-card-md overflow-hidden"
         onSubmit={(e) => {
 
           vm.handleSubmit(e)
         }}
       >
-        <div className="relative w-full h-full flex-1">
+        <div className="relative w-full h-full min-h-0 flex-1 overflow-hidden p-1">
           <div
             key={vm.currentStep}
             className={`${animationClass} h-full ${vm.currentStepData.className || 'flex flex-col gap-card md:gap-card-md'}`}
