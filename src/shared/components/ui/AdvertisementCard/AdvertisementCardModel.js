@@ -60,7 +60,7 @@ const editButton = (advertisementId) => new ButtonModel(
 )
 
 const scheduleButton = (advertisement) => {
-  const advertisementTitle = advertisement.estate?.title || 'imovel'
+  const advertisementTitle = advertisement.estate?.title || 'imóvel'
   const advertisementSlug = generateSlug(advertisementTitle)
   const scheduleUrl = `${generateRoute(ROUTES['SCHEDULE'].key)}?advertisement=${advertisementSlug}`
 
