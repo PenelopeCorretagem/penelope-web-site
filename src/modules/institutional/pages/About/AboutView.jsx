@@ -64,7 +64,7 @@ export function AboutView() {
             Penélope ou Isabella?
           </HeadingView>
           <TextView className="flex flex-col gap-card-md text-sm text-default-light">
-            A corretora Penélope é mais do que um nome comercial — é a expressão da corretora Isabelle, uma jovem apaixonada por ajudar pessoas a conquistarem seu primeiro imóvel. Penélope é a identidade profissional que Isabella criou para se comunicar de forma mais leve, próxima e acolhedora com seus clientes, especialmente jovens das classes C e D de São Paulo que estão dando seus primeiros passos rumo à casa própria.
+            A corretora Penélope é mais do que um nome comercial — é a expressão da corretora Isabella, uma jovem apaixonada por ajudar pessoas a conquistarem seu primeiro imóvel. Penélope é a identidade profissional que Isabella criou para se comunicar de forma mais leve, próxima e acolhedora com seus clientes, especialmente jovens das classes C e D de São Paulo que estão dando seus primeiros passos rumo à casa própria.
           </TextView>
           <TextView className="flex flex-col gap-card-md text-sm text-default-light">
             Com uma abordagem empática e transparente, Isabella — como Penélope — transforma o processo de compra em uma jornada emocional, onde cada chave entregue representa um novo capítulo de vida. Ela não vende apenas imóveis: oferece escuta, parceria e celebração em cada etapa, tornando-se uma verdadeira ponte entre pessoas e sonhos.

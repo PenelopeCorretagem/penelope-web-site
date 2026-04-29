@@ -6,10 +6,10 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
   const baseClasses = [
     'font-semibold uppercase',
     'text-form-control md:text-form-control-md',
-    'text-left',
+    'text-center md:text-left',
     'p-select md:p-select-md',
     'transition-colors duration-200',
-    'flex items-center justify-between',
+    'flex items-center justify-center md:justify-between',
     'gap-select md:gap-select-md',
   ]
 
@@ -51,7 +51,7 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
     .join(' ')
 }
 
-function getDropdownClasses({ variant, isAnimating }) {
+function getDropdownClasses({ variant, isAnimating, dropdownClassName }) {
   const dropdownVariants = {
     default: 'bg-default-light border-default-dark/20',
     pink: 'bg-default-light border-distac-primary/20',
@@ -67,16 +67,18 @@ function getDropdownClasses({ variant, isAnimating }) {
     'transform-gpu',
     isAnimating ? 'opacity-100 translate-y-0 scale-y-100' : 'opacity-0 -translate-y-2 scale-y-95',
     dropdownVariants[variant] || dropdownVariants.default,
+    dropdownClassName,
   ].join(' ')
 }
 
-function getOptionClasses({ isSelected }) {
+function getOptionClasses({ isSelected, optionClassName }) {
   return [
     'px-4 py-2 cursor-pointer transition-colors duration-150',
     'hover:bg-distac-primary hover:text-white',
     'first:rounded-t-lg last:rounded-b-lg',
     'text-default-dark font-semibold uppercase',
     isSelected ? 'bg-distac-primary text-white' : '',
+    optionClassName,
   ]
     .filter(Boolean)
     .join(' ')
@@ -92,6 +94,8 @@ function getLabelClasses({ hasErrors, required }) {
     'text-form-control',
     'leading-none',
     'md:text-form-control-md',
+    'text-center',
+    'md:text-left',
   )
 
   if (hasErrors) classes.push('text-distac-primary')
@@ -104,6 +108,11 @@ function getLabelClasses({ hasErrors, required }) {
   return classes.join(' ')
 }
 
+function hasSelectionChangedFromDefault(value, defaultValue) {
+  if (defaultValue === undefined) return false
+  return value !== defaultValue
+}
+
 export function SelectView({
   value,
   name,
@@ -111,6 +120,7 @@ export function SelectView({
   options = [],
   width = 'fit',
   variant = 'default',
+  defaultValue = undefined,
   shape = 'square',
   disabled = false,
   required = false,
@@ -120,6 +130,9 @@ export function SelectView({
   hasLabel = false,
   hasErrors = false,
   onChange,
+  size,
+  dropdownClassName = '',
+  optionClassName = '',
 }) {
   const selectProps = useSelectViewModel({
     value,
@@ -199,7 +212,7 @@ export function SelectView({
 
 
   const selectClasses = getSelectClasses({
-    variant,
+    variant: hasSelectionChangedFromDefault(value, defaultValue) ? 'pink' : variant,
     shape,
     width,
     disabled,
@@ -212,6 +225,8 @@ export function SelectView({
     selectProps.handleOptionClick(optionValue)
     if (onChange) onChange({ target: { name: selectProps.name, value: optionValue } })
   }
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
     <div className={`${selectProps.width === 'full' ? 'w-full' : 'w-fit'} flex flex-col gap-2`}>
@@ -240,16 +255,19 @@ export function SelectView({
         >
           <span>{selectProps.displayValue}</span>
           <ChevronDown
-            size={16}
-            className={`transition-transform duration-200 stroke-4 p-0 ${selectProps.isOpen ? 'rotate-180' : ''}`}
+            size={isMobile ? 12 : 16}
+            className={`transition-transform duration-200 ${isMobile ? 'stroke-3' : 'stroke-4'} p-0 ${selectProps.isOpen ? 'rotate-180' : ''}`}
           />
         </div>
 
         {shouldRender && (
           <ul
             role="listbox"
-            className={getDropdownClasses({ variant: selectProps.variant, isAnimating })}
-            style={{ transformOrigin: 'top center' }}
+            className={getDropdownClasses({ variant: selectProps.variant, isAnimating, dropdownClassName })}
+            style={{
+              transformOrigin: 'top center',
+              ...(size ? { maxHeight: `calc(${size} * 2.5rem)` } : {})
+            }}
           >
             {selectProps.options.map(({ label, value: optionValue }) => (
               <li
@@ -258,7 +276,13 @@ export function SelectView({
                 aria-selected={String(optionValue === selectProps.value)}
                 tabIndex={0}
                 onClick={() => handleOptionSelect(optionValue)}
-                className={getOptionClasses({ isSelected: optionValue === selectProps.value })}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    handleOptionSelect(optionValue)
+                  }
+                }}
+                className={getOptionClasses({ isSelected: optionValue === selectProps.value, optionClassName })}
               >
                 {label}
               </li>

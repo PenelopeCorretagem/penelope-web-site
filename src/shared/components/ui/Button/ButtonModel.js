@@ -17,7 +17,7 @@ export class ButtonModel {
    * @param {string} [title=''] - Título do botão (tooltip/acessibilidade).
    */
 
-  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '', action = null, fullWidth = false) {
+  constructor(text = '', color = 'pink', type = 'button', to = null, shape = 'rectangle', title = '', action = null, fullWidth = false, state = null) {
     this.text = text
     this.color = color
     this.type = type
@@ -26,6 +26,7 @@ export class ButtonModel {
     this.title = title
     this.action = action
     this.fullWidth = fullWidth
+    this.state = state
     this.active = false
     this.disabled = false
   }

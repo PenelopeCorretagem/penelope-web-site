@@ -279,7 +279,7 @@ export const theme = {
     },
     footer: {
       container: [
-        'grid grid-cols-2 gap-6 items-start',
+        'grid grid-cols-1 gap-6 items-start justify-items-center',
         'md:flex md:flex-row md:items-start md:justify-between md:w-full md:h-fit md:gap-0'
       ].join(' '),
       logoSection: 'flex flex-col items-center md:items-start justify-between h-24',

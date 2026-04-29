@@ -1,10 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 
-// Mapeamento de ícones por tipo de alerta
 const alertIcons = {
   warning: <AlertTriangle size={64} className="text-default-light" />,
   info: <Info size={64} className="text-default-light" />,
@@ -20,100 +19,120 @@ const alertHeading = {
 }
 
 /**
- * Hook simples para gerenciar estado do alerta
+ * @typedef {Object} AlertAction
+ * @property {string}    label        - Texto do botão
+ * @property {Function}  onClick      - Callback ao clicar
+ * @property {string}   [color]       - Variante de cor do ButtonView (padrão: 'distac-primary')
+ * @property {string}   [shape]       - Forma do botão (padrão: 'square')
+ * @property {string}   [width]       - Largura do botão (padrão: 'fit')
+ * @property {string}   [ariaLabel]   - Acessibilidade
+ * @property {boolean}  [disabled]    - Desabilita a ação
  */
-export function useAlert(initialVisible = false) {
-  const [isVisible, setIsVisible] = useState(initialVisible)
-
-  const show = useCallback(() => setIsVisible(true), [])
-  const hide = useCallback(() => setIsVisible(false), [])
-  const toggle = useCallback(() => setIsVisible(prev => !prev), [])
-
-  return { isVisible, show, hide, toggle }
-}
 
 /**
- * Componente de alerta flutuante
+ * Componente de alerta flutuante.
+ *
+ * Ações podem ser passadas de duas formas (não use as duas ao mesmo tempo):
+ *  - `actions` (preferido): array de { label, onClick, color?, shape?, width?, ariaLabel? }
+ *  - `children`: JSX arbitrário para casos que `actions` não cobre
+ *
+ * O botão "Fechar" (hasCloseButton) é sempre renderizado por último.
  */
 export function AlertView({
   isVisible = false,
   hasCloseButton = true,
   type = 'info',
   message = '',
-  children = null,
+  actions = [],        // <-- novo: array de ações declarativas
+  children = null,     // mantido como escape hatch
   onClose = () => {},
   className = '',
-  buttonsLayout = 'row', // 'row' ou 'col'
+  buttonsLayout = 'row',
+  disableBackdropClose = false,
 }) {
-  const handleClose = useCallback(() => {
-    onClose()
-  }, [onClose])
-
-  const visibleActionsCount = (children ? 1 : 0) + (hasCloseButton ? 1 : 0)
-  const rowButtonsAlignment = visibleActionsCount === 1 ? 'justify-center' : 'justify-between'
+  const handleClose = useCallback(() => onClose(), [onClose])
+  const rowAlignment = 'justify-center gap-card md:gap-card-md flex-wrap'
 
   if (!isVisible) return null
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-      {/* Fundo escuro */}
-      <div
-        className="absolute inset-0 bg-default-dark opacity-70"
-        onClick={handleClose}
-        role="button"
-        tabIndex={0}
+      {/* Backdrop */}
+      <button
+        type="button"
+        className={`absolute inset-0 border-0 bg-default-dark opacity-70 ${disableBackdropClose ? 'cursor-not-allowed' : ''}`}
+        onClick={disableBackdropClose ? undefined : handleClose}
+        disabled={disableBackdropClose}
         aria-label="Fechar alerta"
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') handleClose()
-        }}
       />
 
-      {/* Container do alerta */}
+      {/* Card */}
       <div
         className={`
-          relative
-          bg-default-light
-          rounded-sm
-          shadow-2xl
-          w-xl
-          min-h-[300px]
-          flex flex-col
-          items-center
-          transition-all
-          duration-300
-          scale-100
-          overflow-hidden
+          relative bg-default-light rounded-sm shadow-2xl w-80%
+          md:w-xl min-h-[300px] flex flex-col items-center
+          transition-all duration-300 scale-100 overflow-hidden
           ${className}
         `}
       >
-        {/* Header: ícone + botão fechar */}
+        {/* Header */}
         <div className="flex items-center justify-center w-full p-card-md md:p-card-md bg-distac-primary">
-          {alertIcons[type] || alertIcons.info}
+          {alertIcons[type] ?? alertIcons.info}
         </div>
 
-        {/* Conteúdo: mensagem + children */}
-        <div className="flex flex-col justify-center items-center flex-1 w-full p-card-md md:p-card-md gap-card md:gap-card-md">
+        {/* Body */}
+        <div className="flex flex-col justify-center items-center flex-1 w-full p-card-md md:p-card-md gap-card-md">
           {message && (
             <>
               <HeadingView level={3} className="text-center text-distac-primary">
-                {alertHeading[type] || alertHeading.info}
+                {alertHeading[type] ?? alertHeading.info}
               </HeadingView>
               <TextView className="text-center">{message}</TextView>
             </>
           )}
-          <div className={`flex items-center gap-card md:gap-card-md w-full ${
-            buttonsLayout === 'row' ? rowButtonsAlignment : 'flex-col justify-center'
-          }`}
+
+          {/* Linha de ações */}
+          <div
+            className={`flex items-center w-full ${
+              buttonsLayout === 'col'
+                ? 'flex-col justify-center gap-card md:gap-card-md'
+                : `flex-row ${rowAlignment}`
+            }`}
           >
-            {children && <div className={buttonsLayout === 'row' ? '' : 'text-center w-full'}>{children}</div>}
+            {/* Ações declarativas */}
+            {actions.map((action, index) => (
+              <ButtonView
+                key={index}
+                type="button"
+                shape={action.shape ?? 'square'}
+                color={action.color ?? 'distac-primary'}
+                width={action.width ?? 'full'}
+                className="flex-1"
+                aria-label={action.ariaLabel ?? action.label}
+                onClick={action.onClick}
+                disabled={action.disabled}
+              >
+                {action.label}
+              </ButtonView>
+            ))}
+
+            {/* Escape hatch: JSX livre */}
+            {children && (
+              <div className={`flex-1 ${buttonsLayout === 'col' ? 'w-full text-center' : ''}`}>
+                {children}
+              </div>
+            )}
+
+            {/* Fechar — sempre por último */}
             {hasCloseButton && (
               <ButtonView
                 type="button"
                 shape="square"
                 color="border-distac-primary"
-                onClick={handleClose}
+                width="full"
+                className="flex-1"
                 aria-label="Fechar alerta"
-                width="fit"
+                onClick={handleClose}
               >
                 Fechar
               </ButtonView>

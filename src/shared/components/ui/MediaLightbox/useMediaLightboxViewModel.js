@@ -46,6 +46,15 @@ export function useMediaLightboxViewModel({ isOpen, medias = [] }) {
     setCurrentIndex(i => (i - 1 + medias.length) % medias.length)
   }, [medias.length])
 
+  const goToIndex = useCallback((index) => {
+    if (!medias.length) return
+
+    const nextIndex = Number(index)
+    if (Number.isNaN(nextIndex)) return
+
+    setCurrentIndex(Math.min(Math.max(0, nextIndex), medias.length - 1))
+  }, [medias.length])
+
   const rawCurrent = medias[currentIndex]
   const currentMedia = isYouTubeUrl(rawCurrent) ? toYouTubeEmbed(rawCurrent) : rawCurrent
 
@@ -60,5 +69,7 @@ export function useMediaLightboxViewModel({ isOpen, medias = [] }) {
     isCurrentVideo,
     handleNext,
     handlePrev
+    ,
+    goToIndex,
   }
 }

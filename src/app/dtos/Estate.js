@@ -11,9 +11,8 @@ import { IMAGE_TYPES } from '@constant/imageTypes'
  * - #numberOfRooms
  * - #type
  * - #address
- * - #standAddress
  * - #images (Array<ImageEstate>)
- * - #features (Array<Feature>)
+ * - #amenities (Array<Feature>)
  *
  * Todos os acessos e alterações são feitos via getters e setters.
  */
@@ -25,9 +24,8 @@ export class Estate {
   #numberOfRooms
   #type
   #address
-  #standAddress
   #images
-  #features
+  #amenities
 
   constructor({
     id,
@@ -37,9 +35,8 @@ export class Estate {
     numberOfRooms,
     type,
     address,
-    standAddress,
     images = [],
-    features = [],
+    amenities = [],
   }) {
     this.#id = id
     this.#title = title
@@ -48,9 +45,8 @@ export class Estate {
     this.#numberOfRooms = numberOfRooms
     this.#type = type
     this.#address = address
-    this.#standAddress = standAddress
     this.#images = images
-    this.#features = features
+    this.#amenities = amenities
   }
 
   // --------------------------
@@ -77,14 +73,11 @@ export class Estate {
   get address() { return this.#address }
   set address(value) { this.#address = value }
 
-  get standAddress() { return this.#standAddress }
-  set standAddress(value) { this.#standAddress = value }
-
   get images() { return this.#images }
   set images(value) { this.#images = Array.isArray(value) ? value : [] }
 
-  get features() { return this.#features }
-  set features(value) { this.#features = Array.isArray(value) ? value : [] }
+  get amenities() { return this.#amenities }
+  set amenities(value) { this.#amenities = Array.isArray(value) ? value : [] }
 
   // --------------------------
   // Métodos utilitários
@@ -142,32 +135,5 @@ export class Estate {
 
   isRealEstateInstance(object){
     return object instanceof Estate
-  }
-
-  hasStandAddress(){
-    return(
-      this.#standAddress?.id === null
-      && this.#standAddress?.street !== undefined
-      && this.#standAddress?.street !== null
-      && this.#standAddress?.street !== ''
-      && this.#standAddress?.number !== undefined
-      && this.#standAddress?.number !== null
-      && this.#standAddress?.neighborhood !== undefined
-      && this.#standAddress?.neighborhood !== null
-      && this.#standAddress?.neighborhood !== ''
-      && this.#standAddress?.city !== undefined
-      && this.#standAddress?.city !== null
-      && this.#standAddress?.city !== ''
-      && this.#standAddress?.uf !== undefined
-      && this.#standAddress?.uf !== null
-      && this.#standAddress?.uf !== ''
-      && this.#standAddress?.region !== undefined
-      && this.#standAddress?.region !== null
-      && this.#standAddress?.region !== ''
-      && this.#standAddress?.zipCode !== undefined
-      && this.#standAddress?.zipCode !== null
-      && this.#standAddress?.zipCode !== ''
-    )
-
   }
 }

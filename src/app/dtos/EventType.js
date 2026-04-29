@@ -58,6 +58,7 @@ export class EventType {
       description: this.#description,
       lengthInMinutes: this.#lengthInMinutes,
       minimumBookingNotice: this.#minimumBookingNotice,
+      hidden: this.#hidden,
       estateId: this.#estateId,
     }
   }

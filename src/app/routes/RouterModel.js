@@ -50,7 +50,7 @@ export class RouterModel {
       ADMIN_USER_EDIT: '/admin/usuarios/:id/editar',
       ADMIN_PROPERTIES: '/admin/gerenciar-imoveis',
       ADMIN_PROPERTIES_CONFIG: '/admin/gerenciar-imoveis/:id',
-      ADMIN_AMENITIES: '/admin/amenities',
+      ADMIN_AMENITIES: '/admin/diferenciais',
       ADMIN_SCHEDULE: '/admin/agenda',
 
       // Rotas de erro
@@ -213,7 +213,6 @@ export class RouterModel {
     let route = this.getRoute(routeName)
 
     if (!route) {
-      console.error(`Rota ${routeName} não encontrada`)
       return '/'
     }
 

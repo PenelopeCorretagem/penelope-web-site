@@ -3,7 +3,7 @@
  * Serviço de negócio para gerenciar appointments no cal-service
  */
 
-import * as appointmentCalApi from '@api-calservice/appointmentCalApi'
+import * as appointmentApi from '@api-calservice/appointmentApi'
 import { AppointmentCalMapper } from '@mappers/AppointmentCalMapper'
 
 /**
@@ -12,8 +12,8 @@ import { AppointmentCalMapper } from '@mappers/AppointmentCalMapper'
  * @returns {Promise<AppointmentCal[]>} Array de appointments
  */
 export const getAllAppointments = async (filters = {}) => {
-  const response = await appointmentCalApi.listAppointments(filters)
-  return AppointmentCalMapper.toEntityList(response)
+  const response = await appointmentApi.listAppointments(filters)
+  return AppointmentCalMapper.toEntityList(response.content || response.appointments || response)
 }
 
 /**
@@ -22,7 +22,7 @@ export const getAllAppointments = async (filters = {}) => {
  * @returns {Promise<AppointmentCal>} Entidade AppointmentCal
  */
 export const getAppointmentById = async (id) => {
-  const response = await appointmentCalApi.getAppointmentById(id)
+  const response = await appointmentApi.getAppointmentById(id)
   return AppointmentCalMapper.toEntity(response)
 }
 
@@ -32,18 +32,18 @@ export const getAppointmentById = async (id) => {
  * @returns {Promise<AppointmentCal>} Appointment criado
  */
 export const createAppointment = async (appointmentData) => {
-  const response = await appointmentCalApi.createAppointment(appointmentData)
+  const response = await appointmentApi.createAppointment(appointmentData)
   return AppointmentCalMapper.toEntity(response)
 }
 
 /**
  * Reagenda um appointment
  * @param {number} id - ID do appointment
- * @param {object} rescheduleData - { startDateTime, endDateTime }
+ * @param {object} rescheduleData - { startDateTime, reason }
  * @returns {Promise<AppointmentCal>} Appointment atualizado
  */
 export const rescheduleAppointment = async (id, rescheduleData) => {
-  const response = await appointmentCalApi.rescheduleAppointment(id, rescheduleData)
+  const response = await appointmentApi.rescheduleAppointment(id, rescheduleData)
   return AppointmentCalMapper.toEntity(response)
 }
 
@@ -53,7 +53,7 @@ export const rescheduleAppointment = async (id, rescheduleData) => {
  * @returns {Promise<AppointmentCal>} Appointment com status CONFIRMED
  */
 export const confirmAppointment = async (id) => {
-  const response = await appointmentCalApi.confirmAppointment(id)
+  const response = await appointmentApi.confirmAppointment(id)
   return AppointmentCalMapper.toEntity(response)
 }
 
@@ -63,7 +63,7 @@ export const confirmAppointment = async (id) => {
  * @returns {Promise<AppointmentCal>} Appointment com status CONCLUDED
  */
 export const concludeAppointment = async (id) => {
-  const response = await appointmentCalApi.concludeAppointment(id)
+  const response = await appointmentApi.concludeAppointment(id)
   return AppointmentCalMapper.toEntity(response)
 }
 
@@ -74,7 +74,7 @@ export const concludeAppointment = async (id) => {
  * @returns {Promise<AppointmentCal>} Appointment cancelado
  */
 export const cancelAppointment = async (id, reason = null) => {
-  const response = await appointmentCalApi.cancelAppointment(id, reason)
+  const response = await appointmentApi.cancelAppointment(id, reason)
   return AppointmentCalMapper.toEntity(response)
 }
 
@@ -84,5 +84,5 @@ export const cancelAppointment = async (id, reason = null) => {
  * @returns {Promise<void>}
  */
 export const deleteAppointment = async (id) => {
-  return await appointmentCalApi.deleteAppointment(id)
+  return await appointmentApi.deleteAppointment(id)
 }

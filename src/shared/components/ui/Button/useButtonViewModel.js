@@ -21,9 +21,9 @@ import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
  *
  * @returns {Object} Objeto contendo dados do botão e handlers.
  */
-export function useButtonViewModel(text = '', color = 'pink', type = 'button', config = {}, to = null, shape = 'rectangle', title = '') {
+export function useButtonViewModel(text = '', color = 'pink', type = 'button', config = {}, to = null, shape = 'rectangle', title = '', state = null) {
   /** @type {ButtonModel} Modelo base do botão. */
-  const [model] = useState(() => new ButtonModel(text, color, type, to, shape, title))
+  const [model] = useState(() => new ButtonModel(text, color, type, to, shape, title, null, false, state))
 
   /**
    * Handler de clique do botão.
@@ -69,6 +69,7 @@ export function useButtonViewModel(text = '', color = 'pink', type = 'button', c
     to: model.to,
     shape: model.shape,
     title: model.title,
+    state: model.state,
     isLink: model.isLink(),
     active: model.active,
     disabled: model.disabled,

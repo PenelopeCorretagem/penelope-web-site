@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthModel } from './AuthModel'
-import { login, register } from '@api-penelopec/authApi'
-import { getAllUsers, forgotPassword } from '@service-penelopec/userService'
-import { userMapper } from '@mappers/userMapper'
+import { login, register } from '@service-penelopec/authService'
+import { forgotPassword } from '@service-penelopec/userService'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
 export function useAuthViewModel() {
   const navigate = useNavigate()
@@ -64,161 +64,60 @@ export function useAuthViewModel() {
     navigate(model.getRouteFromAuthType(model.authTypes.LOGIN))
   }, [navigate, model])
 
-  const handleLoginSubmit = useCallback(async (formData) => {
-    setIsLoading(true)
+  // handleLoginSubmit — trecho corrigido em useAuthViewModel.js
+const handleLoginSubmit = useCallback(async (formData) => {
+  setIsLoading(true)
+  try {
+    const response = await login({ email: formData.email, password: formData.senha })
 
-
-
-    try {
-      const response = await login({
-        email: formData.email,
-        password: formData.senha
-      })
-
-
-
-      // Validar e salvar token
-      const token = response.token
-      if (!token || typeof token !== 'string') {
-        throw new Error('Token não recebido do servidor')
-      }
-
-      // Salvar dados essenciais IMEDIATAMENTE usando sessionStorage
-      sessionStorage.setItem('token', token)
-      sessionStorage.setItem('jwtToken', token)
-
-      // Processar dados do usuário
-      let userEntity = null
-      let userId = response.id
-      const accessLevel = response.accessLevel
-
-      // Determinar se é admin PRIMEIRO, antes de qualquer outra lógica
-      let isAdminUser = false
-      if (accessLevel) {
-        isAdminUser = accessLevel === 'ADMINISTRADOR' || accessLevel === 'Administrador'
-      }
-
-      // Salvar dados essenciais IMEDIATAMENTE
-      if (userId) {
-        sessionStorage.setItem('userId', userId.toString())
-      }
-
-      sessionStorage.setItem('userEmail', formData.email)
-      sessionStorage.setItem('userRole', isAdminUser ? 'admin' : 'user')
-
-      // Se não temos user nem id na resposta, buscar na API
-      if (!response.user && !response.id) {
-
-        try {
-          const users = await getAllUsers()
-
-          const currentUser = users.find(u =>
-            u.email?.toLowerCase() === formData.email.toLowerCase()
-          )
-
-          if (currentUser) {
-
-
-            // Tentar extrair ID de várias formas
-            userId = currentUser.id ||
-                    currentUser.userId ||
-                    currentUser.user_id ||
-                    currentUser.ID
-
-
-
-            if (!userId) {
-              console.warn('⚠️ API não retorna ID! Usando email como fallback')
-              userId = formData.email
-            }
-
-            userEntity = currentUser
-          } else {
-            console.error('❌ Usuário não encontrado na API')
-            throw new Error('Não foi possível encontrar os dados do usuário')
-          }
-        } catch (userError) {
-          console.error('❌ Erro ao buscar usuários:', userError)
-          throw new Error('Erro ao carregar dados do usuário')
-        }
-      } else if (response.user) {
-        try {
-          userEntity = userMapper.toEntity(response.user)
-          userId = userEntity.id || response.id
-
-        } catch (mapError) {
-          console.error('❌ Erro ao mapear usuário:', mapError)
-          throw new Error('Erro ao processar dados do usuário')
-        }
-      }
-
-      // Validar userId
-      if (!userId) {
-        console.error('❌ ERRO: userId não disponível após login!')
-        console.warn('⚠️ FALLBACK: Usando email como identificador')
-        userId = formData.email
-      }
-
-      // Atualizar userId se necessário
-      if (userId !== sessionStorage.getItem('userId')) {
-        sessionStorage.setItem('userId', userId.toString())
-
-      }
-
-      // Salvar dados completos do usuário se disponível, MAS PRESERVAR ROLE
-      if (userEntity) {
-        sessionStorage.setItem('userName', userEntity.nomeCompleto || userEntity.email || formData.email)
-
-        // IMPORTANTE: Só sobrescrever userRole se userEntity tiver info mais atual
-        if (userEntity.accessLevel && userEntity.isAdmin) {
-          const entityIsAdmin = userEntity.isAdmin()
-          if (entityIsAdmin !== isAdminUser) {
-
-            sessionStorage.setItem('userRole', entityIsAdmin ? 'admin' : 'user')
-            isAdminUser = entityIsAdmin
-          }
-        }
-
-
-      } else {
-        // Garantir que dados mínimos estão salvos
-        sessionStorage.setItem('userName', formData.email)
-
-      }
-
-      window.dispatchEvent(new CustomEvent('authChanged'))
-      navigate(model.getHomeRoute())
-
-      return { success: true }
-    } catch (error) {
-      console.error('Erro no login:', error)
-      setIsLoading(false)
-
-      let errorMessage = 'Erro ao fazer login. Tente novamente.'
-
-      if (error.response?.status === 403) {
-        errorMessage = 'Email ou senha incorretos.'
-      } else if (error.response?.status === 401) {
-        errorMessage = 'Não autorizado. Verifique suas credenciais.'
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message
-      } else if (typeof error.response?.data === 'string') {
-        errorMessage = error.response.data
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-
-      setAlertConfig({
-        type: 'error',
-        message: errorMessage,
-        primaryButton: { text: 'Tentar novamente', action: 'close' },
-        secondaryButton: { text: 'Esqueci minha senha', action: 'forgotPassword' }
-      })
-
-      return { success: false, error: errorMessage }
+    const token = response.token
+    if (!token || typeof token !== 'string') {
+      throw new Error('Token não recebido do servidor.')
     }
-  }, [navigate, model])
 
+    const isAdmin = response.accessLevel === 'ADMINISTRADOR'
+    const userId  = response.id // fallback apenas se API não retornar id
+
+    authSessionUtil.save({
+      token,
+      userId,
+      email: formData.email,
+      isAdmin,
+      name: formData.email,
+    })
+
+    // Dispara transição de login antes de navegar
+    window.dispatchEvent(new CustomEvent('authTransition', {
+      detail: { type: 'login', message: 'Autenticando sua conta...' }
+    }))
+    window.dispatchEvent(new CustomEvent('authChanged'))
+
+    setTimeout(() => navigate(model.getHomeRoute()), 600)
+    return { success: true }
+
+  } catch (error) {
+    setIsLoading(false)
+
+    const status = error.response?.status
+    const serverMsg = error.response?.data?.message
+                   ?? (typeof error.response?.data === 'string' ? error.response.data : null)
+
+    const errorMessage =
+      status === 403 ? 'E-mail ou senha incorretos.' :
+      status === 401 ? 'Não autorizado. Verifique suas credenciais.' :
+      serverMsg       ? serverMsg :
+      error.message   ? error.message :
+      'Erro ao fazer login. Tente novamente.'
+
+    setAlertConfig({
+      type: 'error',
+      message: errorMessage,
+      primaryButton:   { text: 'Tentar novamente',   action: 'close' },
+      secondaryButton: { text: 'Esqueci minha senha', action: 'forgotPassword' }
+    })
+    return { success: false, error: errorMessage }
+  }
+}, [navigate, model])
   const handleRegisterSubmit = useCallback(async (formData) => {
     setIsLoading(true)
     try {

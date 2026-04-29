@@ -171,17 +171,19 @@ export function ButtonView({
   disabled = false,
   active = false,
   title = '',
+  state = null,
   ...props
 }) {
   // ViewModel fornece apenas dados e comportamento
   const {
     to: buttonTo,
     title: buttonTitle,
+    state: buttonState,
     isLink,
     active: modelActive,
     disabled: modelDisabled,
     handleClick,
-  } = useButtonViewModel(children, color, type, { onClick }, to, shape, title)
+  } = useButtonViewModel(children, color, type, { onClick }, to, shape, title, state)
 
   // View compõe os estilos visuais
   const buttonClasses = getButtonClasses({
@@ -207,6 +209,7 @@ export function ButtonView({
         role="button"
         title={buttonTitle}
         {...props}
+        state={buttonState}
       >
         {children}
       </Link>

@@ -41,36 +41,34 @@ export function UserConfigView() {
   }
 
   return (
-    <div style={{ '--header-height': `${headerHeight}px` }}>
-      <SectionView
-        className="flex flex-col subsection h-[calc(100vh-var(--header-height))] min-h-[calc(100vh-var(--header-height))] max-h-[calc(100vh-var(--header-height))] overflow-hidden !gap-subsection md:!gap-subsection-md"
-      >
-        <div className="flex items-center w-full justify-between flex-shrink-0">
-          <HeadingView level={2} className="text-distac-primary">
-            {isEditMode ? 'Editar Usuário' : 'Adicionar Usuário'}
-          </HeadingView>
-          <BackButtonView mode="text" text="Voltar" />
-        </div>
+    <SectionView
+      className="flex flex-col subsection h-full overflow-hidden !gap-subsection md:!gap-subsection-md"
+    >
+      <div className="flex items-center w-full justify-between flex-shrink-0">
+        <HeadingView level={2} className="text-distac-primary">
+          {isEditMode ? 'Editar Usuário' : 'Adicionar Usuário'}
+        </HeadingView>
+        <BackButtonView mode="text" text="Voltar" />
+      </div>
 
-        <div className="flex-1 overflow-hidden">
-          <EditFormView
-            fields={userConfigFields}
-            initialData={formData}
-            onSubmit={handleSubmit}
-            onCancel={handleCancelUserConfig}
-            isEditing={true}
-            showDeleteButton={isEditMode}
-            onDelete={isEditMode ? handleDelete : undefined}
-          />
-        </div>
-
-        <AlertView
-          isVisible={!!alertConfig}
-          type={alertConfig?.type}
-          message={alertConfig?.message}
-          onClose={handleCloseAlert}
+      <div className="flex-1 overflow-hidden">
+        <EditFormView
+          fields={userConfigFields}
+          initialData={formData}
+          onSubmit={handleSubmit}
+          onCancel={handleCancelUserConfig}
+          isEditing={true}
+          showDeleteButton={isEditMode}
+          onDelete={isEditMode ? handleDelete : undefined}
         />
-      </SectionView>
-    </div>
+      </div>
+
+      <AlertView
+        isVisible={!!alertConfig}
+        type={alertConfig?.type}
+        message={alertConfig?.message}
+        onClose={handleCloseAlert}
+      />
+    </SectionView>
   )
 }

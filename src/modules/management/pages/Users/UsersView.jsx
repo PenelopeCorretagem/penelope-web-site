@@ -6,8 +6,8 @@ import { InputView } from '@shared/components/ui/Input/InputView'
 import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { useUsersViewModel } from './useUsersViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
-import { UsersList } from '@management/components/UsersList/UsersList'
-import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown } from 'lucide-react'
+import { UsersList } from './components/UsersList/UsersList'
+import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown, Plus } from 'lucide-react'
 
 export function UsersView() {
   const {
@@ -64,9 +64,23 @@ export function UsersView() {
       <SectionView
         className="flex flex-col subsection h-[calc(100vh-var(--header-height))] min-h-[calc(100vh-var(--header-height))]  max-h-[calc(100vh-var(--header-height))] overflow-hidden !gap-subsection md:!gap-subsection-md"
       >
-        <HeadingView level={2} className="text-distac-primary flex-shrink-0">
-          Usuários
-        </HeadingView>
+
+
+        <div className="flex w-full items-center justify-between flex-shrink-0">
+          <HeadingView level={2} className="text-distac-primary flex-shrink-0">
+            Usuários
+          </HeadingView>
+
+          <ButtonView
+            type="button"
+            width="fit"
+            onClick={handleAdd}
+            color="pink"
+          >
+            <Plus size={16} className="mr-2" />
+            ADICIONAR USUÁRIO
+          </ButtonView>
+        </div>
 
         <div className="flex flex-col gap-card md:gap-card-md flex-shrink-0">
           <div className="flex flex-col md:flex-row gap-card md:gap-card-md">
@@ -118,17 +132,6 @@ export function UsersView() {
           onDelete={handleDelete}
           loading={loading}
         />
-
-        <div className="flex flex-shrink-0">
-          <ButtonView
-            type="button"
-            width="fit"
-            onClick={handleAdd}
-            color="pink"
-          >
-            ADICIONAR USUÁRIO
-          </ButtonView>
-        </div>
 
         <AlertView
           isVisible={!!alertConfig}
