@@ -20,11 +20,10 @@ export function ScrollToTop() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    // Encontra o elemento pai (.router-view) e reseta seu scroll
+    // Encontra o elemento .router-view e reseta seu scroll
     const routerElement = document.querySelector('.router-view')
-    if (routerElement && routerElement.parentElement) {
-      // Reseta o scroll no elemento PAI que tem overflow-y-auto
-      routerElement.parentElement.scrollTop = 0
+    if (routerElement) {
+      routerElement.scrollTop = 0
     }
   }, [pathname])
 

@@ -2,6 +2,7 @@ import axiosInstance from '@api/axiosInstance'
 import { cleanCEP } from '@shared/utils/CEP/formatCEPUtil'
 import { ViaCepAddressDTO } from '@dtos/ViaCepAddressDTO'
 
+const VIACEP_BASE_URL = import.meta.env.VIACEP_URL
 /**
  * Camada de API - Responsável apenas por requisições HTTP ao ViaCEP
  * Retorna dados brutos (DTO) sem transformação de negócio
@@ -21,8 +22,7 @@ export async function getAddressByCEP(cep) {
       throw new Error('CEP deve ter 8 dígitos')
     }
 
-    const viaCepBaseUrl = import.meta.env.VITE_VIACEP_BASE_URL || 'https://viacep.com.br/ws'
-    const fullUrl = `${viaCepBaseUrl}/${cleanedCEP}/json/`
+    const fullUrl = `${VIACEP_BASE_URL}/${cleanedCEP}/json/`
 
     const response = await axiosInstance.get(fullUrl, {
       timeout: 10000,

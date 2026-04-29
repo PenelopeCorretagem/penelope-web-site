@@ -1,12 +1,16 @@
 // HeaderView.js
 import { NavMenuView } from '@shared/components/layout/NavMenu/NavMenuView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { useAuthSession } from '@shared/hooks/useAuthSession'
 
 export function HeaderView({
   isAuthenticated = false,
+  isAdmin = false,
   sticky = true,
   showShadow = true,
   sidebarVisible = false,
 }) {
+  const { remainingFormatted, expired } = useAuthSession()
   const headerClasses = [
     'w-full',
     'h-24',
@@ -20,7 +24,15 @@ export function HeaderView({
 
   return (
     <header className={headerClasses} role="banner">
-      <NavMenuView isAuthenticated={isAuthenticated} hideLogo={sidebarVisible} />
+      <NavMenuView isAuthenticated={isAuthenticated} isAdmin={isAdmin} hideLogo={sidebarVisible} />
+
+      <AlertView
+        isVisible={expired}
+        type="info"
+        hasCloseButton={false}
+        message="Sua sessão expirou. Você será redirecionado para a tela de login em instantes."
+        onClose={() => {}}
+      />
     </header>
   )
 }

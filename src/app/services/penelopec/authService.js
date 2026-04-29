@@ -1,5 +1,4 @@
 import * as authApi from '@api-penelopec/authApi'
-import * as userApi from '@api-penelopec/userApi'
 import { userMapper } from '@mappers/userMapper'
 
 /**
@@ -10,36 +9,14 @@ import { userMapper } from '@mappers/userMapper'
 /**
  * Realiza o login do usuário.
  * @param {object} credentials - { email, password }
- * @returns {Promise<{token: string, user: User|object, id: number}>} Dados de login transformados
+ * @returns {Promise<{token: string, id: number, accessLevel: string}>} Dados de login transformados
  */
 export const login = async (credentials) => {
   const response = await authApi.login(credentials)
 
-  // Se response.data for string, é só o token
-  if (typeof response === 'string') {
-    return {
-      token: response,
-      user: null,
-      id: null
-    }
-  }
-
-  // Extrair ID de todas as formas possíveis
-  const extractedId = response.id ||
-                      response.user?.id ||
-                      response.usuario?.id ||
-                      response.userId ||
-                      null
-
-  // Mapear user se existir
-  const mappedUser = response.user || response.usuario ?
-    userMapper.toEntity(response.user || response.usuario) :
-    null
-
   const result = {
-    token: response.token || response,
-    user: mappedUser,
-    id: extractedId,
+    token: response.token,
+    id: response.id,
     accessLevel: response.accessLevel
   }
   return result

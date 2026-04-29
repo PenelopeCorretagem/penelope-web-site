@@ -4,14 +4,14 @@ import { useLabelViewModel } from '@shared/components/ui/Label/useLabelViewModel
  * LabelView component with theme variant validation.
  * Only accepts variants: pink, softPink, brown, softBrown, gray
  */
-export function LabelView({ model, className = '' }) {
+export function LabelView({ model, className = '', leadingIcon = null }) {
   const {
     displayText,
     variant
   } = useLabelViewModel(model)
 
   // Base classes
-  const baseClasses = 'text-button md:text-button-md text-center p-[var(--padding-button-circle)] md:p-[var(--padding-button-circle-md)] inline-block rounded-sm font-medium transition-all duration-200'
+  const baseClasses = 'text-button md:text-button-md text-center p-[var(--padding-button-circle)] md:p-[var(--padding-button-circle-md)] inline-flex items-center justify-center gap-1.5 rounded-sm font-medium transition-all duration-200'
 
   // Variant classes
   const variantClasses = {
@@ -27,6 +27,11 @@ export function LabelView({ model, className = '' }) {
 
   return (
     <span className={labelClasses}>
+      {leadingIcon && (
+        <span className="inline-flex shrink-0" aria-hidden="true">
+          {leadingIcon}
+        </span>
+      )}
       {displayText}
     </span>
   )

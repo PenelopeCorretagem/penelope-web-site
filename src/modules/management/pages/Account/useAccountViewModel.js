@@ -10,6 +10,7 @@ export function useAccountViewModel() {
     newPassword: ''
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState(null)
   const [alertConfig, setAlertConfig] = useState(null)
 
@@ -91,15 +92,13 @@ export function useAccountViewModel() {
     }
   }
 
-  const handleDelete = async () => {
+  const executeDelete = async () => {
     try {
+      setIsDeleting(true)
       const userId = sessionStorage.getItem('userId')
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
-
-      const confirmed = window.confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')
-      if (!confirmed) return
 
       await deleteUser(userId)
 
@@ -119,8 +118,25 @@ export function useAccountViewModel() {
         type: 'error',
         message: err.message || 'Erro ao excluir conta'
       })
+    } finally {
+      setIsDeleting(false)
     }
   }
+
+  const handleDelete = useCallback(() => {
+    setAlertConfig({
+      type: 'warning',
+      isConfirm: true,
+      message: 'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.',
+      confirmText: 'Excluir conta',
+    })
+  }, [])
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!alertConfig?.isConfirm || isDeleting) return
+    setAlertConfig(null)
+    await executeDelete()
+  }, [alertConfig, isDeleting])
 
   const handleCloseAlert = useCallback(() => {
     const onClose = alertConfig?.onClose
@@ -135,10 +151,12 @@ export function useAccountViewModel() {
     accountFields,
     formData,
     isLoading,
+    isDeleting,
     error,
     alertConfig,
     handleSubmit,
     handleDelete,
+    handleConfirmDelete,
     handleCloseAlert,
     model,
   }

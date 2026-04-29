@@ -1,5 +1,7 @@
 import axiosInstance from '@api/axiosInstance'
 
+const PENELOPEC_API_BASE_URL = import.meta.env.PENELOPEC_URL
+
 /**
  * Camada de API - Responsável apenas por requisições HTTP
  * Retorna dados brutos sem transformação de negócio
@@ -11,7 +13,7 @@ import axiosInstance from '@api/axiosInstance'
  * @returns {Promise<object>} Dados brutos da resposta
  */
 export const createUser = async (userData) => {
-  const response = await axiosInstance.post('/users', userData)
+  const response = await axiosInstance.post('/users', userData, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data
 }
 
@@ -20,13 +22,8 @@ export const createUser = async (userData) => {
  * @returns {Promise<object[]>} Dados brutos dos usuários
  */
 export const getAllUsers = async () => {
-  try {
-    const response = await axiosInstance.get('/users')
-    return response.data
-  } catch (error) {
-    console.error('❌ [USERS API] Erro ao buscar usuários:', error.message)
-    throw error
-  }
+  const response = await axiosInstance.get('/users', { baseURL: PENELOPEC_API_BASE_URL })
+  return response.data
 }
 
 /**
@@ -35,13 +32,8 @@ export const getAllUsers = async () => {
  * @returns {Promise<object>} Dados brutos do usuário
  */
 export const getUserById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/users/${id}`)
-    return response.data
-  } catch (error) {
-    console.error(`❌ [USERS API] Erro ao buscar usuário ${id}:`, error)
-    throw error
-  }
+  const response = await axiosInstance.get(`/users/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
+  return response.data
 }
 
 /**
@@ -51,7 +43,7 @@ export const getUserById = async (id) => {
  * @returns {Promise<object>} Dados brutos do usuário atualizado
  */
 export const updateUser = async (id, userData) => {
-  const response = await axiosInstance.put(`/users/${id}`, userData)
+  const response = await axiosInstance.put(`/users/${id}`, userData, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data
 }
 
@@ -61,7 +53,7 @@ export const updateUser = async (id, userData) => {
  * @returns {Promise<void>}
  */
 export const deleteUser = async (id) => {
-  await axiosInstance.delete(`/users/${id}`)
+  await axiosInstance.delete(`/users/${id}`, { baseURL: PENELOPEC_API_BASE_URL })
 }
 
 /**
@@ -70,7 +62,7 @@ export const deleteUser = async (id) => {
  * @returns {Promise<string|object>} Mensagem da API ou payload bruto
  */
 export const forgotPassword = async (email) => {
-  const response = await axiosInstance.post('/users/forgot-password', { email })
+  const response = await axiosInstance.post('/users/forgot-password', { email }, { baseURL: PENELOPEC_API_BASE_URL })
   return response.data?.message || response.data
 }
 

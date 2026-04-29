@@ -22,7 +22,7 @@ export const chatbotModel = {
       options: [
         'Imóveis disponíveis',
         'Localização',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -32,7 +32,7 @@ export const chatbotModel = {
       options: [
         'Ver Imóveis',
         'Localização',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -41,7 +41,7 @@ export const chatbotModel = {
         'Nossos imóveis variam entre R$ 250.000 e R$ 1.200.000, dependendo do tamanho e localização. Deseja simular financiamento?',
       options: [
         'Simulação',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -50,7 +50,7 @@ export const chatbotModel = {
         'Temos imóveis nas regiões Central, Zona Sul, Norte, Leste e Oeste. Veja nossos imóveis disponíveis!',
       options: [
         'Imóveis disponíveis',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -58,10 +58,10 @@ export const chatbotModel = {
 
     agendamento: {
       botResponse:
-        'Perfeito! Trabalhamos com Visitas Presenciais aos nossos Stands, e visitas totalmente Online. Deseja agendar uma visita?',
+        'Perfeito! Trabalhamos com visitas presenciais e visitas totalmente online. Deseja agendar uma visita?',
       options: [
         'Agendar agora!',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -70,7 +70,7 @@ export const chatbotModel = {
         'Para agendar uma visita, você precisa realizar o Cadastro. Faça login para continuar.',
       options: [
         'Ir para a tela de login',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -83,7 +83,7 @@ export const chatbotModel = {
         'Simulação',
         'Taxas',
         'Documentos necessários',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -92,7 +92,7 @@ export const chatbotModel = {
         'Para simular, consideramos entrada mínima de 20% e parcelamento em até 360 meses. Deseja falar com um especialista?',
       options: [
         'Falar com corretor',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -101,7 +101,7 @@ export const chatbotModel = {
         'As taxas variam entre 7% e 9% ao ano, dependendo da instituição financeira e análise de crédito. Fale com um de nossos corretores!',
       options: [
         'Falar com corretor',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -110,7 +110,7 @@ export const chatbotModel = {
         'Os documentos necessários são: RG, CPF, comprovante de renda, comprovante de residência e certidão de estado civil.',
       options: [
         'Falar com corretor',
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
 
@@ -120,7 +120,7 @@ export const chatbotModel = {
       botResponse:
         'Infelizmente eu não posso te ajudar com isso no momento.',
       options: [
-        'Voltar para o inicio',
+        'Voltar para o início',
       ],
     },
   },
@@ -130,7 +130,7 @@ export const chatbotModel = {
     'Falar sobre imóveis': 'imoveis',
     'Falar sobre agendamento': 'agendamento',
     'Falar sobre financiamento': 'financiamento',
-    'Voltar para o inicio': 'inicio',
+    'Voltar para o início': 'inicio',
 
     // imóveis
     'Imóveis disponíveis': 'imoveisDisponiveis',

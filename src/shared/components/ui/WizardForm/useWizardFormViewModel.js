@@ -75,17 +75,20 @@ export function useWizardFormViewModel(initialProps = {}) {
 
 
 
-    if (!model.isLastStep) {
-
-      return nextStep()
-    }
-
-
-
-    // Validação antes de enviar
-    if (!model.validateCurrentStep()) {
-      console.error('❌ [WIZARD FORM] Validation failed for current step')
+    // Validação de todas as etapas antes de enviar
+    if (!model.validateAllSteps()) {
+      console.error('❌ [WIZARD FORM] Validation failed for some steps')
       console.error('❌ [WIZARD FORM] Validation errors:', model.fieldErrors)
+
+      // Encontrar a primeira etapa com erro e navegar para ela
+      for (let i = 0; i < model.totalSteps; i++) {
+        const stepFields = model.getAllFieldsForStep(i)
+        if (stepFields.some(f => model.fieldErrors[f.name])) {
+          model.goToStep(i)
+          break
+        }
+      }
+
       refresh()
       return false
     }
@@ -149,6 +152,12 @@ export function useWizardFormViewModel(initialProps = {}) {
     }
   }, [model])
 
+  const handleDisable = useCallback(() => {
+    if (model.onDisable) {
+      model.onDisable(model.fieldValues)
+    }
+  }, [model])
+
   const handleClear = useCallback(() => {
     // Limpa apenas os campos da etapa atual
     model.clearCurrentStep()
@@ -186,10 +195,12 @@ export function useWizardFormViewModel(initialProps = {}) {
     hasErrors: model.hasErrors,
     hasSuccess: model.hasSuccess,
     hasDeleteAction: model.hasDeleteAction,
+    hasDisableAction: model.hasDisableAction,
     errorMessages: model.errorMessages,
     successMessage: model.successMessage,
     isLoading: model.isLoading,
     onDelete: model.onDelete, // Expose onDelete for conditional rendering
+    onDisable: model.onDisable,
 
     // Event Handlers
     handleFieldChange,
@@ -198,6 +209,7 @@ export function useWizardFormViewModel(initialProps = {}) {
     handleCancel,
     handleSubmit,
     handleDelete,
+    handleDisable,
     handleClear,
     goToStep,
 

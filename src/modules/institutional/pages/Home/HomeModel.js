@@ -1,24 +1,24 @@
 import { ESTATE_TYPES } from '@constant/estateTypes'
-import { RealEstateAdvertisement } from '@dtos/RealEstateAdvertisement'
+import { Advertisement } from '@dtos/Advertisement'
 
 export class HomeModel {
   // ===== PRIVATE FIELDS =====
-  #preLaunchRealEstateAdvertisements = []
-  #featuredRealEstateAdvertisement = null
+  #preLaunchAdvertisements = []
+  #featuredAdvertisement = null
   #isLoading = false
   #error = null
 
   constructor() {
-    this.setPreLaunchRealEstateAdvertisements([])
+    this.setPreLaunchAdvertisements([])
   }
 
   // ===== GETTERS (somente leitura) =====
-  get preLaunchRealEstateAdvertisements() {
-    return this.#preLaunchRealEstateAdvertisements
+  get preLaunchAdvertisements() {
+    return this.#preLaunchAdvertisements
   }
 
-  get featuredRealEstateAdvertisement() {
-    return this.#featuredRealEstateAdvertisement
+  get featuredAdvertisement() {
+    return this.#featuredAdvertisement
   }
 
   get isLoading() {
@@ -32,8 +32,8 @@ export class HomeModel {
   // ===== VALIDADORES =====
 
   _validateAdvertisementInstance(advertisement) {
-    if (!(advertisement instanceof RealEstateAdvertisement)) {
-      throw new Error(`O item deve ser uma instância válida de RealEstateAdvertisement`)
+    if (!(advertisement instanceof Advertisement)) {
+      throw new Error(`O item deve ser uma instância válida de Advertisement`)
     }
   }
 
@@ -56,7 +56,7 @@ export class HomeModel {
    * 2. mais nova (createdAt)
    * 3. fallback: primeira do array
    */
-  _filterFeaturedRealEstateAdvertisement(advertisements) {
+  _filterFeaturedAdvertisement(advertisements) {
     this._validateAdvertisementsArray(advertisements)
 
     const featured = advertisements.find(ad => ad.featured === true)
@@ -78,25 +78,25 @@ export class HomeModel {
 
   // ===== SETTERS (métodos explícitos) =====
 
-  setPreLaunchRealEstateAdvertisements(preLaunchRealEstateAdvertisements) {
-    this.#preLaunchRealEstateAdvertisements = preLaunchRealEstateAdvertisements
-    if (!Array.isArray(this.#preLaunchRealEstateAdvertisements)) {
-      throw new Error(`a propriedade "preLaunchRealEstateAdvertisements" precisa ser um array`)
+  setPreLaunchAdvertisements(preLaunchAdvertisements) {
+    this.#preLaunchAdvertisements = preLaunchAdvertisements
+    if (!Array.isArray(this.#preLaunchAdvertisements)) {
+      throw new Error(`a propriedade "preLaunchAdvertisements" precisa ser um array`)
     }
 
-    if(this.#preLaunchRealEstateAdvertisements.length > 0){
-      this._validateAdvertisementsArray(this.#preLaunchRealEstateAdvertisements)
-      this.#featuredRealEstateAdvertisement =
-        this._filterFeaturedRealEstateAdvertisement(this.#preLaunchRealEstateAdvertisements)
+    if(this.#preLaunchAdvertisements.length > 0){
+      this._validateAdvertisementsArray(this.#preLaunchAdvertisements)
+      this.#featuredAdvertisement =
+        this._filterFeaturedAdvertisement(this.#preLaunchAdvertisements)
     }
   }
 
-  setFeaturedRealEstateAdvertisement(advertisement) {
+  setFeaturedAdvertisement(advertisement) {
     try{
       this._validateAdvertisementInstance(advertisement)
-      this.#featuredRealEstateAdvertisement = advertisement
+      this.#featuredAdvertisement = advertisement
     }catch(error){
-      throw new Error(`setFeaturedRealEstateAdvertisement: ${error.message}`)
+      throw new Error(`setFeaturedAdvertisement: ${error.message}`)
     }
   }
 

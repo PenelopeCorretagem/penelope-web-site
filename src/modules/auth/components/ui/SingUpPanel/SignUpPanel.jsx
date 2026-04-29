@@ -28,6 +28,7 @@ export function SignUpPanel({
         {isForgotPassword ? (
           <div className="w-full">
             <FormView
+              key="forgot-password-form"
               title={forgotPasswordFormConfig.title}
               subtitle={forgotPasswordFormConfig.subtitle}
               fields={forgotPasswordFormConfig.fields}
@@ -39,7 +40,11 @@ export function SignUpPanel({
             <TextView className={getAuthLinkContainerThemeClasses({ className: 'mt-6' })}>
               Lembrou a senha?
               <button
-                onClick={onBackToLogin}
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  onBackToLogin()
+                }}
                 className={getAuthLinkButtonThemeClasses()}
               >
                 Acessar
@@ -49,6 +54,7 @@ export function SignUpPanel({
         ) : (
           <div className="w-full">
             <FormView
+              key="signup-form"
               title={signUpFormConfig.title}
               subtitle={signUpFormConfig.subtitle}
               fields={signUpFormConfig.fields}
@@ -60,7 +66,11 @@ export function SignUpPanel({
             <TextView className={getAuthLinkContainerThemeClasses({ className: 'mt-4 md:hidden' })}>
               Já tem conta?
               <button
-                onClick={onLogin}
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault()
+                  onLogin()
+                }}
                 className={getAuthLinkButtonThemeClasses()}
               >
                 Acessar

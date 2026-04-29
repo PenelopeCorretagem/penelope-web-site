@@ -57,11 +57,12 @@ import { Link } from 'react-router-dom'
  */
 export function NavMenuView({
   isAuthenticated = false,
+  isAdmin = false,
   className = '',
   variant = 'navigation',
   hideLogo = false,
 }) {
-  const viewModel = useNavMenuViewModel(isAuthenticated)
+  const viewModel = useNavMenuViewModel(isAuthenticated, isAdmin)
 
   // Render helpers
   const renderIcon = (iconName) => {
@@ -90,7 +91,7 @@ export function NavMenuView({
       <Link
         key={item.id}
         to={item.route}
-        onClick={viewModel.handleItemClick}
+        onClick={() => viewModel.handleItemClick(item.route)}
         className={`px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base md:text-lg ${
           isActive
             ? 'text-distac-primary underline underline-offset-4 decoration-2'
@@ -116,7 +117,7 @@ export function NavMenuView({
         shape='circle'
         disabled={action.requiresAuth && !viewModel.isAuthenticated}
         active={isActive}
-        onClick={action.isLogoutAction ? viewModel.handleLogout : viewModel.handleItemClick}
+        onClick={action.isLogoutAction ? viewModel.handleLogout : () => viewModel.handleItemClick(action.route)}
         title={action.label}
       >
         {renderIcon(action.icon)}
@@ -124,19 +125,15 @@ export function NavMenuView({
     )
   }
 
-  // Ordem das seções no mobile para grid 2 colunas equilibrada (Geral|Contatos, Vendas|Acesso)
-  const mobileOrderClasses = {
-    geral: 'order-1 md:order-none',
-    contatos: 'order-2 md:order-none',
-    vendas: 'order-3 md:order-none',
-    acesso: 'order-4 md:order-none'
-  }
-
   const renderFooterSection = (sectionName, items) => (
-    <div key={sectionName} className={viewModel.getFooterSectionClasses() + ' ' + (mobileOrderClasses[sectionName] || '')}>
+    <div
+      key={sectionName}
+      className={`${viewModel.getFooterSectionClasses()} ${viewModel.getFooterSectionMobileOrder(sectionName)}`}
+    >
       <HeadingView level={6} className='text-distac-primary font-extrabold'>
-        {getSectionTitle(sectionName)}
+        {viewModel.getSectionTitle(sectionName)}
       </HeadingView>
+
       {items.map(item => (
         item.openInNewTab ? (
           <a
@@ -166,6 +163,7 @@ export function NavMenuView({
                 e.preventDefault()
                 return
               }
+              viewModel.handleItemClick(item.to)
               item.onClick?.()
             }}
             className={viewModel.getFooterLinkClasses(item.disabled)}
@@ -179,21 +177,11 @@ export function NavMenuView({
     </div>
   )
 
-  const getSectionTitle = (sectionName) => {
-    const titles = {
-      geral: 'Geral',
-      vendas: 'Vendas',
-      acesso: 'Acesso',
-      contatos: 'Contatos'
-    }
-    return titles[sectionName] || sectionName
-  }
-
   // Footer variant
   if (variant === 'footer') {
     return (
       <div className={viewModel.getFooterClasses()}>
-        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-2 md:col-span-1'>
+        <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-1'>
           <LogoView hasHoverEffect={true} />
           <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
             Seu sonho começa com uma chave
@@ -215,15 +203,13 @@ export function NavMenuView({
         className="flex items-center w-full justify-between md:hidden"
         style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
       >
-        {!hideLogo && (
-          <Link
-            to='/'
-            className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
-            style={{marginLeft: 0, padding: 0}}
-          >
-            <LogoView height={'40'} className='text-distac-primary fill-current' />
-          </Link>
-        )}
+        <Link
+          to='/'
+          className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
+          style={{marginLeft: 0, padding: 0}}
+        >
+          <LogoView height={'40'} className='text-distac-primary fill-current' />
+        </Link>
         <button
           onClick={viewModel.toggleMobileMenu}
           className={viewModel.getHamburgerClasses()}
@@ -237,7 +223,7 @@ export function NavMenuView({
       {/* Mobile: dropdown do menu (escondido em md+, via tema) */}
       {viewModel.isMobileMenuOpen && (
         <div className={viewModel.getMenuItemsClasses(true) + ' items-center text-center'}>
-          {viewModel.menuItems.map(renderMenuItem)}
+          {viewModel.menuItems.filter(item => !item.mobileOnly).map(renderMenuItem)}
           {!isAuthenticated && (
             <Link
               to={viewModel.userActions.find(action => action.id === 'login' || action.route === '/login')?.route || '/login'}
@@ -248,24 +234,38 @@ export function NavMenuView({
               <span>Acessar</span>
             </Link>
           )}
+          {isAuthenticated && (
+            <>
+              <div className="w-3/4 h-px bg-default-dark-muted/30 my-2" />
+              {viewModel.menuItems.filter(item => item.mobileOnly).map(renderMenuItem)}
+              <div className="w-3/4 h-px bg-default-dark-muted/30 my-2" />
+              <button
+                onClick={() => { viewModel.handleLogout(); viewModel.closeMobileMenu(); }}
+                className="px-4 py-2 transition-all duration-200 flex items-center gap-2 uppercase text-base text-default-dark hover:text-distac-primary justify-center"
+              >
+                {renderIcon('LogOut')}
+                <span>Sair</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
       {/* Desktop: logo (escondida no mobile) */}
       {!hideLogo && (
-        <Link
-          to='/'
+        <button
+          onClick={() => viewModel.handleItemClick('/')}
           className={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
             hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
-          }`}
+          } bg-transparent border-none cursor-pointer p-0`}
         >
           <LogoView height={'40'} className='text-distac-primary fill-current' />
-        </Link>
+        </button>
       )}
 
       {/* Desktop: itens do menu (hidden md:flex via tema) */}
       <div className={viewModel.getMenuItemsClasses(false)}>
-        {viewModel.menuItems.map(renderMenuItem)}
+        {viewModel.menuItems.filter(item => !item.mobileOnly).map(renderMenuItem)}
       </div>
 
       {/* Desktop: botão de usuário (hidden md:flex via tema) */}

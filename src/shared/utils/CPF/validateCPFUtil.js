@@ -7,7 +7,7 @@
  */
 export function validateCPF(cpf) {
   // Remove tudo que não é número
-  cpf = cpf.replace(/[^\d]+/g, '')
+  cpf = String(cpf ?? '').replace(/[^\d]+/g, '').slice(0, 11)
 
   if (cpf.length !== 11) return false
 

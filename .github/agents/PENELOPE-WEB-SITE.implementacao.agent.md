@@ -139,7 +139,7 @@ export function ExemploView() {
 
 ## Entidades de Domínio
 
-Criar em `src/app/model/entities/` com:
+Criar em `src/app/dtos/` com:
 
 - Campos privados `#field`
 - Getters e setters
@@ -173,31 +173,31 @@ export class Entidade {
 
 ## Serviços de API
 
-Criar em `src/app/services/penelopec/` — **NUNCA** importar axios diretamente:
+Criar em `src/app/services/penelopec/` usando a API em `src/app/api/` — **NUNCA** importar axios diretamente:
 
 ```javascript
-import axiosInstance from '@penelopec/axiosInstance'
+import * as entidadeApi from '@api-penelopec/entidadeApi'
 import { EntidadeMapper } from '@mappers/EntidadeMapper'
 
 export const listarEntidades = async (filtros = {}) => {
-  const response = await axiosInstance.get('/entidades', { params: filtros })
-  return EntidadeMapper.toEntityList(response.data)
+  const response = await entidadeApi.listarEntidades(filtros)
+  return EntidadeMapper.toEntityList(response)
 }
 
 export const buscarEntidadePorId = async (id) => {
-  const response = await axiosInstance.get(`/entidades/${id}`)
-  return EntidadeMapper.toEntity(response.data)
+  const response = await entidadeApi.buscarEntidadePorId(id)
+  return EntidadeMapper.toEntity(response)
 }
 
 export const criarEntidade = async (entidade) => {
-  const response = await axiosInstance.post('/entidades', entidade.toRequestPayload())
-  return EntidadeMapper.toEntity(response.data)
+  const response = await entidadeApi.criarEntidade(entidade.toRequestPayload())
+  return EntidadeMapper.toEntity(response)
 }
 ```
 
 ## Mappers
 
-Criar em `src/app/services/mapper/` — conversão bidirecional API ↔ Entidade:
+Criar em `src/app/mappers/` — conversão bidirecional API ↔ Entidade:
 
 ```javascript
 import { Entidade } from '@dtos/Entidade'
@@ -228,11 +228,21 @@ export class EntidadeMapper {
 | `@management` | `src/modules/management/` |
 | `@routes` | `src/app/routes/` |
 | `@utils` | `src/shared/utils/` |
+| `@app` | `src/app/` |
+| `@routes` | `src/app/routes/` |
+| `@api` | `src/app/api/` |
 | `@services` | `src/app/services/` |
-| `@api` | `src/app/services/api/` |
-| `@mapper` | `src/app/services/mapper/` |
-| `@entity` | `src/app/model/entities/` |
-| `@constant` | `src/constants/` |
+| `@mappers` | `src/app/mappers/` |
+| `@dtos` | `src/app/dtos/` |
+| `@mocks` | `src/app/mocks/` |
+| `@utils` | `src/shared/utils/` |
+| `@constant` | `src/shared/constants/` |
+| `@service-penelopec` | `src/app/services/penelopec/` |
+| `@service-viacep` | `src/app/services/viacep/` |
+| `@service-calservice` | `src/app/services/calservice/` |
+| `@api-penelopec` | `src/app/api/penelopec/` |
+| `@api-viacep` | `src/app/api/viacep/` |
+| `@api-calservice` | `src/app/api/calservice/` |
 
 ## Estilização — Tailwind CSS 4
 
@@ -263,7 +273,7 @@ Antes de criar componentes novos, verificar se já existe em `src/shared/compone
 
 ## Constantes
 
-Definir em `src/constants/` com `UPPER_SNAKE_CASE` e helpers:
+Definir em `src/shared/constants/` com `UPPER_SNAKE_CASE` e helpers:
 
 ```javascript
 export const TIPOS_EXEMPLO = {
@@ -301,7 +311,7 @@ export function useExemploHook(opcoes = {}) {
 
 ## Rotas
 
-Definir em `src/constants/routes.js`:
+Definir em `src/shared/constants/routes.js`:
 
 ```javascript
 ROTA_EXEMPLO: { key: 'ROTA_EXEMPLO', path: '/exemplo', friendlyName: 'Exemplo' }
@@ -333,5 +343,5 @@ Registrar no `RouterModel.js` no nível de proteção adequado:
 1. Antes de implementar, verificar componentes e padrões existentes no projeto
 2. Criar os três arquivos MVVM na ordem: Model → ViewModel → View
 3. Registrar novas rotas em `constants/routes.js` e `RouterModel.js`
-4. Novas entidades vão em `src/app/model/entities/`, APIs em `src/app/services/api/`, mappers em `src/app/services/mapper/`
+4. Novas entidades vão em `src/app/dtos/`, APIs em `src/app/api/`, serviços em `src/app/services/` e mappers em `src/app/mappers/`
 5. Validar que lint e build passam após cada implementação: `npm run lint` e `npm run build`
