@@ -5,6 +5,7 @@ import { useScheduleFilters } from './hooks/useScheduleFilters'
 import { useScheduleCalendarData } from './hooks/useScheduleCalendarData'
 import { useScheduleUIState } from './hooks/useScheduleUIState'
 import { useScheduleAppointmentActions } from './hooks/useScheduleAppointmentActions'
+import { useScheduleReportData } from './hooks/useScheduleReportData'
 import { ScheduleModel } from './ScheduleModel'
 import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
 
@@ -26,6 +27,8 @@ export function useScheduleViewModel() {
   const [defaultEstateAgentFilter, setDefaultEstateAgentFilter] = useState('')
 
   const [selectedDate, setSelectedDate] = useState(() => new Date())
+  const [displayMode, setDisplayMode] = useState('calendar') // 'calendar', 'daily', 'report'
+  const [selectedEstateAgentName, setSelectedEstateAgentName] = useState('')
   const selectedDateRef = useRef(selectedDate)
   const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
 
@@ -37,7 +40,32 @@ export function useScheduleViewModel() {
   const calendarData = useScheduleCalendarData(selectedDate, filterService.filteredAppointments)
   const uiState = useScheduleUIState()
   const actions = useScheduleAppointmentActions(appointmentService)
+  const reportData = useScheduleReportData(filterService.filteredAppointments)
   const navigateLabels = useMemo(() => ScheduleModel.getPeriodNavigationLabels(uiState.viewMode), [uiState.viewMode])
+
+  // Determina quais modos de visualização estão disponíveis
+  const isAllAgentsSelected = selectedEstateAgentFilter === 'TODOS'
+  const availableDisplayModes = useMemo(() => {
+    if (isClientUser) {
+      return ['calendar'] // Cliente só vê calendário
+    }
+
+    if (!isAdminUser) {
+      return ['calendar'] // Não admin só vê calendário
+    }
+
+    if (!canSelectEstateAgent) {
+      // Admin com CRECI pode ver calendar e report
+      return ['calendar', 'report']
+    }
+
+    // Admin sem CRECI - sempre pode ver calendar e report
+    return ['calendar', 'report']
+  }, [isClientUser, isAdminUser, canSelectEstateAgent])
+
+  // Força viewMode="day" quando "TODOS" está selecionado
+  const forcedViewMode = isAllAgentsSelected ? 'day' : uiState.viewMode
+  const canChangeViewMode = !isAllAgentsSelected
 
   const getApiErrorMessage = useCallback((error, fallbackMessage) => {
     const apiMessage = error?.response?.data?.message
@@ -115,6 +143,44 @@ export function useScheduleViewModel() {
     handleFiltersChange(filterKey, filterValue)
   }, [handleFiltersChange])
 
+  // Extrai o nome do corretor selecionado para exibição no relatório
+  useEffect(() => {
+    if (!canSelectEstateAgent) {
+      // Admin com CRECI vê seus próprios dados
+      setSelectedEstateAgentName('')
+      return
+    }
+
+    if (isAllAgentsSelected || !selectedEstateAgentFilter) {
+      setSelectedEstateAgentName('Todos os corretores')
+      return
+    }
+
+    // Encontra o nome do corretor selecionado
+    const agentOption = estateAgentFilterOptions.find(opt => opt.value === selectedEstateAgentFilter)
+    setSelectedEstateAgentName(agentOption?.label || '')
+  }, [selectedEstateAgentFilter, canSelectEstateAgent, estateAgentFilterOptions, isAllAgentsSelected])
+
+  // Valida e ajusta displayMode quando muda de modo disponível
+  useEffect(() => {
+    if (!availableDisplayModes.includes(displayMode)) {
+      setDisplayMode(availableDisplayModes[0] || 'calendar')
+    }
+  }, [availableDisplayModes, displayMode])
+
+  // Força forçar viewMode = day quando TODOS selecionado
+  useEffect(() => {
+    if (isAllAgentsSelected && uiState.viewMode !== 'day') {
+      uiState.setViewMode('day')
+    }
+  }, [isAllAgentsSelected, uiState])
+
+  const handleDisplayModeChange = useCallback((mode) => {
+    if (availableDisplayModes.includes(mode)) {
+      setDisplayMode(mode)
+    }
+  }, [availableDisplayModes])
+
   const loadAppointmentsWithScope = useCallback(async () => {
     if (isScopeLoading) {
       return
@@ -163,12 +229,15 @@ export function useScheduleViewModel() {
         }
 
         const usersWithCreci = await getUsersWithCreci()
-        const agentOptions = usersWithCreci
-          .map(user => ({
-            value: String(user.id),
-            label: user.getDisplayName?.() || user.name || `Corretor #${user.id}`,
-          }))
-          .filter(option => Boolean(option.value))
+        const agentOptions = [
+          { value: 'TODOS', label: 'Todos os Corretores' },
+          ...usersWithCreci
+            .map(user => ({
+              value: String(user.id),
+              label: user.name || `Corretor #${user.id}`,
+            }))
+            .filter(option => Boolean(option.value)),
+        ]
 
         setCanSelectEstateAgent(true)
         setEstateAgentFilterOptions(agentOptions)
@@ -267,7 +336,7 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
 
   const handleConcludeFromTools = useCallback(() => {
     if (isReadOnlyAdminView) return
@@ -295,7 +364,7 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
 
   const handleCancelFromTools = useCallback(() => {
     if (isReadOnlyAdminView) return
@@ -323,7 +392,7 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
 
   const handleDeleteFromTools = useCallback(() => {
     if (isReadOnlyAdminView) return
@@ -350,9 +419,11 @@ export function useScheduleViewModel() {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService])
 
   // Dados derivados
+  const totalAppointmentsCount = appointmentService.model.getTotal()
+
   const upcomingAppointments = useMemo(() => {
     const all = appointmentService.model.getAll()
     const now = new Date()
@@ -360,7 +431,7 @@ export function useScheduleViewModel() {
       .filter(a => a.date >= now)
       .sort((a, b) => a.date - b.date)
       .slice(0, 5)
-  }, [appointmentService.model.getTotal()])
+  }, [appointmentService, selectedDate])
 
   const monthCount = useMemo(() => {
     const all = appointmentService.model.getAll()
@@ -368,7 +439,7 @@ export function useScheduleViewModel() {
       const d = a.date
       return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
     }).length
-  }, [appointmentService.model.getTotal(), selectedDate])
+  }, [appointmentService, selectedDate])
 
   return {
     // Estado
@@ -376,6 +447,14 @@ export function useScheduleViewModel() {
     setSelectedDate,
     loading: appointmentService.loading,
     error: appointmentService.error,
+
+    // Modos de visualização
+    displayMode,
+    handleDisplayModeChange,
+    availableDisplayModes,
+    isAllAgentsSelected,
+    forcedViewMode,
+    canChangeViewMode,
 
     // Permissões
     isAdminUser,
@@ -397,8 +476,9 @@ export function useScheduleViewModel() {
     handleEstateAgentScopeFilterChange: setSelectedEstateAgentFilter,
 
     // UI State
-    viewMode: uiState.viewMode,
-    setViewMode: uiState.setViewMode,
+    viewMode: forcedViewMode,
+    setViewMode: canChangeViewMode ? uiState.setViewMode : () => {},
+    canChangeViewMode,
     isModalOpen: uiState.isModalOpen,
     selectedModalDate: uiState.selectedModalDate,
     selectedModalHour: uiState.selectedModalHour,
@@ -423,10 +503,14 @@ export function useScheduleViewModel() {
     selectedDateAppointmentsByStatus: calendarData.selectedDateAppointmentsByStatus,
     monthlyAppointmentsByStatus: calendarData.monthlyAppointmentsByStatus,
 
+    // Dados de relatório
+    reportData,
+    selectedEstateAgentName,
+
     // Dados
     filteredAppointments: filterService.filteredAppointments,
     allAppointments: appointmentService.model.getAll(),
-    totalAppointments: appointmentService.totalAppointments,
+    totalAppointments: totalAppointmentsCount,
     upcomingAppointments,
     monthCount,
 

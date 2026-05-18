@@ -1,9 +1,15 @@
 import { FilterView } from '@shared/components/layout/Filter/FilterView'
 import { LabelView } from '@shared/components/ui/Label/LabelView'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
+import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { SlidersHorizontal } from 'lucide-react'
 
 const filterLabelModel = new LabelModel('Filtros', 'gray')
+
+const DISPLAY_MODE_OPTIONS = [
+  { value: 'calendar', label: 'Calendário' },
+  { value: 'report', label: 'Relatório' },
+]
 
 export function ScheduleFiltersToolbarView({
   filterConfigs,
@@ -12,6 +18,9 @@ export function ScheduleFiltersToolbarView({
   onFiltersChange,
   showEstateAgentScopeSelect,
   estateAgentScopeFilterOptions,
+  displayMode = 'calendar',
+  availableDisplayModes = [],
+  onDisplayModeChange,
   mobileExpandedContent,
 }) {
   const mergedFilterConfigs = showEstateAgentScopeSelect
@@ -26,8 +35,43 @@ export function ScheduleFiltersToolbarView({
         shape: 'square',
       },
       ...filterConfigs,
+      // Adicionar displayMode como um filtro
+      ...(availableDisplayModes.length > 1
+        ? [
+          {
+            key: 'displayMode',
+            options: DISPLAY_MODE_OPTIONS,
+            defaultValue: 'calendar',
+            width: 'fit',
+            mobileFull: false,
+            variant: 'default',
+            shape: 'square',
+            customValue: displayMode,
+            customOnChange: onDisplayModeChange,
+          },
+        ]
+        : []),
     ]
-    : filterConfigs
+    : [
+      ...filterConfigs,
+      // Adicionar displayMode como um filtro
+      ...(availableDisplayModes.length > 1
+        ? [
+          {
+            key: 'displayMode',
+            options: DISPLAY_MODE_OPTIONS,
+            defaultValue: 'calendar',
+            width: 'fit',
+            mobileFull: false,
+            variant: 'default',
+            shape: 'square',
+            customValue: displayMode,
+            customOnChange: onDisplayModeChange,
+          },
+        ]
+        : []),
+    ]
+
   return (
     <div className="rounded-lg border border-default-light-muted bg-default-light px-4 py-3 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-end h-full">
@@ -47,7 +91,13 @@ export function ScheduleFiltersToolbarView({
                 hideSearch={true}
                 filterConfigs={mergedFilterConfigs}
                 defaultFilters={defaultFilters}
-                onFiltersChange={onFiltersChange}
+                onFiltersChange={(key, value) => {
+                  if (key === 'displayMode' && onDisplayModeChange) {
+                    onDisplayModeChange(value)
+                  } else {
+                    onFiltersChange(key, value)
+                  }
+                }}
                 showSortButton={false}
                 showResetButton={true}
                 mobileExpandedContent={mobileExpandedContent}
@@ -55,7 +105,6 @@ export function ScheduleFiltersToolbarView({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )

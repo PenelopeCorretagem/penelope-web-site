@@ -20,6 +20,9 @@ export function ScheduleCalendarPanelView({
   onTimeSlotClick,
   isPastDate,
   isSameDay,
+  canChangeViewMode = true,
+  isAllAgentsMode = false,
+  estateAgentScopeFilterOptions = [],
 }) {
   const handleKeyActivate = (event, onActivate) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -60,30 +63,34 @@ export function ScheduleCalendarPanelView({
             >
               <Calendar1 size={14} />
             </ButtonView>
-            <ButtonView
-              type="button"
-              onClick={() => setViewMode('week')}
-              active={viewMode === 'week'}
-              color="white"
-              width="fit"
-              shape="square"
-              className="!p-1.5 !min-w-0"
-              title="Visualizacao semanal"
-            >
-              <Calendar size={14} />
-            </ButtonView>
-            <ButtonView
-              type="button"
-              onClick={() => setViewMode('month')}
-              active={viewMode === 'month'}
-              color="white"
-              width="fit"
-              shape="square"
-              className="!p-1.5 !min-w-0"
-              title="Visualizacao mensal"
-            >
-              <CalendarDays size={14} />
-            </ButtonView>
+            {canChangeViewMode && (
+              <>
+                <ButtonView
+                  type="button"
+                  onClick={() => setViewMode('week')}
+                  active={viewMode === 'week'}
+                  color="white"
+                  width="fit"
+                  shape="square"
+                  className="!p-1.5 !min-w-0"
+                  title="Visualizacao semanal"
+                >
+                  <Calendar size={14} />
+                </ButtonView>
+                <ButtonView
+                  type="button"
+                  onClick={() => setViewMode('month')}
+                  active={viewMode === 'month'}
+                  color="white"
+                  width="fit"
+                  shape="square"
+                  className="!p-1.5 !min-w-0"
+                  title="Visualizacao mensal"
+                >
+                  <CalendarDays size={14} />
+                </ButtonView>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-1">
@@ -128,30 +135,34 @@ export function ScheduleCalendarPanelView({
             >
               <Calendar1 size={18} />
             </ButtonView>
-            <ButtonView
-              type="button"
-              onClick={() => setViewMode('week')}
-              active={viewMode === 'week'}
-              color="white"
-              width="fit"
-              shape="square"
-              className="!p-2 !min-w-0"
-              title="Visualizacao semanal"
-            >
-              <Calendar size={18} />
-            </ButtonView>
-            <ButtonView
-              type="button"
-              onClick={() => setViewMode('month')}
-              active={viewMode === 'month'}
-              color="white"
-              width="fit"
-              shape="square"
-              className="!p-2 !min-w-0"
-              title="Visualizacao mensal"
-            >
-              <CalendarDays size={18} />
-            </ButtonView>
+            {canChangeViewMode && (
+              <>
+                <ButtonView
+                  type="button"
+                  onClick={() => setViewMode('week')}
+                  active={viewMode === 'week'}
+                  color="white"
+                  width="fit"
+                  shape="square"
+                  className="!p-2 !min-w-0"
+                  title="Visualizacao semanal"
+                >
+                  <Calendar size={18} />
+                </ButtonView>
+                <ButtonView
+                  type="button"
+                  onClick={() => setViewMode('month')}
+                  active={viewMode === 'month'}
+                  color="white"
+                  width="fit"
+                  shape="square"
+                  className="!p-2 !min-w-0"
+                  title="Visualizacao mensal"
+                >
+                  <CalendarDays size={18} />
+                </ButtonView>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-1">
@@ -286,98 +297,194 @@ export function ScheduleCalendarPanelView({
             })}
           </div>
         ) : viewMode === 'day' ? (
-          <div className="min-w-full h-full flex flex-col">
-            <div className="flex flex-col">
-              <div className="flex items-center justify-center pb-4 border-b border-default-light-muted">
+          isAllAgentsMode ? (
+            // Visualização em colunas por corretor
+            <div className="min-w-full h-full flex flex-col">
+              <div className="flex items-center justify-center pb-3 border-b border-default-light-muted">
                 <div className="text-center">
                   <p className="text-xs text-muted uppercase tracking-widest">
                     {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long' })}
                   </p>
-                  <p className="text-2xl font-bold text-distac-primary">{selectedDate.getDate()}</p>
+                  <p className="text-xl font-bold text-distac-primary">{selectedDate.getDate()}</p>
                 </div>
               </div>
 
-              <div className="flex-1 relative mt-4">
-                <div className="flex gap-2 md:gap-4">
-                  <div className="w-10 md:w-16 flex-shrink-0">
+              <div className="flex-1 relative mt-3 overflow-x-auto">
+                <div className="flex gap-1.5">
+                  {/* Coluna de horários */}
+                  <div className="w-8 md:w-12 flex-shrink-0">
                     {hours.map(hour => (
-                      <div key={hour} className="h-20 text-[10px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2 font-medium">
+                      <div key={hour} className="h-16 text-[9px] md:text-xs text-muted flex items-start justify-end pr-0.5 md:pr-1 font-medium">
                         {String(hour).padStart(2, '0')}:00
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex-1 relative">
-                    {hours.map(hour => {
-                      const slotAppointments = selectedDateAppointments.filter(
-                        appt => appt.startDateTime.getHours() === hour
-                      )
+                  {/* Colunas por corretor (sem TODOS) */}
+                  {estateAgentScopeFilterOptions.filter(agent => agent.value !== 'TODOS').map(agent => {
+                    const agentAppointments = selectedDateAppointments.filter(appt => String(appt.estateAgentId) === String(agent.value))
 
-                      return (
-                        <div
-                          key={`hour-${hour}`}
-                          role={canCreateAppointments && !isPastDate(selectedDate) ? 'button' : undefined}
-                          tabIndex={canCreateAppointments && !isPastDate(selectedDate) ? 0 : -1}
-                          onClick={canCreateAppointments ? () => onTimeSlotClick(selectedDate, hour) : undefined}
-                          onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(selectedDate, hour)) : undefined}
-                          className={`h-16 border-b border-default-light-muted w-full transition relative block p-1 ${
-                            isPastDate(selectedDate)
-                              ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
-                              : canCreateAppointments
-                                ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
-                                : 'bg-default-light'
-                          }`}
-                        >
-                          <div className="absolute inset-0 pointer-events-none">
-                            {slotAppointments.map((appt, index) => {
-                              const startMinutes = appt.startDateTime.getMinutes()
-                              const slotRowHeight = 64
-                              const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
-                              const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
-                              const widthPercent = 100 / slotAppointments.length
-                              const leftPercent = index * widthPercent
-
-                              return (
-                                <div
-                                  key={appt.id}
-                                  role="button"
-                                  tabIndex={0}
-                                  onClick={(event) => {
-                                    event.stopPropagation()
-                                    onOpenAppointmentTools(appt)
-                                  }}
-                                  onKeyDown={(event) => {
-                                    event.stopPropagation()
-                                    handleKeyActivate(event, () => onOpenAppointmentTools(appt))
-                                  }}
-                                  className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden shadow-md cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
-                                  style={{
-                                    top: `${topOffset}px`,
-                                    left: `calc(${leftPercent}% + 2px)`,
-                                    width: `calc(${widthPercent}% - 4px)`,
-                                    minHeight: `${Math.max(height, 14)}px`,
-                                    maxHeight: `${slotRowHeight - 8}px`,
-                                    zIndex: 10 + index,
-                                  }}
-                                  title={appt.title || 'Agendamento'}
-                                >
-                                  <p className="font-semibold text-xs">{appt.title || 'Agendamento'}</p>
-                                  <p className="text-[10px] opacity-90 mt-1">
-                                    {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}min)
-                                  </p>
-                                  <p className="text-[10px] opacity-75 mt-1">{STATUS_LABELS[appt.status]}</p>
-                                </div>
-                              )
-                            })}
-                          </div>
+                    return (
+                      <div key={`agent-${agent.value}`} className="flex-1 min-w-[200px] border border-default-light-muted rounded-lg bg-default-light-alt overflow-hidden">
+                        {/* Header com nome do corretor */}
+                        <div className="bg-distac-secondary text-default-light px-2 py-1.5 text-center border-b border-default-light-muted">
+                          <p className="text-xs font-semibold truncate">{agent.label}</p>
+                          <p className="text-[10px] opacity-90">{agentAppointments.length} agend.</p>
                         </div>
-                      )
-                    })}
+
+                        {/* Grid de horários */}
+                        <div className="relative">
+                          {hours.map(hour => {
+                            const slotAppointments = agentAppointments.filter(appt => appt.startDateTime.getHours() === hour)
+
+                            return (
+                              <div
+                                key={`slot-${agent.value}-${hour}`}
+                                className="h-16 border-b border-default-light-muted relative p-0.5 bg-default-light hover:bg-distac-primary-light/30 transition"
+                              >
+                                {slotAppointments.map((appt, index) => {
+                                  const startMinutes = appt.startDateTime.getMinutes()
+                                  const slotRowHeight = 64
+                                  const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
+                                  const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
+
+                                  return (
+                                    <div
+                                      key={appt.id}
+                                      role="button"
+                                      tabIndex={0}
+                                      onClick={(event) => {
+                                        event.stopPropagation()
+                                        onOpenAppointmentTools(appt)
+                                      }}
+                                      onKeyDown={(event) => {
+                                        event.stopPropagation()
+                                        handleKeyActivate(event, () => onOpenAppointmentTools(appt))
+                                      }}
+                                      className={`absolute rounded-sm p-0.5 text-default-light text-[8px] overflow-hidden shadow-sm cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                      style={{
+                                        top: `${topOffset}px`,
+                                        left: '2px',
+                                        right: '2px',
+                                        width: 'calc(100% - 4px)',
+                                        minHeight: `${Math.max(height, 12)}px`,
+                                        maxHeight: `${slotRowHeight - 4}px`,
+                                        zIndex: 10 + index,
+                                      }}
+                                      title={appt.title || 'Agendamento'}
+                                    >
+                                      <p className="font-semibold text-[8px] leading-tight">{appt.title || 'Agend.'}</p>
+                                      <p className="text-[7px] opacity-90 leading-tight mt-0.5">
+                                        {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}m)
+                                      </p>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Visualização padrão de um único agendador
+            <div className="min-w-full h-full flex flex-col">
+              <div className="flex flex-col">
+                <div className="flex items-center justify-center pb-4 border-b border-default-light-muted">
+                  <div className="text-center">
+                    <p className="text-xs text-muted uppercase tracking-widest">
+                      {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long' })}
+                    </p>
+                    <p className="text-2xl font-bold text-distac-primary">{selectedDate.getDate()}</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 relative mt-4">
+                  <div className="flex gap-2 md:gap-4">
+                    <div className="w-10 md:w-16 flex-shrink-0">
+                      {hours.map(hour => (
+                        <div key={hour} className="h-20 text-[10px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2 font-medium">
+                          {String(hour).padStart(2, '0')}:00
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex-1 relative">
+                      {hours.map(hour => {
+                        const slotAppointments = selectedDateAppointments.filter(
+                          appt => appt.startDateTime.getHours() === hour
+                        )
+
+                        return (
+                          <div
+                            key={`hour-${hour}`}
+                            role={canCreateAppointments && !isPastDate(selectedDate) ? 'button' : undefined}
+                            tabIndex={canCreateAppointments && !isPastDate(selectedDate) ? 0 : -1}
+                            onClick={canCreateAppointments ? () => onTimeSlotClick(selectedDate, hour) : undefined}
+                            onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(selectedDate, hour)) : undefined}
+                            className={`h-16 border-b border-default-light-muted w-full transition relative block p-1 ${
+                              isPastDate(selectedDate)
+                                ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
+                                : canCreateAppointments
+                                  ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
+                                  : 'bg-default-light'
+                            }`}
+                          >
+                            <div className="absolute inset-0 pointer-events-none">
+                              {slotAppointments.map((appt, index) => {
+                                const startMinutes = appt.startDateTime.getMinutes()
+                                const slotRowHeight = 64
+                                const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
+                                const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
+                                const widthPercent = 100 / slotAppointments.length
+                                const leftPercent = index * widthPercent
+
+                                return (
+                                  <div
+                                    key={appt.id}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(event) => {
+                                      event.stopPropagation()
+                                      onOpenAppointmentTools(appt)
+                                    }}
+                                    onKeyDown={(event) => {
+                                      event.stopPropagation()
+                                      handleKeyActivate(event, () => onOpenAppointmentTools(appt))
+                                    }}
+                                    className={`absolute rounded-sm p-0.5 text-default-light text-[10px] overflow-hidden shadow-md cursor-pointer pointer-events-auto ${STATUS_COLORS[appt.status] || 'bg-slate-400'}`}
+                                    style={{
+                                      top: `${topOffset}px`,
+                                      left: `calc(${leftPercent}% + 2px)`,
+                                      width: `calc(${widthPercent}% - 4px)`,
+                                      minHeight: `${Math.max(height, 14)}px`,
+                                      maxHeight: `${slotRowHeight - 8}px`,
+                                      zIndex: 10 + index,
+                                    }}
+                                    title={appt.title || 'Agendamento'}
+                                  >
+                                    <p className="font-semibold text-xs">{appt.title || 'Agendamento'}</p>
+                                    <p className="text-[10px] opacity-90 mt-1">
+                                      {String(appt.startDateTime.getHours()).padStart(2, '0')}:{String(startMinutes).padStart(2, '0')} ({appt.durationMinutes}min)
+                                    </p>
+                                    <p className="text-[10px] opacity-75 mt-1">{STATUS_LABELS[appt.status]}</p>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )
         ) : (
           <div className="min-w-full">
             <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2 text-center text-xs font-semibold text-muted uppercase tracking-widest">
