@@ -21,7 +21,7 @@ export function SignUpPanel({
         <BackButtonView className="text-distac-primary" />
       </div>
       <div className={getAuthBackButtonThemeClasses({ variant: 'rightPanel', className: 'hidden md:flex' })}>
-        <PanelHeader variant="rightPanel" />
+        <PanelHeader variant="rightPanel" logoClassName="text-distac-primary fill-current" />
       </div>
 
       <div className="flex-1 flex items-center justify-center">
