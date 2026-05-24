@@ -1,4 +1,5 @@
 import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validateName } from '@shared/utils/name/validateNameUtil'
 import { validatePassword } from '@shared/utils/password/validatePasswordUtil'
 import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
@@ -41,19 +42,7 @@ export class UserConfigModel {
         placeholder: 'Digite o nome completo',
         required: true,
         gridColumn: 'col-span-3', // 1/2 de 6 colunas
-        validate: (value) => {
-          if (!value || value.trim().length < 2) {
-            return 'Nome completo deve ter pelo menos 2 caracteres'
-          }
-          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value.trim())) {
-            return 'Nome deve conter apenas letras e espaços'
-          }
-          const nameParts = value.trim().split(/\s+/)
-          if (nameParts.length < 2) {
-            return 'Informe nome e sobrenome'
-          }
-          return true
-        }
+        validate: (value) => validateName(value)
       },
       {
         name: 'dateBirth',

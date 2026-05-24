@@ -1,3 +1,4 @@
+import { validateName } from '@shared/utils/name/validateNameUtil'
 import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
 import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
@@ -48,19 +49,7 @@ export class ProfileModel {
         placeholder: 'Digite seu nome completo',
         required: true,
         gridColumn: 'col-span-3', // 3/6 = 1/2
-        validate: (value) => {
-          if (!value || value.trim().length < 3) {
-            return 'Nome completo deve ter pelo menos 3 caracteres'
-          }
-          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value)) {
-            return 'Nome deve conter apenas letras'
-          }
-          const nameParts = value.trim().split(' ')
-          if (nameParts.length < 2) {
-            return 'Informe nome e sobrenome'
-          }
-          return true
-        }
+        validate: (value) => validateName(value, { minLength: 3 })
       },
       {
         name: 'dateBirth',
@@ -190,19 +179,7 @@ export class ProfileModel {
         placeholder: 'Digite seu nome completo',
         required: true,
         gridColumn: 'col-span-3', // 3/6 = 1/2
-        validate: (value) => {
-          if (!value || value.trim().length < 3) {
-            return 'Nome completo deve ter pelo menos 3 caracteres'
-          }
-          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value)) {
-            return 'Nome deve conter apenas letras'
-          }
-          const nameParts = value.trim().split(' ')
-          if (nameParts.length < 2) {
-            return 'Informe nome e sobrenome'
-          }
-          return true
-        }
+        validate: (value) => validateName(value, { minLength: 3 })
       },
       {
         name: 'dateBirth',

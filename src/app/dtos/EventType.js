@@ -1,9 +1,3 @@
-/**
- * EventType.js
- * DTO que representa um tipo de agendamento do cal-service
- * Usado para criar e gerenciar tipos de eventos que podem ser agendados.
- */
-
 export class EventType {
   #id
   #title
@@ -49,9 +43,10 @@ export class EventType {
   set minimumBookingNotice(v) { this.#minimumBookingNotice = v }
   set hidden(v) { this.#hidden = v }
 
-  /**
-   * Converte para payload para criação/atualização na API
-   */
+  isVisible() {
+    return !this.#hidden
+  }
+
   toRequestPayload() {
     return {
       title: this.#title,
@@ -60,35 +55,6 @@ export class EventType {
       minimumBookingNotice: this.#minimumBookingNotice,
       hidden: this.#hidden,
       estateId: this.#estateId,
-    }
-  }
-
-  /**
-   * Cria uma instância a partir dos dados da API
-   */
-  static fromApi(data) {
-    if (!data) return null
-    return new EventType({
-      id: data.id,
-      title: data.title,
-      slug: data.slug,
-      description: data.description,
-      lengthInMinutes: data.lengthInMinutes,
-      minimumBookingNotice: data.minimumBookingNotice,
-      hidden: data.hidden,
-      estateId: data.estateId,
-    })
-  }
-
-  /**
-   * Lista de tipos de evento para display
-   */
-  summary() {
-    return {
-      id: this.#id,
-      title: this.#title,
-      duration: `${this.#lengthInMinutes}min`,
-      visible: !this.#hidden,
     }
   }
 }

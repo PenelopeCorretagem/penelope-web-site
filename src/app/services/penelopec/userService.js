@@ -1,83 +1,105 @@
 import * as userApi from '@api-penelopec/userApi'
 import { userMapper } from '@mappers/userMapper'
+import { User } from '@dtos/User'
+import { handleUserError } from '@responses/penelopec/UserResponse'
 
-/**
- * Camada de Serviço - Orquestra a chamada à API e transformação de dados
- * Responsável por lógica de negócio e conversão de DTOs para entidades de domínio
- */
-
-/**
- * Cria um novo usuário no sistema.
- * @param {object} userData - Dados do usuário
- * @returns {Promise<User>} Entidade User criada
- */
 export const createUser = async (userData) => {
-  const response = await userApi.createUser(userData)
-  return userMapper.toEntity(response)
+  if (!userData)
+    throw new Error('Os dados do usuário são obrigatórios')
+  if (!userData.name)
+    throw new Error('O nome é obrigatório')
+  if (!userData.email)
+    throw new Error('O e-mail é obrigatório')
+
+  try {
+    const payload = userData instanceof User
+      ? userMapper.toRequestPayload(userData)
+      : userData
+
+    const response = await userApi.createUser(payload)
+    return userMapper.toEntity(response)
+  } catch (error) {
+    throw handleUserError(error, 'Criação')
+  }
 }
 
-/**
- * Lista todos os usuários cadastrados.
- * @returns {Promise<User[]>} Lista de entidades User
- */
-export const getAllUsers = async () => {
-  const response = await userApi.getAllUsers()
-  return userMapper.toEntityList(response)
+export const getAllUsers = async (page = 1, pageSize = 10) => {
+  try {
+    const response = await userApi.getAllUsers(page, pageSize)
+    const rawList = response?.content || response || []
+    return userMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleUserError(error, 'Listagem')
+  }
 }
 
-/**
- * Busca um usuário específico por ID.
- * @param {number} id - ID do usuário
- * @returns {Promise<User>} Entidade User
- */
 export const getUserById = async (id) => {
-  const response = await userApi.getUserById(id)
-  return userMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para buscar um usuário')
+
+  try {
+    const response = await userApi.getUserById(id)
+    return userMapper.toEntity(response)
+  } catch (error) {
+    throw handleUserError(error, 'Busca')
+  }
 }
 
-/**
- * Atualiza um usuário.
- * @param {number} id - ID do usuário
- * @param {object} userData - Dados atualizados
- * @returns {Promise<User>} Entidade User atualizada
- */
 export const updateUser = async (id, userData) => {
-  const response = await userApi.updateUser(id, userData)
-  return userMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para atualizar um usuário')
+  if (!userData)
+    throw new Error('Os dados de atualização são obrigatórios')
+
+  try {
+    const payload = userData instanceof User
+      ? userMapper.toRequestPayload(userData)
+      : userData
+
+    const response = await userApi.updateUser(id, payload)
+    return userMapper.toEntity(response)
+  } catch (error) {
+    throw handleUserError(error, 'Atualização')
+  }
 }
 
-/**
- * Remove um usuário.
- * @param {number} id - ID do usuário
- * @returns {Promise<void>}
- */
 export const deleteUser = async (id) => {
-  return await userApi.deleteUser(id)
+  if (!id)
+    throw new Error('O ID é obrigatório para excluir um usuário')
+
+  try {
+    await userApi.deleteUser(id)
+  } catch (error) {
+    throw handleUserError(error, 'Exclusão')
+  }
 }
 
-/**
- * Solicita recuperação de senha.
- * @param {string} email
- * @returns {Promise<string|object>} Resposta da API
- */
 export const forgotPassword = async (email) => {
-  return await userApi.forgotPassword(email)
+  if (!email)
+    throw new Error('O e-mail é obrigatório para recuperação de senha')
+
+  try {
+    const response = await userApi.forgotPassword(email)
+    return response?.message || response
+  } catch (error) {
+    throw handleUserError(error, 'Recuperação de Senha')
+  }
+}
+
+export const getUserProfile = async () => {
+  try {
+    const response = await userApi.getUserProfile()
+    return userMapper.toEntity(response)
+  } catch (error) {
+    throw handleUserError(error, 'Busca de Perfil')
+  }
 }
 
 /**
- * Alias para compatibilidade
- */
-export const registerUser = createUser
-
-/**
- * Lista usuários que possuem CRECI (corretores ativos).
- * @returns {Promise<User[]>} Lista de usuários com CRECI
+ * Lista corretores ativos — usuários com CRECI e status ativo.
+ * Usado para popular selects de responsável em anúncios e agendamentos.
  */
 export const getUsersWithCreci = async () => {
-  try {
-    const users = await getAllUsers()
-    return users.filter(user => user.hasCreci?.() && user.isActive?.())
-  } catch {
-    return []
-  }
+  const users = await getAllUsers()
+  return users.filter(user => user.hasCreci() && user.isActive())
 }

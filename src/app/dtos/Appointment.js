@@ -1,8 +1,9 @@
 /**
- * Representa um agendamento de visita a um imóvel.
+ * Appointment.js
+ * DTO + Model de domínio para agendamentos.
+ * Sem dependências externas. Sem lógica de mapeamento de API.
  */
 export class Appointment {
-  // ===== PRIVATE FIELDS =====
   #id
   #client
   #estateAgent
@@ -62,34 +63,21 @@ export class Appointment {
   set calBookingId(v) { this.#calBookingId = v }
   set updatedAt(v) { this.#updatedAt = v }
 
-  // ===== MÉTODOS DE NEGÓCIO =====
+  // ===== LÓGICA DE DOMÍNIO =====
+  // Regras sobre o próprio estado do objeto pertencem aqui.
 
-  /**
-   * Verifica se o agendamento está ativo (não cancelado ou concluído).
-   */
   isActive() {
     return this.#status === 'AGENDADO'
   }
 
-  /**
-   * Verifica se o agendamento tem integração com Cal.com.
-   */
   hasCalBooking() {
     return Boolean(this.#calBookingId)
   }
 
-  /**
-   * Retorna um resumo do agendamento.
-   */
-  summary() {
-    const clientName = this.#client?.name || 'Cliente não informado'
-    const estateTitle = this.#estate?.title || 'Imóvel não informado'
-    return `${clientName} - ${estateTitle} (${this.#startDateTime})`
-  }
+  // ===== PAYLOADS PARA A API =====
+  // O DTO conhece sua própria estrutura, então ele monta os payloads.
+  // O Service apenas chama esses métodos — sem conhecer os campos internos.
 
-  /**
-   * Converte para payload aceito pela API para reagendamento.
-   */
   toReschedulePayload() {
     return {
       startDateTime: this.#startDateTime,
@@ -98,40 +86,14 @@ export class Appointment {
     }
   }
 
-  /**
-   * Converte dados recebidos da API para instância da entidade.
-   */
-  static fromApi(apiData) {
-    return new Appointment({
-      id: apiData.id,
-      client: apiData.client ? {
-        id: apiData.client.id,
-        name: apiData.client.name,
-      } : (apiData.clientId ? {
-        id: apiData.clientId,
-        name: `Cliente #${apiData.clientId}`,
-      } : null),
-      estateAgent: apiData.estateAgent ? {
-        id: apiData.estateAgent.id,
-        name: apiData.estateAgent.name,
-      } : (apiData.estateAgentId ? {
-        id: apiData.estateAgentId,
-        name: `Corretor #${apiData.estateAgentId}`,
-      } : null),
-      estate: apiData.estate ? {
-        id: apiData.estate.id,
-        title: apiData.estate.title,
-      } : (apiData.estateId ? {
-        id: apiData.estateId,
-        title: `Imóvel #${apiData.estateId}`,
-      } : null),
-      durationMinutes: apiData.durationMinutes,
-      startDateTime: apiData.startDateTime,
-      endDateTime: apiData.endDateTime,
-      status: apiData.status,
-      calBookingId: apiData.calBookingId || apiData.bookingUid,
-      createdAt: apiData.createdAt,
-      updatedAt: apiData.updatedAt,
-    })
+  toCreatePayload() {
+    return {
+      clientId: this.#client?.id ?? null,
+      estateAgentId: this.#estateAgent?.id ?? null,
+      estateId: this.#estate?.id ?? null,
+      startDateTime: this.#startDateTime,
+      endDateTime: this.#endDateTime,
+      durationMinutes: this.#durationMinutes,
+    }
   }
 }

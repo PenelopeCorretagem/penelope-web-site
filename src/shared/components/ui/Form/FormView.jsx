@@ -62,6 +62,7 @@ export function FormView({
     errorMessages,
     successMessage,
     isLoading: formIsLoading,
+    canSubmit,
     setLoading,
     formClasses,
     titleClasses,
@@ -197,7 +198,7 @@ export function FormView({
       <ButtonView
         type="submit"
         width={submitWidth}
-        disabled={formIsLoading}
+        disabled={formIsLoading || !canSubmit}
         className={submitButtonClasses}
       >
         {formIsLoading ? 'Carregando...' : submitText}

@@ -31,7 +31,7 @@ export class SidebarModel {
       },
       {
         id: 'properties',
-        text: 'Imóveis',
+        text: 'Gerenciar Imóveis',
         icon: 'Building2',
         path: routes.ADMIN_PROPERTIES,
         roles: ['ADMINISTRADOR']

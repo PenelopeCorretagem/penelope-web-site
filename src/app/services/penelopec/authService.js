@@ -1,52 +1,70 @@
 import * as authApi from '@api-penelopec/authApi'
 import { userMapper } from '@mappers/userMapper'
+import { normalizeAccessLevel } from '@constant/accessLevels'
+import { handleAuthError } from '@responses/penelopec/AuthResponse'
 
-/**
- * Camada de Serviço - Orquestra a chamada à API e transformação de dados
- * Responsável por lógica de autenticação e conversão de dados
- */
-
-/**
- * Realiza o login do usuário.
- * @param {object} credentials - { email, password }
- * @returns {Promise<{token: string, id: number, accessLevel: string}>} Dados de login transformados
- */
 export const login = async (credentials) => {
-  const response = await authApi.login(credentials)
+  if (!credentials?.email)
+    throw new Error('O e-mail é obrigatório')
+  if (!credentials?.password)
+    throw new Error('A senha é obrigatória')
 
-  const result = {
-    token: response.token,
-    id: response.id,
-    accessLevel: response.accessLevel
+  try {
+    const response = await authApi.login(credentials)
+
+    return {
+      token: response.token,
+      id: response.id,
+      accessLevel: normalizeAccessLevel(response.accessLevel),
+    }
+  } catch (error) {
+    throw handleAuthError(error, 'Login')
   }
-  return result
 }
 
-/**
- * Registra um novo usuário.
- * @param {object} userData - { name, email, password }
- * @returns {Promise<User>} Entidade User criada
- */
 export const register = async (userData) => {
-  const response = await authApi.register(userData)
-  return userMapper.toEntity(response)
+  if (!userData?.name)
+    throw new Error('O nome é obrigatório')
+  if (!userData?.email)
+    throw new Error('O e-mail é obrigatório')
+  if (!userData?.password)
+    throw new Error('A senha é obrigatória')
+
+  try {
+    const payload = {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      accessLevel: normalizeAccessLevel(userData.accessLevel),
+    }
+
+    const response = await authApi.register(payload)
+    return userMapper.toEntity(response)
+  } catch (error) {
+    throw handleAuthError(error, 'Registro')
+  }
 }
 
-/**
- * Valida o token de recuperação.
- * @param {string} token
- * @returns {Promise<object>} Resposta da API
- */
 export const validateResetToken = async (token) => {
-  return await authApi.validateResetToken(token)
+  if (!token)
+    throw new Error('O token é obrigatório')
+
+  try {
+    return await authApi.validateResetToken(token)
+  } catch (error) {
+    throw handleAuthError(error, 'Validação de Token')
+  }
 }
 
-/**
- * Reseta a senha com o token.
- * @param {string} token
- * @param {string} newPassword
- * @returns {Promise<object>} Resposta da API
- */
 export const resetPassword = async (token, newPassword) => {
-  return await authApi.resetPassword(token, newPassword)
+  if (!token)
+    throw new Error('O token é obrigatório')
+  if (!newPassword)
+    throw new Error('A nova senha é obrigatória')
+
+  try {
+    return await authApi.resetPassword(token, newPassword)
+  } catch (error) {
+    throw handleAuthError(error, 'Recuperação de Senha')
+  }
 }

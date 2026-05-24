@@ -1,18 +1,19 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { FormModel } from '@shared/components/ui/Form/FormModel'
-import {
-  getFormThemeClasses,
-  getFormTitleThemeClasses,
-  getFormSubtitleThemeClasses,
-  getFormFieldContainerThemeClasses,
-  getFormErrorContainerThemeClasses,
-  getFormSuccessContainerThemeClasses,
-  getFormSubmitButtonThemeClasses,
-  getFormFooterThemeClasses
-} from '@shared/styles/theme'
+
+// Classes Tailwind diretas para Form
+const FORM_CONTAINER_CLASSES = 'w-full flex flex-col gap-6 items-center'
+const FORM_TITLE_CLASSES = 'text-center text-distac-primary'
+const FORM_SUBTITLE_CLASSES = 'text-center text-default-dark-muted'
+const FORM_FIELD_CONTAINER_CLASSES = 'w-full'
+const FORM_ERROR_CONTAINER_CLASSES = 'w-full'
+const FORM_SUCCESS_CONTAINER_CLASSES = 'w-full p-4 bg-green-100 border border-green-400 text-green-700 rounded'
+const FORM_FOOTER_CLASSES = 'w-full text-center'
+const FORM_SUBMIT_BUTTON_LOADING = 'opacity-50 cursor-not-allowed'
+const FORM_SUBMIT_BUTTON_NORMAL = ''
 
 /**
- * FormViewModel - Gerencia a lógica e apresentação do Form usando theme design-model
+ * FormViewModel - Gerencia a lógica e apresentação do Form usando classes Tailwind diretas
  */
 class FormViewModel {
   constructor(model = new FormModel(), options = {}) {
@@ -89,67 +90,46 @@ class FormViewModel {
     return this.model.isValid
   }
 
+  get canSubmit() {
+    return this.model.canSubmit
+  }
+
   get formData() {
     return this.model.formData
   }
 
-  // Lógica de CSS usando theme.js
+  // Lógica de CSS usando classes Tailwind diretas
   getFormClasses(className = '') {
-    return getFormThemeClasses({
-      hasErrors: this.hasErrors,
-      isLoading: this.isLoading,
-      className
-    })
+    return `${FORM_CONTAINER_CLASSES} ${className}`.trim()
   }
 
   getTitleClasses(className = '') {
-    return getFormTitleThemeClasses({
-      hasTitle: this.hasTitle,
-      className
-    })
+    return `${FORM_TITLE_CLASSES} ${className}`.trim()
   }
 
   getSubtitleClasses(className = '') {
-    return getFormSubtitleThemeClasses({
-      hasSubtitle: this.hasSubtitle,
-      className
-    })
+    return `${FORM_SUBTITLE_CLASSES} ${className}`.trim()
   }
 
   getFieldContainerClasses(className = '') {
-    return getFormFieldContainerThemeClasses({
-      className
-    })
+    return `${FORM_FIELD_CONTAINER_CLASSES} ${className}`.trim()
   }
 
   getErrorContainerClasses(className = '') {
-    return getFormErrorContainerThemeClasses({
-      hasErrors: this.hasErrors,
-      className
-    })
+    return `${FORM_ERROR_CONTAINER_CLASSES} ${className}`.trim()
   }
 
   getSuccessContainerClasses(className = '') {
-    return getFormSuccessContainerThemeClasses({
-      hasSuccess: this.hasSuccess,
-      className
-    })
+    return `${FORM_SUCCESS_CONTAINER_CLASSES} ${className}`.trim()
   }
 
   getSubmitButtonClasses(className = '') {
-    return getFormSubmitButtonThemeClasses({
-      isLoading: this.isLoading,
-      isValid: this.isValid,
-      submitWidth: this.submitWidth,
-      className
-    })
+    const stateClasses = this.isLoading ? FORM_SUBMIT_BUTTON_LOADING : FORM_SUBMIT_BUTTON_NORMAL
+    return `${stateClasses} ${className}`.trim()
   }
 
   getFooterClasses(className = '') {
-    return getFormFooterThemeClasses({
-      hasFooter: this.hasFooter,
-      className
-    })
+    return `${FORM_FOOTER_CLASSES} ${className}`.trim()
   }
 
   // Métodos de ação
@@ -285,6 +265,7 @@ export function useFormViewModel(initialProps = {}) {
   })
 
   const [, forceUpdate] = useState(0)
+  const debouncedValidatorsRef = useRef({})
 
   const refresh = useCallback(() => {
     forceUpdate(prev => prev + 1)
@@ -350,11 +331,52 @@ export function useFormViewModel(initialProps = {}) {
     return isValid
   }, [viewModel, refresh])
 
+  const scheduleFieldValidation = useCallback((fieldName, value, delay = 600) => {
+    if (debouncedValidatorsRef.current[fieldName]) {
+      clearTimeout(debouncedValidatorsRef.current[fieldName])
+    }
+
+    debouncedValidatorsRef.current[fieldName] = setTimeout(() => {
+      const field = viewModel.fields.find(f => f.name === fieldName)
+      if (!field || !field.validate) {
+        return
+      }
+
+      const validationResult = field.validate(value, viewModel.formData)
+      if (validationResult !== true) {
+        viewModel.model.fieldErrors[fieldName] = validationResult
+      } else {
+        delete viewModel.model.fieldErrors[fieldName]
+      }
+
+      refresh()
+    }, delay)
+  }, [viewModel, refresh])
+
   // Event handlers que incluem refresh
   const handleFieldChange = useCallback((fieldName) => (value) => {
+    const field = viewModel.fields.find(f => f.name === fieldName)
+    const shouldDebounce = field && (field.type === 'password' || field.debounceValidation)
+
+    // Atualizar valor do campo imediatamente
     viewModel.handleFieldChange(fieldName)(value)
     refresh()
-  }, [viewModel, refresh])
+
+    // Se o campo precisa debounce, validar com atraso
+    if (shouldDebounce && field.validate) {
+      const delay = field.debounceDelay ?? 600
+      scheduleFieldValidation(fieldName, value, delay)
+    }
+
+    // Revalidar campos dependentes (por exemplo, confirmação de senha) após mudança de senha.
+    if (fieldName === 'senha') {
+      const confirmField = viewModel.fields.find(f => f.name === 'confirmSenha')
+      if (confirmField && confirmField.validate) {
+        const confirmValue = viewModel.fieldValues.confirmSenha
+        scheduleFieldValidation('confirmSenha', confirmValue)
+      }
+    }
+  }, [viewModel, refresh, scheduleFieldValidation])
 
   const handleSubmit = useCallback(async (event) => {
     const result = await viewModel.handleSubmit(event)
@@ -408,6 +430,9 @@ export function useFormViewModel(initialProps = {}) {
     clearSuccess,
     reset,
     validateForm,
+
+    // Submission state
+    canSubmit: viewModel.canSubmit,
 
     // Utilities
     getFieldValue: viewModel.getFieldValue.bind(viewModel),

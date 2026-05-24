@@ -93,7 +93,7 @@ export class NavMenuModel {
       items.push(
         this.#createMenuItem({
           id: 'admin-properties',
-          label: 'Imóveis',
+          label: 'Gerenciar Imóveis',
           icon: 'Building2',
           route: routes.ADMIN_PROPERTIES,
           requiresAuth: true,

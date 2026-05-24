@@ -1,22 +1,30 @@
 import * as contactUsApi from '@api-penelopec/contactUsApi'
 import { contactUsMapper } from '@mappers/contactUsMapper'
+import { ContactUs } from '@dtos/ContactUs'
+import { handleContactUsError } from '@responses/penelopec/ContactUsResponse'
 
-/**
- * Camada de Serviço - Orquestra a chamada à API e transformação de dados
- * Responsável por lógica de negócio e conversão de DTOs para entidades de domínio
- */
-
-/**
- * Envia uma mensagem de contato.
- * @param {object} contactData - Dados do contato { nome, email, assunto, mensagem }
- * @returns {Promise<ContactUs>} Entidade ContactUs criada ou confirmação
- */
 export const sendContactMessage = async (contactData) => {
-  // Transformar dados para formato de requisição se necessário
-  const payload = contactUsMapper?.toRequestPayload?.(contactData) || contactData
+  if (!contactData)
+    throw new Error('Os dados do contato são obrigatórios')
+  if (!contactData.name)
+    throw new Error('O nome é obrigatório')
+  if (!contactData.email)
+    throw new Error('O e-mail é obrigatório')
+  if (!contactData.subject)
+    throw new Error('O assunto é obrigatório')
+  if (!contactData.message)
+    throw new Error('A mensagem é obrigatória')
 
-  const response = await contactUsApi.sendContactMessage(payload)
+  try {
+    const entity = contactData instanceof ContactUs
+      ? contactData
+      : contactUsMapper.toEntity(contactData)
 
-  // Tentar mapear resposta se houver mapper disponível
-  return contactUsMapper?.toEntity?.(response) || response
+    const payload = contactUsMapper.toRequestPayload(entity)
+    const response = await contactUsApi.sendContactMessage(payload)
+
+    return response ? contactUsMapper.toEntity(response) : null
+  } catch (error) {
+    throw handleContactUsError(error, 'Envio de Mensagem')
+  }
 }
