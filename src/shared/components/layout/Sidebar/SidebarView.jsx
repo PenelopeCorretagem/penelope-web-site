@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
-import { Link } from 'react-router-dom'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { UserInfoView } from '../../ui/UserInfo/UserInfoView'
 import { useSidebarViewModel } from './useSidebarViewModel'
@@ -82,21 +81,26 @@ export function SidebarView({ isAdmin = false, initialOpen = false }) {
           }`}
         >
           {/* Logo - Changes based on sidebar state */}
-          <Link
-            to={viewModel.homeRoute}
-            onClick={(e) => {
-              e.preventDefault()
-              viewModel.navigateTo(viewModel.homeRoute)
-            }}
-            className="inline-block transform transition-all duration-500 hover:scale-110 flex-shrink-0"
-            title="Ir para home"
-          >
-            {viewModel.isOpen ? (
-              <LogoView height={'40'} className='text-default-light fill-current' />
-            ) : (
-              <LogoView variant="mark" height={'40'} className='text-default-light fill-current' />
-            )}
-          </Link>
+          {viewModel.isOpen ? (
+            <LogoView
+              height='40'
+              className='text-default-light fill-current'
+              linkTo={viewModel.homeRoute}
+              linkClassName='inline-block transform transition-all duration-500 hover:scale-110 flex-shrink-0'
+              linkTitle='Ir para a página inicial'
+              linkAriaLabel='Ir para a página inicial'
+            />
+          ) : (
+            <LogoView
+              variant="mark"
+              height='40'
+              className='text-default-light fill-current'
+              linkTo={viewModel.homeRoute}
+              linkClassName='inline-block transform transition-all duration-500 hover:scale-110 flex-shrink-0'
+              linkTitle='Ir para a página inicial'
+              linkAriaLabel='Ir para a página inicial'
+            />
+          )}
 
           {/* Floating Toggle Button - Positioned absolutely */}
           <button

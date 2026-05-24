@@ -13,6 +13,7 @@ import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView.jsx'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView.jsx'
+import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 import { useAdvertisementDetailsViewModel } from './useAdvertisementDetailsViewModel'
 
@@ -33,6 +34,15 @@ export function AdvertisementDetailsView() {
   const [tabsHeight, setTabsHeight] = useState(60)
   const [sectionPadding, setSectionPadding] = useState(20)
   const [isScreeningFormOpen, setIsScreeningFormOpen] = useState(false)
+
+  const scheduleCTA = advertisement ? {
+    to: `${routes.SCHEDULE}?advertisement=${generateSlug(advertisement.estate?.title || 'imóvel')}`,
+    state: {
+      preselectedEstateId: advertisement.estate?.id || null,
+      preselectedEstateTitle: advertisement.estate?.title || 'imóvel',
+      preselectedEstateSlug: generateSlug(advertisement.estate?.title || 'imóvel'),
+    },
+  } : null
 
   const diferenciaisRef = useRef(null)
   const [diferenciaisProgress, setDiferenciaisProgress] = useState(0)
@@ -268,13 +278,27 @@ export function AdvertisementDetailsView() {
 
       {advertisement && !isScreeningFormOpen && (
         <div className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-default-light/95 backdrop-blur border-t border-default-light-muted p-3">
-          <ButtonView
-            width="full"
-            color="pink"
-            onClick={() => setIsScreeningFormOpen(true)}
-          >
-            Falar com corretor
-          </ButtonView>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <ButtonView
+              width="full"
+              color="pink"
+              onClick={() => setIsScreeningFormOpen(true)}
+            >
+              Falar com corretor
+            </ButtonView>
+
+            {scheduleCTA && (
+              <ButtonView
+                type="link"
+                to={scheduleCTA.to}
+                state={scheduleCTA.state}
+                width="full"
+                color="brown"
+              >
+                Agendar reunião
+              </ButtonView>
+            )}
+          </div>
         </div>
       )}
 

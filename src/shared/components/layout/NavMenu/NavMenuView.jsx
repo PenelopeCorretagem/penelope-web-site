@@ -3,6 +3,7 @@ import { ErrorDisplayView } from '@shared/components/feedback/ErrorDisplay/Error
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useNavMenuViewModel } from '@shared/components/layout/NavMenu/useNavMenuViewModel'
+import { ROUTES } from '@shared/constants/routes'
 import { Menu, X } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -182,7 +183,13 @@ export function NavMenuView({
     return (
       <div className={viewModel.getFooterClasses()}>
         <div className='flex flex-col items-center md:items-start justify-between h-24 col-span-1'>
-          <LogoView hasHoverEffect={true} />
+          <LogoView
+            hasHoverEffect={true}
+            linkTo={ROUTES.HOME.path}
+            linkClassName='inline-block transform transition-all duration-500 ease-in-out hover:scale-110'
+            linkTitle='Ir para a página inicial'
+            linkAriaLabel='Ir para a página inicial'
+          />
           <HeadingView level={4} className='text-center text-distac-primary md:text-start'>
             Seu sonho começa com uma chave
           </HeadingView>
@@ -203,13 +210,14 @@ export function NavMenuView({
         className="flex items-center w-full justify-between md:hidden"
         style={{ paddingLeft: '2px', paddingRight: '2px', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
       >
-        <Link
-          to='/'
-          className='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
-          style={{marginLeft: 0, padding: 0}}
-        >
-          <LogoView height={'40'} className='text-distac-primary fill-current' />
-        </Link>
+        <LogoView
+          height='40'
+          className='text-distac-primary fill-current'
+          linkTo={ROUTES.HOME.path}
+          linkClassName='inline-block transform transition-all duration-500 ease-in-out hover:scale-110 opacity-100'
+          linkTitle='Ir para a página inicial'
+          linkAriaLabel='Ir para a página inicial'
+        />
         <button
           onClick={viewModel.toggleMobileMenu}
           className={viewModel.getHamburgerClasses()}
@@ -253,14 +261,16 @@ export function NavMenuView({
 
       {/* Desktop: logo (escondida no mobile) */}
       {!hideLogo && (
-        <button
-          onClick={() => viewModel.handleItemClick('/')}
-          className={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
+        <LogoView
+          height='40'
+          className='text-distac-primary fill-current'
+          linkTo={ROUTES.HOME.path}
+          linkClassName={`hidden md:inline-block transform transition-all duration-500 ease-in-out hover:scale-110 ${
             hideLogo ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
           } bg-transparent border-none cursor-pointer p-0`}
-        >
-          <LogoView height={'40'} className='text-distac-primary fill-current' />
-        </button>
+          linkTitle='Ir para a página inicial'
+          linkAriaLabel='Ir para a página inicial'
+        />
       )}
 
       {/* Desktop: itens do menu (hidden md:flex via tema) */}
