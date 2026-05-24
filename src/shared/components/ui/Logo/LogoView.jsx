@@ -30,6 +30,8 @@
  * // Simple logo variant
  * <LogoView variant="simple" height="40" className="text-distac-primary" />
  */
+import { Link } from 'react-router-dom'
+
 export function LogoView({
   height = '40',
   className = 'text-distac-primary fill-current',
@@ -39,7 +41,11 @@ export function LogoView({
   role = 'img',
   ariaHidden = false,
   focusable = false,
-  variant = 'default'
+  variant = 'default',
+  linkTo = null,
+  linkClassName = 'inline-block',
+  linkTitle = 'Ir para a página inicial',
+  linkAriaLabel = 'Ir para a página inicial',
 }) {
 
   // Icon mark logo (butterfly symbol)
@@ -145,9 +151,15 @@ export function LogoView({
     </svg>
   )
 
-  return (
-    <div className={`inline-block`}>
-      {variant === 'mark' ? renderMarkLogo() : variant === 'simple' ? renderSimpleLogo() : renderDefaultLogo()}
-    </div>
-  )
+  const logoContent = variant === 'mark' ? renderMarkLogo() : variant === 'simple' ? renderSimpleLogo() : renderDefaultLogo()
+
+  if (linkTo) {
+    return (
+      <Link to={linkTo} className={linkClassName} title={linkTitle} aria-label={linkAriaLabel}>
+        {logoContent}
+      </Link>
+    )
+  }
+
+  return <div className='inline-block'>{logoContent}</div>
 }

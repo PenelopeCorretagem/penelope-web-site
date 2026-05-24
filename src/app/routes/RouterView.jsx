@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
 import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { HomeView } from '@institutional/pages/Home/HomeView'
@@ -31,6 +31,7 @@ import { useRouter } from './useRouterViewModel'
  */
 const ProtectedRoute = ({ protection, children }) => {
   const { shouldRender, redirectTo } = protection
+  const location = useLocation()
 
   // Enquanto carrega a verificação de auth
   if (!shouldRender && !redirectTo) {
@@ -39,7 +40,20 @@ const ProtectedRoute = ({ protection, children }) => {
 
   // Sem permissão, redireciona
   if (!shouldRender && redirectTo) {
-    return <Navigate to={redirectTo} replace />
+    const returnTo = {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+      state: location.state,
+    }
+
+    try {
+      sessionStorage.setItem('postLoginRedirect', JSON.stringify(returnTo))
+    } catch (error) {
+      console.error('Falha ao salvar rota de retorno para o login:', error)
+    }
+
+    return <Navigate to={redirectTo} replace state={{ from: returnTo }} />
   }
 
   return children
