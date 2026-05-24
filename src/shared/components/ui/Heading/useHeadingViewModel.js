@@ -1,6 +1,16 @@
 import { useState } from 'react'
 import { HeadingModel } from './HeadingModel'
-import { getHeadingThemeClasses } from '@shared/styles/theme'
+
+// Classes Tailwind diretas
+const HEADING_LEVELS = {
+  1: 'text-[28px] font-bold md:text-[44px]',
+  2: 'text-[24px] font-semibold md:text-[38px]',
+  3: 'text-[20px] font-semibold md:text-[32px]',
+  4: 'text-[16px] font-medium md:text-[26px]',
+  5: 'text-[12px] font-medium md:text-[20px]',
+  6: 'text-[8px] font-normal md:text-[14px]',
+}
+const HEADING_BASE_CLASSES = 'w-fit font-title text-default-dark leading-none uppercase'
 
 /**
  * Custom React hook that creates and manages a heading element’s configuration and styling.
@@ -32,10 +42,14 @@ export function useHeadingFactory({
 } = {}) {
   const [model] = useState(() => new HeadingModel({ level, children, className }))
 
-  const finalClassName = getHeadingThemeClasses({
-    level: model.level,
-    className: model.className,
-  })
+  // Se className contém classes de cor, não aplicar a cor padrão do tema
+  const hasColorClass = model.className.includes('text-')
+  const baseClasses = hasColorClass
+    ? HEADING_BASE_CLASSES.replace('text-default-dark', '')
+    : HEADING_BASE_CLASSES
+
+  const levelClasses = HEADING_LEVELS[model.level] || HEADING_LEVELS[1]
+  const finalClassName = [baseClasses, levelClasses, model.className].filter(Boolean).join(' ')
 
   return {
     componentTag: model.componentTag,

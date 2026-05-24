@@ -1,10 +1,4 @@
-/**
- * Representa um usuário do sistema com dados pessoais, acesso e status.
- *
- * Campos privados garantem encapsulamento e controle total sobre leituras e escritas.
- */
 export class User {
-  // ===== PRIVATE FIELDS =====
   #id
   #name
   #email
@@ -66,34 +60,21 @@ export class User {
   set monthlyIncome(v) { this.#monthlyIncome = v }
   set accessLevel(v) { this.#accessLevel = v }
   set active(v) { this.#active = v }
-  // id e dateCreation normalmente não são setáveis — mas se quiser eu adiciono.
 
-  // ===== MÉTODOS DE NEGÓCIO =====
+  // ===== LÓGICA DE DOMÍNIO =====
 
-  /**
-   * Verifica se o usuário possui registro CRECI.
-   */
   hasCreci() {
     return Boolean(this.#creci && this.#creci.trim() !== '')
   }
 
-  /**
-   * Retorna o nome com CRECI incluído, se existir.
-   */
-  getDisplayName() {
-    return this.#creci ? `${this.#name} (CRECI: ${this.#creci})` : this.#name
-  }
-
-  /**
-   * Verifica se o usuário está ativo no sistema.
-   */
   isActive() {
     return this.#active === true
   }
 
-  /**
-   * Converte para payload aceito pela API.
-   */
+  isAdmin() {
+    return this.#accessLevel === 'ADMINISTRADOR'
+  }
+
   toRequestPayload() {
     return {
       name: this.#name,
@@ -105,24 +86,5 @@ export class User {
       monthlyIncome: this.#monthlyIncome,
       accessLevel: this.#accessLevel,
     }
-  }
-
-  /**
-   * Converte dados recebidos da API para instância da entidade.
-   */
-  static fromApi(apiData) {
-    return new User({
-      id: apiData.id,
-      name: apiData.name,
-      email: apiData.email,
-      phone: apiData.phone,
-      creci: apiData.creci,
-      cpf: apiData.cpf,
-      dateBirth: apiData.dateBirth,
-      monthlyIncome: apiData.monthlyIncome,
-      accessLevel: apiData.accessLevel,
-      active: apiData.active,
-      dateCreation: apiData.dateCreation,
-    })
   }
 }

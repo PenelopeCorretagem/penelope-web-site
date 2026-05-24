@@ -72,6 +72,34 @@ export class FormModel {
     return !hasValidationErrors && !hasGeneralErrors
   }
 
+  get canSubmit() {
+    if (!this.fields || this.fields.length === 0) {
+      return true
+    }
+
+    if (Object.keys(this.fieldErrors).length > 0) {
+      return false
+    }
+
+    return this.fields.every(field => {
+      const value = this.fieldValues[field.name]
+
+      if (field.required) {
+        if (field.type === 'checkbox') {
+          if (!value) return false
+        } else {
+          if (!value || (typeof value === 'string' && value.trim() === '')) return false
+        }
+      }
+
+      if (value && field.validate && !this.isFieldValid(field)) {
+        return false
+      }
+
+      return true
+    })
+  }
+
   get formData() {
     return { ...this.fieldValues }
   }
@@ -87,7 +115,7 @@ export class FormModel {
           const res = field.validate(value, this.formData)
           if (typeof res === 'string') return false
           return Boolean(res)
-        } catch (error) {
+        } catch {
           return false
         }
       }
@@ -114,7 +142,7 @@ export class FormModel {
         const res = field.validate(value, this.formData)
         if (typeof res === 'string') return false
         return Boolean(res)
-      } catch (error) {
+      } catch {
         return false
       }
     }
@@ -161,8 +189,8 @@ export class FormModel {
         const res = field.validate(value, this.formData)
         if (typeof res === 'string') return res
         if (!res) return field.errorMessage || 'Campo inválido'
-      } catch (error) {
-        return error.message
+      } catch (err) {
+        return err?.message || 'Campo inválido'
       }
     }
 
@@ -204,7 +232,22 @@ export class FormModel {
   // Métodos de atualização
   updateFieldValue(fieldName, value) {
     this.fieldValues[fieldName] = value
-    this.validateField(fieldName)
+
+    if (this.fieldErrors[fieldName]) {
+      delete this.fieldErrors[fieldName]
+    }
+
+    if (fieldName === 'senha' && this.fieldErrors.confirmSenha) {
+      delete this.fieldErrors.confirmSenha
+    }
+
+    const field = this.fields.find(f => f.name === fieldName)
+    const shouldDebounce = field?.debounceValidation === true
+
+    if (!shouldDebounce) {
+      this.validateField(fieldName)
+    }
+
     return true
   }
 

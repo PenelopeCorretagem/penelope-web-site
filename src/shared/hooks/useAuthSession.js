@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from '@routes/useRouterViewModel'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel } from '@constant/accessLevels'
 
 export function useAuthSession() {
   const { navigateTo } = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(Boolean(sessionStorage.getItem('token')))
-  const [isAdmin, setIsAdmin] = useState(sessionStorage.getItem('userRole') === 'ADMINISTRADOR')
+  const [isAdmin, setIsAdmin] = useState(isAdminAccessLevel(sessionStorage.getItem('userRole')))
   const [authReady, setAuthReady] = useState(false)
   const [sessionExpiresAt, setSessionExpiresAt] = useState(() => {
     const stored = sessionStorage.getItem('sessionExpiresAt')
@@ -16,7 +17,7 @@ export function useAuthSession() {
   const updateFromStorage = () => {
     const { token, userId, role, sessionExpiresAt } = authSessionUtil.get()
     setIsAuthenticated(!!token && !!userId)
-    setIsAdmin(role === 'ADMINISTRADOR')
+    setIsAdmin(isAdminAccessLevel(role))
     setSessionExpiresAt(sessionExpiresAt)
   }
 

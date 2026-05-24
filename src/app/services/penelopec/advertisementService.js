@@ -1,73 +1,89 @@
+/**
+ * advertisementService.js
+ * Orquestra chamadas à API, aplica regras de negócio e retorna entidades mapeadas.
+ */
 import * as advertisementApi from '@api-penelopec/advertisementApi'
-import { AdvertisementMapper } from '@app/mappers/advertisementMapper'
+import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
+import { Advertisement } from '@dtos/Advertisement'
+import { handleAdvertisementError } from '@responses/penelopec/AdvertisementResponse'
 
-/**
- * Camada de Serviço - Orquestra a chamada à API e transformação de dados
- * Responsável por lógica de negócio e conversão de DTOs para entidades de domínio
- */
-
-/**
- * Lista todos os anúncios com filtros opcionais.
- * @param {object} filters - Filtros de busca
- * @returns {Promise<RealEstateAdvertisement[]>} Lista de entidades Advertisement
- */
 export const getAllAdvertisements = async (filters = {}) => {
-  const response = await advertisementApi.getAllAdvertisements(filters)
-  return AdvertisementMapper.toEntityList(response)
+  try {
+    const response = await advertisementApi.getAllAdvertisements(filters)
+    const rawList = response?.content || response || []
+    return AdvertisementMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Listagem')
+  }
 }
 
-/**
- * Busca um anúncio específico por ID.
- * @param {number} id - ID do anúncio
- * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement
- */
 export const getAdvertisementById = async (id) => {
-  const response = await advertisementApi.getAdvertisementById(id)
-  return AdvertisementMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para buscar um anúncio')
+
+  try {
+    const response = await advertisementApi.getAdvertisementById(id)
+    return AdvertisementMapper.toEntity(response)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Busca')
+  }
 }
 
-/**
- * Cria um novo anúncio.
- * @param {object} advertisementRequest - Dados do anúncio
- * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement criada
- */
-export const createAdvertisement = async (advertisementRequest) => {
-  const response = await advertisementApi.createAdvertisement(advertisementRequest)
-  return AdvertisementMapper.toEntity(response)
+export const createAdvertisement = async (advertisementData) => {
+  if (!advertisementData)
+    throw new Error('Os dados do anúncio são obrigatórios')
+
+  try {
+    const payload = advertisementData instanceof Advertisement
+      ? AdvertisementMapper.toApiData(advertisementData)
+      : advertisementData
+
+    const response = await advertisementApi.createAdvertisement(payload)
+    return AdvertisementMapper.toEntity(response)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Criação')
+  }
 }
 
-/**
- * Atualiza um anúncio completamente.
- * @param {number} id - ID do anúncio
- * @param {object} advertisementData - Dados atualizados
- * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada
- */
 export const updateAdvertisement = async (id, advertisementData) => {
-  const response = await advertisementApi.updateAdvertisement(id, advertisementData)
-  return AdvertisementMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para atualizar um anúncio')
+  if (!advertisementData)
+    throw new Error('Os dados de atualização são obrigatórios')
+
+  try {
+    const payload = advertisementData instanceof Advertisement
+      ? AdvertisementMapper.toApiData(advertisementData)
+      : advertisementData
+
+    const response = await advertisementApi.updateAdvertisement(id, payload)
+    return AdvertisementMapper.toEntity(response)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Atualização')
+  }
 }
 
-/**
- * Ativa ou desativa um anúncio.
- * @param {number} id - ID do anúncio
- * @param {boolean} active - Status ativo/inativo
- * @returns {Promise<RealEstateAdvertisement>} Entidade Advertisement atualizada
- */
 export const updateAdvertisementStatus = async (id, active) => {
-  await advertisementApi.updateAdvertisementStatus(id, active)
-  return { id, active }
+  if (!id)
+    throw new Error('O ID é obrigatório para atualizar o status do anúncio')
+  if (active === undefined || active === null)
+    throw new Error('O status é obrigatório')
+
+  try {
+    const response = await advertisementApi.updateAdvertisementStatus(id, active)
+    return AdvertisementMapper.toEntity(response)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Atualização de Status')
+  }
 }
 
-/**
- * Remove um anúncio definitivamente.
- * @param {number} id - O ID do anúncio
- * @returns {Promise<void>}
- */
 export const deleteAdvertisement = async (id) => {
-  await advertisementApi.deleteAdvertisement(id)
-}
+  if (!id)
+    throw new Error('O ID é obrigatório para excluir um anúncio')
 
-/**
- * Alias para compatibilidade
- */
-export const listAllAdvertisements = getAllAdvertisements
+  try {
+    await advertisementApi.deleteAdvertisement(id)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Exclusão')
+  }
+}

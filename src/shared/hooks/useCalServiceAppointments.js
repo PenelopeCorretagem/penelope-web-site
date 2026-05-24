@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import * as appointmentCalService from '@service-calservice/appointmentCalService'
+import * as appointmentService from '@service-calservice/appointmentService'
 
 /**
  * Hook para gerenciar appointments com filtros
@@ -25,7 +25,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
     try {
       setLoading(true)
       setError(null)
-      const data = await appointmentCalService.getAllAppointments(filtersToUse)
+      const data = await appointmentService.getAllAppointments(filtersToUse)
       setAppointments(data)
     } catch (err) {
       setError(err.message || 'Erro ao carregar agendamentos')
@@ -43,7 +43,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Busca um appointment específico
   const getById = useCallback(async (id) => {
     try {
-      return await appointmentCalService.getAppointmentById(id)
+      return await appointmentService.getAppointmentById(id)
     } catch (err) {
       setError(err.message)
       throw err
@@ -53,7 +53,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Cria novo appointment
   const create = useCallback(async (appointmentData) => {
     try {
-      const created = await appointmentCalService.createAppointment(appointmentData)
+      const created = await appointmentService.createAppointment(appointmentData)
       setAppointments([...appointments, created])
       return created
     } catch (err) {
@@ -65,7 +65,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Reagenda appointment
   const reschedule = useCallback(async (id, rescheduleData) => {
     try {
-      const updated = await appointmentCalService.rescheduleAppointment(id, rescheduleData)
+      const updated = await appointmentService.rescheduleAppointment(id, rescheduleData)
       setAppointments(appointments.map(a => a.id === id ? updated : a))
       return updated
     } catch (err) {
@@ -77,7 +77,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Confirma appointment (PENDING → CONFIRMED)
   const confirm = useCallback(async (id) => {
     try {
-      const confirmed = await appointmentCalService.confirmAppointment(id)
+      const confirmed = await appointmentService.confirmAppointment(id)
       setAppointments(appointments.map(a => a.id === id ? confirmed : a))
       return confirmed
     } catch (err) {
@@ -89,7 +89,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Conclui appointment (CONFIRMED → CONCLUDED)
   const conclude = useCallback(async (id) => {
     try {
-      const concluded = await appointmentCalService.concludeAppointment(id)
+      const concluded = await appointmentService.concludeAppointment(id)
       setAppointments(appointments.map(a => a.id === id ? concluded : a))
       return concluded
     } catch (err) {
@@ -101,7 +101,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Cancela appointment
   const cancel = useCallback(async (id, reason) => {
     try {
-      const cancelled = await appointmentCalService.cancelAppointment(id, reason)
+      const cancelled = await appointmentService.cancelAppointment(id, reason)
       setAppointments(appointments.map(a => a.id === id ? cancelled : a))
       return cancelled
     } catch (err) {
@@ -113,7 +113,7 @@ export function useCalServiceAppointments(initialFilters = {}) {
   // Deleta appointment
   const remove = useCallback(async (id) => {
     try {
-      await appointmentCalService.deleteAppointment(id)
+      await appointmentService.deleteAppointment(id)
       setAppointments(appointments.filter(a => a.id !== id))
     } catch (err) {
       setError(err.message)

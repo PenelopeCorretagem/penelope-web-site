@@ -4,6 +4,7 @@ import { AuthModel } from './AuthModel'
 import { login, register } from '@service-penelopec/authService'
 import { forgotPassword } from '@service-penelopec/userService'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel } from '@constant/accessLevels'
 
 export function useAuthViewModel() {
   const navigate = useNavigate()
@@ -41,83 +42,95 @@ export function useAuthViewModel() {
     return () => clearTimeout(timeoutId)
   }, [alertConfig])
 
+  useEffect(() => {
+    setAlertConfig(null)
+  }, [location.pathname])
+
+  const handleCloseAlert = useCallback(() => {
+    setAlertConfig(null)
+  }, [])
+
   const handleRegisterClick = useCallback(() => {
+    handleCloseAlert()
     setIsActive(true)
     setIsForgotPassword(false)
     navigate(model.getRouteFromAuthType(model.authTypes.REGISTER))
-  }, [navigate, model])
+  }, [handleCloseAlert, navigate, model])
 
   const handleLoginClick = useCallback(() => {
+    handleCloseAlert()
     setIsActive(false)
     setIsForgotPassword(false)
     navigate(model.getRouteFromAuthType(model.authTypes.LOGIN))
-  }, [navigate, model])
+  }, [handleCloseAlert, navigate, model])
 
   const handleForgotPasswordClick = useCallback(() => {
+    handleCloseAlert()
     setIsActive(false)
     setIsForgotPassword(true)
     navigate(model.getRouteFromAuthType(model.authTypes.FORGOT_PASSWORD))
-  }, [navigate, model])
+  }, [handleCloseAlert, navigate, model])
 
   const handleBackToLogin = useCallback(() => {
+    handleCloseAlert()
     setIsForgotPassword(false)
     navigate(model.getRouteFromAuthType(model.authTypes.LOGIN))
-  }, [navigate, model])
+  }, [handleCloseAlert, navigate, model])
 
   // handleLoginSubmit — trecho corrigido em useAuthViewModel.js
-const handleLoginSubmit = useCallback(async (formData) => {
-  setIsLoading(true)
-  try {
-    const response = await login({ email: formData.email, password: formData.senha })
+  const handleLoginSubmit = useCallback(async (formData) => {
+    setIsLoading(true)
+    try {
+      const response = await login({ email: formData.email, password: formData.senha })
 
-    const token = response.token
-    if (!token || typeof token !== 'string') {
-      throw new Error('Token não recebido do servidor.')
-    }
+      const token = response.token
+      if (!token || typeof token !== 'string') {
+        throw new Error('Token não recebido do servidor.')
+      }
 
-    const isAdmin = response.accessLevel === 'ADMINISTRADOR'
-    const userId  = response.id // fallback apenas se API não retornar id
+      const isAdmin = isAdminAccessLevel(response.accessLevel)
+      const userId  = response.id // fallback apenas se API não retornar id
 
-    authSessionUtil.save({
-      token,
-      userId,
-      email: formData.email,
-      isAdmin,
-      name: formData.email,
-    })
+      authSessionUtil.save({
+        token,
+        userId,
+        email: formData.email,
+        isAdmin,
+        name: formData.email,
+      })
 
-    // Dispara transição de login antes de navegar
-    window.dispatchEvent(new CustomEvent('authTransition', {
-      detail: { type: 'login', message: 'Autenticando sua conta...' }
-    }))
-    window.dispatchEvent(new CustomEvent('authChanged'))
+      // Dispara transição de login antes de navegar
+      window.dispatchEvent(new CustomEvent('authTransition', {
+        detail: { type: 'login', message: 'Autenticando sua conta...' }
+      }))
+      window.dispatchEvent(new CustomEvent('authChanged'))
 
-    setTimeout(() => navigate(model.getHomeRoute()), 600)
-    return { success: true }
+      setTimeout(() => navigate(model.getHomeRoute()), 600)
+      return { success: true }
 
-  } catch (error) {
-    setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
 
-    const status = error.response?.status
-    const serverMsg = error.response?.data?.message
+      const status = error.response?.status
+      const serverMsg = error.response?.data?.message
                    ?? (typeof error.response?.data === 'string' ? error.response.data : null)
 
-    const errorMessage =
+      const errorMessage =
       status === 403 ? 'E-mail ou senha incorretos.' :
-      status === 401 ? 'Não autorizado. Verifique suas credenciais.' :
-      serverMsg       ? serverMsg :
-      error.message   ? error.message :
-      'Erro ao fazer login. Tente novamente.'
+        status === 401 ? 'Não autorizado. Verifique suas credenciais.' :
+          serverMsg       ? serverMsg :
+            error.message   ? error.message :
+              'Erro ao fazer login. Tente novamente.'
 
-    setAlertConfig({
-      type: 'error',
-      message: errorMessage,
-      primaryButton:   { text: 'Tentar novamente',   action: 'close' },
-      secondaryButton: { text: 'Esqueci minha senha', action: 'forgotPassword' }
-    })
-    return { success: false, error: errorMessage }
-  }
-}, [navigate, model])
+      setAlertConfig({
+        type: 'error',
+        message: errorMessage,
+        primaryButton:   { text: 'Tentar novamente',   action: 'close' },
+        secondaryButton: { text: 'Esqueci minha senha', action: 'forgotPassword' }
+      })
+      return { success: false, error: errorMessage }
+    }
+  }, [navigate, model])
   const handleRegisterSubmit = useCallback(async (formData) => {
     setIsLoading(true)
     try {
@@ -203,10 +216,6 @@ const handleLoginSubmit = useCallback(async (formData) => {
     } finally {
       setIsLoading(false)
     }
-  }, [])
-
-  const handleCloseAlert = useCallback(() => {
-    setAlertConfig(null)
   }, [])
 
   return {

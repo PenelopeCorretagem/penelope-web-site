@@ -1,9 +1,9 @@
 /**
- * Representa um anúncio de imóvel, incluindo status,
- * datas, responsáveis e o imóvel relacionado.
+ * Advertisement.js
+ * DTO + lógica de domínio para anúncios de imóveis.
+ * Sem lógica de apresentação.
  */
 export class Advertisement {
-  // ===== PRIVATE FIELDS =====
   #id
   #active
   #featured
@@ -56,53 +56,18 @@ export class Advertisement {
   set estate(v) { this.#estate = v }
   set eventTypeId(v) { this.#eventTypeId = v }
 
-  // (id e createdAt geralmente não têm setter, mas posso adicionar se quiser)
+  // ===== LÓGICA DE DOMÍNIO =====
 
-  // ===== MÉTODOS DE NEGÓCIO =====
-
-  /**
-   * Retorna cidade e bairro formatados.
-   */
-  getFormattedAddress() {
-    if (!this.#estate?.address) {
-      return { city: '', neighborhood: '' }
-    }
-    const { city, neighborhood } = this.#estate.address
-    return { city, neighborhood }
+  isActive() {
+    return this.#active === true
   }
 
-  /**
-   * Retorna uma lista de características do imóvel.
-   */
-  getAmenities() {
-    if (!this.#estate) return []
-
-    const amenities = []
-
-    if (this.#estate.numberOfRooms) {
-      amenities.push(`${this.#estate.numberOfRooms} dormitórios`)
-    }
-
-    if (this.#estate.amenities?.length > 0) {
-      amenities.push(this.#estate.amenities[0].description)
-    }
-
-    if (this.#estate.area) {
-      amenities.push(`${this.#estate.area}m²`)
-    }
-
-    return amenities
+  isFeatured() {
+    return this.#featured === true
   }
 
-  /**
-   * Retorna resumo curto do anúncio.
-   */
-  summary() {
-    const addr = this.getFormattedAddress()
-    return `Anúncio #${this.#id} — ${addr.city}/${addr.neighborhood} — ${this.#active ? 'Ativo' : 'Inativo'}`
-  }
-
-  isAdvertisement(object){
-    return object instanceof Advertisement
+  isExpired() {
+    if (!this.#endDate) return false
+    return new Date(this.#endDate) < new Date()
   }
 }

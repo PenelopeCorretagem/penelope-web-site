@@ -1,6 +1,7 @@
-import axiosInstance from '@api/axiosInstance'
+import axiosInstance from '@api/axios/axiosInstance'
 import { cleanCEP } from '@shared/utils/CEP/formatCEPUtil'
 import { ViaCepAddressDTO } from '@dtos/ViaCepAddressDTO'
+import { handleViaCepError } from '@responses/viacep/ViaCepResponse'
 
 const VIACEP_BASE_URL = import.meta.env.VIACEP_URL
 /**
@@ -38,14 +39,9 @@ export async function getAddressByCEP(cep) {
     // Retornar dados brutos como DTO (sem transformação de negócio)
     return new ViaCepAddressDTO(data)
   } catch (error) {
-    if (error.response?.status === 404) {
-      throw new Error('CEP não encontrado')
+    if (!error.isAxiosError) {
+      throw error
     }
-
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Tempo limite esgotado. Verifique sua conexão.')
-    }
-
-    throw new Error(error.message || 'Erro ao consultar CEP. Tente novamente.')
+    throw handleViaCepError(error)
   }
 }

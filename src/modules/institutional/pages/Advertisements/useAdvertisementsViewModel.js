@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { listAllAdvertisements  } from '@service-penelopec/advertisementService'
+import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { AdvertisementsModel } from './AdvertisementsModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
@@ -27,15 +27,15 @@ export const useAdvertisementsViewModel = ({ onError }) => {
     try {
       // Busca cada categoria em paralelo
       const [lancamentosData, disponiveisData, emObrasData] = await Promise.all([
-        listAllAdvertisements ({
+        getAllAdvertisements({
           type: ESTATE_TYPES['LANCAMENTO'].key,
           active: true
         }),
-        listAllAdvertisements ({
+        getAllAdvertisements({
           type: ESTATE_TYPES['DISPONIVEL'].key,
           active: true
         }),
-        listAllAdvertisements ({
+        getAllAdvertisements({
           type: ESTATE_TYPES['EM_OBRAS'].key,
           active: true
         })

@@ -1,10 +1,10 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
-import { getEstateTypeByKey } from '@constant/estateTypes'
+import { getEstateTypeByFriendlyName } from '@constant/estateTypes'
 import { Advertisement } from '@dtos/Advertisement'
 import { User } from '@dtos/User'
 import { Address } from '@dtos/Address'
 import { Estate } from '@dtos/Estate'
-import { Feature } from '@dtos/Feature'
+import { Amenity } from '@dtos/Amenity'
 import { ImageEstate } from '@dtos/ImageEstate'
 import { ImageEstateType } from '@dtos/ImageEstateType'
 
@@ -72,21 +72,21 @@ export class AdvertisementMapper {
       })
     }
 
-    const mapFeatureToEntity = (featureData) => {
-      if (!featureData) return null
+    const mapAmenityToEntity = (AmenityData) => {
+      if (!AmenityData) return null
 
-      if (typeof featureData === 'number') {
-        return new Feature({
-          id: featureData,
+      if (typeof AmenityData === 'number') {
+        return new Amenity({
+          id: AmenityData,
           description: '',
           icon: '',
         })
       }
 
-      return new Feature({
-        id: featureData.id,
-        description: featureData.description,
-        icon: featureData.icon,
+      return new Amenity({
+        id: AmenityData.id,
+        description: AmenityData.description,
+        icon: AmenityData.icon,
       })
     }
 
@@ -99,7 +99,7 @@ export class AdvertisementMapper {
         description: data.estate.description,
         area: data.estate.area,
         numberOfRooms: data.estate.numberOfRooms,
-        type: getEstateTypeByKey(data.estate.type),
+        type: getEstateTypeByFriendlyName(data.estate.type),
         images: data.estate.images
           ? data.estate.images.map(
             img => {
@@ -116,7 +116,7 @@ export class AdvertisementMapper {
           : [],
         address: mapAddressToEntity(data.estate.address),
         amenities: amenitiesSource
-          .map(mapFeatureToEntity)
+          .map(mapAmenityToEntity)
           .filter(Boolean),
       })
       : null
@@ -156,7 +156,7 @@ export class AdvertisementMapper {
     return new Advertisement({
       id: data.id,
       active: data.active,
-      featured: data.featured ?? data.emphasis,
+      Amenityd: data.Amenityd ?? data.emphasis,
       createdAt: data.createdAt,
       endDate: data.endDate,
       creator,
@@ -194,7 +194,7 @@ export class AdvertisementMapper {
     return {
       id: advertisement.id,
       active: advertisement.active,
-      featured: advertisement.featured,
+      Amenityd: advertisement.Amenityd,
       createdAt: advertisement.createdAt,
       endDate: advertisement.endDate,
       creatorId: advertisement.creator?.id || null,

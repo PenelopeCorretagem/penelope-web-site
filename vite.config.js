@@ -110,6 +110,7 @@ export default defineConfig(({ mode }) => {
         '@mappers':  path.resolve(__dirname, './src/app/mappers'),
         '@dtos':     path.resolve(__dirname, './src/app/dtos'),
         '@mocks':    path.resolve(__dirname, './src/app/mocks'),
+        '@responses': path.resolve(__dirname, './src/app/responses'),
 
         // Aliases por domínio/integração
         '@service-penelopec':  path.resolve(__dirname, './src/app/services/penelopec'),

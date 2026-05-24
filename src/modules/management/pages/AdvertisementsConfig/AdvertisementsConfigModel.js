@@ -52,20 +52,20 @@ export class AdvertisementsConfigModel {
   set launchAdvertisements(advertisements) {
     this.#launchAdvertisements = advertisements
     advertisements.forEach(prop => {
-      Advertisement.prototype.isAdvertisement(prop)
+      prop instanceof Advertisement
     })
   }
 
   set availableAdvertisements(advertisements) {
     advertisements.forEach(prop => {
-      Advertisement.prototype.isAdvertisement(prop)
+      prop instanceof Advertisement
     })
 
     this.#availableAdvertisements = advertisements
   }
   set underConstructionAdvertisements(advertisements) {
     advertisements.forEach(prop => {
-      Advertisement.prototype.isAdvertisement(prop)
+      prop instanceof Advertisement
     })
     this.#underConstructionAdvertisements = advertisements
   }

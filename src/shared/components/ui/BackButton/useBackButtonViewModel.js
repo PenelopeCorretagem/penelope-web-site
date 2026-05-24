@@ -2,7 +2,10 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BackButtonModel } from './BackButtonModel'
-import { getBackButtonThemeClasses, getBackButtonIconClasses } from '@shared/styles/theme'
+
+// Classes Tailwind diretas
+const BACK_BUTTON_BASE_CLASSES = 'font-semibold cursor-pointer transition-all duration-300 hover:scale-105 focus:outline-none'
+const BACK_BUTTON_ICON_CLASSES = 'inline'
 
 export function useBackButtonViewModel(initialProps = {}) {
   const navigate = useNavigate()
@@ -60,16 +63,14 @@ export function useBackButtonViewModel(initialProps = {}) {
       return classes.join(' ')
     } else {
       // Use original icon styling
-      return getBackButtonThemeClasses({
-        color: 'default',
-        disabled: model.disabled,
-        className,
-      })
+      const classes = [BACK_BUTTON_BASE_CLASSES, className].filter(Boolean)
+      return classes.join(' ')
     }
   }, [model])
 
   const getIconClasses = useCallback((className = '') => {
-    return getBackButtonIconClasses({ className })
+    const classes = [BACK_BUTTON_ICON_CLASSES, className].filter(Boolean)
+    return classes.join(' ')
   }, [])
 
   return {

@@ -2,18 +2,37 @@ import { useState, useCallback, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { NavMenuModel } from '@shared/components/layout/NavMenu/NavMenuModel'
 import { RouterModel } from '@routes/RouterModel'
-import {
-  getNavMenuThemeClasses,
-  getNavMenuItemsThemeClasses,
-  getNavMenuUserActionsThemeClasses,
-  getNavMenuHamburgerThemeClasses,
-  getNavMenuFooterThemeClasses,
-  getNavMenuFooterSectionThemeClasses,
-  getNavMenuFooterLinkThemeClasses,
-  getNavMenuItemThemeClasses,
-  getNavMenuActionThemeClasses,
-} from '@shared/styles/theme'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+
+// Classes Tailwind diretas para NavMenu
+const NAV_MENU_CONTAINER_CLASSES = 'flex items-center justify-end md:justify-between w-full h-fit'
+const NAV_MENU_ITEMS_DESKTOP_CLASSES = 'items-center gap-2 flex-1 justify-center hidden md:flex'
+const NAV_MENU_ITEMS_MOBILE_CLASSES = 'md:hidden flex absolute top-full left-0 right-0 flex-col bg-white shadow-lg p-4 z-50'
+const NAV_MENU_USER_ACTIONS_DESKTOP_CLASSES = 'items-center gap-2 w-fit hidden md:flex'
+const NAV_MENU_USER_ACTIONS_MOBILE_CLASSES = 'md:hidden flex absolute top-[calc(100%+var(--menu-items-height))] left-0 right-0 justify-center bg-white shadow-lg p-4 z-50'
+const NAV_MENU_HAMBURGER_CLASSES = 'hidden max-md:flex items-center justify-center w-10 h-10 text-2xl cursor-pointer transition-colors duration-200 hover:text-primary-600'
+const NAV_MENU_FOOTER_CLASSES = 'grid grid-cols-1 gap-6 items-start justify-items-center md:flex md:flex-row md:items-start md:justify-between md:w-full md:h-fit md:gap-0'
+const NAV_MENU_FOOTER_SECTION_CLASSES = 'flex flex-col items-center md:items-start gap-2 text-sm md:text-base'
+const NAV_MENU_FOOTER_LINK_ENABLED_CLASSES = 'text-default-dark hover:text-distac-primary hover:underline transition-colors duration-200 uppercase cursor-pointer text-sm md:text-base'
+const NAV_MENU_FOOTER_LINK_DISABLED_CLASSES = 'cursor-not-allowed opacity-50 text-gray-500'
+
+// Helpers para NavMenu Item e Action com lógica condicional
+function getNavMenuItemClasses(item, isActive, isAuthenticated, isMobileMenuOpen) {
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-title font-medium uppercase text-[12px] md:text-[16px] leading-none transition-all duration-200 rounded-sm px-4 py-2'
+  const authClasses = item.requiresAuth && !isAuthenticated ? 'opacity-50 pointer-events-none' : ''
+  const scaleClasses = isActive ? 'scale-105 bg-distac-primary text-default-light' : 'bg-default-light-terciary text-default-dark hover:scale-105 hover:bg-distac-primary hover:text-default-light'
+  const mobileClasses = isMobileMenuOpen ? 'w-full justify-center' : ''
+  return `${baseClasses} ${authClasses} ${scaleClasses} ${mobileClasses}`
+}
+
+function getNavMenuActionClasses(action, isAuthenticated, isMobileMenuOpen) {
+  const baseClasses = 'inline-flex items-center justify-center gap-2 font-title font-medium uppercase text-[12px] md:text-[16px] leading-none transition-all duration-200'
+  const authClasses = action.requiresAuth && !isAuthenticated ? 'opacity-50 pointer-events-none' : ''
+  const shapeClasses = action.shape === 'circle' ? 'rounded-full p-3' : 'rounded-sm px-4 py-2'
+  const colorClasses = 'bg-default-light-terciary text-default-dark hover:scale-105 hover:bg-distac-primary hover:text-default-light'
+  const mobileClasses = isMobileMenuOpen ? 'w-full justify-center' : ''
+  return `${baseClasses} ${authClasses} ${shapeClasses} ${colorClasses} ${mobileClasses}`
+}
 
 
 /**
@@ -158,7 +177,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string} Classes CSS combinadas.
    */
   const getMenuContainerClasses = (className = '') =>
-    getNavMenuThemeClasses({ className })
+    `${NAV_MENU_CONTAINER_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para a lista de itens de menu.
@@ -167,7 +186,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string} Classes CSS.
    */
   const getMenuItemsClasses = (isMobile = false, className = '') =>
-    getNavMenuItemsThemeClasses({ isMobile, className })
+    `${isMobile ? NAV_MENU_ITEMS_MOBILE_CLASSES : NAV_MENU_ITEMS_DESKTOP_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para a área de ações do usuário (login, perfil, etc).
@@ -176,7 +195,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getUserActionsClasses = (isMobile = false, className = '') =>
-    getNavMenuUserActionsThemeClasses({ isMobile, className })
+    `${isMobile ? NAV_MENU_USER_ACTIONS_MOBILE_CLASSES : NAV_MENU_USER_ACTIONS_DESKTOP_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para o botão "hamburger" do menu mobile.
@@ -184,7 +203,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getHamburgerClasses = (className = '') =>
-    getNavMenuHamburgerThemeClasses({ className })
+    `${NAV_MENU_HAMBURGER_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para um item do menu principal.
@@ -193,13 +212,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getItemClasses = (item, isActive = false) =>
-    getNavMenuItemThemeClasses({
-      isActive,
-      requiresAuth: item.requiresAuth,
-      isAuthenticated: model.isAuthenticated,
-      isMobileMenuOpen: model.isMobileMenuOpen,
-      variant: item.variant,
-    })
+    getNavMenuItemClasses(item, isActive, model.isAuthenticated, model.isMobileMenuOpen)
 
   /**
    * Retorna classes para ações de usuário (botões de perfil, logout, etc).
@@ -207,13 +220,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getActionClasses = (action) =>
-    getNavMenuActionThemeClasses({
-      shape: action.shape,
-      requiresAuth: action.requiresAuth,
-      isAuthenticated: model.isAuthenticated,
-      isMobileMenuOpen: model.isMobileMenuOpen,
-      variant: action.variant,
-    })
+    getNavMenuActionClasses(action, model.isAuthenticated, model.isMobileMenuOpen)
 
   /**
    * Retorna classes para o rodapé do menu.
@@ -221,7 +228,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getFooterClasses = (className = '') =>
-    getNavMenuFooterThemeClasses({ className })
+    `${NAV_MENU_FOOTER_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para uma seção do rodapé.
@@ -229,7 +236,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getFooterSectionClasses = (className = '') =>
-    getNavMenuFooterSectionThemeClasses({ className })
+    `${NAV_MENU_FOOTER_SECTION_CLASSES} ${className}`.trim()
 
   /**
    * Retorna classes para links do rodapé.
@@ -238,7 +245,7 @@ export function useNavMenuViewModel(isAuthenticated = false, isAdmin = false) {
    * @returns {string}
    */
   const getFooterLinkClasses = (disabled = false, className = '') =>
-    getNavMenuFooterLinkThemeClasses({ disabled, className })
+    `${disabled ? NAV_MENU_FOOTER_LINK_DISABLED_CLASSES : NAV_MENU_FOOTER_LINK_ENABLED_CLASSES} ${className}`.trim()
 
   return {
     // Estado

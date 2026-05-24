@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { getAdvertisementById, listAllAdvertisements } from '@service-penelopec/advertisementService'
+import { getAdvertisementById, getAllAdvertisements} from '@service-penelopec/advertisementService'
 import { RealStateDetailsModel } from './AdvertisementDetailsModel'
 
 export function useAdvertisementDetailsViewModel() {
@@ -20,7 +20,7 @@ export function useAdvertisementDetailsViewModel() {
     try {
       const [advertisementData, allAds] = await Promise.all([
         getAdvertisementById(id),
-        listAllAdvertisements()
+        getAllAdvertisements()
       ])
 
       console.log('Advertisement Data:', advertisementData) // Log para depuração

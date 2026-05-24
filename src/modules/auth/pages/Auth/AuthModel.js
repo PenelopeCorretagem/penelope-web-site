@@ -1,5 +1,6 @@
 import { RouterModel } from '@app/routes/RouterModel'
 import { validateEmail } from '@shared/utils/email/validateEmailUtil'
+import { validateName } from '@shared/utils/name/validateNameUtil'
 import { validatePassword, validatePasswordConfirmation } from '@shared/utils/password/validatePasswordUtil'
 
 /**
@@ -31,6 +32,8 @@ export class AuthModel {
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
         validate: validateEmail
       },
       {
@@ -39,6 +42,9 @@ export class AuthModel {
         placeholder: 'Senha:',
         required: true,
         showPasswordToggle: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
+        validate: validatePassword
       }
     ]
   }
@@ -50,25 +56,17 @@ export class AuthModel {
         type: 'text',
         placeholder: 'Nome Completo:',
         required: true,
-        validate: (value) => {
-          if (!value || value.trim().length < 2) {
-            return 'Nome completo deve ter pelo menos 2 caracteres'
-          }
-          if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(value.trim())) {
-            return 'Nome deve conter apenas letras e espaços'
-          }
-          const nameParts = value.trim().split(/\s+/)
-          if (nameParts.length < 2) {
-            return 'Informe nome e sobrenome'
-          }
-          return true
-        }
+        debounceValidation: true,
+        debounceDelay: 1000,
+        validate: (value) => validateName(value)
       },
       {
         name: 'email',
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
         validate: validateEmail
       },
       {
@@ -77,6 +75,8 @@ export class AuthModel {
         placeholder: 'Senha:',
         required: true,
         showPasswordToggle: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
         validate: validatePassword
       },
       {
@@ -85,6 +85,8 @@ export class AuthModel {
         placeholder: 'Confirmar Senha:',
         required: true,
         showPasswordToggle: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
         validate: (value, formData) => {
           return validatePasswordConfirmation(formData?.senha, value)
         }
@@ -94,6 +96,7 @@ export class AuthModel {
         type: 'checkbox',
         hasLabel: false,
         required: true,
+        checkboxCentered: true,
         label: 'Aceito os termos da Lei Geral de Proteção de Dados (LGPD) e autorizo o uso das minhas informações pessoais.',
         link: { text: 'Saiba mais sobre LGPD', url: 'https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd' },
         validate: (value) => {
@@ -113,6 +116,8 @@ export class AuthModel {
         type: 'email',
         placeholder: 'E-mail:',
         required: true,
+        debounceValidation: true,
+        debounceDelay: 1000,
         validate: validateEmail
       }
     ]

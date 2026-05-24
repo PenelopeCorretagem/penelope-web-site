@@ -1,67 +1,87 @@
-/**
- * eventTypeService.js
- * Serviço de negócio para gerenciar event types
- */
-
 import * as eventTypeApi from '@api-calservice/eventTypeApi'
 import { EventTypeMapper } from '@mappers/EventTypeMapper'
+import { EventType } from '@dtos/EventType'
+import { handleEventTypeError } from '@responses/calservice/EventTypeResponse'
 
-/**
- * Lista todos os event types
- * @param {object} filters - Filtros de paginação { page, size }
- * @returns {Promise<EventType[]>} Array de event types
- */
 export const getAllEventTypes = async (filters = {}) => {
-  const response = await eventTypeApi.listEventTypes(filters)
-  return EventTypeMapper.toEntityList(response.content || response.eventTypes || response)
+  try {
+    const response = await eventTypeApi.listEventTypes(filters)
+    const rawList = response?.content || response?.eventTypes || response || []
+    return EventTypeMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Listagem')
+  }
 }
 
-/**
- * Busca um event type por ID
- * @param {number} id - ID do event type
- * @returns {Promise<EventType>} Entidade EventType
- */
 export const getEventTypeById = async (id) => {
-  const response = await eventTypeApi.getEventTypeById(id)
-  return EventTypeMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para buscar um tipo de evento')
+
+  try {
+    const response = await eventTypeApi.getEventTypeById(id)
+    return EventTypeMapper.toEntity(response)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Busca')
+  }
 }
 
-/**
- * Cria um novo event type
- * @param {object} eventTypeData - Dados do event type
- * @returns {Promise<EventType>} Event type criado
- */
 export const createEventType = async (eventTypeData) => {
-  const response = await eventTypeApi.createEventType(eventTypeData)
-  return EventTypeMapper.toEntity(response)
+  if (!eventTypeData)
+    throw new Error('Os dados do tipo de evento são obrigatórios')
+  if (!eventTypeData.title)
+    throw new Error('O título é obrigatório')
+  if (!eventTypeData.lengthInMinutes)
+    throw new Error('A duração é obrigatória')
+
+  try {
+    const payload = eventTypeData instanceof EventType
+      ? eventTypeData.toRequestPayload()
+      : eventTypeData
+
+    const response = await eventTypeApi.createEventType(payload)
+    return EventTypeMapper.toEntity(response)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Criação')
+  }
 }
 
-/**
- * Atualiza um event type
- * @param {number} id - ID do event type
- * @param {object} updateData - Dados a atualizar
- * @returns {Promise<EventType>} Event type atualizado
- */
 export const updateEventType = async (id, updateData) => {
-  const response = await eventTypeApi.updateEventType(id, updateData)
-  return EventTypeMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para atualizar um tipo de evento')
+  if (!updateData)
+    throw new Error('Os dados de atualização são obrigatórios')
+
+  try {
+    const payload = updateData instanceof EventType
+      ? updateData.toRequestPayload()
+      : updateData
+
+    const response = await eventTypeApi.updateEventType(id, payload)
+    return EventTypeMapper.toEntity(response)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Atualização')
+  }
 }
 
-/**
- * Deleta um event type
- * @param {number} id - ID do event type
- * @returns {Promise<void>}
- */
 export const deleteEventType = async (id) => {
-  return await eventTypeApi.deleteEventType(id)
+  if (!id)
+    throw new Error('O ID é obrigatório para deletar um tipo de evento')
+
+  try {
+    await eventTypeApi.deleteEventType(id)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Exclusão')
+  }
 }
 
-/**
- * Toggle visibility de um event type
- * @param {number} id - ID do event type
- * @returns {Promise<EventType>} Event type com visibility atualizada
- */
 export const toggleEventTypeVisibility = async (id) => {
-  const response = await eventTypeApi.toggleEventTypeVisibility(id)
-  return EventTypeMapper.toEntity(response)
+  if (!id)
+    throw new Error('O ID é obrigatório para alternar a visibilidade')
+
+  try {
+    const response = await eventTypeApi.toggleEventTypeVisibility(id)
+    return EventTypeMapper.toEntity(response)
+  } catch (error) {
+    throw handleEventTypeError(error, 'Alternar Visibilidade')
+  }
 }

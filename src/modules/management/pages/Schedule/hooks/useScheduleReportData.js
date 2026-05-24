@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import ReportModel, { PERIOD_TYPES } from '../ReportModel'
+import ReportModel, { PERIOD_TYPES } from '../components/layout/Report/ReportModel'
 
 /**
  * useScheduleReportData.js
@@ -8,7 +8,9 @@ import ReportModel, { PERIOD_TYPES } from '../ReportModel'
 
 export function useScheduleReportData(appointments = []) {
   const [periodType, setPeriodType] = useState(PERIOD_TYPES.MONTHLY)
-  const [reportModel] = useState(() => new ReportModel(appointments, periodType))
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
+  const [reportModel] = useState(() => new ReportModel(appointments, periodType, startDate, endDate))
 
   // Atualiza modelo quando appointments muda
   useEffect(() => {
@@ -20,31 +22,52 @@ export function useScheduleReportData(appointments = []) {
     reportModel.setPeriodType(periodType)
   }, [periodType, reportModel])
 
-  const confirmationRate = useMemo(() => reportModel.getConfirmationRate(), [reportModel, appointments])
-  const completionRate = useMemo(() => reportModel.getCompletionRate(), [reportModel, appointments])
-  const cancellationRate = useMemo(() => reportModel.getCancellationRate(), [reportModel, appointments])
+  // Atualiza range de datas do modelo quando muda
+  useEffect(() => {
+    reportModel.setDateRange(startDate, endDate)
+  }, [startDate, endDate, reportModel])
 
-  const statusDistribution = useMemo(() => reportModel.getStatusDistribution(), [reportModel, appointments])
-  const appointmentsByEstate = useMemo(() => reportModel.getAppointmentsByEstate(), [reportModel, appointments])
-  const appointmentsByEstateType = useMemo(() => reportModel.getAppointmentsByEstateType(), [reportModel, appointments])
-  const appointmentsByWeekDay = useMemo(() => reportModel.getAppointmentsByWeekDay(), [reportModel, appointments])
-  const timeSeriesData = useMemo(() => reportModel.getTimeSeriesData(), [reportModel, appointments, periodType])
-  const timeSeriesDataByStatus = useMemo(() => reportModel.getTimeSeriesDataByStatus(), [reportModel, appointments, periodType])
+  const confirmationRate = useMemo(() => reportModel.getConfirmationRate(), [reportModel, appointments, startDate, endDate])
+  const completionRate = useMemo(() => reportModel.getCompletionRate(), [reportModel, appointments, startDate, endDate])
+  const cancellationRate = useMemo(() => reportModel.getCancellationRate(), [reportModel, appointments, startDate, endDate])
 
-  const totalAppointments = useMemo(() => reportModel.getTotalAppointments(), [reportModel, appointments])
-  const totalPending = useMemo(() => reportModel.getTotalPending(), [reportModel, appointments])
-  const totalConfirmed = useMemo(() => reportModel.getTotalConfirmed(), [reportModel, appointments])
-  const totalConcluded = useMemo(() => reportModel.getTotalConcluded(), [reportModel, appointments])
-  const totalCancelled = useMemo(() => reportModel.getTotalCancelled(), [reportModel, appointments])
+  const statusDistribution = useMemo(() => reportModel.getStatusDistribution(), [reportModel, appointments, startDate, endDate])
+  const appointmentsByEstate = useMemo(() => reportModel.getAppointmentsByEstate(), [reportModel, appointments, startDate, endDate])
+  const appointmentsByEstateType = useMemo(() => reportModel.getAppointmentsByEstateType(), [reportModel, appointments, startDate, endDate])
+  const appointmentsByWeekDay = useMemo(() => reportModel.getAppointmentsByWeekDay(), [reportModel, appointments, startDate, endDate])
+  const timeSeriesData = useMemo(() => reportModel.getTimeSeriesData(), [reportModel, appointments, periodType, startDate, endDate])
+  const timeSeriesDataByStatus = useMemo(() => reportModel.getTimeSeriesDataByStatus(), [reportModel, appointments, periodType, startDate, endDate])
+
+  const totalAppointments = useMemo(() => reportModel.getTotalAppointments(), [reportModel, appointments, startDate, endDate])
+  const totalPending = useMemo(() => reportModel.getTotalPending(), [reportModel, appointments, startDate, endDate])
+  const totalConfirmed = useMemo(() => reportModel.getTotalConfirmed(), [reportModel, appointments, startDate, endDate])
+  const totalConcluded = useMemo(() => reportModel.getTotalConcluded(), [reportModel, appointments, startDate, endDate])
+  const totalCancelled = useMemo(() => reportModel.getTotalCancelled(), [reportModel, appointments, startDate, endDate])
 
   const handlePeriodChange = useCallback((newPeriodType) => {
     setPeriodType(newPeriodType)
   }, [])
 
+  const handleDateChange = useCallback((newStartDate, newEndDate) => {
+    setStartDate(newStartDate)
+    setEndDate(newEndDate)
+  }, [])
+
+  const handleResetDates = useCallback(() => {
+    setStartDate(null)
+    setEndDate(null)
+  }, [])
+
   return {
-    // Estado
+    // Estado - Período
     periodType,
     handlePeriodChange,
+
+    // Estado - Datas
+    startDate,
+    endDate,
+    handleDateChange,
+    handleResetDates,
 
     // KPIs
     confirmationRate,

@@ -1,17 +1,13 @@
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { AppointmentFormModalView } from './components/AppointmentFormModal/AppointmentFormModalView'
+import { AppointmentFormModalView } from './components/layout/Calendar/components/layout/AppointmentFormModal/AppointmentFormModalView'
 import { ScheduleModel } from './ScheduleModel'
 import { useScheduleViewModel } from './useScheduleViewModel'
-import { ScheduleFiltersToolbarView } from './components/ScheduleFiltersToolbarView'
-import { ScheduleLeftSidebarView } from './components/ScheduleLeftSidebarView'
-import { ScheduleCalendarPanelView } from './components/ScheduleCalendarPanelView'
-import { ScheduleRightSidebarView } from './components/ScheduleRightSidebarView'
-import { ScheduleReportView } from './components/ScheduleReportView'
-import { AppointmentToolsModalView } from './components/AppointmentToolsModalView'
+import { CalendarView } from './components/layout/Calendar/CalendarView'
+import { ReportView } from './components/layout/Report/ReportView'
+import { AppointmentToolsModalView } from './components/layout/Calendar/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import clsx from 'clsx'
 
 export function ScheduleView() {
   const vm = useScheduleViewModel()
@@ -106,107 +102,31 @@ export function ScheduleView() {
 
       {/* Renderização condicional baseada no modo */}
       {vm.displayMode === 'calendar' ? (
-        <>
-          {/* Modo Calendário - Layout original */}
-          <div className="relative z-20">
-            <ScheduleFiltersToolbarView
-              filterConfigs={vm.filterConfigs}
-              defaultFilters={vm.showEstateAgentScopeSelect
-                ? { ...vm.defaultFilters, estateAgentScopeFilter: vm.defaultEstateAgentFilter }
-                : vm.defaultFilters}
-              onFiltersChange={vm.handleFiltersChange}
-              showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
-              estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
-              displayMode={vm.displayMode}
-              availableDisplayModes={vm.availableDisplayModes}
-              onDisplayModeChange={vm.handleDisplayModeChange}
-              mobileExpandedContent={mobileExpandedContent}
-            />
-          </div>
-
-          <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 md:gap-6 xl:h-full xl:overflow-hidden relative z-0">
-
-            {/* Main Calendar Panel - Rendered first in DOM for mobile */}
-            <div className="xl:order-2 flex-1 min-h-0 min-w-0 flex flex-col">
-              <ScheduleCalendarPanelView
-                viewMode={vm.viewMode}
-                setViewMode={vm.setViewMode}
-                onNavigatePeriod={vm.handleNavigatePeriod}
-                navigateLabels={vm.navigateLabels}
-                weekdayLabels={vm.weekdayLabels}
-                weekDates={vm.weekDates}
-                selectedDate={vm.selectedDate}
-                selectedDateAppointments={vm.selectedDateAppointments}
-                filteredAppointments={vm.filteredAppointments}
-                calendarDays={vm.calendarDays}
-                hours={vm.hours}
-                appointmentsByDay={vm.appointmentsByDay}
-                onSelectDate={vm.setSelectedDate}
-                onOpenAppointmentTools={vm.handleOpenAppointmentTools}
-                onTimeSlotClick={vm.canManageAppointments ? vm.handleTimeSlotClick : undefined}
-                isPastDate={ScheduleModel.isPastDate}
-                isSameDay={ScheduleModel.isSameDay}
-                canChangeViewMode={vm.canChangeViewMode}
-                isAllAgentsMode={vm.isAllAgentsSelected}
-                estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
-              />
-            </div>
-
-            {/* Left Sidebar - Second on mobile, First on desktop */}
-            <div className="xl:order-1 flex-shrink-0 xl:h-full xl:min-h-0">
-              <ScheduleLeftSidebarView
-                selectedDate={vm.selectedDate}
-                selectedDateAppointments={vm.selectedDateAppointments}
-                selectedDateAppointmentsByStatus={vm.selectedDateAppointmentsByStatus}
-                onOpenAppointmentTools={vm.handleOpenAppointmentTools}
-                canManageAppointments={vm.canManageAppointments}
-              />
-            </div>
-
-            {/* Right Sidebar - Third on mobile, Third on desktop */}
-            <div className="xl:order-3 flex-shrink-0 xl:h-full xl:min-h-0">
-              <ScheduleRightSidebarView
-                currentMonthName={vm.currentMonthName}
-                weekdayLabels={vm.weekdayLabels}
-                calendarDays={vm.calendarDays}
-                selectedDate={vm.selectedDate}
-                appointmentsCountByDate={vm.appointmentsCountByDate}
-                monthlyAppointmentsByStatus={vm.monthlyAppointmentsByStatus}
-                onGoToToday={vm.handleGoToToday}
-                onChangeMonth={vm.handleChangeMonth}
-                onSelectDate={vm.setSelectedDate}
-                isPastDate={ScheduleModel.isPastDate}
-                isSameDay={ScheduleModel.isSameDay}
-              />
-            </div>
-          </div>
-        </>
+        <CalendarView
+          vm={vm}
+          filterConfigs={vm.filterConfigs}
+          defaultFilters={vm.defaultFilters}
+          showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
+          estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
+          onFiltersChange={vm.handleFiltersChange}
+          onDisplayModeChange={vm.handleDisplayModeChange}
+          availableDisplayModes={vm.availableDisplayModes}
+          displayMode={vm.displayMode}
+          mobileExpandedContent={mobileExpandedContent}
+        />
       ) : vm.displayMode === 'report' ? (
-        <>
-          {/* Modo Relatório - Gráficos e KPIs */}
-          <div className="relative z-20">
-            <ScheduleFiltersToolbarView
-              filterConfigs={vm.filterConfigs}
-              defaultFilters={vm.showEstateAgentScopeSelect
-                ? { ...vm.defaultFilters, estateAgentScopeFilter: vm.defaultEstateAgentFilter }
-                : vm.defaultFilters}
-              onFiltersChange={vm.handleFiltersChange}
-              showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
-              estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
-              displayMode={vm.displayMode}
-              availableDisplayModes={vm.availableDisplayModes}
-              onDisplayModeChange={vm.handleDisplayModeChange}
-              mobileExpandedContent={mobileExpandedContent}
-            />
-          </div>
-
-          <div className="flex-1 min-h-0 relative">
-            <ScheduleReportView
-              appointments={vm.filteredAppointments}
-              estateAgentName={vm.selectedEstateAgentName}
-            />
-          </div>
-        </>
+        <ReportView
+          vm={vm}
+          filterConfigs={vm.filterConfigs}
+          defaultFilters={vm.defaultFilters}
+          showEstateAgentScopeSelect={vm.showEstateAgentScopeSelect}
+          estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
+          onFiltersChange={vm.handleFiltersChange}
+          onDisplayModeChange={vm.handleDisplayModeChange}
+          availableDisplayModes={vm.availableDisplayModes}
+          displayMode={vm.displayMode}
+          mobileExpandedContent={mobileExpandedContent}
+        />
       ) : null}
 
       {/* Modais e Alertas */}

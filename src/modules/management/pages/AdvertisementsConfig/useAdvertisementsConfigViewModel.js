@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
-import { listAllAdvertisements , getAdvertisementById, updateAdvertisement } from '@service-penelopec/advertisementService'
+import { getAllAdvertisements, getAdvertisementById, updateAdvertisement } from '@service-penelopec/advertisementService'
 import { getAllAmenities } from '@service-penelopec/amenitiesService'
 import { AdvertisementsConfigModel } from './AdvertisementsConfigModel'
 import { AdvertisementConfigModel } from '../AdvertisementConfig/AdvertisementConfigModel'
@@ -46,9 +46,9 @@ export const useAdvertisementsConfigViewModel = () => {
       setError(null)
 
       const [launchAdvertisements, availableAdvertisements, underConstructionAdvertisements] = await Promise.all([
-        listAllAdvertisements ({ type: 'LANCAMENTO' }),
-        listAllAdvertisements ({ type: 'DISPONIVEL' }),
-        listAllAdvertisements ({ type: 'EM_OBRAS' })
+        getAllAdvertisements({ type: 'LANCAMENTO' }),
+        getAllAdvertisements({ type: 'DISPONIVEL' }),
+        getAllAdvertisements({ type: 'EM_OBRAS' })
       ])
 
       // Update model only if data is different to prevent unnecessary re-renders

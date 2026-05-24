@@ -1,24 +1,27 @@
 import { ContactUs } from '@dtos/ContactUs'
 
 export const contactUsMapper = {
-  /**
-   * Converte dados do formulário para entidade ContactUs
-   */
-  toEntity: (data) => {
+  // API usa campos em português — o Mapper é o único que conhece isso
+  toEntity(data) {
     if (!data) return null
-    return new ContactUs(data)
+
+    return new ContactUs({
+      name: data.nome ?? data.name,
+      email: data.email,
+      subject: data.assunto ?? data.subject,
+      message: data.mensagem ?? data.message,
+    })
   },
 
-  /**
-   * Converte entidade ContactUs para payload de requisição
-   */
-  toRequestPayload: (contactUs) => {
+  toRequestPayload(contactUs) {
     if (!contactUs) return null
-    if (contactUs instanceof ContactUs) {
-      return contactUs.toRequestPayload()
+
+    // Serializa para o contrato da API (campos em português)
+    return {
+      nome: contactUs.name,
+      email: contactUs.email,
+      assunto: contactUs.subject,
+      mensagem: contactUs.message,
     }
-    // Se for um objeto simples, converte para ContactUs primeiro
-    const contactUsEntity = new ContactUs(contactUs)
-    return contactUsEntity.toRequestPayload()
   },
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
 import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
-import { registerUser, updateUser, deleteUser, getUserById }  from '@api-penelopec/userApi'
+import { createUser, updateUser, deleteUser, getUserById }  from '@api-penelopec/userApi'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()
@@ -84,7 +84,7 @@ export function useUserConfigViewModel() {
       if (isEditMode) {
         await updateUser(id, apiData)
       } else {
-        await registerUser(apiData)
+        await createUser(apiData)
       }
 
       setAlertConfig({

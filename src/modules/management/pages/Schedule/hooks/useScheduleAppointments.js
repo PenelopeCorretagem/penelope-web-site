@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import * as appointmentCalService from '@service-calservice/appointmentCalService'
+import * as appointmentService from '@service-calservice/appointmentService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
 import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { ScheduleModel } from '../ScheduleModel'
@@ -65,7 +65,7 @@ export function useScheduleAppointments() {
       setError(null)
 
       const [appointments, eventTypes, advertisements] = await Promise.all([
-        appointmentCalService.getAllAppointments({ size: 100, ...filters }),
+        appointmentService.getAllAppointments({ size: 100, ...filters }),
         getAllEventTypes({ size: 100 }),
         getAllAdvertisements({ active: true, size: 100 }),
       ])
@@ -126,7 +126,7 @@ export function useScheduleAppointments() {
   const confirmAppointment = useCallback(async (appointmentId) => {
     try {
       setError(null)
-      const updated = await appointmentCalService.confirmAppointment(appointmentId)
+      const updated = await appointmentService.confirmAppointment(appointmentId)
       return updated
     } catch (err) {
       setError(getApiErrorMessage(err, 'Erro ao confirmar agendamento'))
@@ -137,7 +137,7 @@ export function useScheduleAppointments() {
   const concludeAppointment = useCallback(async (appointmentId) => {
     try {
       setError(null)
-      const updated = await appointmentCalService.concludeAppointment(appointmentId)
+      const updated = await appointmentService.concludeAppointment(appointmentId)
       return updated
     } catch (err) {
       setError(getApiErrorMessage(err, 'Erro ao concluir agendamento'))
@@ -148,7 +148,7 @@ export function useScheduleAppointments() {
   const cancelAppointment = useCallback(async (appointmentId, reason = null) => {
     try {
       setError(null)
-      const updated = await appointmentCalService.cancelAppointment(appointmentId, reason)
+      const updated = await appointmentService.cancelAppointment(appointmentId, reason)
       return updated
     } catch (err) {
       setError(getApiErrorMessage(err, 'Erro ao cancelar agendamento'))
@@ -159,7 +159,7 @@ export function useScheduleAppointments() {
   const deleteAppointment = useCallback(async (appointmentId, selectedDate) => {
     try {
       setError(null)
-      await appointmentCalService.deleteAppointment(appointmentId)
+      await appointmentService.deleteAppointment(appointmentId)
       model.removeById(appointmentId)
       refreshDerivedData(selectedDate)
     } catch (err) {
