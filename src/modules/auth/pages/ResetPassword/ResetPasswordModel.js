@@ -2,12 +2,10 @@
  * ResetPasswordModel - Modelo de dados para redefinição de senha
  * Gerencia os campos dos formulários e configurações de cada etapa
  */
-import { RouterModel } from '@routes/RouterModel'
+import { generateRoute } from '@shared/utils/routerUtil'
 
 export class ResetPasswordModel {
   constructor() {
-    this.routerModel = RouterModel.getInstance()
-
     this.resetTypes = {
       VERIFICATION: 'verification',
       NEW_PASSWORD: 'new_password'
@@ -134,7 +132,7 @@ export class ResetPasswordModel {
   // Métodos para integrar com RouterModel central
   getVerificationRoute(token = null) {
     if (token) {
-      return this.routerModel.generateRoute('VERIFICATION_CODE', { token })
+      return generateRoute('VERIFICATION_CODE', { token })
     }
     return '/verificacao'
   }

@@ -2,11 +2,11 @@ import { ADVERTISEMENT_CARD_CATEGORIES } from '@constant/advertisementCardCatego
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { Advertisement } from '@dtos/Advertisement'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
-import { RouterModel } from '@app/routes/RouterModel'
 import { deleteAdvertisement, updateAdvertisementStatus } from '@service-penelopec/advertisementService'
 import { LabelModel } from '@shared/components/ui/Label/LabelModel'
 import { ROUTES } from '@constant/routes'
 import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
+import { generateRoute } from '@shared/utils/routerUtil'
 
 const DELETE_BLOCKED_BY_APPOINTMENTS_MESSAGE = 'Não é possível deletar esse imóvel pois existe um histórico de agendamentos atrelado a ele.'
 
@@ -38,8 +38,6 @@ const isDeleteBlockedByAppointments = (error) => {
     || rawMessage.includes('fk_agendamento_empreendimento')
     || (rawMessage.includes('agendamento') && rawMessage.includes('empreendimento'))
 }
-
-const generateRoute = (routeName, param) => RouterModel.getInstance().generateRoute(routeName, param)
 
 const defaultButton = (advertisementId) => new ButtonModel(
   'Saiba Mais',

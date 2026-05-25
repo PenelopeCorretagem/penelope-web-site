@@ -30,6 +30,29 @@ export class SidebarModel {
         roles: ['CLIENTE', 'ADMINISTRADOR']
       },
       {
+        id: 'appointmentsReport',
+        text: 'Relatório de Agendamentos',
+        icon: 'BarChart2',
+        path: routes.SCHEDULE_REPORT,
+        roles: ['ADMINISTRADOR'],
+        children: [
+          {
+            id: 'appointmentsReportDashboard',
+            text: 'Dashboard',
+            icon: 'BarChart2',
+            path: routes.SCHEDULE_REPORT_DASHBOARD,
+            roles: ['ADMINISTRADOR'],
+          },
+          {
+            id: 'appointmentsReportRecords',
+            text: 'Registros',
+            icon: 'FileText',
+            path: routes.SCHEDULE_REPORT_RECORDS,
+            roles: ['ADMINISTRADOR'],
+          },
+        ],
+      },
+      {
         id: 'properties',
         text: 'Gerenciar Imóveis',
         icon: 'Building2',

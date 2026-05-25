@@ -31,5 +31,27 @@ export const authSessionUtil = {
       hadToken: sessionStorage.getItem('hadToken') === 'true',
       sessionExpiresAt: sessionStorage.getItem('sessionExpiresAt') ? Number(sessionStorage.getItem('sessionExpiresAt')) : null
     }
-  }
+  },
+
+  savePostLoginRedirect(location) {
+    try {
+      sessionStorage.setItem('postLoginRedirect', JSON.stringify(location))
+    } catch {
+    // falha silenciosa — não é crítico
+    }
+  },
+
+  getPostLoginRedirect() {
+    try {
+      const raw = sessionStorage.getItem('postLoginRedirect')
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  },
+
+  clearPostLoginRedirect() {
+    sessionStorage.removeItem('postLoginRedirect')
+  },
+
 }

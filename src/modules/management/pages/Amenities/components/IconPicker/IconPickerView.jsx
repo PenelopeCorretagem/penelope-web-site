@@ -36,17 +36,15 @@ export function IconPickerView({ isOpen, onClose, onSelectIcon, currentIcon }) {
 
     try {
       const Icon = LucideIcons[iconName]
-      
+
       if (!Icon) {
-        console.warn(`❌ Ícone "${iconName}" não existe em LucideIcons`)
         return <span className="text-xs text-gray-400">N/A</span>
       }
-      
+
       // Lucide icons são ForwardRefExoticComponent (typeof 'object'), não funções
       // React consegue renderizá-los sem problema
       return <Icon size={24} strokeWidth={2} className={isSelected ? 'text-white' : 'text-default-dark'} />
     } catch (error) {
-      console.error(`❌ Erro renderizando "${iconName}":`, error?.message || error)
       return <span className="text-xs text-red-500">Erro</span>
     }
   }
@@ -56,7 +54,7 @@ export function IconPickerView({ isOpen, onClose, onSelectIcon, currentIcon }) {
   return (
     <div className="absolute top-0 left-0 w-full h-full z-40 flex items-center justify-center">
       <div className=' bg-default-dark opacity-70 w-full h-full'></div>
-      
+
       <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full h-[70vh] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 p-4">

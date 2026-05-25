@@ -16,6 +16,9 @@ export const ROUTES = {
   // Protegidas - usuário comum
   SCHEDULE: { key: 'SCHEDULE', path: '/agenda', friendlyName: 'Agenda' },
   SCHEDULE_PROPERTY: { key: 'SCHEDULE_PROPERTY', path: '/agenda/:title', friendlyName: 'Agendar Visita' },
+  SCHEDULE_REPORT: { key: 'SCHEDULE_REPORT', path: '/agenda/relatorio', friendlyName: 'Relatório de Agendamentos' },
+  SCHEDULE_REPORT_DASHBOARD: { key: 'SCHEDULE_REPORT_DASHBOARD', path: '/agenda/relatorio/dashboard', friendlyName: 'Dashboard de Agendamentos' },
+  SCHEDULE_REPORT_RECORDS: { key: 'SCHEDULE_REPORT_RECORDS', path: '/agenda/relatorio/registros', friendlyName: 'Registros de Agendamentos' },
   PROFILE: { key: 'PROFILE', path: '/meu-perfil', friendlyName: 'Meu Perfil' },
   ACCOUNT: { key: 'ACCOUNT', path: '/minha-conta', friendlyName: 'Minha Conta' },
 

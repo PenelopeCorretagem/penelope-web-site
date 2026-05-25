@@ -1,294 +1,120 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { RouterModel } from '@routes/RouterModel'
+import { ROUTES } from '@constant/routes'
+import { buildRoute } from '@shared/utils/routerUtil'
+
+// Instância única do Model — criada fora do hook para sobreviver re-renders
+const routerModel = RouterModel.getInstance()
 
 /**
- * RouterViewModel - Lógica de apresentação do Router (Camada de Apresentação/Lógica)
- *
- * RESPONSABILIDADES:
- * - Gerenciar navegação (integração com React Router)
- * - Validar permissões de rotas
- * - Calcular proteções (auth, admin)
- * - Validar rotas antes de navegar
- * - Extrair parâmetros de rotas
- * - Expor API para Views
- *
- * INTEGRAÇÕES:
- * - React Router (useNavigate, useLocation)
- * - RouterModel (dados)
- */
-class RouterViewModel {
-  static instance = null
-
-  constructor() {
-    if (RouterViewModel.instance) {
-      return RouterViewModel.instance
-    }
-
-    this.routerModel = RouterModel.getInstance()
-    this.navigate = null
-
-    RouterViewModel.instance = this
-  }
-
-  static getInstance() {
-    if (!RouterViewModel.instance) {
-      RouterViewModel.instance = new RouterViewModel()
-    }
-    return RouterViewModel.instance
-  }
-
-  // ===== Injeção de Dependências =====
-  setNavigate(navigateFn) {
-    this.navigate = navigateFn
-  }
-
-  // ===== Lógica de Navegação =====
-  navigateTo(route) {
-    if (!this.navigate) {
-      console.error('Navigate not initialized')
-      return
-    }
-
-    if (!this.isValidRoute(route)) {
-      this.navigate(this.routerModel.getRoute('NOT_FOUND'), { replace: true })
-      this.routerModel.setCurrentRoute(this.routerModel.getRoute('NOT_FOUND'))
-      return
-    }
-
-    this.navigate(route)
-    this.routerModel.setCurrentRoute(route)
-  }
-
-  goBack() {
-    if (!this.navigate) {
-      console.error('Navigate not initialized')
-      return
-    }
-    this.navigate(-1)
-  }
-
-  // ===== Validações de Rota =====
-  isValidRoute(route) {
-    const allRoutes = Object.values(this.routerModel.getAllRoutes())
-
-    // Caso especial: verificação dinâmica (tokens)
-    if (route.startsWith('/verificacao-')) {
-      return true
-    }
-
-    // Verifica rota exata
-    if (allRoutes.includes(route)) {
-      return true
-    }
-
-    // Verifica rotas com parâmetros
-    return allRoutes.some(r => {
-      if (r.includes(':')) {
-        const pattern = r.replace(/:[^/]+/g, '[^/]+')
-        const regex = new RegExp(`^${pattern}$`)
-        return regex.test(route)
-      }
-      return false
-    })
-  }
-
-  isRouteActive(route, currentRoute) {
-    if (route === '/' && currentRoute === '/') return true
-    if (route === currentRoute) return true
-    if (route !== '/' && currentRoute.startsWith(`${route}/`)) return true
-    return false
-  }
-
-  // ===== Lógica de Permissões =====
-  requiresAuth(route) {
-    const publicRoutes = this.routerModel.getPublicRoutes()
-
-    // Verifica rota exata
-    if (publicRoutes.includes(route)) {
-      return false
-    }
-
-    // Verifica padrões dinâmicos
-    if (route.startsWith('/verificacao-')) {
-      return false
-    }
-
-    return true
-  }
-
-  requiresAdmin(route) {
-    const adminRoutes = this.routerModel.getAdminRequiredRoutes()
-
-    // Verifica rota exata
-    if (adminRoutes.includes(route)) {
-      return true
-    }
-
-    // Verifica se começa com /admin/
-    if (route.startsWith('/admin/')) {
-      return true
-    }
-
-    return false
-  }
-
-  /**
-   * Calcula proteção de rota autenticada
-   */
-  calculateProtectedRouteAccess(isAuthenticated, authReady) {
-    if (!authReady) {
-      return { shouldRender: false, redirectTo: null }
-    }
-
-    if (!isAuthenticated) {
-      return { shouldRender: false, redirectTo: this.routerModel.getRoute('LOGIN') }
-    }
-
-    return { shouldRender: true, redirectTo: null }
-  }
-
-  /**
-   * Calcula proteção de rota admin
-   */
-  calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady) {
-    if (!authReady) {
-      return { shouldRender: false, redirectTo: null }
-    }
-
-    if (!isAuthenticated) {
-      return { shouldRender: false, redirectTo: this.routerModel.getRoute('LOGIN') }
-    }
-
-    if (!isAdmin) {
-      return { shouldRender: false, redirectTo: this.routerModel.getRoute('UNAUTHORIZED') }
-    }
-
-    return { shouldRender: true, redirectTo: null }
-  }
-
-  // ===== Utilitários de Rotas =====
-  generateRoute(routeName, params = {}) {
-    let route = this.routerModel.getRoute(routeName)
-
-    if (!route) {
-      throw new Error(`Rota ${routeName} não encontrada`)
-    }
-
-    Object.keys(params).forEach(param => {
-      route = route.replace(`:${param}`, params[param])
-    })
-
-    return route
-  }
-
-  extractParams(routePattern, actualRoute) {
-    const patternParts = routePattern.split('/')
-    const routeParts = actualRoute.split('/')
-    const params = {}
-
-    patternParts.forEach((part, index) => {
-      if (part.startsWith(':')) {
-        const paramName = part.slice(1)
-        params[paramName] = routeParts[index]
-      }
-    })
-
-    return params
-  }
-
-  // ===== Listeners =====
-  addRouteChangeListener(callback) {
-    this.routerModel.addListener(callback)
-  }
-
-  removeRouteChangeListener(callback) {
-    this.routerModel.removeListener(callback)
-  }
-
-  // ===== Getters =====
-  getAllRoutes() {
-    return this.routerModel.getAllRoutes()
-  }
-
-  getMenuRoutes() {
-    return this.routerModel.getMenuRoutes()
-  }
-
-  getUserActionRoutes() {
-    return this.routerModel.getUserActionRoutes()
-  }
-
-  getAuthRoutes() {
-    return this.routerModel.getAuthRoutes()
-  }
-
-  getAdminRoutes() {
-    return this.routerModel.getAdminRoutes()
-  }
-}
-
-/**
- * useRouter - Hook principal para componentes React
+ * useRouter — Hook principal de roteamento.
+ * Conecta o RouterModel ao React Router e expõe a API para as Views.
  */
 export function useRouter() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [routerViewModel] = useState(() => RouterViewModel.getInstance())
+  const [, forceUpdate] = useState(0)
 
+  // Sincroniza rota atual no Model quando a URL muda
   useEffect(() => {
-    routerViewModel.setNavigate(navigate)
-  }, [navigate, routerViewModel])
-
-  useEffect(() => {
-    const currentPath = location.pathname
-    const modelRoute = routerViewModel.routerModel.getCurrentRoute()
-
-    if (currentPath !== modelRoute) {
-      routerViewModel.routerModel.setCurrentRoute(currentPath)
+    if (location.pathname !== routerModel.getCurrentRoute()) {
+      routerModel.setCurrentRoute(location.pathname)
     }
-  }, [location.pathname, routerViewModel])
+  }, [location.pathname])
 
+  // Notifica re-render quando o Model emite mudança de rota
+  useEffect(() => {
+    const handleChange = () => forceUpdate(p => p + 1)
+    routerModel.addListener(handleChange)
+    return () => routerModel.removeListener(handleChange)
+  }, [])
+
+  // ===== Navegação =====
   const navigateTo = useCallback((route) => {
-    routerViewModel.navigateTo(route)
-  }, [routerViewModel])
+    if (!isValidRoute(route)) {
+      navigate(ROUTES.NOT_FOUND.path, { replace: true })
+      return
+    }
+    navigate(route)
+  }, [navigate])
 
-  const goBack = useCallback(() => {
-    routerViewModel.goBack()
-  }, [routerViewModel])
+  const goBack = useCallback(() => navigate(-1), [navigate])
+
+  // ===== Validações =====
+  const isValidRoute = useCallback((route) => {
+    if (route.startsWith('/verificacao-')) return true
+
+    const allPaths = Object.values(routerModel.getAllRoutes())
+
+    if (allPaths.includes(route)) return true
+
+    return allPaths.some(r => {
+      if (!r.includes(':')) return false
+      const pattern = r.replace(/:[^/]+/g, '[^/]+')
+      return new RegExp(`^${pattern}$`).test(route)
+    })
+  }, [])
 
   const isRouteActive = useCallback((route) => {
-    return routerViewModel.isRouteActive(route, location.pathname)
-  }, [routerViewModel, location.pathname])
+    const current = location.pathname
+    if (route === '/' && current === '/') return true
+    if (route === current) return true
+    if (route !== '/' && current.startsWith(`${route}/`)) return true
+    return false
+  }, [location.pathname])
 
+  // ===== Permissões =====
   const requiresAuth = useCallback((route) => {
-    return routerViewModel.requiresAuth(route)
-  }, [routerViewModel])
+    const publicRoutes = routerModel.getPublicRoutes()
+    if (publicRoutes.includes(route)) return false
+    if (route.startsWith('/verificacao-')) return false
+    return true
+  }, [])
 
   const requiresAdmin = useCallback((route) => {
-    return routerViewModel.requiresAdmin(route)
-  }, [routerViewModel])
+    const adminRoutes = routerModel.getAdminRequiredRoutes()
+    if (adminRoutes.includes(route)) return true
+    if (route.startsWith('/admin/')) return true
+    return false
+  }, [])
 
-  const calculateProtectedRouteAccess = useCallback((isAuth, authReady) => {
-    return routerViewModel.calculateProtectedRouteAccess(isAuth, authReady)
-  }, [routerViewModel])
+  // ===== Proteções de rota =====
+  const calculateProtectedRouteAccess = useCallback((isAuthenticated, authReady) => {
+    if (!authReady) return { shouldRender: false, redirectTo: null }
+    if (!isAuthenticated) return { shouldRender: false, redirectTo: ROUTES.LOGIN.path }
+    return { shouldRender: true, redirectTo: null }
+  }, [])
 
-  const calculateAdminRouteAccess = useCallback((isAuth, isAdmin, authReady) => {
-    return routerViewModel.calculateAdminRouteAccess(isAuth, isAdmin, authReady)
-  }, [routerViewModel])
+  const calculateAdminRouteAccess = useCallback((isAuthenticated, isAdmin, authReady) => {
+    if (!authReady) return { shouldRender: false, redirectTo: null }
+    if (!isAuthenticated) return { shouldRender: false, redirectTo: ROUTES.LOGIN.path }
+    if (!isAdmin) return { shouldRender: false, redirectTo: ROUTES.UNAUTHORIZED.path }
+    return { shouldRender: true, redirectTo: null }
+  }, [])
 
-  const generateRoute = useCallback((name, params) => {
-    return routerViewModel.generateRoute(name, params)
-  }, [routerViewModel])
+  // ===== Utilitários =====
+  const generateRoute = useCallback((routeKey, params = {}) => {
+    const path = routerModel.getRoute(routeKey)
+    if (!path) throw new Error(`Rota '${routeKey}' não encontrada`)
+    return buildRoute(path, params)
+  }, [])
 
-  const extractParams = useCallback((pattern, route) => {
-    return routerViewModel.extractParams(pattern, route)
-  }, [routerViewModel])
+  const extractParams = useCallback((routePattern, actualRoute) => {
+    const patternParts = routePattern.split('/')
+    const routeParts = actualRoute.split('/')
+    const params = {}
+    patternParts.forEach((part, i) => {
+      if (part.startsWith(':')) params[part.slice(1)] = routeParts[i]
+    })
+    return params
+  }, [])
 
   return {
     currentRoute: location.pathname,
     navigateTo,
     goBack,
+    isValidRoute,
     isRouteActive,
     requiresAuth,
     requiresAdmin,
@@ -296,41 +122,30 @@ export function useRouter() {
     calculateAdminRouteAccess,
     generateRoute,
     extractParams,
-    getAllRoutes: useCallback(() => routerViewModel.getAllRoutes(), [routerViewModel]),
-    getMenuRoutes: useCallback(() => routerViewModel.getMenuRoutes(), [routerViewModel]),
-    getUserActionRoutes: useCallback(() => routerViewModel.getUserActionRoutes(), [routerViewModel]),
-    getAuthRoutes: useCallback(() => routerViewModel.getAuthRoutes(), [routerViewModel]),
-    getAdminRoutes: useCallback(() => routerViewModel.getAdminRoutes(), [routerViewModel]),
+    getAllRoutes: () => routerModel.getAllRoutes(),
+    getMenuRoutes: () => routerModel.getMenuRoutes(),
+    getUserActionRoutes: () => routerModel.getUserActionRoutes(),
+    getAuthRoutes: () => routerModel.getAuthRoutes(),
+    getAdminRoutes: () => routerModel.getAdminRoutes(),
   }
 }
 
 /**
- * useRouteParams - Extrai parâmetros da rota atual
+ * useRouteParams — Extrai parâmetros da rota atual automaticamente.
  */
 export function useRouteParams() {
   const location = useLocation()
   const { extractParams, getAllRoutes } = useRouter()
 
-  const findRoutePattern = useCallback(() => {
-    const allRoutes = getAllRoutes()
-    const currentRoute = location.pathname
-
-    for (const routePattern of Object.values(allRoutes)) {
-      if (routePattern.includes(':')) {
-        const pattern = routePattern.replace(/:[^/]+/g, '[^/]+')
-        const regex = new RegExp(`^${pattern}$`)
-        if (regex.test(currentRoute)) {
-          return routePattern
-        }
-      }
+  const routePattern = (() => {
+    const allRoutes = Object.values(getAllRoutes())
+    for (const pattern of allRoutes) {
+      if (!pattern.includes(':')) continue
+      const regex = new RegExp(`^${pattern.replace(/:[^/]+/g, '[^/]+')}$`)
+      if (regex.test(location.pathname)) return pattern
     }
-    return currentRoute
-  }, [location.pathname, getAllRoutes])
+    return location.pathname
+  })()
 
-  const routePattern = findRoutePattern()
-  const params = extractParams(routePattern, location.pathname)
-
-  return params
+  return extractParams(routePattern, location.pathname)
 }
-
-export { RouterViewModel }

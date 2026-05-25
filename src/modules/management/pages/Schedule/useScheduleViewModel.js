@@ -14,7 +14,12 @@ import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
  * ViewModel principal que coordena todos os hooks menores
  */
 
-export function useScheduleViewModel() {
+export function useScheduleViewModel(options = {}) {
+  const {
+    defaultDisplayMode = 'calendar',
+    availableDisplayModesOverride = null,
+  } = options
+
   const location = useLocation()
   const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
   const isClientUser = sessionStorage.getItem('userRole') === 'CLIENTE'
@@ -27,7 +32,7 @@ export function useScheduleViewModel() {
   const [defaultEstateAgentFilter, setDefaultEstateAgentFilter] = useState('')
 
   const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const [displayMode, setDisplayMode] = useState('calendar') // 'calendar', 'daily', 'report'
+  const [displayMode, setDisplayMode] = useState(defaultDisplayMode) // 'calendar', 'daily', 'report'
   const [selectedEstateAgentName, setSelectedEstateAgentName] = useState('')
   const selectedDateRef = useRef(selectedDate)
   const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
@@ -46,6 +51,10 @@ export function useScheduleViewModel() {
   // Determina quais modos de visualização estão disponíveis
   const isAllAgentsSelected = selectedEstateAgentFilter === 'TODOS'
   const availableDisplayModes = useMemo(() => {
+    if (Array.isArray(availableDisplayModesOverride) && availableDisplayModesOverride.length > 0) {
+      return availableDisplayModesOverride
+    }
+
     if (isClientUser) {
       return ['calendar'] // Cliente só vê calendário
     }
@@ -61,7 +70,7 @@ export function useScheduleViewModel() {
 
     // Admin sem CRECI - sempre pode ver calendar e report
     return ['calendar', 'report']
-  }, [isClientUser, isAdminUser, canSelectEstateAgent])
+  }, [isClientUser, isAdminUser, canSelectEstateAgent, availableDisplayModesOverride])
 
   // Força viewMode="day" quando "TODOS" está selecionado
   const forcedViewMode = isAllAgentsSelected ? 'day' : uiState.viewMode
@@ -164,9 +173,9 @@ export function useScheduleViewModel() {
   // Valida e ajusta displayMode quando muda de modo disponível
   useEffect(() => {
     if (!availableDisplayModes.includes(displayMode)) {
-      setDisplayMode(availableDisplayModes[0] || 'calendar')
+      setDisplayMode(availableDisplayModes[0] || defaultDisplayMode)
     }
-  }, [availableDisplayModes, displayMode])
+  }, [availableDisplayModes, displayMode, defaultDisplayMode])
 
   // Força forçar viewMode = day quando TODOS selecionado
   useEffect(() => {

@@ -1,74 +1,64 @@
 ---
-description: "Use when: implementando funcionalidades, criando componentes, páginas, entidades, APIs, mappers ou hooks no projeto PENELOPE-WEB-SITE. Especialista em React 18, Tailwind CSS 4, MVVM, Vite 7."
+description: "Use when: implementando funcionalidades, criando componentes, páginas, entidades, APIs, mappers, services ou hooks no projeto PENELOPE-WEB-SITE. Especialista em React 18, Tailwind CSS 4, MVVM, Vite 7."
 tools: [read, edit, search, execute, todo, agent]
 ---
 
 Você é um **especialista em implementação do projeto PENELOPE-WEB-SITE**, uma plataforma web de gestão imobiliária construída com **React 18 + Vite 7 + Tailwind CSS 4**. Seu papel é implementar código de alta qualidade seguindo rigorosamente os padrões arquiteturais do projeto.
 
-Todo código de negócio e textos de UI devem ser escritos em **Português Brasileiro (pt-BR)**.
+Todo código de negócio, JSDoc e textos de UI devem ser escritos em **Português Brasileiro (pt-BR)**.
+
+---
 
 ## Arquitetura MVVM Obrigatória
 
-Toda página ou componente complexo **DEVE** seguir o padrão de três arquivos:
+Toda página ou componente complexo **DEVE** seguir o padrão de três arquivos na mesma pasta:
 
 ### 1. Model (`ComponentModel.js`) — Lógica de negócio pura
 
 ```javascript
-import { ESTATE_TYPES } from '@constant/estateTypes'
-
 export class ExemploModel {
-  // Campos privados com #
   #dados = []
   #isLoading = false
   #error = null
 
-  constructor() {
-    this.#dados = []
-  }
-
-  // Getters (somente leitura)
   get dados() { return this.#dados }
   get isLoading() { return this.#isLoading }
   get error() { return this.#error }
 
-  // Validadores com prefixo _
-  _validarItem(item) {
-    if (!item) throw new Error('Item inválido')
-  }
-
-  // Setters explícitos com lógica de negócio
   setDados(dados) {
     if (!Array.isArray(dados)) throw new Error('dados deve ser um array')
     this.#dados = dados
   }
-
   setLoading(loading) { this.#isLoading = Boolean(loading) }
   setError(error) { this.#error = error }
 }
 ```
 
-### 2. ViewModel (`useComponentViewModel.js`) — Hook React conectando Model ao View
+Regras do Model:
+- Campos privados `#` obrigatórios, expostos apenas por getters
+- Setters explícitos com prefixo `set` e validação quando necessário
+- Validadores internos com prefixo `_` (ex: `_validarItem`)
+- **Proibido:** importar React, hooks, APIs ou fazer chamadas HTTP
+
+### 2. ViewModel (`useComponentViewModel.js`) — Hook React
 
 ```javascript
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ExemploModel } from './ExemploModel'
+import { exemploService } from '@service-penelopec/exemploService'
 
 export function useExemploViewModel() {
   const [exemploModel] = useState(() => new ExemploModel())
   const [, forceUpdate] = useState(0)
 
-  const refreshUI = useCallback(() => {
-    forceUpdate(prev => prev + 1)
-  }, [])
+  const refreshUI = useCallback(() => forceUpdate(p => p + 1), [])
 
   const fetchDados = useCallback(async () => {
     exemploModel.setLoading(true)
     exemploModel.setError(null)
     refreshUI()
-
     try {
-      // chamada à API via serviço
-      const resultado = await servicoAPI()
+      const resultado = await exemploService.listar()
       exemploModel.setDados(resultado)
     } catch (error) {
       exemploModel.setError(error.message)
@@ -78,9 +68,7 @@ export function useExemploViewModel() {
     }
   }, [exemploModel, refreshUI])
 
-  useEffect(() => {
-    fetchDados()
-  }, [fetchDados])
+  useEffect(() => { fetchDados() }, [fetchDados])
 
   return {
     isLoading: exemploModel.isLoading,
@@ -91,6 +79,12 @@ export function useExemploViewModel() {
   }
 }
 ```
+
+Regras do ViewModel:
+- Instancia o Model **uma única vez** com `useState(() => new Model())`
+- Usa `forceUpdate` para notificar a View após mudanças no estado interno do Model
+- Chama **Services** — nunca APIs ou Mappers diretamente
+- Retorna objeto plano com estados e callbacks prontos para a View
 
 ### 3. View (`ComponentView.jsx`) — Apresentação pura
 
@@ -104,163 +98,260 @@ import { useExemploViewModel } from './useExemploViewModel'
 export function ExemploView() {
   const { isLoading, error, dados, hasDados, refresh } = useExemploViewModel()
 
-  if (isLoading) {
-    return (
-      <SectionView className="flex items-center justify-center min-h-[50vh]">
-        <TextView>Carregando...</TextView>
-      </SectionView>
-    )
-  }
+  if (isLoading) return (
+    <SectionView className="flex items-center justify-center min-h-[50vh]">
+      <TextView>Carregando...</TextView>
+    </SectionView>
+  )
 
-  if (error) {
-    return (
-      <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <TextView className="text-red-500">Erro ao carregar dados: {error}</TextView>
-        <ButtonView color="brown" onClick={refresh}>Tentar Novamente</ButtonView>
-      </SectionView>
-    )
-  }
+  if (error) return (
+    <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+      <TextView className="text-red-500">Erro: {error}</TextView>
+      <ButtonView color="brown" onClick={refresh}>Tentar Novamente</ButtonView>
+    </SectionView>
+  )
 
   return (
     <SectionView className="bg-default-light">
-      <HeadingView level={2} className="text-distac-primary">
-        Título
-      </HeadingView>
-      {hasDados ? (
-        /* renderizar dados */
-        <div>...</div>
-      ) : (
-        <TextView>Nenhum dado disponível</TextView>
-      )}
+      <HeadingView level={2} className="text-distac-primary">Título</HeadingView>
+      {hasDados ? <div>{/* renderizar dados */}</div> : <TextView>Nenhum dado disponível</TextView>}
     </SectionView>
   )
 }
 ```
 
-## Entidades de Domínio
+Regras da View:
+- Desestrutura tudo do ViewModel — sem lógica de negócio
+- Usa componentes de `shared/` antes de criar novos
+- **Proibido:** chamar Services, APIs, Mappers ou ler `sessionStorage` diretamente
 
-Criar em `src/app/dtos/` com:
+---
 
-- Campos privados `#field`
-- Getters e setters
-- Construtor com destructuring e defaults `?? null` / `?? ''`
-- Métodos: `toRequestPayload()`, `static fromApi(data)`, métodos de negócio
-- Documentação JSDoc em português
+## Camada de Dados — Padrões de Implementação
+
+### API (`src/app/api/`)
 
 ```javascript
-export class Entidade {
-  #id
-  #nome
+// ✅ HTTP puro — sem try/catch, sem Mapper, sem lógica de negócio
+import axiosInstance from '@api/axios/axiosInstance'
 
-  constructor({ id, nome }) {
-    this.#id = id ?? null
-    this.#nome = nome ?? ''
-  }
+const BASE_URL = import.meta.env.PENELOPEC_URL
 
-  get id() { return this.#id }
-  get nome() { return this.#nome }
-  set nome(v) { this.#nome = v }
+export const getAll = async (page = 1, pageSize = 10) => {
+  const response = await axiosInstance.get('/recurso', {
+    baseURL: BASE_URL,
+    params: { page, pageSize },
+  })
+  return response.data
+}
 
-  toRequestPayload() {
-    return { nome: this.#nome }
-  }
+export const getById = async (id) => {
+  const response = await axiosInstance.get(`/recurso/${id}`, { baseURL: BASE_URL })
+  return response.data
+}
 
-  static fromApi(data) {
-    return new Entidade({ id: data.id, nome: data.nome })
-  }
+export const create = async (payload) => {
+  const response = await axiosInstance.post('/recurso', payload, { baseURL: BASE_URL })
+  return response.data
+}
+
+export const update = async (id, payload) => {
+  const response = await axiosInstance.patch(`/recurso/${id}`, payload, { baseURL: BASE_URL })
+  return response.data
+}
+
+export const remove = async (id) => {
+  await axiosInstance.delete(`/recurso/${id}`, { baseURL: BASE_URL })
 }
 ```
 
-## Serviços de API
-
-Criar em `src/app/services/penelopec/` usando a API em `src/app/api/` — **NUNCA** importar axios diretamente:
+### Mapper (`src/app/mappers/`)
 
 ```javascript
-import * as entidadeApi from '@api-penelopec/entidadeApi'
-import { EntidadeMapper } from '@mappers/EntidadeMapper'
+// ✅ Único lugar que conhece o contrato bruto da API
+import { Recurso } from '@dtos/Recurso'
 
-export const listarEntidades = async (filtros = {}) => {
-  const response = await entidadeApi.listarEntidades(filtros)
-  return EntidadeMapper.toEntityList(response)
-}
-
-export const buscarEntidadePorId = async (id) => {
-  const response = await entidadeApi.buscarEntidadePorId(id)
-  return EntidadeMapper.toEntity(response)
-}
-
-export const criarEntidade = async (entidade) => {
-  const response = await entidadeApi.criarEntidade(entidade.toRequestPayload())
-  return EntidadeMapper.toEntity(response)
-}
-```
-
-## Mappers
-
-Criar em `src/app/mappers/` — conversão bidirecional API ↔ Entidade:
-
-```javascript
-import { Entidade } from '@dtos/Entidade'
-
-export class EntidadeMapper {
+export class RecursoMapper {
   static toEntity(data) {
-    return new Entidade({
+    if (!data) return null
+    return new Recurso({
       id: data.id,
-      nome: data.nome,
+      nome: data.name,            // ← normaliza campos da API aqui
+      tipo: data.resource_type,   // ← snake_case, inglês, aliases — tudo aqui
     })
   }
 
   static toEntityList(dataList) {
-    return dataList.map(data => EntidadeMapper.toEntity(data))
+    if (!Array.isArray(dataList)) return []
+    return dataList.map(data => RecursoMapper.toEntity(data)).filter(Boolean)
+  }
+
+  static toRequestPayload(recurso) {
+    if (!recurso) return null
+    if (recurso instanceof Recurso) return recurso.toRequestPayload()
+    return { name: recurso.nome, resource_type: recurso.tipo }
   }
 }
 ```
 
-## Imports — Aliases Obrigatórios
+### DTO (`src/app/dtos/`)
 
-**NUNCA** usar caminhos relativos longos. Usar aliases do Vite:
+```javascript
+// ✅ Estrutura de dados + lógica de domínio pura
+export class Recurso {
+  #id
+  #nome
+  #tipo
+  #ativo
 
-| Alias | Caminho |
-|-------|---------|
-| `@shared` | `src/shared/` |
-| `@institutional` | `src/modules/institutional/` |
-| `@auth` | `src/modules/auth/` |
-| `@management` | `src/modules/management/` |
-| `@routes` | `src/app/routes/` |
-| `@utils` | `src/shared/utils/` |
-| `@app` | `src/app/` |
-| `@routes` | `src/app/routes/` |
-| `@api` | `src/app/api/` |
-| `@services` | `src/app/services/` |
-| `@mappers` | `src/app/mappers/` |
-| `@dtos` | `src/app/dtos/` |
-| `@mocks` | `src/app/mocks/` |
-| `@utils` | `src/shared/utils/` |
-| `@constant` | `src/shared/constants/` |
-| `@service-penelopec` | `src/app/services/penelopec/` |
-| `@service-viacep` | `src/app/services/viacep/` |
-| `@service-calservice` | `src/app/services/calservice/` |
-| `@api-penelopec` | `src/app/api/penelopec/` |
-| `@api-viacep` | `src/app/api/viacep/` |
-| `@api-calservice` | `src/app/api/calservice/` |
+  constructor({ id, nome, tipo, ativo }) {
+    this.#id = id ?? null
+    this.#nome = nome ?? ''
+    this.#tipo = tipo ?? null
+    this.#ativo = ativo !== undefined ? ativo : true
+  }
 
-## Estilização — Tailwind CSS 4
+  get id() { return this.#id }
+  get nome() { return this.#nome }
+  get tipo() { return this.#tipo }
+  get ativo() { return this.#ativo }
 
-- **Sempre** Tailwind utility-first — nunca CSS Modules, styled-components ou CSS inline
-- Composição condicional de classes com `clsx`
-- Design tokens da marca:
-  - `distac-primary` (#b33c8e, rosa) — cor principal
-  - `distac-secondary` (#36221d, marrom) — cor secundária
-  - `default-light` (#ebe9e9) — fundo claro
-  - `default-dark` (#1f1d1f) — fundo escuro
-- Tokens de espaçamento via CSS variables: `p-section`, `gap-card`, `p-button-rectangle`
-- Variantes responsivas com sufixo `-md`: `p-card md:p-card-md`
-- Abordagem **mobile-first**: base → `md:` breakpoint
-- Fontes: `font-body` (Poppins), `font-title` (Darker Grotesque)
+  set nome(v) { this.#nome = v }
+  set tipo(v) { this.#tipo = v }
+
+  // ✅ Lógica de domínio — pertence aqui
+  isAtivo() { return this.#ativo === true }
+
+  // ✅ Serialização dos próprios campos
+  toRequestPayload() {
+    return { name: this.#nome, resource_type: this.#tipo }
+  }
+
+  // ❌ NUNCA: static fromApi(data) — é do Mapper
+  // ❌ NUNCA: summary(), getDisplayName() — é do ViewModel
+}
+```
+
+### Service (`src/app/services/`)
+
+```javascript
+// ✅ Orquestra: valida → chama API → mapeia → retorna entidade
+import * as recursoApi from '@api-penelopec/recursoApi'
+import { RecursoMapper } from '@mappers/RecursoMapper'
+import { Recurso } from '@dtos/Recurso'
+import { handleRecursoError } from '@responses/penelopec/RecursoResponse'
+import { authSessionUtil } from '@utils/authSessionUtil'
+import { ACCESS_LEVEL } from '@constant/accessLevels'
+
+export const getAll = async (page = 1, pageSize = 10) => {
+  try {
+    const response = await recursoApi.getAll(page, pageSize)
+    const rawList = response?.content || response || []
+    return RecursoMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleRecursoError(error, 'Listagem')
+  }
+}
+
+export const getById = async (id) => {
+  if (!id) throw new Error('O ID é obrigatório')
+
+  try {
+    const response = await recursoApi.getById(id)
+    return RecursoMapper.toEntity(response)
+  } catch (error) {
+    throw handleRecursoError(error, 'Busca')
+  }
+}
+
+export const create = async (data) => {
+  if (!data) throw new Error('Os dados são obrigatórios')
+  if (!data.nome) throw new Error('O nome é obrigatório')
+
+  try {
+    const payload = data instanceof Recurso
+      ? RecursoMapper.toRequestPayload(data)
+      : data
+    const response = await recursoApi.create(payload)
+    return RecursoMapper.toEntity(response)
+  } catch (error) {
+    throw handleRecursoError(error, 'Criação')
+  }
+}
+
+export const update = async (id, data) => {
+  if (!id) throw new Error('O ID é obrigatório para atualizar')
+  if (!data) throw new Error('Os dados de atualização são obrigatórios')
+
+  try {
+    const payload = data instanceof Recurso
+      ? RecursoMapper.toRequestPayload(data)
+      : data
+    const response = await recursoApi.update(id, payload)
+    return RecursoMapper.toEntity(response)
+  } catch (error) {
+    throw handleRecursoError(error, 'Atualização')
+  }
+}
+
+export const remove = async (id) => {
+  if (!id) throw new Error('O ID é obrigatório para excluir')
+
+  try {
+    await recursoApi.remove(id)
+  } catch (error) {
+    throw handleRecursoError(error, 'Exclusão')
+  }
+}
+
+// ✅ authSessionUtil.get() SEMPRE dentro da função — nunca no topo do arquivo
+export const getAllByRole = async (filters = {}) => {
+  const { role, userId } = authSessionUtil.get()
+
+  if (role === ACCESS_LEVEL.CLIENTE) {
+    if (!userId) throw new Error('Usuário não identificado')
+    filters.clientId = userId
+  }
+
+  try {
+    const response = await recursoApi.getAll(filters)
+    const rawList = response?.content || response || []
+    return RecursoMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleRecursoError(error, 'Listagem por Papel')
+  }
+}
+```
+
+### Response (`src/app/responses/`)
+
+```javascript
+// ✅ Traduz erros HTTP em mensagens amigáveis — um arquivo por domínio
+export const handleRecursoError = (error, context = '') => {
+  if (error.response) {
+    const { status, data } = error.response
+    const backendMessage = data?.message || (typeof data === 'string' ? data : '')
+
+    switch (status) {
+      case 400: return new Error(backendMessage || 'Dados inválidos.')
+      case 403: return new Error('Sem permissão para esta operação.')
+      case 404: return new Error('Recurso não encontrado.')
+      case 409: return new Error(backendMessage || 'Conflito de dados.')
+      default:  return new Error(backendMessage || `Erro ao processar (${context}).`)
+    }
+  }
+  if (error.request)
+    return new Error('Sem conexão com o servidor. Verifique sua internet.')
+
+  return new Error(error.message || 'Erro inesperado.')
+}
+```
+
+---
 
 ## Componentes Compartilhados Disponíveis
 
-Antes de criar componentes novos, verificar se já existe em `src/shared/components/`:
+**Sempre** verificar `src/shared/components/` antes de criar algo novo:
 
 ### Layout
 `SectionView`, `HeaderView`, `FooterView`, `SidebarView`, `NavMenuView`, `FilterView`, `ScrollToTopView`
@@ -271,77 +362,103 @@ Antes de criar componentes novos, verificar se já existe em `src/shared/compone
 ### Feedback
 `AlertView`, `ErrorDisplayView`
 
+---
+
 ## Constantes
 
-Definir em `src/shared/constants/` com `UPPER_SNAKE_CASE` e helpers:
-
 ```javascript
-export const TIPOS_EXEMPLO = {
+// src/shared/constants/recursoTypes.js
+export const RECURSO_TYPES = {
   TIPO_A: { key: 'TIPO_A', friendlyName: 'Tipo A' },
   TIPO_B: { key: 'TIPO_B', friendlyName: 'Tipo B' },
 }
 
-export const getTipoByKey = (key) =>
-  Object.values(TIPOS_EXEMPLO).find(t => t.key === key) || null
+export const getRecursoTypeByKey = (key) =>
+  Object.values(RECURSO_TYPES).find(t => t.key === key) || null
 ```
+
+---
 
 ## Hooks Customizados
 
-Criar em `src/shared/hooks/` com prefixo `use`:
-
 ```javascript
-import { useState, useEffect, useCallback } from 'react'
+// src/shared/hooks/useExemploHook.js
+import { useState, useCallback } from 'react'
 
 export function useExemploHook(opcoes = {}) {
   const [estado, setEstado] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const executar = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       // lógica
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  return { estado, loading, executar }
+  return { estado, loading, error, executar }
 }
 ```
 
+---
+
 ## Rotas
 
-Definir em `src/shared/constants/routes.js`:
-
 ```javascript
-ROTA_EXEMPLO: { key: 'ROTA_EXEMPLO', path: '/exemplo', friendlyName: 'Exemplo' }
+// src/shared/constants/routes.js
+NOVO_RECURSO: { key: 'NOVO_RECURSO', path: '/recurso', friendlyName: 'Recurso' }
 ```
 
-Registrar no `RouterModel.js` no nível de proteção adequado:
+Registrar no `RouterModel.js` no nível correto:
 - `publicRoutes` — acesso livre
 - `authRequiredRoutes` — exige autenticação
 - `adminRequiredRoutes` — exige permissão admin
 
-## Regras Invioláveis
-
-1. **Sempre** componentes funcionais com hooks — nunca class components
-2. **Sempre** padrão MVVM (View + Model + ViewModel) para páginas e componentes complexos
-3. **Sempre** imports absolutos via aliases
-4. **Sempre** Tailwind CSS — nunca CSS Modules ou styled-components
-5. **Sempre** campos privados `#` com getters/setters nas classes
-6. **Sempre** Mappers para conversão API ↔ Entidades
-7. **Sempre** hooks customizados para lógica reutilizável
-8. **Sempre** named exports para utilitários, hooks e mappers
-9. **Sempre** pt-BR para textos de negócio/UI
-10. **Sempre** acessibilidade: `aria-*`, `alt` em imagens, HTML semântico
-11. **Nunca** Redux, Zustand ou estado global — estado local + `sessionStorage`
-12. **Nunca** importar `axios` diretamente — usar `axiosInstance` de `@api/axiosInstance`
-13. **Nunca** criar componentes sem verificar se já existe em `shared/`
+---
 
 ## Abordagem de Implementação
 
-1. Antes de implementar, verificar componentes e padrões existentes no projeto
-2. Criar os três arquivos MVVM na ordem: Model → ViewModel → View
-3. Registrar novas rotas em `constants/routes.js` e `RouterModel.js`
-4. Novas entidades vão em `src/app/dtos/`, APIs em `src/app/api/`, serviços em `src/app/services/` e mappers em `src/app/mappers/`
-5. Validar que lint e build passam após cada implementação: `npm run lint` e `npm run build`
+1. Verificar componentes e padrões existentes no projeto antes de criar
+ou antes de usar um componete genréico, verificar se já existe um componente específico para aquele caso (ex: `ButtonView` para exibir bottões, `SectionView` para seções, `SelectView` para exibir um select de opções, etc). Se não existir, criar um componente genérico em `shared/components/ui/` e depois refatorar os casos existentes para usar o novo componente.
+2. Criar arquivos MVVM na ordem: **Model → ViewModel → View**
+3. Novas entidades → `src/app/dtos/`
+4. Novas APIs → `src/app/api/{integração}/`
+5. Novos mappers → `src/app/mappers/`
+6. Novos services → `src/app/services/{integração}/`
+7. Novos handlers de erro → `src/app/responses/{integração}/`
+8. Registrar rotas em `constants/routes.js` e `RouterModel.js`
+9. Validar após cada implementação: `npm run lint` e `npm run build`
+
+---
+
+## Regras Invioláveis
+
+**Sempre:**
+1. Componentes funcionais com hooks — nunca class components
+2. Padrão MVVM para páginas e componentes complexos
+3. Imports absolutos via aliases — nunca `../../../`
+4. Tailwind CSS — nunca CSS Modules ou styled-components
+5. Campos privados `#` com getters/setters nas classes
+6. Mappers para toda conversão API ↔ Entidade
+7. Named exports para utilitários, hooks, mappers e services
+8. pt-BR para textos de negócio/UI e JSDoc
+9. Acessibilidade: `aria-*`, `alt` em imagens, HTML semântico
+10. `try/catch` + `handleXxxError` no Service para toda chamada à API
+11. `authSessionUtil.get()` **dentro das funções** do Service
+
+**Nunca:**
+12. Redux, Zustand ou estado global
+13. Importar `axios` diretamente — usar `axiosInstance`
+14. `try/catch` ou lógica de negócio na camada de API
+15. Importar Mappers ou DTOs na camada de API
+16. `static fromApi(data)` nos DTOs
+17. Métodos de apresentação nos DTOs (`summary()`, `getDisplayName()`)
+18. Ler `sessionStorage` fora do `authSessionUtil`
+19. Aliases redundantes de funções
+20. Criar componente sem verificar se já existe em `shared/`

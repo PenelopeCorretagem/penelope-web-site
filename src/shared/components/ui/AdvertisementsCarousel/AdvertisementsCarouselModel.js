@@ -1,11 +1,8 @@
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
-import { RouterModel } from '@app/routes/RouterModel'
 import { ROUTES } from '@constant/routes'
 import { ButtonModel } from '@shared/components/ui/Button/ButtonModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
-
-const generateRoute = (routeName, param) =>
-  RouterModel.getInstance().generateRoute(routeName, param)
+import { generateRoute } from '@shared/utils/routerUtil'
 
 export class AdvertisementsCarouselModel {
   #advertisements = []
