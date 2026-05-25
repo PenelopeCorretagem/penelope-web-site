@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { authSessionUtil } from '@utils/authSession/authSessionUtil'
 import { ScrollToTop } from '@shared/components/layout/ScrollToTop/ScrollToTop'
 import { FooterView } from '@shared/components/layout/Footer/FooterView'
 import { HomeView } from '@institutional/pages/Home/HomeView'
@@ -7,6 +8,7 @@ import { AdvertisementDetailsView } from '@institutional/pages/AdvertisementDeta
 import { AboutView } from '@institutional/pages/About/AboutView'
 import { ContactsView } from '@institutional/pages/Contacts/ContactsView'
 import { ScheduleView } from '@management/pages/Schedule/ScheduleView'
+import { AppointmentReportView } from '@management/pages/AppointmentReport/AppointmentReportView'
 import { ProfileView } from '@management/pages/Profile/ProfileView'
 import { AuthView } from '@auth/pages/Auth/AuthView'
 import { ResetPasswordView } from '@auth/pages/ResetPassword/ResetPasswordView'
@@ -22,66 +24,43 @@ import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionV
 import { useRouter } from './useRouterViewModel'
 
 /**
- * ProtectedRoute - Wrapper para rotas protegidas
- *
- * Renderiza:
- * - AuthTransitionView: enquanto verifica autenticação
- * - Redirect: se não autenticado e sem permissão
- * - Children: se autenticado e com permissão
+ * ProtectedRoute — Wrapper para rotas protegidas.
+ * Salva a rota de retorno via authSessionUtil antes de redirecionar.
  */
 const ProtectedRoute = ({ protection, children }) => {
   const { shouldRender, redirectTo } = protection
   const location = useLocation()
 
-  // Enquanto carrega a verificação de auth
   if (!shouldRender && !redirectTo) {
     return <AuthTransitionView status="verifying" message="Verificando acesso..." />
   }
 
-  // Sem permissão, redireciona
   if (!shouldRender && redirectTo) {
-    const returnTo = {
+    authSessionUtil.savePostLoginRedirect({
       pathname: location.pathname,
       search: location.search,
       hash: location.hash,
       state: location.state,
-    }
+    })
 
-    try {
-      sessionStorage.setItem('postLoginRedirect', JSON.stringify(returnTo))
-    } catch (error) {
-      console.error('Falha ao salvar rota de retorno para o login:', error)
-    }
-
-    return <Navigate to={redirectTo} replace state={{ from: returnTo }} />
+    return <Navigate to={redirectTo} replace state={{ from: location }} />
   }
 
   return children
 }
 
 /**
- * RouterView - View de roteamento (Camada de Apresentação)
- *
- * RESPONSABILIDADES:
- * - Renderizar rotas baseado nas props
- * - Aplicar componentes de proteção
- * - Estrutura visual consistente
- **/
+ * RouterView — Camada de apresentação do roteamento.
+ */
 export function RouterView({
   isAuthenticated = false,
   isAdmin = false,
   authReady = false,
   shouldShowFooter = false,
 }) {
-  const {
-    calculateProtectedRouteAccess,
-    calculateAdminRouteAccess,
-    getAllRoutes
-  } = useRouter()
-
+  const { calculateProtectedRouteAccess, calculateAdminRouteAccess, getAllRoutes } = useRouter()
   const routes = getAllRoutes()
 
-  // Calcula proteções via ViewModel
   const protectedAccess = calculateProtectedRouteAccess(isAuthenticated, authReady)
   const adminAccess = calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady)
 
@@ -107,27 +86,41 @@ export function RouterView({
         {/* ===== ROTAS PROTEGIDAS ===== */}
         <Route
           path={routes.SCHEDULE}
+          element={
+            <ProtectedRoute protection={protectedAccess}><ScheduleView /></ProtectedRoute>
+          }
+        />
+        <Route
+          path={routes.SCHEDULE_REPORT}
           element={(
-            <ProtectedRoute protection={protectedAccess}>
-              <ScheduleView />
+            <ProtectedRoute protection={adminAccess}>
+              <Navigate to={routes.SCHEDULE_REPORT_DASHBOARD} replace />
             </ProtectedRoute>
           )}
+        />
+        <Route
+          path={routes.SCHEDULE_REPORT_DASHBOARD}
+          element={
+            <ProtectedRoute protection={adminAccess}><AppointmentReportView /></ProtectedRoute>
+          }
+        />
+        <Route
+          path={routes.SCHEDULE_REPORT_RECORDS}
+          element={
+            <ProtectedRoute protection={adminAccess}><AppointmentReportView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.PROFILE}
-          element={(
-            <ProtectedRoute protection={protectedAccess}>
-              <ProfileView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={protectedAccess}><ProfileView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ACCOUNT}
-          element={(
-            <ProtectedRoute protection={protectedAccess}>
-              <AccountView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={protectedAccess}><AccountView /></ProtectedRoute>
+          }
         />
 
         {/* ===== ROTAS ADMIN ===== */}
@@ -141,82 +134,59 @@ export function RouterView({
         />
         <Route
           path={routes.ADMIN_PROFILE}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <ProfileView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><ProfileView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_ACCOUNT}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <AccountView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><AccountView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_USERS}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <UsersView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><UsersView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_USER_ADD}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <UserConfigView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><UserConfigView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_USER_EDIT}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <UserConfigView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><UserConfigView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_PROPERTIES}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <AdvertisementsConfigView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><AdvertisementsConfigView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_PROPERTIES_CONFIG}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <AdvertisementConfigView />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><AdvertisementConfigView /></ProtectedRoute>
+          }
         />
         <Route
           path={routes.ADMIN_AMENITIES}
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <AmenitiesView />
-            </ProtectedRoute>
-          )}
-        />
-        <Route
-          path="/admin/amenities"
-          element={(
-            <ProtectedRoute protection={adminAccess}>
-              <Navigate to={routes.ADMIN_AMENITIES} replace />
-            </ProtectedRoute>
-          )}
+          element={
+            <ProtectedRoute protection={adminAccess}><AmenitiesView /></ProtectedRoute>
+          }
         />
 
-        {/* ===== PÁGINAS DE ERRO ===== */}
+        {/* ===== ERROS ===== */}
         <Route path={routes.UNAUTHORIZED} element={<UnauthorizedView />} />
         <Route path={routes.NOT_FOUND} element={<NotFoundView />} />
         <Route path="*" element={<NotFoundView />} />
       </Routes>
+
       {shouldShowFooter && <FooterView isAuthenticated={isAuthenticated} />}
     </main>
   )

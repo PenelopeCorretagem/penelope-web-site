@@ -1,5 +1,5 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
-import { getEstateTypeByFriendlyName } from '@constant/estateTypes'
+import { getEstateTypeByFriendlyName, getEstateTypeByKey } from '@constant/estateTypes'
 import { Advertisement } from '@dtos/Advertisement'
 import { User } from '@dtos/User'
 import { Address } from '@dtos/Address'
@@ -92,6 +92,10 @@ export class AdvertisementMapper {
 
     const amenitiesSource = data.estate?.amenities ?? data.estate?.amenitiesIds ?? []
 
+    const estateTypeValue = data.estate?.type
+    const estateType = getEstateTypeByFriendlyName(estateTypeValue)
+      || getEstateTypeByKey(String(estateTypeValue || '').toUpperCase())
+
     const estate = data.estate
       ? new Estate({
         id: data.estate.id,
@@ -99,7 +103,7 @@ export class AdvertisementMapper {
         description: data.estate.description,
         area: data.estate.area,
         numberOfRooms: data.estate.numberOfRooms,
-        type: getEstateTypeByFriendlyName(data.estate.type),
+        type: estateType,
         images: data.estate.images
           ? data.estate.images.map(
             img => {
@@ -125,8 +129,8 @@ export class AdvertisementMapper {
       ? new User({
         id: data.responsible.id,
         name: data.responsible.name,
-        email: null,
-        phone: null,
+        email: data.responsible.email,
+        phone: data.responsible.cellphone || null,
         creci: null,
         cpf: null,
         dateBirth: null,
@@ -141,8 +145,8 @@ export class AdvertisementMapper {
       ? new User({
         id: data.creator.id,
         name: data.creator.name,
-        email: null,
-        phone: null,
+        email: data.creator.email,
+        phone: data.creator.cellphone || null,
         creci: null,
         cpf: null,
         dateBirth: null,
@@ -156,7 +160,7 @@ export class AdvertisementMapper {
     return new Advertisement({
       id: data.id,
       active: data.active,
-      Amenityd: data.Amenityd ?? data.emphasis,
+      featured: data.featured ?? data.emphasis ?? false,
       createdAt: data.createdAt,
       endDate: data.endDate,
       creator,
@@ -191,61 +195,49 @@ export class AdvertisementMapper {
   static toApiData(advertisement) {
     if (!advertisement) return null
 
+    const estate = advertisement.estate
+    const estateAddress = estate?.address
+
     return {
-      id: advertisement.id,
       active: advertisement.active,
-      Amenityd: advertisement.Amenityd,
-      createdAt: advertisement.createdAt,
-      endDate: advertisement.endDate,
+      featured: advertisement.featured,
       creatorId: advertisement.creator?.id || null,
       responsibleId: advertisement.responsible?.id || null,
-      estate: advertisement.estate
+      estate: estate
         ? {
-          id: advertisement.estate.id,
-          title: advertisement.estate.title,
-          description: advertisement.estate.description,
-          area: advertisement.estate.area,
-          numberOfRooms: advertisement.estate.numberOfRooms,
-          type: advertisement.estate.type?.key || null,
-          images: advertisement.estate.images
-            ? advertisement.estate.images.map(img => ({
-              id: img.id,
-              url: img.url,
-              type: img.type?.description,
-            }))
-            : [],
-          address: advertisement.estate.address
+          title: estate.title,
+          description: estate.description,
+          area: estate.area ?? 0,
+          numberOfRooms: estate.numberOfRooms ?? 0,
+          type: estate.type?.key || estate.type?.description || estate.type || null,
+          address: estateAddress
             ? {
-              id: advertisement.estate.address.id,
-              street: advertisement.estate.address.street,
-              number: advertisement.estate.address.number,
-              neighborhood: advertisement.estate.address.neighborhood,
-              city: advertisement.estate.address.city,
-              uf: advertisement.estate.address.uf,
-              region: advertisement.estate.address.region,
-              // Use 'cep' in the outgoing API payload and include complement if exists
-              cep: advertisement.estate.address.zipCode,
-              complement: advertisement.estate.address.complement,
+              id: estateAddress.id ?? null,
+              street: estateAddress.street,
+              number: estateAddress.number,
+              neighborhood: estateAddress.neighborhood,
+              city: estateAddress.city,
+              uf: estateAddress.uf,
+              zipCode: estateAddress.zipCode,
+              complement: estateAddress.complement ?? '',
+              region: estateAddress.region,
             }
             : null,
-          amenities: advertisement.estate.amenities
-            ? advertisement.estate.amenities.map(diff => ({
-              id: diff.id,
-              description: diff.description,
-            }))
+          amenitiesIds: Array.isArray(estate.amenities)
+            ? estate.amenities
+              .map(item => (typeof item === 'number' ? item : item?.id))
+              .filter(id => id !== undefined && id !== null)
             : [],
-        }
-        : null,
-      // include eventTypeId if present in the entity
-      eventTypeId: advertisement.eventTypeId
-        ? {
-          id: advertisement.eventTypeId.id,
-          title: advertisement.eventTypeId.title,
-          slug: advertisement.eventTypeId.slug,
+          images: Array.isArray(estate.images)
+            ? estate.images
+              .map(img => ({
+                url: img.url,
+                type: img.type?.description || img.type || '',
+              }))
+              .filter(img => img.url)
+            : [],
         }
         : null,
     }
-
-
   }
 }

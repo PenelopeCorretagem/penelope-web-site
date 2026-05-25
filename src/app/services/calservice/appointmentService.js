@@ -132,3 +132,18 @@ export const deleteAppointment = async (id) => {
     throw handleAppointmentError(error, 'Exclusão')
   }
 }
+
+export const exportAppointments = async (filters = {}, format = 'xlsx') => {
+  const params = new URLSearchParams()
+
+  if (filters.estateAgentId) params.append('idCorretor', filters.estateAgentId)
+  if (filters.periodoInicio) params.append('periodoInicio', filters.periodoInicio)
+  if (filters.periodoFim) params.append('periodoFim', filters.periodoFim)
+  if (format) params.append('format', format)
+
+  try {
+    return await appointmentApi.exportAppointments(params)
+  } catch (error) {
+    throw handleAppointmentError(error, 'Exportação')
+  }
+}

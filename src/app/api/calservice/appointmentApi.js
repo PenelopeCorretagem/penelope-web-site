@@ -63,3 +63,12 @@ export const deleteAppointment = async (id) => {
   })
   return response.data
 }
+
+export const exportAppointments = async (params = new URLSearchParams()) => {
+  const response = await axiosInstance.get('/appointments/export', {
+    baseURL: CAL_SERVICE_BASE_URL,
+    params,
+    responseType: 'blob',
+  })
+  return response.data
+}

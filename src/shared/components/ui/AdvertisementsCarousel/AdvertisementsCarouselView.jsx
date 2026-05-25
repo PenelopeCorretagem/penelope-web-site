@@ -7,6 +7,7 @@ import { useAdvertisementsCarouselViewModel } from '@shared/components/ui/Advert
 import { RouterModel } from '@app/routes/RouterModel'
 import { ROUTES } from '@constant/routes'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
+import { generateRoute } from '@shared/utils/routerUtil'
 
 export const AdvertisementsCarouselView = memo(function AdvertisementsCarouselView({
   // NOTE: agora a prop se chama `advertisements` (array)
@@ -34,13 +35,13 @@ export const AdvertisementsCarouselView = memo(function AdvertisementsCarouselVi
   const router = RouterModel.getInstance()
   const getRouteOrFallback = (routeName, params) => {
     try {
-      if (!routeName) return router.generateRoute(ROUTES.PROPERTIES.key, params)
+      if (!routeName) return generateRoute(ROUTES.PROPERTIES.key, params)
       // Se receber chave como 'PROPERTIES', tenta pegar key no map ROUTES, senão assume que routeName já é chave válida
       const routeKey = ROUTES?.[routeName]?.key || ROUTES?.[routeName] || routeName
-      return router.generateRoute(routeKey, params)
+      return generateRoute(routeKey, params)
     } catch (e) {
       console.error('Erro ao gerar rota:', e)
-      return router.generateRoute(ROUTES.PROPERTIES.key, params)
+      return generateRoute(ROUTES.PROPERTIES.key, params)
     }
   }
 
@@ -54,7 +55,9 @@ export const AdvertisementsCarouselView = memo(function AdvertisementsCarouselVi
     if (callToActionButton && callToActionButton.getRoute) {
       try {
         const route = callToActionButton.getRoute()
-        router.navigateTo(route)
+        window.history.pushState({}, '', route)
+        router.setCurrentRoute(route)
+        window.dispatchEvent(new PopStateEvent('popstate'))
         return
       } catch (e) {
         // fallback para props

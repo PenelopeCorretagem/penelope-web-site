@@ -1,257 +1,140 @@
+import { ROUTES } from '@constant/routes'
+
 /**
- * RouterModel - Modelo de dados de roteamento (Camada de Dados)
- *
- * RESPONSABILIDADES:
- * - Armazenar definições de rotas
- * - Manter estado atual da rota
- * - Gerenciar histórico de navegação
- * - Notificar mudanças (Observer Pattern)
- **/
+ * RouterModel — Camada de dados de roteamento.
+ * Armazena estado da rota atual e configurações de permissão.
+ * Não contém lógica de navegação — isso é responsabilidade do ViewModel.
+ */
 export class RouterModel {
-  static instance = null
+  static #instance = null
 
   constructor() {
-    if (RouterModel.instance) {
-      return RouterModel.instance
-    }
+    if (RouterModel.#instance) return RouterModel.#instance
 
     this.currentRoute = window.location.pathname
     this.listeners = []
-    this.history = []
 
-    // Definição de todas as rotas
-    this.routes = {
-      // Rotas públicas
-      HOME: '/',
-      PROPERTIES: '/imoveis',
-      PROPERTY_DETAIL: '/imoveis/:id',
-      ABOUT: '/sobre',
-      CONTACTS: '/contatos',
+    // Fonte única de verdade: a constante ROUTES
+    this.routes = Object.fromEntries(
+      Object.entries(ROUTES).map(([key, value]) => [key, value.path])
+    )
 
-      // Rotas de autenticação
-      LOGIN: '/login',
-      REGISTER: '/registro',
-      FORGOT_PASSWORD: '/esqueci-senha',
-      VERIFICATION_CODE: '/verificacao',
-      RESET_PASSWORD: '/redefinir-senha',
-
-      // Rotas protegidas - usuário comum
-      SCHEDULE: '/agenda',
-      SCHEDULE_PROPERTY: '/agenda/:title',
-      PROFILE: '/meu-perfil',
-      ACCOUNT: '/minha-conta',
-
-      // Rotas protegidas - admin
-      ADMIN: '/admin',
-      ADMIN_PROFILE: '/admin/meu-perfil',
-      ADMIN_ACCOUNT: '/admin/minha-conta',
-      ADMIN_USERS: '/admin/usuarios',
-      ADMIN_USER_ADD: '/admin/usuarios/adicionar',
-      ADMIN_USER_EDIT: '/admin/usuarios/:id/editar',
-      ADMIN_PROPERTIES: '/admin/gerenciar-imoveis',
-      ADMIN_PROPERTIES_CONFIG: '/admin/gerenciar-imoveis/:id',
-      ADMIN_AMENITIES: '/admin/diferenciais',
-      ADMIN_SCHEDULE: '/admin/agenda',
-
-      // Rotas de erro
-      NOT_FOUND: '/404',
-      UNAUTHORIZED: '/401',
-      SERVER_ERROR: '/500',
-    }
-
-    // Configuração de permissões por rota
     this.routeConfig = {
       publicRoutes: [
-        this.routes.HOME,
-        this.routes.PROPERTIES,
-        this.routes.PROPERTY_DETAIL,
-        this.routes.ABOUT,
-        this.routes.CONTACTS,
-        this.routes.LOGIN,
-        this.routes.REGISTER,
-        this.routes.FORGOT_PASSWORD,
-        this.routes.VERIFICATION_CODE,
-        this.routes.RESET_PASSWORD,
-        this.routes.NOT_FOUND,
-        this.routes.UNAUTHORIZED,
-        this.routes.SERVER_ERROR,
+        ROUTES.HOME.path,
+        ROUTES.PROPERTIES.path,
+        ROUTES.PROPERTY_DETAIL.path,
+        ROUTES.ABOUT.path,
+        ROUTES.CONTACTS.path,
+        ROUTES.LOGIN.path,
+        ROUTES.REGISTER.path,
+        ROUTES.FORGOT_PASSWORD.path,
+        ROUTES.VERIFICATION_CODE.path,
+        ROUTES.RESET_PASSWORD.path,
+        ROUTES.NOT_FOUND.path,
+        ROUTES.UNAUTHORIZED.path,
+        ROUTES.SERVER_ERROR.path,
       ],
       authRequiredRoutes: [
-        this.routes.SCHEDULE,
-        this.routes.SCHEDULE_PROPERTY,
-        this.routes.PROFILE,
-        this.routes.ACCOUNT,
+        ROUTES.SCHEDULE.path,
+        ROUTES.SCHEDULE_PROPERTY.path,
+        ROUTES.PROFILE.path,
+        ROUTES.ACCOUNT.path,
       ],
       adminRequiredRoutes: [
-        this.routes.ADMIN,
-        this.routes.ADMIN_PROFILE,
-        this.routes.ADMIN_ACCOUNT,
-        this.routes.ADMIN_USERS,
-        this.routes.ADMIN_USER_ADD,
-        this.routes.ADMIN_USER_EDIT,
-        this.routes.ADMIN_PROPERTIES,
-        this.routes.ADMIN_PROPERTIES_CONFIG,
-        this.routes.ADMIN_AMENITIES,
-        this.routes.ADMIN_SCHEDULE,
+        ROUTES.ADMIN.path,
+        ROUTES.ADMIN_PROFILE.path,
+        ROUTES.ADMIN_ACCOUNT.path,
+        ROUTES.ADMIN_USERS.path,
+        ROUTES.ADMIN_USER_ADD.path,
+        ROUTES.ADMIN_USER_EDIT.path,
+        ROUTES.ADMIN_PROPERTIES.path,
+        ROUTES.ADMIN_PROPERTIES_CONFIG.path,
+        ROUTES.ADMIN_AMENITIES.path,
+        ROUTES.ADMIN_SCHEDULE.path,
+        ROUTES.SCHEDULE_REPORT.path,
+        ROUTES.SCHEDULE_REPORT_DASHBOARD.path,
+        ROUTES.SCHEDULE_REPORT_RECORDS.path,
       ],
     }
 
-    RouterModel.instance = this
+    RouterModel.#instance = this
   }
 
   static getInstance() {
-    if (!RouterModel.instance) {
-      RouterModel.instance = new RouterModel()
-    }
-    return RouterModel.instance
+    if (!RouterModel.#instance) new RouterModel()
+    return RouterModel.#instance
   }
 
   // ===== Estado =====
   setCurrentRoute(route) {
-    const previousRoute = this.currentRoute
+    const previous = this.currentRoute
     this.currentRoute = route
-    this.history.push(route)
-    this.notifyListeners(previousRoute)
+    this.#notifyListeners(previous)
   }
 
-  getCurrentRoute() {
-    return this.currentRoute
-  }
+  getCurrentRoute() { return this.currentRoute }
 
-  getHistory() {
-    return [...this.history]
-  }
-
-  // ===== Listeners (Observer Pattern) =====
-  addListener(callback) {
-    this.listeners.push(callback)
-  }
-
+  // ===== Observer =====
+  addListener(callback) { this.listeners.push(callback) }
   removeListener(callback) {
-    this.listeners = this.listeners.filter(listener => listener !== callback)
+    this.listeners = this.listeners.filter(l => l !== callback)
+  }
+  #notifyListeners(previous) {
+    this.listeners.forEach(cb => cb({ route: this.currentRoute, previous }))
   }
 
-  notifyListeners(previousRoute) {
-    this.listeners.forEach(callback => {
-      callback({
-        route: this.currentRoute,
-        previous: previousRoute,
-      })
-    })
-  }
+  // ===== Getters de rotas =====
+  getRoute(key) { return this.routes[key] ?? null }
 
-  // ===== Getters de Rotas =====
-  getRoute(routeName) {
-    return this.routes[routeName]
-  }
-
-  getAllRoutes() {
-    return { ...this.routes }
-  }
+  getAllRoutes() { return { ...this.routes } }
 
   getMenuRoutes() {
     return {
-      HOME: this.routes.HOME,
-      PROPERTIES: this.routes.PROPERTIES,
-      ABOUT: this.routes.ABOUT,
-      CONTACTS: this.routes.CONTACTS,
-      SCHEDULE: this.routes.SCHEDULE,
+      HOME: ROUTES.HOME.path,
+      PROPERTIES: ROUTES.PROPERTIES.path,
+      ABOUT: ROUTES.ABOUT.path,
+      CONTACTS: ROUTES.CONTACTS.path,
+      SCHEDULE: ROUTES.SCHEDULE.path,
     }
   }
 
   getUserActionRoutes() {
     return {
-      PROFILE: this.routes.PROFILE,
-      ACCOUNT: this.routes.ACCOUNT,
+      PROFILE: ROUTES.PROFILE.path,
+      ACCOUNT: ROUTES.ACCOUNT.path,
     }
   }
 
   getAuthRoutes() {
     return {
-      LOGIN: this.routes.LOGIN,
-      REGISTER: this.routes.REGISTER,
-      FORGOT_PASSWORD: this.routes.FORGOT_PASSWORD,
-      RESET_PASSWORD: this.routes.RESET_PASSWORD,
+      LOGIN: ROUTES.LOGIN.path,
+      REGISTER: ROUTES.REGISTER.path,
+      FORGOT_PASSWORD: ROUTES.FORGOT_PASSWORD.path,
+      RESET_PASSWORD: ROUTES.RESET_PASSWORD.path,
     }
   }
 
   getAdminRoutes() {
     return {
-      ADMIN: this.routes.ADMIN,
-      ADMIN_PROFILE: this.routes.ADMIN_PROFILE,
-      ADMIN_ACCOUNT: this.routes.ADMIN_ACCOUNT,
-      ADMIN_USERS: this.routes.ADMIN_USERS,
-      ADMIN_USER_ADD: this.routes.ADMIN_USER_ADD,
-      ADMIN_USER_EDIT: this.routes.ADMIN_USER_EDIT,
-      ADMIN_PROPERTIES: this.routes.ADMIN_PROPERTIES,
-      ADMIN_PROPERTIES_CONFIG: this.routes.ADMIN_PROPERTIES_CONFIG,
-      ADMIN_SCHEDULE: this.routes.ADMIN_SCHEDULE,
+      ADMIN: ROUTES.ADMIN.path,
+      ADMIN_PROFILE: ROUTES.ADMIN_PROFILE.path,
+      ADMIN_ACCOUNT: ROUTES.ADMIN_ACCOUNT.path,
+      ADMIN_USERS: ROUTES.ADMIN_USERS.path,
+      ADMIN_USER_ADD: ROUTES.ADMIN_USER_ADD.path,
+      ADMIN_USER_EDIT: ROUTES.ADMIN_USER_EDIT.path,
+      ADMIN_PROPERTIES: ROUTES.ADMIN_PROPERTIES.path,
+      ADMIN_PROPERTIES_CONFIG: ROUTES.ADMIN_PROPERTIES_CONFIG.path,
+      ADMIN_AMENITIES: ROUTES.ADMIN_AMENITIES.path,
+      ADMIN_SCHEDULE: ROUTES.ADMIN_SCHEDULE.path,
+      SCHEDULE_REPORT: ROUTES.SCHEDULE_REPORT.path,
+      SCHEDULE_REPORT_DASHBOARD: ROUTES.SCHEDULE_REPORT_DASHBOARD.path,
+      SCHEDULE_REPORT_RECORDS: ROUTES.SCHEDULE_REPORT_RECORDS.path,
     }
   }
 
-  // ===== Configurações de Permissão =====
-  getPublicRoutes() {
-    return [...this.routeConfig.publicRoutes]
-  }
-
-  getAuthRequiredRoutes() {
-    return [...this.routeConfig.authRequiredRoutes]
-  }
-
-  getAdminRequiredRoutes() {
-    return [...this.routeConfig.adminRequiredRoutes]
-  }
-
-  // ===== Route Generation =====
-  /**
-   * Generate route with parameters
-   * @param {string} routeName - Name of the route
-   * @param {Object} params - Parameters to replace in route
-   * @returns {string} Generated route
-   */
-  generateRoute(routeName, params = {}) {
-    let route = this.getRoute(routeName)
-
-    if (!route) {
-      return '/'
-    }
-
-    Object.keys(params).forEach(param => {
-      route = route.replace(`:${param}`, params[param])
-    })
-
-    return route
-  }
-
-  /**
-   * Extract parameters from current route based on pattern
-   * @param {string} routePattern - Route pattern with :param syntax
-   * @param {string} actualRoute - Actual route path
-   * @returns {Object} Parameters object
-   */
-  extractParams(routePattern, actualRoute) {
-    const patternParts = routePattern.split('/')
-    const routeParts = actualRoute.split('/')
-    const params = {}
-
-    patternParts.forEach((part, index) => {
-      if (part.startsWith(':')) {
-        const paramName = part.slice(1)
-        params[paramName] = routeParts[index]
-      }
-    })
-
-    return params
-  }
-
-  navigateTo(routeName, params = {}) {
-    const path = this.generateRoute(routeName, params)
-
-    if (!path) return
-
-    window.history.pushState({}, '', path)
-    this.setCurrentRoute(path)
-
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }
+  // ===== Permissões =====
+  getPublicRoutes() { return [...this.routeConfig.publicRoutes] }
+  getAuthRequiredRoutes() { return [...this.routeConfig.authRequiredRoutes] }
+  getAdminRequiredRoutes() { return [...this.routeConfig.adminRequiredRoutes] }
 }

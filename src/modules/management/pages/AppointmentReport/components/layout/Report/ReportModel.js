@@ -182,8 +182,10 @@ export class ReportModel {
     const weekDayMap = new Map()
 
     appointments.forEach(appointment => {
-      const dayOfWeek = appointment.startDateTime.getDay()
-      const dayName = WEEKDAY_NAMES[dayOfWeek]
+      const appointmentDate = new Date(appointment.startDateTime)
+      if (Number.isNaN(appointmentDate.getTime())) return
+
+      const dayOfWeek = appointmentDate.getDay()
       weekDayMap.set(dayOfWeek, (weekDayMap.get(dayOfWeek) || 0) + 1)
     })
 

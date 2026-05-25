@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdvertisementCardModel } from './AdvertisementCardModel'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
-import { RouterModel } from '@app/routes/RouterModel'
 import { ROUTES } from '@constant/routes'
+import { generateRoute } from '@shared/utils/routerUtil'
 
 const getFirstMediaUrlByType = (advertisement, type) => {
   const images = advertisement?.estate?.images
@@ -174,8 +174,7 @@ export function useAdvertisementCardViewModel(
   const handleCardClick = useCallback(() => {
     if (!(isCarouselItem || advertisementCardMode === ADVERTISEMENT_CARD_MODES.DISTAC) || !advertisement) return
 
-    const router = RouterModel.getInstance()
-    const route = router.generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisement.id })
+    const route = generateRoute(ROUTES['PROPERTY_DETAIL'].key, { id: advertisement.id })
     navigate(route)
   }, [advertisement, advertisementCardMode, isCarouselItem, navigate])
 

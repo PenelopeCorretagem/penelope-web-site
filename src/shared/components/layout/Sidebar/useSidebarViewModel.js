@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { SidebarModel } from './SidebarModel'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
@@ -8,7 +8,7 @@ import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
  *
  * RESPONSABILIDADES:
  * - Gerenciar estado do sidebar (aberto/fechado)
- * - Fornecer métodos de navegação
+ * - Controlar expansão de submenus e navegação
  * - Calcular estado ativo dos itens
  * - Gerenciar logout
  * - Expor informações do usuário
@@ -21,23 +21,40 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
   const navigate = useNavigate()
   const location = useLocation()
   const [model] = useState(() => new SidebarModel(isAdmin))
+
   const [isOpen, setIsOpen] = useState(initialOpen)
+  const [expandedMenus, setExpandedMenus] = useState({}) // Movido da View para o ViewModel
   const [forceUpdate, setForceUpdate] = useState(0)
   const [userEmail, setUserEmail] = useState('')
   const [userRole, setUserRole] = useState('')
 
-  // Sincroniza status de admin com o modelo E força re-render
+  // Sincroniza status de admin com o modelo e força re-render
   useEffect(() => {
     model.setAdminStatus(isAdmin)
-    setForceUpdate(prev => prev + 1) // Força re-render dos menu items
+    setForceUpdate(prev => prev + 1)
   }, [isAdmin, model])
 
-  // Recuperar informações do usuário do sessionStorage
+  // Recupera informações do usuário do sessionStorage
   useEffect(() => {
     const { email, role } = authSessionUtil.get()
     setUserEmail(email ?? '')
     setUserRole(role ?? 'CLIENTE')
   }, [])
+
+  // Auto-expandir o submenu se a rota atual for de um filho
+  useEffect(() => {
+    const menus = model.getMenuItems()
+    const activeParent = menus.find(item =>
+      item.children && item.children.some(child => location.pathname === child.path)
+    )
+
+    if (activeParent) {
+      setExpandedMenus(prev => {
+        if (prev[activeParent.id]) return prev
+        return { ...prev, [activeParent.id]: true }
+      })
+    }
+  }, [location.pathname, model, forceUpdate])
 
   // Escutar mudanças de auth para atualizar sidebar
   useEffect(() => {
@@ -62,17 +79,10 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     }
   }, [])
 
-  /**
-   * Alterna estado de abertura do sidebar
-   */
   const toggleSidebar = useCallback(() => {
     setIsOpen(prev => !prev)
   }, [])
 
-  /**
-   * Navega para uma rota específica
-   * @param {string} path - Caminho da rota
-   */
   const navigateTo = useCallback((path) => {
     if (path && location.pathname === path) {
       window.location.href = window.location.pathname
@@ -82,20 +92,27 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
   }, [navigate, location.pathname])
 
   /**
-   * Verifica se uma rota está ativa
-   * @param {string} path - Caminho da rota
-   * @returns {boolean}
+   * Gerencia o clique nos itens do menu
+   * Se tiver filhos: Abre o sidebar (se fechado) e alterna o submenu
+   * Se não tiver: Navega para a rota
    */
+  const handleItemClick = useCallback((item) => {
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0
+
+    if (hasChildren) {
+      if (!isOpen) {
+        setIsOpen(true)
+      }
+      setExpandedMenus(prev => ({ ...prev, [item.id]: !prev[item.id] }))
+    } else {
+      navigateTo(item.path)
+    }
+  }, [isOpen, navigateTo])
+
   const isRouteActive = useCallback((path) => {
     return location.pathname === path
   }, [location.pathname])
 
-  /**
-   * Executa logout
-   * - Dispara transição visual
-   * - Remove tokens
-   * - Redireciona para home
-   */
   const handleLogout = useCallback(() => {
     window.dispatchEvent(new CustomEvent('authTransition', {
       detail: { type: 'logout', message: 'Encerrando sua sessão...' }
@@ -111,20 +128,21 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     }, 300)
   }, [model])
 
+  const menuItems = useMemo(() => model.getMenuItems(), [model, forceUpdate])
+
   return {
-    // Estado
     isOpen,
-    menuItems: model.getMenuItems(), // Será recalculado quando forceUpdate mudar
+    menuItems,
     homeRoute: model.getHomeRoute(),
     userEmail,
     userRole,
+    expandedMenus,
 
-    // Verificações
     isRouteActive,
 
-    // Comandos
     toggleSidebar,
     navigateTo,
+    handleItemClick,
     handleLogout,
   }
 }

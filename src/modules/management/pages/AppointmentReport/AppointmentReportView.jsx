@@ -1,15 +1,15 @@
-import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { AppointmentFormModalView } from './components/layout/Calendar/components/layout/AppointmentFormModal/AppointmentFormModalView'
-import { ScheduleModel } from './ScheduleModel'
-import { useScheduleViewModel } from './useScheduleViewModel'
-import { CalendarView } from './components/layout/Calendar/CalendarView'
-import { AppointmentToolsModalView } from './components/layout/Calendar/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
+﻿import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { AppointmentFormModalView } from '../Schedule/components/layout/Calendar/components/layout/AppointmentFormModal/AppointmentFormModalView'
+import { AppointmentToolsModalView } from '../Schedule/components/layout/Calendar/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
+import { ScheduleModel } from '../Schedule/ScheduleModel'
+import { useAppointmentReportViewModel } from './useAppointmentReportViewModel'
+import { ReportView } from './components/layout/Report/ReportView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 
-export function ScheduleView() {
-  const vm = useScheduleViewModel({ defaultDisplayMode: 'calendar', availableDisplayModesOverride: ['calendar'] })
+export function AppointmentReportView() {
+  const vm = useAppointmentReportViewModel()
 
   const renderMiniCalendarDay = (day, index) => {
     if (!day) {
@@ -47,10 +47,9 @@ export function ScheduleView() {
 
   const mobileExpandedContent = (
     <div className="flex flex-col gap-4 w-full bg-default-light rounded-lg border border-default-light-muted p-4 shadow-sm mt-2 xl:hidden">
-      {/* Mini Calendar Mobile */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-default-dark">Navegação</h3>
+          <h3 className="text-sm font-semibold text-default-dark">NavegaÃ§Ã£o</h3>
           <ButtonView
             type="button"
             onClick={vm.handleGoToToday}
@@ -84,7 +83,7 @@ export function ScheduleView() {
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted mb-2">
-          {vm.weekdayLabels.map(label => (
+          {vm.weekdayLabels.map((label) => (
             <div key={label}>{label}</div>
           ))}
         </div>
@@ -96,9 +95,26 @@ export function ScheduleView() {
     </div>
   )
 
+  const confirmationActions = vm.confirmationAlert ? [
+    {
+      label: 'Voltar',
+      color: 'soft-gray',
+      onClick: vm.closeConfirmationAlert,
+      disabled: vm.isConfirmationAlertProcessing,
+      'aria-label': 'Voltar aÃ§Ã£o',
+    },
+    {
+      label: vm.confirmationAlert.confirmLabel || 'Confirmar',
+      color: vm.confirmationAlert.confirmColor || 'pink',
+      onClick: vm.runConfirmationAlertAction,
+      disabled: vm.isConfirmationAlertProcessing,
+      'aria-label': vm.confirmationAlert.confirmLabel || 'Confirmar acao',
+    },
+  ] : []
+
   return (
     <SectionView className="flex-col !gap-4 md:!gap-6 !p-4 md:!p-6 bg-default-light-alt xl:h-full relative">
-      <CalendarView
+      <ReportView
         vm={vm}
         filterConfigs={vm.filterConfigs}
         defaultFilters={vm.defaultFilters}
@@ -109,9 +125,8 @@ export function ScheduleView() {
         availableDisplayModes={vm.availableDisplayModes}
         displayMode={vm.displayMode}
         mobileExpandedContent={mobileExpandedContent}
+        activeSection={vm.activeSection}
       />
-
-      {/* Modais e Alertas */}
 
       <AlertView
         isVisible={Boolean(vm.confirmationAlert)}
@@ -120,22 +135,7 @@ export function ScheduleView() {
         hasCloseButton={false}
         disableBackdropClose={vm.isConfirmationAlertProcessing}
         buttonsLayout="row"
-        actions={vm.confirmationAlert ? [
-          {
-            label: 'Voltar',
-            color: 'soft-gray',
-            onClick: vm.closeConfirmationAlert,
-            disabled: vm.isConfirmationAlertProcessing,
-            'aria-label': 'Voltar ação',
-          },
-          {
-            label: vm.confirmationAlert.confirmLabel || 'Confirmar',
-            color: vm.confirmationAlert.confirmColor || 'pink',
-            onClick: vm.runConfirmationAlertAction,
-            disabled: vm.isConfirmationAlertProcessing,
-            'aria-label': vm.confirmationAlert.confirmLabel || 'Confirmar acao',
-          }
-        ] : []}
+        actions={confirmationActions}
         onClose={vm.closeConfirmationAlert}
       />
 
@@ -157,18 +157,20 @@ export function ScheduleView() {
         onClose={vm.closeErrorAlert}
       />
 
-      <AppointmentToolsModalView
-        appointment={vm.selectedAppointmentForTools}
-        busyAppointmentId={vm.busyAppointmentId}
-        canManageAppointments={vm.canManageAppointments}
-        isClientUser={vm.isClientUser}
-        onClose={vm.handleCloseAppointmentTools}
-        onReschedule={vm.handleRescheduleFromTools}
-        onConfirm={vm.handleConfirmFromTools}
-        onConclude={vm.handleConcludeFromTools}
-        onCancel={vm.handleCancelFromTools}
-        onDelete={vm.handleDeleteFromTools}
-      />
+      {vm.canManageAppointments && (
+        <AppointmentToolsModalView
+          appointment={vm.selectedAppointmentForTools}
+          busyAppointmentId={vm.busyAppointmentId}
+          canManageAppointments={vm.canManageAppointments}
+          isClientUser={vm.isClientUser}
+          onClose={vm.handleCloseAppointmentTools}
+          onReschedule={vm.handleRescheduleFromTools}
+          onConfirm={vm.handleConfirmFromTools}
+          onConclude={vm.handleConcludeFromTools}
+          onCancel={vm.handleCancelFromTools}
+          onDelete={vm.handleDeleteFromTools}
+        />
+      )}
 
       {vm.canManageAppointments && (
         <AppointmentFormModalView
