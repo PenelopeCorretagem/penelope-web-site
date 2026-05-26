@@ -9,7 +9,6 @@ export class AdvertisementConfigModel {
 
     this.id = advertisement?.id || null
     this.active = advertisement?.active !== undefined ? advertisement.active : true
-    this.displayEndDate = advertisement?.endDate ? this._formatDate(advertisement.endDate) : ''
 
     // Access Estate entity getters (not private advertisements)
     const estate = advertisement?.estate
@@ -187,24 +186,6 @@ export class AdvertisementConfigModel {
   }
 
   /**
-   * Formata data para o formato do input date (YYYY-MM-DD)
-   */
-  _formatDate(dateString) {
-    if (!dateString) return ''
-
-    try {
-      const date = new Date(dateString)
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
-    } catch (e) {
-      console.error('Erro ao formatar data:', e)
-      return ''
-    }
-  }
-
-  /**
    * Converte o modelo para formato de formulário
    */
   toFormData() {
@@ -213,7 +194,6 @@ export class AdvertisementConfigModel {
     const formData = {
       active: this.active,
       advertisementTitle: this.advertisementTitle,
-      displayEndDate: this.displayEndDate,
       advertisementType: this.advertisementType,
       responsible: this.responsible,
       cardDescription: this.cardDescription,
@@ -333,24 +313,6 @@ export class AdvertisementConfigModel {
       return validTypes.includes(cleanType) ? cleanType : 'DISPONIVEL'
     }
 
-    // Função para gerar data de fim válida no padrão LocalDate (yyyy-MM-dd)
-    const generateValidEndDate = (inputDate) => {
-      if (inputDate) {
-        try {
-          const date = new Date(inputDate)
-          if (!isNaN(date.getTime())) {
-            return date.toISOString().split('T')[0]
-          }
-        } catch (e) {
-          console.warn('Data inválida fornecida, usando data padrão')
-        }
-      }
-      // Se não há data ou é inválida, usar 30 dias a partir de hoje
-      const now = new Date()
-      const endDate = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000))
-      return endDate.toISOString().split('T')[0]
-    }
-
     const sanitizeNumber = (value) => {
       const num = Number(value)
       return isNaN(num) ? 0 : num
@@ -466,7 +428,6 @@ export class AdvertisementConfigModel {
     const request = {
       active: Boolean(formData.active),
       featured: Boolean(this.originalAdvertisementData?.featured ?? false),
-      endDate: generateValidEndDate(formData.displayEndDate),
       creatorId: creatorIdFromSession || creatorIdFromOriginal || selectedResponsibleId || 1,
       responsibleId: selectedResponsibleId || responsibleIdFromOriginal || creatorIdFromSession || 1,
       estate: {

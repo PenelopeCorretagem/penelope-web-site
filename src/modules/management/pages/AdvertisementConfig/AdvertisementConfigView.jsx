@@ -68,7 +68,7 @@ export function AdvertisementConfigView() {
     { value: '', label: 'Selecione um responsável' },
     ...usersWithCreci.map(user => ({
       value: user.id?.toString() || user.email,
-      label: user.getDisplayName()
+      label: user.name || user.nomeCompleto || user.email || 'Responsável'
     }))
   ]
 
@@ -99,18 +99,11 @@ export function AdvertisementConfigView() {
               containerClassName: 'w-full md:col-span-6',
             },
             {
-              name: 'displayEndDate',
-              label: 'DATA TÉRMINO DE EXIBIÇÃO',
-              type: 'date',
-              required: true,
-              containerClassName: 'w-full md:col-span-3',
-            },
-            {
               name: 'active',
               label: 'ATIVO',
               type: 'checkbox',
               placeholder: 'Propriedade ativa',
-              containerClassName: 'w-full md:col-span-3',
+              containerClassName: 'w-full md:col-span-6',
             },
           ],
         },

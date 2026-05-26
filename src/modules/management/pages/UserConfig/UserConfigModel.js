@@ -5,6 +5,7 @@ import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
 import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
 import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
+import { normalizeAccessLevel } from '@constant/accessLevels'
 
 /**
  * UserConfigModel - Modelo de dados para configuração de usuários
@@ -24,7 +25,7 @@ export class UserConfigModel {
     this.cpf = userData.cpf || ''
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
-    this.accessLevel = userData.accessLevel || 'CLIENTE'
+    this.accessLevel = normalizeAccessLevel(userData.accessLevel || userData.nivelAcesso || 'CLIENTE')
     this.senha = userData.senha || userData.password || ''
   }
 
@@ -312,7 +313,7 @@ export class UserConfigModel {
       cpf: cleanCPF(this.cpf),
       dateBirth: this.dateBirth,
       monthlyIncome: formatCurrencyForDatabase(this.monthlyIncome),
-      accessLevel: this.accessLevel
+      accessLevel: normalizeAccessLevel(this.accessLevel)
     }
 
     // Incluir CRECI se disponível

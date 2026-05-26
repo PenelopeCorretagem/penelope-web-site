@@ -143,7 +143,7 @@ export function useAdvertisementConfigViewModel(id) {
     setError(null)
 
     try {
-      const advertisementModel = new AdvertisementConfigModel(initialData)
+      const advertisementModel = initialData || new AdvertisementConfigModel()
 
       // Extract new files that need uploading
       const newFiles = advertisementModel.extractNewImageFiles(formData)
@@ -207,7 +207,7 @@ export function useAdvertisementConfigViewModel(id) {
       const currentFormData = initialData.toFormData()
 
       // Create update request to disable the advertisement
-      const advertisementModel = new AdvertisementConfigModel(initialData)
+      const advertisementModel = initialData || new AdvertisementConfigModel()
       const disableRequest = advertisementModel.toApiRequest({
         ...currentFormData,
         active: false // Set active to false for soft delete

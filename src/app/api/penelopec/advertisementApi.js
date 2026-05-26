@@ -16,7 +16,6 @@ export const getAllAdvertisements = async (filters = {}) => {
     area: filters.area,
     title: filters.title,
     createdAt: filters.createdAt,
-    displayEndDate: filters.displayEndDate,
     featured: filters.featured,
   }
 
