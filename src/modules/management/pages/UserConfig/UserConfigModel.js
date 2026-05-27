@@ -25,7 +25,7 @@ export class UserConfigModel {
     this.cpf = userData.cpf || ''
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
-    this.accessLevel = normalizeAccessLevel(userData.accessLevel || 'CLIENTE')
+    this.accessLevel = normalizeAccessLevel(userData.accessLevel || userData.nivelAcesso || 'CLIENTE')
     this.senha = userData.senha || userData.password || ''
   }
 
@@ -33,7 +33,7 @@ export class UserConfigModel {
    * Define os campos do formulário baseado no modo e tipo de usuário
    */
   static getFormFields(isEditMode = false, userAccessLevel = 'CLIENTE') {
-    const isAdmin = isAdminAccessLevel(userAccessLevel)
+    const _isAdmin = isAdminAccessLevel(userAccessLevel)
 
     const fields = [
       // LINHA 1: Nome (1/2 = 3 cols), Data (1/3 = 2 cols), CPF (1/6 = 1 col) = 6 cols total
@@ -314,7 +314,7 @@ export class UserConfigModel {
       cpf: cleanCPF(this.cpf),
       dateBirth: this.dateBirth,
       monthlyIncome: formatCurrencyForDatabase(this.monthlyIncome),
-      accessLevel: this.accessLevel
+      accessLevel: normalizeAccessLevel(this.accessLevel)
     }
 
     // Incluir CRECI se disponível

@@ -28,3 +28,13 @@ export const isAdminAccessLevel = (value) => normalizeAccessLevel(value) === ACC
 export const isBrokerAccessLevel = (value) => normalizeAccessLevel(value) === ACCESS_LEVEL.CORRETOR
 export const isClientAccessLevel = (value) => normalizeAccessLevel(value) === ACCESS_LEVEL.CLIENTE
 export const isValidAccessLevel = (value) => ACCESS_LEVELS.includes(normalizeAccessLevel(value))
+
+export const getAccessLevelLabel = (value) => {
+  const normalized = normalizeAccessLevel(value)
+
+  if (normalized === ACCESS_LEVEL.ADMINISTRADOR) {
+    return 'Administrador'
+  }
+
+  return 'Cliente'
+}

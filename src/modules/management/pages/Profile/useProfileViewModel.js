@@ -3,7 +3,7 @@ import { getUserById, updateUser } from '@api-penelopec/userApi'
 import { ProfileModel } from './ProfileModel'
 import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
-import { isAdminAccessLevel } from '@constant/accessLevels'
+import { isAdminAccessLevel, normalizeAccessLevel } from '@constant/accessLevels'
 
 export function useProfileViewModel(targetUserId = null) {
   const [model, setModel] = useState(new ProfileModel())
@@ -56,7 +56,7 @@ export function useProfileViewModel(targetUserId = null) {
         // Formatar renda mensal para exibição
         monthlyIncome: formatCurrencyForDisplay(profileModel.monthlyIncome),
         // Para select, usar valor direto
-        accessLevel: profileModel.accessLevel
+        accessLevel: normalizeAccessLevel(profileModel.accessLevel)
       })
     } catch (err) {
       setError(err.message || 'Erro ao carregar dados do usuário')
@@ -84,7 +84,7 @@ export function useProfileViewModel(targetUserId = null) {
         dateBirth: data.dateBirth || '',
         // monthlyIncome já vem formatado do form, manter como string
         monthlyIncome: data.monthlyIncome || '',
-        accessLevel: data.accessLevel || 'CLIENTE'
+        accessLevel: normalizeAccessLevel(data.accessLevel || 'CLIENTE')
       }
 
       // Criar novo model com os dados processados
