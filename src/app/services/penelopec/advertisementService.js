@@ -3,7 +3,7 @@
  * Orquestra chamadas à API, aplica regras de negócio e retorna entidades mapeadas.
  */
 import * as advertisementApi from '@api-penelopec/advertisementApi'
-import { AdvertisementMapper } from '@mappers/AdvertisementMapper'
+import { AdvertisementMapper } from '@mappers/advertisementMapper'
 import { Advertisement } from '@dtos/Advertisement'
 import { handleAdvertisementError } from '@responses/penelopec/AdvertisementResponse'
 
