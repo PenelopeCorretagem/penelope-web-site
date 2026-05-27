@@ -97,6 +97,8 @@ export function CalendarView({
               showResetButton={true}
               showSortButton={false}
               hideSearch={true}
+              hideToggleLabel={true}
+              popupStyle={{ minWidth: '22rem', width: 'min(100vw-1rem, 22rem)' }}
               mobileExpandedContent={mobileExpandedContent}
               className='w-fit'
             />
@@ -106,9 +108,7 @@ export function CalendarView({
 
       {/* Layout Principal */}
       {isLoading ? (
-        <div className="mt-4">
-          <SkeletonView variant="calendar" />
-        </div>
+        <SkeletonView variant="calendar" />
       ) : (
         <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-4 md:gap-6 xl:h-full xl:overflow-hidden relative z-0">
           {/* Main Calendar Panel - Rendered first in DOM for mobile */}
@@ -128,12 +128,13 @@ export function CalendarView({
               appointmentsByDay={vm.appointmentsByDay}
               onSelectDate={vm.setSelectedDate}
               onOpenAppointmentTools={vm.handleOpenAppointmentTools}
-              onTimeSlotClick={vm.canManageAppointments ? vm.handleTimeSlotClick : undefined}
+              onTimeSlotClick={vm.canCreateAppointments ? vm.handleTimeSlotClick : undefined}
               isPastDate={ScheduleModel.isPastDate}
               isSameDay={ScheduleModel.isSameDay}
               canChangeViewMode={vm.canChangeViewMode}
               isAllAgentsMode={vm.isAllAgentsSelected}
               estateAgentScopeFilterOptions={vm.estateAgentScopeFilterOptions}
+              workSchedule={vm.workSchedule}
             />
           </div>
 

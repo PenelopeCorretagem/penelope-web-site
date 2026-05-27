@@ -21,7 +21,9 @@ export const FilterView = ({
   showSortButton = true,
   showSortButtonInPrimaryRow: showSortButtonInPrimaryRowProp = false,
   hideSearch = false,
+  hideToggleLabel = false,
   mobileExpandedContent = null,
+  popupStyle = {},
   className = ''
 }) => {
   const viewModel = useFilterViewModel({
@@ -42,13 +44,16 @@ export const FilterView = ({
     if (!filtersExpanded) return
 
     const handleClickOutside = (event) => {
-      if (filterPopupRef.current && !filterPopupRef.current.contains(event.target)) {
+      const target = event.target
+      const isInsidePopup = filterPopupRef.current?.contains(target)
+      const isToggleButton = target instanceof Element && target.closest('.filter-view-toggle-button')
+      if (!isInsidePopup && !isToggleButton) {
         setFiltersExpanded(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside, true)
-    return () => document.removeEventListener('mousedown', handleClickOutside, true)
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [filtersExpanded])
 
   const hasActiveFilters = viewModel.filterModel.hasActiveFilters(defaultFilters)
@@ -105,7 +110,7 @@ export const FilterView = ({
     }
   }
 
-  const renderFilterSelect = (config, extraClasses = '', useEqualWidth = false) => (
+  const renderFilterSelect = (config, extraClasses = '', useEqualWidth = false, dropdownInline = false) => (
     <SelectView
       ref={setSelectRef(config.key)}
       value={config.customValue !== undefined ? config.customValue : viewModel.filterModel.getFilter(config.key, config.defaultValue)}
@@ -117,6 +122,7 @@ export const FilterView = ({
       defaultValue={config.defaultValue}
       shape={config.shape || 'square'}
       hasLabel={false}
+      dropdownInline={dropdownInline}
       onChange={(e) => {
         if (config.customOnChange) {
           config.customOnChange(e.target.value)
@@ -151,17 +157,22 @@ export const FilterView = ({
             type="button"
             width={hideSearch ? 'full' : 'fit'}
             color={filtersExpanded ? 'pink' : 'brown'}
-            onClick={() => setFiltersExpanded(!filtersExpanded)}
+            onClick={() => setFiltersExpanded((prev) => !prev)}
             shape="square"
             title="Expandir filtros"
+            className="filter-view-toggle-button"
           >
             {hideSearch ? (
-              <span className="inline-flex items-center justify-center gap-2 w-full">
-                <SlidersHorizontal size={16} />
-                <span className="text-sm font-medium">Mais Filtros</span>
-              </span>
+              hideToggleLabel ? (
+                <SlidersHorizontal size={13} />
+              ) : (
+                <span className="inline-flex items-center justify-center gap-2 w-full">
+                  <SlidersHorizontal size={13} />
+                  <span className="text-sm font-medium">Mais Filtros</span>
+                </span>
+              )
             ) : (
-              <SlidersHorizontal size={16} />
+              <SlidersHorizontal size={13} />
             )}
           </ButtonView>
 
@@ -174,7 +185,7 @@ export const FilterView = ({
               disabled={!hasActiveFilters}
               shape="square"
               title="Limpar filtros"
-              className="!h-9 !px-3"
+              className=""
             >
               Limpar
             </ButtonView>
@@ -225,10 +236,10 @@ export const FilterView = ({
                 type="button"
                 width="fit"
                 color={filtersExpanded ? 'pink' : 'outline-brown'}
-                onClick={() => setFiltersExpanded(!filtersExpanded)}
+                onClick={() => setFiltersExpanded((prev) => !prev)}
                 shape="rectangle"
                 title="Mais Filtros"
-                className="gap-2"
+                className="filter-view-toggle-button gap-2"
               >
                 <SlidersHorizontal size={14} />
                 <span className="">Filtros</span>
@@ -260,20 +271,22 @@ export const FilterView = ({
       {shouldRenderMobileFilters && (
         <div
           ref={filterPopupRef}
-          className="absolute right-0 top-full z-50 mt-2 overflow-auto transition-all duration-300 ease-in-out transform-gpu rounded-lg h-[60vh] border border-default-light-muted bg-default-light-alt shadow-lg"
+          className="fixed left-1/2 top-50 z-50 mx-auto w-[min(100vw-1rem,22rem)] -translate-x-1/2 overflow-auto transition-all duration-300 ease-in-out transform-gpu rounded-3xl border border-default-light-muted bg-default-light-alt shadow-lg filter-view-popup md:absolute md:left-auto md:right-0 md:top-full md:mx-0 md:translate-x-0 md:w-auto"
           style={{
             opacity: isMobileFiltersAnimating ? 1 : 0,
             transform: isMobileFiltersAnimating ? 'translateY(0)' : 'translateY(-0.5rem)',
-            padding: isMobileFiltersAnimating ? '0.75rem' : '0',
+            padding: isMobileFiltersAnimating ? '1rem' : '0',
             borderColor: isMobileFiltersAnimating ? undefined : 'transparent',
+            maxHeight: '60vh',
+            ...popupStyle,
           }}
         >
-          <div className="flex flex-col md:flex-row flex-wrap gap-3 w-fit">
+          <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full">
             {/* Mobile layout: all filters rendered here since primary aren't shown above on mobile */}
-            <div className="flex md:hidden flex-wrap w-full gap-3">
+            <div className="grid md:hidden grid-cols-1 gap-3 w-full">
               {filterConfigs.map((config) => (
-                <div key={config.key} className={config.mobileFull ? 'w-full' : 'flex-1 min-w-[calc(50%-6px)]'}>
-                  {renderFilterSelect(config, '!text-[11px] !py-2 !px-2 !h-auto', true)}
+                <div key={config.key} className="w-full">
+                  {renderFilterSelect({ ...config, width: 'full' }, '!text-sm !py-3 !px-3 !h-auto !w-full !whitespace-normal', false, true)}
                 </div>
               ))}
             </div>

@@ -64,6 +64,12 @@ export function CalendarView({
     return monthDate instanceof Date ? monthDate : selectedDate instanceof Date ? selectedDate : new Date()
   }, [monthDate, selectedDate])
 
+  const today = useMemo(() => {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    return date
+  }, [])
+
   const monthName = `${MONTH_LABELS[currentDate.getMonth()]} ${currentDate.getFullYear()}`
 
   const dayCells = useMemo(() => getCalendarDays(currentDate), [currentDate])
@@ -128,7 +134,7 @@ export function CalendarView({
           const isCurrentMonth = date.getMonth() === currentDate.getMonth()
           const dateKey = toDateKey(date)
           const selected = selectedDate instanceof Date && sameDay(date, selectedDate)
-          const isPast = isPastDate ? isPastDate(date) : false
+          const isPast = typeof isPastDate === 'function' ? isPastDate(date) : date < today
           const isBeforeMin = minDate instanceof Date && date < minDate
           const isAfterMax = maxDate instanceof Date && date > maxDate
           const isDisabledByRange = isBeforeMin || isAfterMax
@@ -153,11 +159,13 @@ export function CalendarView({
           const isDisabled = isDisabledByOtherMonth || isDisabledByPast || isDisabledByRange
 
           if (!isCurrentMonth) {
-            buttonClasses.push('bg-default-light-alt', 'text-default-dark-muted')
+            buttonClasses.push('bg-default-light-muted', 'text-default-dark-muted')
           }
 
           if (selected) {
             buttonClasses.push('bg-distac-primary', 'text-default-light')
+          } else if (isPast) {
+            buttonClasses.push('bg-default-dark-light', 'text-default-light', 'hover:bg-default-dark-muted')
           } else if (isDisabled) {
             buttonClasses.push('bg-default-light-muted', 'text-default-dark-light', 'cursor-not-allowed')
           } else {
@@ -175,7 +183,7 @@ export function CalendarView({
             >
               <span>{date.getDate()}</span>
               {hasAppointments && isCurrentMonth && (
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-distac-primary" />
+                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-distac-primary" />
               )}
             </button>
           )

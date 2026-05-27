@@ -91,6 +91,7 @@ export function ScheduleView() {
         appointment={vm.selectedAppointmentForTools}
         busyAppointmentId={vm.busyAppointmentId}
         canManageAppointments={vm.canManageAppointments}
+        canDeleteAppointments={vm.canDeleteAppointments}
         isClientUser={vm.isClientUser}
         onClose={vm.handleCloseAppointmentTools}
         onReschedule={vm.handleRescheduleFromTools}
@@ -100,7 +101,7 @@ export function ScheduleView() {
         onDelete={vm.handleDeleteFromTools}
       />
 
-      {vm.canManageAppointments && (
+      {vm.canCreateAppointments && (
         <AppointmentFormModalView
           isOpen={vm.isModalOpen}
           onClose={vm.handleModalClose}

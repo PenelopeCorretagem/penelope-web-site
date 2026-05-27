@@ -51,7 +51,7 @@ function getSelectClasses({ variant, shape, width, disabled, className }) {
     .join(' ')
 }
 
-function getDropdownClasses({ variant, isAnimating, dropdownClassName }) {
+function getDropdownClasses({ variant, isAnimating, dropdownClassName, dropdownInline }) {
   const dropdownVariants = {
     default: 'bg-default-light border-default-dark/20',
     pink: 'bg-default-light border-distac-primary/20',
@@ -60,15 +60,15 @@ function getDropdownClasses({ variant, isAnimating, dropdownClassName }) {
   }
 
   return [
-    'absolute top-full left-0 right-0 z-50 mt-1',
+    dropdownInline ? 'relative w-full mt-2' : 'absolute top-full left-0 right-0 z-10 mt-1',
     'border rounded-lg shadow-lg',
     'max-h-60 overflow-y-auto',
     'transition-all duration-300 ease-out',
-    'transform-gpu',
+    dropdownInline ? '' : 'transform-gpu',
     isAnimating ? 'opacity-100 translate-y-0 scale-y-100' : 'opacity-0 -translate-y-2 scale-y-95',
     dropdownVariants[variant] || dropdownVariants.default,
     dropdownClassName,
-  ].join(' ')
+  ].filter(Boolean).join(' ')
 }
 
 function getOptionClasses({ isSelected, optionClassName }) {
@@ -135,6 +135,7 @@ export const SelectView = forwardRef(({
   size,
   dropdownClassName = '',
   optionClassName = '',
+  dropdownInline = false,
   style = {},
 }, ref) => {
   const selectProps = useSelectViewModel({
@@ -251,7 +252,7 @@ export const SelectView = forwardRef(({
           else if (ref) ref.current = element
         }}
         className={`relative ${selectProps.width === 'full' ? 'w-full' : 'w-fit'}`}
-        style={{ minWidth: 'var(--select-min-width)', ...style }}
+        style={{ minWidth: selectProps.width === 'full' ? 0 : 'var(--select-min-width)', ...style }}
       >
         <div
           ref={selectElementRef}
@@ -274,7 +275,7 @@ export const SelectView = forwardRef(({
         {shouldRender && (
           <ul
             role="listbox"
-            className={getDropdownClasses({ variant: selectProps.variant, isAnimating, dropdownClassName })}
+            className={getDropdownClasses({ variant: selectProps.variant, isAnimating, dropdownClassName, dropdownInline })}
             style={{
               transformOrigin: 'top center',
               ...(size ? { maxHeight: `calc(${size} * 2.5rem)` } : {})

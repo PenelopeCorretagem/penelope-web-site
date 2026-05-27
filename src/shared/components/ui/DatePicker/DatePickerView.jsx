@@ -221,6 +221,7 @@ export function DatePickerView({
             onChangeMonth={handleMonthChange}
             minDate={minDate}
             maxDate={maxDate}
+            allowPastDates={true}
             className="shadow-lg"
           />
         </div>

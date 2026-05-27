@@ -169,6 +169,11 @@ export function AppointmentFormModalView({
 
           <DateTimeSelectionView
             dateTimeValue={vm.model.getDateTimeLocalString()}
+            durationMinutes={vm.model.durationMinutes}
+            workSchedule={vm.workSchedule}
+            availableSlots={vm.availableSlots}
+            slotsLoading={vm.slotsLoading}
+            slotsError={vm.slotsError}
             onDateTimeChange={handleDateTimeChange}
             leftFooter={(
               <div className="space-y-4">
@@ -206,13 +211,14 @@ export function AppointmentFormModalView({
                     onPhoneChange={handleVisitorPhoneChange}
                   />
                 )}
-
-                <NotesSection
-                  isRescheduleMode={isRescheduleMode}
-                  value={isRescheduleMode ? vm.model.reason : vm.model.notes}
-                  onChange={isRescheduleMode ? handleReasonChange : handleNotesChange}
-                />
               </div>
+            )}
+            notesSection={(
+              <NotesSection
+                isRescheduleMode={isRescheduleMode}
+                value={isRescheduleMode ? vm.model.reason : vm.model.notes}
+                onChange={isRescheduleMode ? handleReasonChange : handleNotesChange}
+              />
             )}
           />
         </div>

@@ -4,6 +4,7 @@ export function AppointmentToolsModalView({
   appointment,
   busyAppointmentId,
   canManageAppointments = true,
+  canDeleteAppointments = false,
   isClientUser = false,
   onClose,
   onReschedule,
@@ -107,7 +108,7 @@ export function AppointmentToolsModalView({
                 </button>
               )}
 
-              {!isClientUser && (
+              {canDeleteAppointments && (
                 <button
                   type="button"
                   onClick={onDelete}

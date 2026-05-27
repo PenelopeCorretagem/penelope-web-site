@@ -99,12 +99,17 @@ export function useAppointmentReportViewModel() {
     }
 
     if (canSelectEstateAgent) {
-      if (!selectedEstateAgentFilter) {
-        return null
+      if (!selectedEstateAgentFilter || selectedEstateAgentFilter === 'TODOS') {
+        return {}
+      }
+
+      const parsedId = Number(selectedEstateAgentFilter)
+      if (Number.isNaN(parsedId)) {
+        return {}
       }
 
       return {
-        estateAgentId: Number(selectedEstateAgentFilter),
+        estateAgentId: parsedId,
       }
     }
 
@@ -575,20 +580,7 @@ export function useAppointmentReportViewModel() {
       try {
         const eventTypes = await getAllEventTypes({ size: 100 })
 
-        const createdAtDates = eventTypes
-          .map((t) => t.createdAt)
-          .filter(Boolean)
-          .map((d) => new Date(d))
-          .filter((d) => !Number.isNaN(d.getTime()))
-          .sort((a, b) => a - b)
-
-        const dateFilters = { active: true }
-        if (createdAtDates.length > 0) {
-          dateFilters.createdAtMin = createdAtDates[0].toISOString().split('T')[0]
-          dateFilters.createdAtMax = createdAtDates[createdAtDates.length - 1].toISOString().split('T')[0]
-        }
-
-        const advertisements = await getAllAdvertisements(dateFilters)
+        const advertisements = await getAllAdvertisements({ active: true })
 
         const adByTitle = new Map(
           advertisements

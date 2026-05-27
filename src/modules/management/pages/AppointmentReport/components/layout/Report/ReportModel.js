@@ -1,4 +1,4 @@
-import { getEstateTypeByKey } from '@constant/estateTypes'
+import { getEstateTypeByApiValue, getEstateTypeByKey } from '@constant/estateTypes'
 
 /**
  * ReportModel.js
@@ -171,8 +171,21 @@ export class ReportModel {
     appointments.forEach(appointment => {
       const typeLabel = appointment.estateTypeFriendlyName
         || getEstateTypeByKey(appointment.estateTypeKey)?.friendlyName
+        || getEstateTypeByApiValue(appointment.estateTypeKey)?.friendlyName
         || appointment.estateTypeKey
         || 'Desconhecido'
+
+      if (typeLabel === 'Desconhecido') {
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG][AppointmentReport] unknown estate type label', {
+          appointmentId: appointment.id,
+          estateTypeKey: appointment.estateTypeKey,
+          estateTypeFriendlyName: appointment.estateTypeFriendlyName,
+          title: appointment.title,
+          estateTitle: appointment.estateTitle,
+          rawAppointment: appointment,
+        })
+      }
       typeMap.set(typeLabel, (typeMap.get(typeLabel) || 0) + 1)
     })
 

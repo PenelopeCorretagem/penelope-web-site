@@ -152,6 +152,7 @@ export function ScheduleFiltersToolbarView({
             <FilterView
               key={filtersVersion || 'schedule-filter-view'}
               hideSearch={true}
+              hideToggleLabel={true}
               filterConfigs={mergedFilterConfigs}
               defaultFilters={defaultFilters}
               onFiltersChange={(key, value) => {
@@ -164,6 +165,7 @@ export function ScheduleFiltersToolbarView({
               showSortButton={false}
               showResetButton={displayMode === 'calendar'}
               mobileExpandedContent={mobileExpandedContent}
+              popupStyle={{ minWidth: '22rem', width: 'min(100vw-1rem, 22rem)' }}
             />
           </div>
         </div>

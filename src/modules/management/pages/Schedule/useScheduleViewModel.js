@@ -8,6 +8,7 @@ import { useAppointmentActions } from '../../hooks/useAppointmentActions'
 import { useReportData } from '../../hooks/useReportData'
 import { ScheduleModel } from './ScheduleModel'
 import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
+import { getAllSchedules } from '@service-calservice/scheduleService'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@constant/accessLevels'
 
@@ -37,8 +38,12 @@ export function useScheduleViewModel(options = {}) {
   const [selectedDate, setSelectedDate] = useState(() => new Date())
   const [displayMode, setDisplayMode] = useState(defaultDisplayMode) // 'calendar', 'daily', 'report'
   const [selectedEstateAgentName, setSelectedEstateAgentName] = useState('')
+  const [workSchedule, setWorkSchedule] = useState(null)
   const selectedDateRef = useRef(selectedDate)
-  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
+  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading && selectedEstateAgentFilter === 'TODOS'
+  const canCreateAppointments = isAdminUser || isBrokerUser || isClientUser
+  const canManageAppointments = canCreateAppointments && !isReadOnlyAdminView
+  const canDeleteAppointments = (isAdminUser || isBrokerUser) && !isReadOnlyAdminView
 
   // Hooks especializados
   const appointmentService = useAppointments()
@@ -294,6 +299,22 @@ export function useScheduleViewModel(options = {}) {
     loadAppointmentsWithScope()
   }, [loadAppointmentsWithScope])
 
+  useEffect(() => {
+    const loadSchedules = async () => {
+      try {
+        const schedules = await getAllSchedules()
+        const defaultSchedule = Array.isArray(schedules)
+          ? schedules.find(schedule => schedule.isDefault) || schedules[0] || null
+          : null
+        setWorkSchedule(defaultSchedule)
+      } catch {
+        setWorkSchedule(null)
+      }
+    }
+
+    loadSchedules()
+  }, [])
+
   // Handler para navegação de períodos
   const handleNavigatePeriod = useCallback((direction) => {
     const nextDate = new Date(selectedDate)
@@ -427,8 +448,7 @@ export function useScheduleViewModel(options = {}) {
   }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
 
   const handleDeleteFromTools = useCallback(() => {
-    if (isReadOnlyAdminView) return
-
+    if (!canDeleteAppointments) return
     if (!uiState.selectedAppointmentForTools) return
 
     uiState.openConfirmationAlert({
@@ -451,7 +471,7 @@ export function useScheduleViewModel(options = {}) {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage])
+  }, [canDeleteAppointments, uiState, actions, getApiErrorMessage])
 
   // Dados derivados
   const totalAppointmentsCount = appointmentService.model.getTotal()
@@ -492,7 +512,9 @@ export function useScheduleViewModel(options = {}) {
     isAdminUser,
     isClientUser,
     isReadOnlyAdminView,
-    canManageAppointments: !isReadOnlyAdminView,
+    canCreateAppointments,
+    canManageAppointments,
+    canDeleteAppointments,
 
     // Filtros
     selectedStatusFilter: filterService.selectedStatusFilter,
@@ -537,6 +559,7 @@ export function useScheduleViewModel(options = {}) {
     // Dados de relatório
     reportData,
     selectedEstateAgentName,
+    workSchedule,
 
     // Dados
     filteredAppointments: filterService.filteredAppointments,

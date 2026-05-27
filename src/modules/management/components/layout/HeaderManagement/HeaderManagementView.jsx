@@ -12,7 +12,7 @@ export function HeaderManagementView({
   const Icon = iconName ? LucideIcons[iconName] : null
 
   return (
-    <div className={`rounded-lg border border-default-light-muted bg-default-light px-4 py-3 shadow-sm flex gap-40 justify-between items-center h-fit w-full ${className}`}>
+    <div className={`rounded-lg border border-default-light-muted bg-default-light px-4 py-3 shadow-sm flex gap-4 md:gap-40 justify-between items-center h-fit w-full ${className}`}>
 
       {title && (
       <div className="flex gap-3 md:flex-row md:items-end md:justify-between h-fit">
