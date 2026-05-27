@@ -28,6 +28,14 @@ export function useSelectViewModel(initialProps = {}) {
     }
   }, [initialProps.options, viewModel, refresh])
 
+  // Sincronizar estado disabled externo com o modelo interno
+  useEffect(() => {
+    if (initialProps.disabled !== undefined && viewModel.updateDisabled(initialProps.disabled)) {
+      console.log('[SelectView] disabled changed:', initialProps.disabled)
+      refresh()
+    }
+  }, [initialProps.disabled, viewModel, refresh])
+
   // Fechar ao clicar fora - CORRIGIDO
   useEffect(() => {
     const handleClickOutside = (event) => {

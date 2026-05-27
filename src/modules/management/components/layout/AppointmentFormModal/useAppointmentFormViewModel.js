@@ -90,7 +90,7 @@ export function useAppointmentFormViewModel(
       setClientsError(null)
 
       try {
-        const users = await getAllUsers()
+        const users = await getAllUsers(1, 200)
         const clientOptions = users
           .filter(user => isClientAccessLevel(user.accessLevel) && user.isActive())
           .map(user => ({
