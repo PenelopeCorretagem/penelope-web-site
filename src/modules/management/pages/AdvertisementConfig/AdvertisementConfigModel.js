@@ -1,4 +1,6 @@
 import { formatAreaForDisplay, formatAreaForDatabase } from '@shared/utils/area/formatAreaUtil'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { getEstateTypeByApiValue } from '@constant/estateTypes'
 
 /**
  * Modelo de dados para configuração de propriedade
@@ -14,7 +16,7 @@ export class AdvertisementConfigModel {
     // Access Estate entity getters (not private advertisements)
     const estate = advertisement?.estate
     this.advertisementTitle = estate?.title || ''
-    this.advertisementType = estate?.type?.key || 'DISPONIVEL'
+    this.advertisementType = estate?.type?.apiValue || ''
     this.advertisementDescription = estate?.description || ''
     this.area = estate?.area || ''
     this.numberOfRooms = estate?.numberOfRooms || ''
@@ -328,9 +330,12 @@ export class AdvertisementConfigModel {
 
     // Função para validar e sanitizar tipo ENUM
     const sanitizeAdvertisementType = (type) => {
-      const validTypes = ['DISPONIVEL', 'EM_OBRAS', 'LANCAMENTO']
-      const cleanType = String(type || '').trim().toUpperCase()
-      return validTypes.includes(cleanType) ? cleanType : 'DISPONIVEL'
+      const normalizedType = getEstateTypeByApiValue(type)
+      if (!normalizedType) {
+        throw new Error(`Tipo de imóvel inválido para envio: ${type}`)
+      }
+
+      return normalizedType.apiValue
     }
 
     // Função para gerar data de fim válida no padrão LocalDate (yyyy-MM-dd)
@@ -341,7 +346,7 @@ export class AdvertisementConfigModel {
           if (!isNaN(date.getTime())) {
             return date.toISOString().split('T')[0]
           }
-        } catch (e) {
+        } catch {
           console.warn('Data inválida fornecida, usando data padrão')
         }
       }
@@ -458,7 +463,8 @@ export class AdvertisementConfigModel {
     }
 
     const selectedResponsibleId = sanitizeNumber(formData.responsible)
-    const creatorIdFromSession = sanitizeNumber(sessionStorage.getItem('userId'))
+    const { userId } = authSessionUtil.get()
+    const creatorIdFromSession = sanitizeNumber(userId)
     const creatorIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.creator?.id)
     const responsibleIdFromOriginal = sanitizeNumber(this.originalAdvertisementData?.responsible?.id)
 

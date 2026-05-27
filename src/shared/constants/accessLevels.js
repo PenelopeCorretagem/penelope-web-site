@@ -1,5 +1,6 @@
 export const ACCESS_LEVEL = {
   ADMINISTRADOR: 'ADMINISTRADOR',
+  CORRETOR: 'CORRETOR',
   CLIENTE: 'CLIENTE'
 }
 
@@ -12,6 +13,10 @@ export const normalizeAccessLevel = (value) => {
     return ACCESS_LEVEL.ADMINISTRADOR
   }
 
+  if (['CORRETOR', 'BROKER'].includes(normalized)) {
+    return ACCESS_LEVEL.CORRETOR
+  }
+
   if (['CLIENTE', 'CLIENT'].includes(normalized)) {
     return ACCESS_LEVEL.CLIENTE
   }
@@ -20,5 +25,6 @@ export const normalizeAccessLevel = (value) => {
 }
 
 export const isAdminAccessLevel = (value) => normalizeAccessLevel(value) === ACCESS_LEVEL.ADMINISTRADOR
+export const isBrokerAccessLevel = (value) => normalizeAccessLevel(value) === ACCESS_LEVEL.CORRETOR
 export const isClientAccessLevel = (value) => normalizeAccessLevel(value) === ACCESS_LEVEL.CLIENTE
 export const isValidAccessLevel = (value) => ACCESS_LEVELS.includes(normalizeAccessLevel(value))

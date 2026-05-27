@@ -1,3 +1,4 @@
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { EditFormView } from '@shared/components/ui/EditForm/EditFormView'
@@ -24,9 +25,12 @@ export function AccountView() {
   }
 
   return (
-    <SectionView className='flex flex-col h-full gap-subsection subsection md:gap-subsection-md'>
+    <PageManagementView
+      iconName="Lock"
+      title="Minha Conta"
+      className='flex flex-col h-full gap-subsection subsection md:gap-subsection-md'
+    >
       <EditFormView
-        title="MINHA CONTA"
         fields={vm.accountFields}
         initialData={vm.formData}
         onSubmit={vm.handleSubmit}
@@ -67,6 +71,6 @@ export function AccountView() {
           </div>
         )}
       </AlertView>
-    </SectionView>
+    </PageManagementView>
   )
 }

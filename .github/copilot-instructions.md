@@ -390,7 +390,14 @@ Nenhuma outra camada lê ou escreve `sessionStorage` diretamente.
 
 ---
 
-## 9. Estilização
+## 9. Skeleton Loading
+
+- Use skeleton loading sempre que a interface estiver aguardando dados assíncronos e houver espaço para manter os blocos visuais do layout.
+- Prefira um componente compartilhado em `src/shared/components/ui/Skeleton/SkeletonView.jsx` com variantes como `calendar`, `dashboard`, `table` e `default`.
+- O skeleton deve manter a hierarquia visual da página, reduzindo o impacto do carregamento e melhorando a percepção de velocidade.
+- Não subestime o feedback de carregamento: evite exibir apenas texto genérico como `Carregando...` quando a tela pode renderizar placeholders estruturados.
+
+## 10. Estilização
 
 ### Tailwind CSS + Design Tokens
 

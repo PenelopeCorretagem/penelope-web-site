@@ -15,7 +15,10 @@ export const getAllAdvertisements = async (filters = {}) => {
     active: filters.active,
     area: filters.area,
     title: filters.title,
+    description: filters.description,
     createdAt: filters.createdAt,
+    createdAtMin: filters.createdAtMin,
+    createdAtMax: filters.createdAtMax,
     displayEndDate: filters.displayEndDate,
     featured: filters.featured,
   }
@@ -29,6 +32,13 @@ export const getAllAdvertisements = async (filters = {}) => {
 
 export const getAdvertisementById = async (id) => {
   const response = await axiosInstance.get(`/advertisements/${id}`, {
+    baseURL: PENELOPEC_API_BASE_URL,
+  })
+  return response.data
+}
+
+export const getAdvertisementsByEstate = async (estateId) => {
+  const response = await axiosInstance.get(`/advertisements/estate/${estateId}`, {
     baseURL: PENELOPEC_API_BASE_URL,
   })
   return response.data

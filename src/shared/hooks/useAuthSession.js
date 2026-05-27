@@ -1,12 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from '@routes/useRouterViewModel'
 import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
-import { isAdminAccessLevel } from '@constant/accessLevels'
+import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@constant/accessLevels'
 
 export function useAuthSession() {
   const { navigateTo } = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(sessionStorage.getItem('token')))
-  const [isAdmin, setIsAdmin] = useState(isAdminAccessLevel(sessionStorage.getItem('userRole')))
+  const initialSession = authSessionUtil.get()
+  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(initialSession.token))
+  const [isAdmin, setIsAdmin] = useState(isAdminAccessLevel(initialSession.role))
+  const [isBroker, setIsBroker] = useState(isBrokerAccessLevel(initialSession.role))
+  const [isClient, setIsClient] = useState(isClientAccessLevel(initialSession.role))
   const [authReady, setAuthReady] = useState(false)
   const [sessionExpiresAt, setSessionExpiresAt] = useState(() => {
     const stored = sessionStorage.getItem('sessionExpiresAt')
@@ -18,6 +21,8 @@ export function useAuthSession() {
     const { token, userId, role, sessionExpiresAt } = authSessionUtil.get()
     setIsAuthenticated(!!token && !!userId)
     setIsAdmin(isAdminAccessLevel(role))
+    setIsBroker(isBrokerAccessLevel(role))
+    setIsClient(isClientAccessLevel(role))
     setSessionExpiresAt(sessionExpiresAt)
   }
 
@@ -80,6 +85,8 @@ export function useAuthSession() {
   return {
     isAuthenticated,
     isAdmin,
+    isBroker,
+    isClient,
     authReady,
     remainingMs,
     remainingFormatted,

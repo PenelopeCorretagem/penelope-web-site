@@ -2,6 +2,65 @@ import { Calendar, CalendarDays, Calendar1, ChevronLeft, ChevronRight } from 'lu
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { STATUS_COLORS, STATUS_LABELS } from '../../../../../../ScheduleModel'
 
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+const getScheduleAvailabilityForDate = (workSchedule, date) => {
+  if (!workSchedule || !Array.isArray(workSchedule.availability)) {
+    return []
+  }
+
+  const weekdayName = WEEKDAY_NAMES[date.getDay()]
+  return workSchedule.availability.filter(item =>
+    Array.isArray(item.days) && item.days.includes(weekdayName)
+  )
+}
+
+const parseTimeString = (timeString) => {
+  if (!timeString || typeof timeString !== 'string') return null
+  const [hour, minute] = timeString.split(':').map(value => Number(value.trim()))
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return null
+  return { hour, minute }
+}
+
+const getScheduleHours = (availability, durationMinutes) => {
+  if (!Array.isArray(availability) || !durationMinutes) return []
+
+  return availability.flatMap(item => {
+    const start = parseTimeString(item.startTime)
+    const end = parseTimeString(item.endTime)
+    if (!start || !end) return []
+
+    const startDate = new Date(2024, 0, 1, start.hour, start.minute)
+    const endDate = new Date(2024, 0, 1, end.hour, end.minute)
+    const durationMs = durationMinutes * 60 * 1000
+    const step = 60 * 60 * 1000
+
+    const hours = []
+    let current = new Date(startDate)
+
+    while (current.getTime() + durationMs <= endDate.getTime()) {
+      hours.push(current.getHours())
+      current = new Date(current.getTime() + step)
+    }
+
+    return hours
+  }).filter((hour, index, self) => self.indexOf(hour) === index).sort((a, b) => a - b)
+}
+
+const isSlotAllowedBySchedule = (workSchedule, date, hour, durationMinutes = 60) => {
+  if (!workSchedule) {
+    return false
+  }
+
+  const availability = getScheduleAvailabilityForDate(workSchedule, date)
+  if (availability.length === 0) {
+    return false
+  }
+
+  const allowedHours = getScheduleHours(availability, durationMinutes)
+  return allowedHours.includes(hour)
+}
+
 export function CalendarPanelView({
   viewMode,
   setViewMode,
@@ -23,6 +82,7 @@ export function CalendarPanelView({
   canChangeViewMode = true,
   isAllAgentsMode = false,
   estateAgentScopeFilterOptions = [],
+  workSchedule = null,
 }) {
   const handleKeyActivate = (event, onActivate) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -200,7 +260,7 @@ export function CalendarPanelView({
             <div className="w-8 md:w-16 flex-shrink-0">
               <div className="h-12" />
               {hours.map(hour => (
-                <div key={hour} className="h-7 md:h-12 text-[9px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2">
+                <div key={hour} className="h-7 md:h-10 text-[9px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2">
                   {String(hour).padStart(2, '0')}:00
                 </div>
               ))}
@@ -229,30 +289,33 @@ export function CalendarPanelView({
                   <div className="relative">
                     {hours.map(hour => {
                       const slotAppointments = dayAppointments.filter(appt => appt.startDateTime.getHours() === hour)
+                      const isHourAllowed = isSlotAllowedBySchedule(workSchedule, date, hour)
+                      const isSlotDisabled = isPastDate(date) || !isHourAllowed
 
                       return (
                         <div
                           key={`${dateKey}-${hour}`}
-                          role={canCreateAppointments && !isPastDate(date) ? 'button' : undefined}
-                          tabIndex={canCreateAppointments && !isPastDate(date) ? 0 : -1}
-                          onClick={canCreateAppointments ? () => onTimeSlotClick(date, hour) : undefined}
-                          onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(date, hour)) : undefined}
-                          className={`h-7 md:h-10 border-b border-default-light-muted w-full transition relative block md:p-1 ${
+                          role={canCreateAppointments && !isSlotDisabled ? 'button' : undefined}
+                          tabIndex={canCreateAppointments && !isSlotDisabled ? 0 : -1}
+                          onClick={canCreateAppointments && !isSlotDisabled ? () => onTimeSlotClick(date, hour) : undefined}
+                          onKeyDown={canCreateAppointments && !isSlotDisabled ? (event) => handleKeyActivate(event, () => onTimeSlotClick(date, hour)) : undefined}
+                          className={`h-7 md:h-10 border-b border-default-light-muted w-full transition relative block md:p-1 overflow-hidden ${
                             isPastDate(date)
                               ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
-                              : canCreateAppointments
-                                ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
-                                : 'bg-default-light'
+                              : !isHourAllowed
+                                ? 'opacity-60 cursor-not-allowed bg-slate-100'
+                                : canCreateAppointments
+                                  ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
+                                  : 'bg-default-light'
                           }`}
                         >
                           <div className="absolute inset-0 pointer-events-none">
                             {slotAppointments.map((appt, index) => {
                               const startMinutes = appt.startDateTime.getMinutes()
                               const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
-                              const slotRowHeight = isDesktop ? 40 : 28
-                              const heightMultiplier = isDesktop ? 0.95 : 0.85
-                              const topOffset = (startMinutes / 60) * slotRowHeight * heightMultiplier
-                              const height = (appt.durationMinutes / 60) * slotRowHeight * heightMultiplier
+                              const slotRowHeight = isDesktop ? 32 : 28
+                              const topOffset = (startMinutes / 60) * slotRowHeight
+                              const height = (appt.durationMinutes / 60) * slotRowHeight
                               const widthPercent = 100 / slotAppointments.length
                               const leftPercent = index * widthPercent
 
@@ -275,7 +338,7 @@ export function CalendarPanelView({
                                     left: `calc(${leftPercent}% + 2px)`,
                                     width: `calc(${widthPercent}% - 4px)`,
                                     minHeight: `${Math.max(height, isDesktop ? 12 : 8)}px`,
-                                    maxHeight: `${slotRowHeight - (isDesktop ? 2 : 3)}px`,
+                                    maxHeight: `${Math.max(slotRowHeight - 2, 0)}px`,
                                     zIndex: 10 + index,
                                   }}
                                   title={appt.title || 'Agendamento'}
@@ -336,11 +399,21 @@ export function CalendarPanelView({
                         <div className="relative">
                           {hours.map(hour => {
                             const slotAppointments = agentAppointments.filter(appt => appt.startDateTime.getHours() === hour)
+                            const isSlotDisabled = isPastDate(selectedDate)
+                            const handleAgentSlotClick = () => {
+                              if (!onTimeSlotClick || isSlotDisabled) return
+
+                              onTimeSlotClick(selectedDate, hour)
+                            }
 
                             return (
                               <div
                                 key={`slot-${agent.value}-${hour}`}
-                                className="h-16 border-b border-default-light-muted relative p-0.5 bg-default-light hover:bg-distac-primary-light/30 transition"
+                                role={canCreateAppointments && !isSlotDisabled ? 'button' : undefined}
+                                tabIndex={canCreateAppointments && !isSlotDisabled ? 0 : -1}
+                                onClick={canCreateAppointments && !isSlotDisabled ? handleAgentSlotClick : undefined}
+                                onKeyDown={canCreateAppointments && !isSlotDisabled ? (event) => handleKeyActivate(event, handleAgentSlotClick) : undefined}
+                                className={`h-16 border-b border-default-light-muted relative p-0.5 ${isSlotDisabled ? 'bg-default-dark-light opacity-80 cursor-not-allowed' : 'bg-default-light hover:bg-distac-primary-light/30 cursor-pointer'} transition`}
                               >
                                 {slotAppointments.map((appt, index) => {
                                   const startMinutes = appt.startDateTime.getMinutes()
@@ -407,7 +480,7 @@ export function CalendarPanelView({
                   <div className="flex gap-2 md:gap-4">
                     <div className="w-10 md:w-16 flex-shrink-0">
                       {hours.map(hour => (
-                        <div key={hour} className="h-20 text-[10px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2 font-medium">
+                        <div key={hour} className="h-16 text-[10px] md:text-xs text-muted flex items-start justify-end pr-1 md:pr-2 font-medium">
                           {String(hour).padStart(2, '0')}:00
                         </div>
                       ))}
@@ -419,27 +492,32 @@ export function CalendarPanelView({
                           appt => appt.startDateTime.getHours() === hour
                         )
 
+                        const isHourAllowed = isSlotAllowedBySchedule(workSchedule, selectedDate, hour)
+                        const isSlotDisabled = isPastDate(selectedDate) || !isHourAllowed
+
                         return (
                           <div
                             key={`hour-${hour}`}
-                            role={canCreateAppointments && !isPastDate(selectedDate) ? 'button' : undefined}
-                            tabIndex={canCreateAppointments && !isPastDate(selectedDate) ? 0 : -1}
-                            onClick={canCreateAppointments ? () => onTimeSlotClick(selectedDate, hour) : undefined}
-                            onKeyDown={canCreateAppointments ? (event) => handleKeyActivate(event, () => onTimeSlotClick(selectedDate, hour)) : undefined}
-                            className={`h-16 border-b border-default-light-muted w-full transition relative block p-1 ${
+                            role={canCreateAppointments && !isSlotDisabled ? 'button' : undefined}
+                            tabIndex={canCreateAppointments && !isSlotDisabled ? 0 : -1}
+                            onClick={canCreateAppointments && !isSlotDisabled ? () => onTimeSlotClick(selectedDate, hour) : undefined}
+                            onKeyDown={canCreateAppointments && !isSlotDisabled ? (event) => handleKeyActivate(event, () => onTimeSlotClick(selectedDate, hour)) : undefined}
+                            className={`h-16 border-b border-default-light-muted w-full transition relative block p-1 overflow-hidden ${
                               isPastDate(selectedDate)
                                 ? 'opacity-80 cursor-not-allowed bg-default-dark-light pointer-events-none'
-                                : canCreateAppointments
-                                  ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
-                                  : 'bg-default-light'
+                                : !isHourAllowed
+                                  ? 'bg-slate-100 opacity-60 cursor-not-allowed'
+                                  : canCreateAppointments
+                                    ? 'bg-default-light hover:bg-distac-primary-light cursor-pointer'
+                                    : 'bg-default-light'
                             }`}
                           >
                             <div className="absolute inset-0 pointer-events-none">
                               {slotAppointments.map((appt, index) => {
                                 const startMinutes = appt.startDateTime.getMinutes()
-                                const slotRowHeight = 64
-                                const topOffset = (startMinutes / 60) * slotRowHeight * 0.85
-                                const height = (appt.durationMinutes / 60) * slotRowHeight * 0.85
+                                const slotRowHeight = 56
+                                const topOffset = (startMinutes / 60) * slotRowHeight
+                                const height = (appt.durationMinutes / 60) * slotRowHeight
                                 const widthPercent = 100 / slotAppointments.length
                                 const leftPercent = index * widthPercent
 
@@ -462,7 +540,7 @@ export function CalendarPanelView({
                                       left: `calc(${leftPercent}% + 2px)`,
                                       width: `calc(${widthPercent}% - 4px)`,
                                       minHeight: `${Math.max(height, 14)}px`,
-                                      maxHeight: `${slotRowHeight - 8}px`,
+                                      maxHeight: `${Math.max(slotRowHeight - 8, 0)}px`,
                                       zIndex: 10 + index,
                                     }}
                                     title={appt.title || 'Agendamento'}
@@ -511,18 +589,29 @@ export function CalendarPanelView({
                 )
                 const isSelectedDay = isSameDay(cellDate, selectedDate)
                 const isPastCellDate = isPastDate(cellDate)
+                const defaultMonthHour = hours && hours.length > 0 ? hours[0] : 10
+                const handleMonthDayAction = () => {
+                  if (onTimeSlotClick && !isPastCellDate) {
+                    onTimeSlotClick(cellDate, defaultMonthHour)
+                    return
+                  }
+
+                  onSelectDate(cellDate)
+                }
 
                 return (
                   <div
                     key={`month-day-${day}`}
                     role="button"
                     tabIndex={0}
-                    onClick={() => onSelectDate(cellDate)}
-                    onKeyDown={(event) => handleKeyActivate(event, () => onSelectDate(cellDate))}
+                    onClick={handleMonthDayAction}
+                    onKeyDown={(event) => handleKeyActivate(event, handleMonthDayAction)}
                     className={[
                       'min-h-16 md:min-h-32 rounded-lg border p-1 md:p-2 text-left transition flex flex-col gap-0.5 md:gap-1 overflow-hidden',
                       isSelectedDay ? 'border-distac-primary bg-distac-primary/5' : 'border-default-light-muted',
-                      isPastCellDate ? 'bg-default-dark-light opacity-80' : 'bg-default-light-alt hover:border-distac-primary/60 hover:bg-distac-primary/5',
+                      isPastCellDate
+                        ? 'bg-default-dark-light opacity-80'
+                        : 'bg-default-light-alt hover:border-distac-primary/60 hover:bg-distac-primary/5 cursor-pointer',
                     ].filter(Boolean).join(' ')}
                   >
                     <div className="flex items-center justify-between gap-1 overflow-hidden">

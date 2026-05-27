@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '@constant/routes'
 import { chatbotModel } from './ChatbotModel'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
 export function useChatbotViewModel() {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [isScreeningFormOpen, setIsScreeningFormOpen] = useState(false)
   const [step, setStep] = useState('inicio')
@@ -13,16 +15,24 @@ export function useChatbotViewModel() {
   const [messages, setMessages] = useState([chatbotModel.initialMessage])
 
   function handleOpen() {
+    setIsCollapsed(false)
     setIsOpen(true)
   }
 
-  function handleClose() {
+  function handleMinimize() {
     setIsOpen(false)
+    setIsCollapsed(false)
+  }
+
+  function handleCollapse() {
+    setIsOpen(false)
+    setIsCollapsed(true)
   }
 
   function handleOpenScreeningForm() {
     setIsTyping(false)
     setIsOpen(false)
+    setIsCollapsed(false)
     setIsScreeningFormOpen(true)
   }
 
@@ -33,7 +43,8 @@ export function useChatbotViewModel() {
   function handleOptionClick(option) {
     setMessages((prev) => [...prev, { sender: 'user', text: option }])
 
-    const isAuthenticated = Boolean(sessionStorage.getItem('token') && sessionStorage.getItem('userId'))
+    const { token, userId } = authSessionUtil.get()
+    const isAuthenticated = Boolean(token && userId)
 
     if (option === 'Ver Imóveis') {
       setIsOpen(false)
@@ -91,13 +102,15 @@ export function useChatbotViewModel() {
 
   return {
     isOpen,
+    isCollapsed,
     isTyping,
     isScreeningFormOpen,
     messages,
     step,
     responses: chatbotModel.responses,
     handleOpen,
-    handleClose,
+    handleMinimize,
+    handleCollapse,
     handleCloseScreeningForm,
     handleOptionClick,
   }

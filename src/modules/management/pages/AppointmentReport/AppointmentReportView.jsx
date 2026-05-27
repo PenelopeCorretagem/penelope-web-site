@@ -1,10 +1,10 @@
 ﻿import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { AppointmentFormModalView } from '../Schedule/components/layout/Calendar/components/layout/AppointmentFormModal/AppointmentFormModalView'
-import { AppointmentToolsModalView } from '../Schedule/components/layout/Calendar/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
-import { ScheduleModel } from '../Schedule/ScheduleModel'
+import { AppointmentFormModalView } from '@management/components/layout/AppointmentFormModal/AppointmentFormModalView'
+import { AppointmentToolsModalView } from '@management/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
+import { CalendarModel } from '@management/models/CalendarModel'
 import { useAppointmentReportViewModel } from './useAppointmentReportViewModel'
 import { ReportView } from './components/layout/Report/ReportView'
-import { SectionView } from '@shared/components/layout/Section/SectionView'
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 
@@ -18,7 +18,7 @@ export function AppointmentReportView() {
 
     const cellDate = new Date(vm.selectedDate.getFullYear(), vm.selectedDate.getMonth(), day)
     const isCurrent = day === vm.selectedDate.getDate()
-    const isPassedDay = ScheduleModel.isPastDate(cellDate)
+    const isPassedDay = CalendarModel.isPastDate(cellDate)
     const dateKey = cellDate.toISOString().split('T')[0]
     const count = vm.appointmentsCountByDate[dateKey] || 0
 
@@ -113,7 +113,7 @@ export function AppointmentReportView() {
   ] : []
 
   return (
-    <SectionView className="flex-col !gap-4 md:!gap-6 !p-4 md:!p-6 bg-default-light-alt xl:h-full relative">
+    <PageManagementView className="flex-col !gap-4 md:!gap-6 !p-4 md:!p-6 bg-default-light-alt xl:h-full relative">
       <ReportView
         vm={vm}
         filterConfigs={vm.filterConfigs}
@@ -185,6 +185,6 @@ export function AppointmentReportView() {
           preselectedEstateReference={vm.preselectedEstateReference}
         />
       )}
-    </SectionView>
+    </PageManagementView>
   )
 }

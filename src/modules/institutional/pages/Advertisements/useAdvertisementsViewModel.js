@@ -28,21 +28,21 @@ export const useAdvertisementsViewModel = ({ onError }) => {
       // Busca cada categoria em paralelo
       const [lancamentosData, disponiveisData, emObrasData] = await Promise.all([
         getAllAdvertisements({
-          type: ESTATE_TYPES['LANCAMENTO'].key,
+          type: ESTATE_TYPES.LANCAMENTO.apiValue,
           active: true
         }),
         getAllAdvertisements({
-          type: ESTATE_TYPES['DISPONIVEL'].key,
+          type: ESTATE_TYPES.DISPONIVEL.apiValue,
           active: true
         }),
         getAllAdvertisements({
-          type: ESTATE_TYPES['EM_OBRAS'].key,
+          type: ESTATE_TYPES.EM_OBRAS.apiValue,
           active: true
         })
       ])
 
       console.log('Fetched Advertisements:', { lancamentosData, disponiveisData, emObrasData }) // Log para depuração
-      
+
 
       model.setLancamentos(lancamentosData)
       model.setDisponiveis(disponiveisData)

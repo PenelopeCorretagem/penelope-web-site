@@ -1,11 +1,9 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { CalendarView as SharedCalendarView } from '@shared/components/ui/Calendar/CalendarView'
 import { STATUS_LABELS } from '../../../../../../ScheduleModel'
 
 export function CalendarRightSidebarView({
-  currentMonthName,
   weekdayLabels,
-  calendarDays,
   selectedDate,
   appointmentsCountByDate,
   monthlyAppointmentsByStatus,
@@ -15,49 +13,17 @@ export function CalendarRightSidebarView({
   isPastDate,
   isSameDay,
 }) {
-  const renderMiniCalendarDay = (day, index) => {
-    if (!day) {
-      return <div key={`empty-${index}`} className="bg-default-light-muted" />
-    }
-
-    const cellDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day)
-    const isCurrent = day === selectedDate.getDate()
-    const isPassedDay = isPastDate(cellDate)
-    const dateKey = cellDate.toISOString().split('T')[0]
-    const count = appointmentsCountByDate[dateKey] || 0
-
-    return (
-      <button
-        key={`day-${day}`}
-        type="button"
-        onClick={() => onSelectDate(cellDate)}
-        className={`aspect-square rounded-md text-sm font-medium transition relative ${
-          isCurrent
-            ? 'bg-distac-primary text-default-light'
-            : isPassedDay
-              ? 'bg-default-light-muted text-default-dark-light opacity-60'
-              : 'bg-default-light-alt text-default-dark hover:bg-default-light-muted'
-        }`}
-      >
-        <div className="relative h-full flex items-center justify-center">
-          {day}
-          {count > 0 && !isPassedDay && (
-            <div className="absolute top-0 right-0 w-2 h-2 bg-distac-primary rounded-full" />
-          )}
-        </div>
-      </button>
-    )
-  }
+  const isToday = selectedDate instanceof Date && isSameDay(selectedDate, new Date())
 
   return (
     <aside className="w-full xl:w-64 flex-shrink-0 bg-default-light rounded-lg shadow p-4 overflow-y-auto flex flex-col xl:h-full xl:min-h-0">
       <div className="hidden xl:block mb-4">
         <div className="flex items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-default-dark">Navegação</h3>
+          <h3 className="text-sm font-semibold text-default-dark uppercase">Navegação</h3>
           <ButtonView
             type="button"
             onClick={onGoToToday}
-            color="brown"
+            color={isToday ? 'pink' : 'brown'}
             width="fit"
             shape="rectangle"
             className="!px-3 !py-2 !text-xs !font-medium"
@@ -66,35 +32,20 @@ export function CalendarRightSidebarView({
           </ButtonView>
         </div>
 
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-default-dark">{currentMonthName}</h3>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => onChangeMonth(-1)}
-              className="p-1 hover:bg-default-light-muted rounded"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => onChangeMonth(1)}
-              className="p-1 hover:bg-default-light-muted rounded"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted mb-2">
-          {weekdayLabels.map(label => (
-            <div key={label}>{label}</div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {calendarDays.map((day, index) => renderMiniCalendarDay(day, index))}
-        </div>
+        <SharedCalendarView
+          selectedDate={selectedDate}
+          monthDate={selectedDate}
+          onSelectDate={onSelectDate}
+          onChangeMonth={onChangeMonth}
+          appointmentCountByDate={appointmentsCountByDate}
+          isPastDate={isPastDate}
+          allowPastDates={true}
+          allowOtherMonthDates={true}
+          isSameDay={isSameDay}
+          weekDayLabels={weekdayLabels}
+          className="bg-default-light !p-2"
+          cellHeight="h-6"
+        />
       </div>
 
       <div className="xl:border-t pt-2 xl:pt-4 space-y-3">

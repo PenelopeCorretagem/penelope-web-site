@@ -1,11 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 
 /**
- * useScheduleUIState.js
- * Hook para gerenciar estado da interface (modais, abas, confirmações)
+ * useUIState.js
+ * Hook para gerenciar estado da interface de agendamentos.
  */
 
-export function useScheduleUIState() {
+export function useUIState() {
   const [viewMode, setViewMode] = useState('week')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModalDate, setSelectedModalDate] = useState(new Date())

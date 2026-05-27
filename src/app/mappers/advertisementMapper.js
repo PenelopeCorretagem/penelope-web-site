@@ -1,5 +1,5 @@
 import { IMAGE_TYPE_BY_DESCRIPTION } from '@constant/imageTypes'
-import { getEstateTypeByFriendlyName, getEstateTypeByKey } from '@constant/estateTypes'
+import { getEstateTypeByApiValue } from '@constant/estateTypes'
 import { Advertisement } from '@dtos/Advertisement'
 import { User } from '@dtos/User'
 import { Address } from '@dtos/Address'
@@ -93,8 +93,11 @@ export class AdvertisementMapper {
     const amenitiesSource = data.estate?.amenities ?? data.estate?.amenitiesIds ?? []
 
     const estateTypeValue = data.estate?.type
-    const estateType = getEstateTypeByFriendlyName(estateTypeValue)
-      || getEstateTypeByKey(String(estateTypeValue || '').toUpperCase())
+    const estateType = getEstateTypeByApiValue(estateTypeValue)
+
+    if (estateTypeValue !== null && estateTypeValue !== undefined && !estateType) {
+      throw new Error(`Tipo de imóvel inválido recebido da API: ${estateTypeValue}`)
+    }
 
     const estate = data.estate
       ? new Estate({
@@ -209,7 +212,7 @@ export class AdvertisementMapper {
           description: estate.description,
           area: estate.area ?? 0,
           numberOfRooms: estate.numberOfRooms ?? 0,
-          type: estate.type?.key || estate.type?.description || estate.type || null,
+          type: estate.type?.apiValue || estate.type?.key || estate.type?.description || estate.type || null,
           address: estateAddress
             ? {
               id: estateAddress.id ?? null,

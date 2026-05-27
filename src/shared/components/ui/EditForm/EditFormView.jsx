@@ -52,7 +52,7 @@ export function EditFormView({
   const visibleFields = vm.fields.filter(shouldShowField)
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-6 p-1">
       {/* Header */}
       <div className="flex items-center justify-center md:justify-between">
         {vm.title && (

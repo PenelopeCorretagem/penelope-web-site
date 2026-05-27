@@ -1,4 +1,4 @@
-import { STATUS_LABELS } from '../../../../../../ScheduleModel'
+import { STATUS_LABELS } from '@management/models/CalendarModel'
 
 export function AppointmentToolsModalView({
   appointment,

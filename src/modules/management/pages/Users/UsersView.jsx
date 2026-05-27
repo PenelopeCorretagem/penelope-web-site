@@ -1,13 +1,13 @@
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { InputView } from '@shared/components/ui/Input/InputView'
-import { SelectView } from '@shared/components/ui/Select/SelectView'
+import { FilterView } from '@shared/components/layout/Filter/FilterView'
 import { useUsersViewModel } from './useUsersViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { UsersList } from './components/UsersList/UsersList'
-import { ArrowUpAZ, ArrowDownAZ, ArrowUpDown, Plus } from 'lucide-react'
+import { ACCESS_LEVEL } from '@constant/accessLevels'
+import { Plus } from 'lucide-react'
 
 export function UsersView() {
   const {
@@ -15,25 +15,15 @@ export function UsersView() {
     loading,
     error,
     alertConfig,
-    searchTerm,
     userTypeFilter,
-    sortOrder,
     handleEdit,
     handleAdd,
     handleDelete,
     handleCloseAlert,
-    handleSearchChange,
-    handleUserTypeFilterChange,
-    handleSortOrderChange
+    handleFiltersChange
   } = useUsersViewModel()
 
   const headerHeight = useHeaderHeight()
-
-  const getSortIcon = () => {
-    if (sortOrder === 'asc') return <ArrowUpAZ size={16} />
-    if (sortOrder === 'desc') return <ArrowDownAZ size={16} />
-    return <ArrowUpDown size={16} />
-  }
 
   if (loading) {
     return (
@@ -61,70 +51,58 @@ export function UsersView() {
 
   return (
     <div style={{ '--header-height': `${headerHeight}px` }}>
-      <SectionView
-        className="flex flex-col subsection h-[calc(100vh-var(--header-height))] min-h-[calc(100vh-var(--header-height))]  max-h-[calc(100vh-var(--header-height))] overflow-hidden !gap-subsection md:!gap-subsection-md"
+      <PageManagementView
+        iconName="Users"
+        title="Usuários"
+        className="flex flex-col subsection h-[calc(100vh-var !gap-subsection md:!gap-subsection-md"
+        headerChildren={(
+          <>
+            <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end justify-between w-full">
+              <div className="flex-1">
+                <FilterView
+                  searchPlaceholder="Buscar por nome ou email..."
+                  filterConfigs={[
+                    {
+                      key: 'userTypeFilter',
+                      options: [
+                        { value: 'TODOS', label: 'Todos os usuários' },
+                        { value: ACCESS_LEVEL.ADMINISTRADOR, label: 'Administradores' },
+                        { value: ACCESS_LEVEL.CORRETOR, label: 'Corretores' },
+                        { value: ACCESS_LEVEL.CLIENTE, label: 'Clientes' }
+                      ],
+                      width: 'fit',
+                      variant: 'brown',
+                      shape: 'square',
+                      customValue: userTypeFilter,
+                      customOnChange: (value) => handleFiltersChange('userTypeFilter', value)
+                    }
+                  ]}
+                  defaultFilters={{ userTypeFilter: 'TODOS' }}
+                  defaultSortOrder="none"
+                  onFiltersChange={handleFiltersChange}
+                  onReset={() => handleFiltersChange('userTypeFilter', 'TODOS')}
+                  hasExternalActiveFilters={userTypeFilter !== 'TODOS'}
+                  showSortButton={true}
+                  hideSearch={false}
+                />
+              </div>
+
+              <div className="w-full md:w-fit">
+                <ButtonView
+                  type="button"
+                  width="fit"
+                  onClick={handleAdd}
+                  color="pink"
+                  className="whitespace-nowrap"
+                >
+                  <Plus size={14} className="mr-2" />
+                  ADICIONAR USUÁRIO
+                </ButtonView>
+              </div>
+            </div>
+          </>
+        )}
       >
-
-
-        <div className="flex w-full items-center justify-between flex-shrink-0">
-          <HeadingView level={2} className="text-distac-primary flex-shrink-0">
-            Usuários
-          </HeadingView>
-
-          <ButtonView
-            type="button"
-            width="fit"
-            onClick={handleAdd}
-            color="pink"
-          >
-            <Plus size={16} className="mr-2" />
-            ADICIONAR USUÁRIO
-          </ButtonView>
-        </div>
-
-        <div className="flex flex-col gap-card md:gap-card-md flex-shrink-0">
-          <div className="flex flex-col md:flex-row gap-card md:gap-card-md">
-            <div className="flex-1">
-              <InputView
-                type="text"
-                placeholder="Buscar por nome ou email..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                hasLabel={false}
-                isActive={true}
-              />
-            </div>
-            <div className="w-full md:w-64">
-              <SelectView
-                value={userTypeFilter}
-                name="userTypeFilter"
-                id="userTypeFilter"
-                options={[
-                  { value: 'TODOS', label: 'Todos os usuários' },
-                  { value: 'ADMINISTRADOR', label: 'Administradores' },
-                  { value: 'CLIENTE', label: 'Clientes' }
-                ]}
-                width="full"
-                variant="brown"
-                shape="square"
-                hasLabel={false}
-                onChange={(e) => handleUserTypeFilterChange(e.target.value)}
-              />
-            </div>
-            <div className="w-full md:w-fit">
-              <ButtonView
-                type="button"
-                width="fit"
-                color={sortOrder !== 'none' ? 'pink' : 'brown'}
-                onClick={handleSortOrderChange}
-                shape="square"
-                title={sortOrder === 'asc' ? 'Ordenação crescente (A → Z)' : sortOrder === 'desc' ? 'Ordenação decrescente (Z → A)' : 'Sem ordenação'}
-              >
-                {getSortIcon()}
-              </ButtonView>
-            </div>
-          </div>
-        </div>
 
         <UsersList
           users={users}
@@ -139,7 +117,7 @@ export function UsersView() {
           message={alertConfig?.message}
           onClose={handleCloseAlert}
         />
-      </SectionView>
+      </PageManagementView>
     </div>
   )
 }

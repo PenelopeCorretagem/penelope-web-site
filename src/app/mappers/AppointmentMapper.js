@@ -12,26 +12,27 @@ export class AppointmentMapper {
 
     return new Appointment({
       id: apiData.id,
-      client: apiData.client
-        ? { id: apiData.client.id, name: apiData.client.name }
-        : apiData.clientId
-          ? { id: apiData.clientId, name: `Cliente #${apiData.clientId}` }
-          : null,
-      estateAgent: apiData.estateAgent
-        ? { id: apiData.estateAgent.id, name: apiData.estateAgent.name }
-        : apiData.estateAgentId
-          ? { id: apiData.estateAgentId, name: `Corretor #${apiData.estateAgentId}` }
-          : null,
-      estate: apiData.estate
-        ? { id: apiData.estate.id, title: apiData.estate.title }
-        : apiData.estateId
-          ? { id: apiData.estateId, title: `Imóvel #${apiData.estateId}` }
-          : null,
+      client: apiData.clientId
+        ? { id: apiData.clientId, name: `Cliente #${apiData.clientId}` }
+        : null,
+      estateAgent: apiData.estateAgentId
+        ? { id: apiData.estateAgentId, name: `Corretor #${apiData.estateAgentId}` }
+        : null,
+      estate: apiData.estateId
+        ? { id: apiData.estateId, title: `Imóvel #${apiData.estateId}` }
+        : null,
+      eventTypeId: apiData.eventTypeId && typeof apiData.eventTypeId === 'object'
+        ? apiData.eventTypeId.id
+        : apiData.eventTypeId,
       durationMinutes: apiData.durationMinutes,
       startDateTime: apiData.startDateTime,
       endDateTime: apiData.endDateTime,
       status: apiData.status,
-      calBookingId: apiData.calBookingId || apiData.bookingUid,
+      bookingUid: apiData.bookingUid || apiData.calBookingId,
+      attendeeName: apiData.attendeeName || apiData.attendee?.name || '',
+      attendeeEmail: apiData.attendeeEmail || apiData.attendee?.email || '',
+      notes: apiData.notes || '',
+      reason: apiData.reason || '',
       createdAt: apiData.createdAt,
       updatedAt: apiData.updatedAt,
     })

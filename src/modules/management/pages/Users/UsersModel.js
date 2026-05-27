@@ -1,3 +1,5 @@
+import { normalizeAccessLevel } from '@constant/accessLevels'
+
 /**
  * Modelo de dados para gerenciamento de usuários
  */
@@ -105,11 +107,12 @@ export class UsersModel {
         type: 'select',
         label: 'Nível de Acesso',
         options: [
+          { value: 'CORRETOR', label: 'Corretor' },
           { value: 'ADMINISTRADOR', label: 'Administrador' },
           { value: 'CLIENTE', label: 'Cliente' }
         ],
         required: true,
-        defaultValue: user?.accessLevel || 'CLIENTE'
+        defaultValue: normalizeAccessLevel(user?.accessLevel || 'CLIENTE')
       },
       {
         name: 'creci',
@@ -133,7 +136,7 @@ export class UsersModel {
    * Filtra usuários por nome e tipo
    */
   filterUsers(searchTerm = '', userType = 'TODOS', sortOrder = 'none') {
-
+    const normalizedUserType = userType !== 'TODOS' ? normalizeAccessLevel(userType) : null
     let filtered = [...this.users]
 
     // Filtro por nome ou email
@@ -146,8 +149,8 @@ export class UsersModel {
     }
 
     // Filtro por tipo de usuário
-    if (userType !== 'TODOS') {
-      filtered = filtered.filter(user => user.accessLevel === userType)
+    if (normalizedUserType) {
+      filtered = filtered.filter(user => normalizeAccessLevel(user.accessLevel) === normalizedUserType)
     }
 
     // Ordenação alfabética

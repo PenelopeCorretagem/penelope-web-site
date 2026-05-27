@@ -21,16 +21,12 @@ export class AmenitiesModel {
   #totalPages = 0
   #searchTerm = ''
   #sortOrder = ''
-  #initialFilter = ''
 
   get searchTerm() { return this.#searchTerm }
   set searchTerm(value) { this.#searchTerm = value ?? '' }
 
   get sortOrder() { return this.#sortOrder }
   set sortOrder(value) { this.#sortOrder = value ?? '' }
-
-  get initialFilter() { return this.#initialFilter }
-  set initialFilter(value) { this.#initialFilter = value ?? '' }
 
   get amenities() {
     return this.#amenities
@@ -109,7 +105,7 @@ export class AmenitiesModel {
     this.#pageSize = pageSize
 
     try {
-      const response = await amenitiesService.getAllAmenities(page, pageSize, this.#searchTerm, this.#sortOrder, this.#initialFilter)
+      const response = await amenitiesService.getAllAmenities(page, pageSize, this.#searchTerm, this.#sortOrder)
 
       // Assumindo que a API retorna um objeto com content e pageable
       if (response.content) {

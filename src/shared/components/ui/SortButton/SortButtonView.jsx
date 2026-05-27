@@ -30,11 +30,11 @@ export function SortButtonView({
   const getSortIcon = () => {
     switch (sortOrder) {
       case 'ascending':
-        return <ArrowUpAZ size={16} />
+        return <ArrowDownAZ size={14} />
       case 'descending':
-        return <ArrowDownAZ size={16} />
+        return <ArrowUpAZ size={14} />
       default:
-        return <ArrowUpDown size={16} />
+        return <ArrowUpDown size={14} />
     }
   }
 

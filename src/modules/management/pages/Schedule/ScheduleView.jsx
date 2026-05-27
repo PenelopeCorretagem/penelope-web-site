@@ -1,103 +1,33 @@
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { AppointmentFormModalView } from './components/layout/Calendar/components/layout/AppointmentFormModal/AppointmentFormModalView'
+import { AppointmentFormModalView } from '@management/components/layout/AppointmentFormModal/AppointmentFormModalView'
 import { ScheduleModel } from './ScheduleModel'
 import { useScheduleViewModel } from './useScheduleViewModel'
 import { CalendarView } from './components/layout/Calendar/CalendarView'
-import { AppointmentToolsModalView } from './components/layout/Calendar/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
-import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { CalendarView as SharedCalendarView } from '@shared/components/ui/Calendar/CalendarView'
+import { AppointmentToolsModalView } from '@management/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 
 export function ScheduleView() {
   const vm = useScheduleViewModel({ defaultDisplayMode: 'calendar', availableDisplayModesOverride: ['calendar'] })
 
-  const renderMiniCalendarDay = (day, index) => {
-    if (!day) {
-      return <div key={`empty-${index}`} className="bg-default-light-muted" />
-    }
-
-    const cellDate = new Date(vm.selectedDate.getFullYear(), vm.selectedDate.getMonth(), day)
-    const isCurrent = day === vm.selectedDate.getDate()
-    const isPassedDay = ScheduleModel.isPastDate(cellDate)
-    const dateKey = cellDate.toISOString().split('T')[0]
-    const count = vm.appointmentsCountByDate[dateKey] || 0
-
-    return (
-      <button
-        key={`day-${day}`}
-        type="button"
-        onClick={() => vm.setSelectedDate(cellDate)}
-        className={`aspect-square rounded-md text-sm font-medium transition relative ${
-          isCurrent
-            ? 'bg-distac-primary text-default-light'
-            : isPassedDay
-              ? 'bg-default-light-muted opacity-60'
-              : 'bg-default-light-alt hover:bg-default-light-muted'
-        }`}
-      >
-        <div className="relative h-full flex items-center justify-center">
-          {day}
-          {count > 0 && !isPassedDay && (
-            <div className="absolute top-0 right-0 w-2 h-2 bg-distac-primary rounded-full" />
-          )}
-        </div>
-      </button>
-    )
-  }
-
   const mobileExpandedContent = (
     <div className="flex flex-col gap-4 w-full bg-default-light rounded-lg border border-default-light-muted p-4 shadow-sm mt-2 xl:hidden">
-      {/* Mini Calendar Mobile */}
-      <div>
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-default-dark">Navegação</h3>
-          <ButtonView
-            type="button"
-            onClick={vm.handleGoToToday}
-            color="brown"
-            width="fit"
-            shape="rectangle"
-            className="!px-3 !py-2 !text-xs !font-medium"
-          >
-            Hoje
-          </ButtonView>
-        </div>
-
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-default-dark">{vm.currentMonthName}</h3>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => vm.handleChangeMonth(-1)}
-              className="p-1 hover:bg-default-light-muted rounded"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => vm.handleChangeMonth(1)}
-              className="p-1 hover:bg-default-light-muted rounded"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted mb-2">
-          {vm.weekdayLabels.map(label => (
-            <div key={label}>{label}</div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-1">
-          {vm.calendarDays.map((day, index) => renderMiniCalendarDay(day, index))}
-        </div>
-      </div>
+      <SharedCalendarView
+        selectedDate={vm.selectedDate}
+        monthDate={vm.selectedDate}
+        onSelectDate={vm.setSelectedDate}
+        onChangeMonth={vm.handleChangeMonth}
+        appointmentCountByDate={vm.appointmentsCountByDate}
+        isPastDate={ScheduleModel.isPastDate}
+        isSameDay={ScheduleModel.isSameDay}
+        weekDayLabels={vm.weekdayLabels}
+        className="bg-default-light"
+      />
     </div>
   )
 
   return (
-    <SectionView className="flex-col !gap-4 md:!gap-6 !p-4 md:!p-6 bg-default-light-alt xl:h-full relative">
+    <PageManagementView className="flex-col !gap-4 md:!gap-6 !p-4 md:!p-6 bg-default-light-alt xl:h-full relative">
       <CalendarView
         vm={vm}
         filterConfigs={vm.filterConfigs}
@@ -161,6 +91,7 @@ export function ScheduleView() {
         appointment={vm.selectedAppointmentForTools}
         busyAppointmentId={vm.busyAppointmentId}
         canManageAppointments={vm.canManageAppointments}
+        canDeleteAppointments={vm.canDeleteAppointments}
         isClientUser={vm.isClientUser}
         onClose={vm.handleCloseAppointmentTools}
         onReschedule={vm.handleRescheduleFromTools}
@@ -170,7 +101,7 @@ export function ScheduleView() {
         onDelete={vm.handleDeleteFromTools}
       />
 
-      {vm.canManageAppointments && (
+      {vm.canCreateAppointments && (
         <AppointmentFormModalView
           isOpen={vm.isModalOpen}
           onClose={vm.handleModalClose}
@@ -183,6 +114,6 @@ export function ScheduleView() {
           preselectedEstateReference={vm.preselectedEstateReference}
         />
       )}
-    </SectionView>
+    </PageManagementView>
   )
 }

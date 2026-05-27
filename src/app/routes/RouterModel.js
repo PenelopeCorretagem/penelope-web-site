@@ -41,7 +41,7 @@ export class RouterModel {
         ROUTES.PROFILE.path,
         ROUTES.ACCOUNT.path,
       ],
-      adminRequiredRoutes: [
+      managementRoutes: [
         ROUTES.ADMIN.path,
         ROUTES.ADMIN_PROFILE.path,
         ROUTES.ADMIN_ACCOUNT.path,
@@ -52,6 +52,8 @@ export class RouterModel {
         ROUTES.ADMIN_PROPERTIES_CONFIG.path,
         ROUTES.ADMIN_AMENITIES.path,
         ROUTES.ADMIN_SCHEDULE.path,
+      ],
+      adminOnlyRoutes: [
         ROUTES.SCHEDULE_REPORT.path,
         ROUTES.SCHEDULE_REPORT_DASHBOARD.path,
         ROUTES.SCHEDULE_REPORT_RECORDS.path,
@@ -136,5 +138,6 @@ export class RouterModel {
   // ===== Permissões =====
   getPublicRoutes() { return [...this.routeConfig.publicRoutes] }
   getAuthRequiredRoutes() { return [...this.routeConfig.authRequiredRoutes] }
-  getAdminRequiredRoutes() { return [...this.routeConfig.adminRequiredRoutes] }
+  getManagementRoutes() { return [...this.routeConfig.managementRoutes] }
+  getAdminOnlyRoutes() { return [...this.routeConfig.adminOnlyRoutes] }
 }

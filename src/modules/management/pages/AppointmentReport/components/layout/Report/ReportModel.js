@@ -1,3 +1,5 @@
+import { getEstateTypeByApiValue, getEstateTypeByKey } from '@constant/estateTypes'
+
 /**
  * ReportModel.js
  * Modelo de negócio para relatórios de agendamentos
@@ -129,7 +131,7 @@ export class ReportModel {
     }
 
     appointments.forEach(appointment => {
-      if (distribution.hasOwnProperty(appointment.status)) {
+      if (Object.prototype.hasOwnProperty.call(distribution, appointment.status)) {
         distribution[appointment.status] += 1
       }
     })
@@ -142,17 +144,19 @@ export class ReportModel {
    */
   getAppointmentsByEstate() {
     const appointments = this.appointments
+    if (appointments.length === 0) return []
+
     const estateMap = new Map()
 
     appointments.forEach(appointment => {
-      const estateTitle = appointment.estateTitle || 'Sem informação'
+      const estateTitle = appointment.estateTitle || appointment.title || 'Sem informação'
       estateMap.set(estateTitle, (estateMap.get(estateTitle) || 0) + 1)
     })
 
     return Array.from(estateMap.entries())
       .map(([estate, count]) => ({ estate, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10) // Top 10 imóveis
+      .slice(0, 10)
   }
 
   /**
@@ -160,11 +164,28 @@ export class ReportModel {
    */
   getAppointmentsByEstateType() {
     const appointments = this.appointments
+    if (appointments.length === 0) return []
+
     const typeMap = new Map()
 
     appointments.forEach(appointment => {
-      const typeKey = appointment.estateTypeKey || 'DESCONHECIDO'
-      const typeLabel = this.#getEstateTypeLabel(typeKey)
+      const typeLabel = appointment.estateTypeFriendlyName
+        || getEstateTypeByKey(appointment.estateTypeKey)?.friendlyName
+        || getEstateTypeByApiValue(appointment.estateTypeKey)?.friendlyName
+        || appointment.estateTypeKey
+        || 'Desconhecido'
+
+      if (typeLabel === 'Desconhecido') {
+        // eslint-disable-next-line no-console
+        console.log('[DEBUG][AppointmentReport] unknown estate type label', {
+          appointmentId: appointment.id,
+          estateTypeKey: appointment.estateTypeKey,
+          estateTypeFriendlyName: appointment.estateTypeFriendlyName,
+          title: appointment.title,
+          estateTitle: appointment.estateTitle,
+          rawAppointment: appointment,
+        })
+      }
       typeMap.set(typeLabel, (typeMap.get(typeLabel) || 0) + 1)
     })
 
@@ -174,25 +195,29 @@ export class ReportModel {
   }
 
   /**
-   * Retorna distribuição de agendamentos por dia da semana
+   * Retorna distribuição de agendamentos por dia da semana.
+   * Retorna [] quando não há appointments — evita renderizar gráfico vazio.
+   * Retorna apenas os dias que têm ao menos 1 agendamento.
    */
   getAppointmentsByWeekDay() {
     const appointments = this.appointments
+    if (appointments.length === 0) return []
+
     const WEEKDAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
     const weekDayMap = new Map()
 
     appointments.forEach(appointment => {
       const appointmentDate = new Date(appointment.startDateTime)
       if (Number.isNaN(appointmentDate.getTime())) return
-
       const dayOfWeek = appointmentDate.getDay()
       weekDayMap.set(dayOfWeek, (weekDayMap.get(dayOfWeek) || 0) + 1)
     })
 
-    return Array.from({ length: 7 }, (_, index) => ({
-      day: WEEKDAY_NAMES[index],
-      count: weekDayMap.get(index) || 0,
-    }))
+    // Só inclui dias com ao menos 1 agendamento, ordenados Dom→Sab
+    return Array.from({ length: 7 }, (_, index) => {
+      const count = weekDayMap.get(index) || 0
+      return count > 0 ? { day: WEEKDAY_NAMES[index], count } : null
+    }).filter(Boolean)
   }
 
   /**
@@ -200,6 +225,8 @@ export class ReportModel {
    */
   getTimeSeriesData() {
     const appointments = this.appointments
+    if (appointments.length === 0) return []
+
     const timeSeriesMap = new Map()
 
     appointments.forEach(appointment => {
@@ -219,6 +246,8 @@ export class ReportModel {
    */
   getTimeSeriesDataByStatus() {
     const appointments = this.appointments
+    if (appointments.length === 0) return []
+
     const timeSeriesMap = new Map()
 
     appointments.forEach(appointment => {
@@ -230,19 +259,16 @@ export class ReportModel {
       }
 
       const data = timeSeriesMap.get(key)
-      if (data.hasOwnProperty(status)) {
+      if (Object.prototype.hasOwnProperty.call(data, status)) {
         data[status] += 1
       }
     })
 
     const sortedKeys = Array.from(timeSeriesMap.keys()).sort()
-    return sortedKeys.map(key => {
-      const statusData = timeSeriesMap.get(key)
-      return {
-        period: this.#formatDateKeyByPeriod(key),
-        ...statusData,
-      }
-    })
+    return sortedKeys.map(key => ({
+      period: this.#formatDateKeyByPeriod(key),
+      ...timeSeriesMap.get(key),
+    }))
   }
 
   /**
@@ -252,30 +278,18 @@ export class ReportModel {
     return this.appointments.length
   }
 
-  /**
-   * Retorna total de agendados (status PENDING)
-   */
   getTotalPending() {
     return this.appointments.filter(a => a.status === 'PENDING').length
   }
 
-  /**
-   * Retorna total de confirmados
-   */
   getTotalConfirmed() {
     return this.appointments.filter(a => a.status === 'CONFIRMED').length
   }
 
-  /**
-   * Retorna total de concluídos
-   */
   getTotalConcluded() {
     return this.appointments.filter(a => a.status === 'CONCLUDED').length
   }
 
-  /**
-   * Retorna total de cancelados
-   */
   getTotalCancelled() {
     return this.appointments.filter(a => a.status === 'CANCELLED').length
   }
@@ -340,24 +354,6 @@ export class ReportModel {
     }
   }
 
-  /**
-   * Retorna label legível para tipo de imóvel
-   * @private
-   */
-  #getEstateTypeLabel(typeKey) {
-    const labels = {
-      APARTAMENTO: 'Apartamento',
-      CASA: 'Casa',
-      TERRENO: 'Terreno',
-      COMERCIAL: 'Comercial',
-      SALA: 'Sala',
-      GARAGEM: 'Garagem',
-      CHACARA: 'Chácara',
-      SITIO: 'Sítio',
-      LOJA: 'Loja',
-    }
-    return labels[typeKey] || typeKey
-  }
 }
 
 export default ReportModel

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 /**
@@ -65,15 +65,16 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
       'rounded-sm',
       'transition-colors',
       'duration-200',
-      'text-form-control',
-      'md:text-form-control-md',
+      'text-input-control',
+      'md:text-input-control-md',
+      'h-fit'
     )
 
     // Placeholder
     classes.push(
       'placeholder:text-current',
-      'placeholder:text-form-control',
-      'placeholder:md:text-form-control-md',
+      'placeholder:text-input-control',
+      'placeholder:md:text-input-control-md',
       'placeholder:leading-none',
       'placeholder:font-default',
       'placeholder:p-0',
@@ -81,7 +82,8 @@ function getInputClasses({ isActive, disabled, readOnly, hasErrors, withToggle, 
       'text-center',
       'md:text-left',
       'placeholder:text-center',
-      'md:placeholder:text-left'
+      'md:placeholder:text-left',
+      'h-fit'
     )
 
     // Estados
@@ -135,11 +137,12 @@ function getLabelClasses({ hasErrors, required }) {
   classes.push(
     'font-semibold',
     'font-default',
-    'text-form-control',
+    'text-input-control',
     'leading-none',
-    'md:text-form-control-md',
+    'md:text-input-control-md',
     'text-center',
     'md:text-left',
+    'h-fit'
   )
 
   // Estado de erro
@@ -187,6 +190,11 @@ export function InputView({
 }) {
   const [showPassword, setShowPassword] = useState(false)
   const [previousValue, setPreviousValue] = useState(value)
+  const [inputId] = useState(() => id || `input-${Math.random().toString(36).substr(2, 9)}`)
+
+  useEffect(() => {
+    setPreviousValue(value)
+  }, [value])
 
   // Determina o tipo real do input baseado no toggle
   const actualType = (type === 'password' && showPassword) ? 'text' : type
@@ -194,7 +202,6 @@ export function InputView({
   const isCheckbox = type === 'checkbox'
 
   // IDs e nomes
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
   const inputName = otherProps.name || inputId
   const label = children || ''
 
@@ -277,7 +284,7 @@ export function InputView({
             : 'bg-distac-primary-light'
         }`}
         >
-          <label className={`flex gap-2 w-full ${checkboxCentered ? 'flex-col md:flex-row items-center justify-center text-center gap-3 md:gap-2' : 'items-start'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <label className={`flex gap-2 w-full ${checkboxCentered ? 'flex-col md:flex-row items-center justify-center text-center md:gap-3' : 'items-start'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               className={inputClasses}
               type="checkbox"
@@ -290,7 +297,7 @@ export function InputView({
               onClick={onClick}
               {...htmlProps}
             />
-            <span className={`text-[12px] md:text-[16px] text-default-dark ${checkboxCentered ? 'w-full max-w-none md:max-w-4xl text-center leading-relaxed' : 'flex-1'}`}>
+            <span className={`text-default-dark ${checkboxCentered ? 'w-full max-w-none md:max-w-4xl text-center leading-relaxed' : 'flex-1'}`}>
               {placeholder || label}
               {link && (
                 <>
@@ -345,7 +352,7 @@ export function InputView({
             aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         )}
       </div>

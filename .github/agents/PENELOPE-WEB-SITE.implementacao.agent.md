@@ -1,5 +1,5 @@
 ---
-description: "Use when: implementando funcionalidades, criando componentes, páginas, entidades, APIs, mappers, services ou hooks no projeto PENELOPE-WEB-SITE. Especialista em React 18, Tailwind CSS 4, MVVM, Vite 7."
+description: "Use when: implementando funcionalidades, criando componentes, páginas, entidades, APIs, mappers, services ou hooks no projeto PENELOPE-WEB-SITE. Inclui UX de carregamento com skeleton loading e estados de dados assíncronos. Especialista em React 18, Tailwind CSS 4, MVVM, Vite 7."
 tools: [read, edit, search, execute, todo, agent]
 ---
 

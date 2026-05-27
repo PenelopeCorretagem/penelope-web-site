@@ -13,6 +13,7 @@ export class EventTypeMapper {
       minimumBookingNotice: data.minimumBookingNotice,
       hidden: data.hidden,
       estateId: data.estateId,
+      createdAt: data.createdAt,
     })
   }
 

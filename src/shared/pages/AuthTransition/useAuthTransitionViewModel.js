@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
 /**
  * useAuthTransitionViewModel - Gerencia lógica de transição de autenticação
@@ -51,8 +52,9 @@ export function useAuthTransitionViewModel() {
    */
   useEffect(() => {
     const handleLogout = () => {
-      const hadToken = sessionStorage.getItem('token')
-      
+      const { token } = authSessionUtil.get()
+      const hadToken = token
+
       // Se tinha token e agora não tem, é logout
       if (!hadToken && sessionStorage.getItem('hadToken') === 'true') {
         showTransition('logout', 'Encerrando sua sessão...')
@@ -62,7 +64,7 @@ export function useAuthTransitionViewModel() {
     }
 
     // Verifica no carregamento inicial
-    const initialToken = sessionStorage.getItem('token')
+    const { token: initialToken } = authSessionUtil.get()
     sessionStorage.setItem('hadToken', initialToken ? 'true' : 'false')
 
     // Escuta evento customizado de logout

@@ -80,7 +80,8 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
     'text-button',
     'md:text-button-md',
     'transition-all',
-    'duration-200'
+    'duration-200',
+    'h-fit'
   )
 
   // Gap interno
@@ -93,7 +94,7 @@ function getButtonClasses({ color, active, disabled, width, shape, className }) 
     classes.push('p-[var(--padding-button-square)]', 'md:p-[var(--padding-button-square-md)]')
   } else {
     // rectangle (default)
-    classes.push('p-[var(--padding-button-rectangle)]', 'md:p-[var(--padding-button-rectangle-md)]')
+    classes.push('p-button-rectangle', 'md:p-button-rectangle-md')
   }
 
   // Cor (base, hover e active)

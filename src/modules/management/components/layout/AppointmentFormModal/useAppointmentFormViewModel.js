@@ -6,10 +6,16 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AppointmentFormModel } from './AppointmentFormModel'
 import { getAllAdvertisements } from '@api-penelopec/advertisementApi'
-import { getUserById } from '@api-penelopec/userApi'
+import { getAllUsers, getUserById } from '@service-penelopec/userService'
 import { createAppointment, rescheduleAppointment } from '@service-calservice/appointmentService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
+import { getAllSchedules } from '@service-calservice/scheduleService'
+import { getAvailableSlots } from '@service-calservice/slotsService'
 import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@constant/accessLevels'
+
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const getApiErrorMessage = (error, fallbackMessage) => {
   const violations = error?.response?.data?.violations
@@ -30,7 +36,11 @@ export function useAppointmentFormViewModel(
   preselectedEstateReference = null
 ) {
   const isRescheduleMode = mode === 'reschedule'
-  const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
+  const { role: userRole, userId: authenticatedUserId, email: authenticatedUserEmail } = authSessionUtil.get()
+  const isAdminUser = isAdminAccessLevel(userRole)
+  const isBrokerUser = isBrokerAccessLevel(userRole)
+  const isClientUser = isClientAccessLevel(userRole)
+  const canChooseClient = isAdminUser || isBrokerUser
 
   const buildInitialModel = useCallback(() => {
     if (isRescheduleMode && appointmentToEdit) {
@@ -43,10 +53,17 @@ export function useAppointmentFormViewModel(
   }, [appointmentToEdit, initialDate, initialHour, isRescheduleMode])
 
   const [model, setModel] = useState(() => buildInitialModel())
+  const [clients, setClients] = useState([])
   const [estates, setEstates] = useState([])
   const [loadingEstates, setLoadingEstates] = useState(false)
+  const [loadingClients, setLoadingClients] = useState(false)
   const [estatesError, setEstatesError] = useState(null)
+  const [clientsError, setClientsError] = useState(null)
   const [eventTypes, setEventTypes] = useState([])
+  const [workSchedule, setWorkSchedule] = useState(null)
+  const [availableSlots, setAvailableSlots] = useState([])
+  const [slotsLoading, setSlotsLoading] = useState(false)
+  const [slotsError, setSlotsError] = useState(null)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
@@ -60,6 +77,38 @@ export function useAppointmentFormViewModel(
     setValidationErrors([])
     setSubmitError(null)
   }, [buildInitialModel, isOpen])
+
+  useEffect(() => {
+    if (!isOpen || !canChooseClient || isRescheduleMode) {
+      setClients([])
+      setClientsError(null)
+      return
+    }
+
+    const loadClients = async () => {
+      setLoadingClients(true)
+      setClientsError(null)
+
+      try {
+        const users = await getAllUsers()
+        const clientOptions = users
+          .filter(user => isClientAccessLevel(user.accessLevel) && user.isActive())
+          .map(user => ({
+            value: String(user.id),
+            label: `${user.name} - ${user.email}`,
+            user,
+          }))
+
+        setClients(clientOptions)
+      } catch (error) {
+        setClientsError(getApiErrorMessage(error, 'Erro ao carregar clientes disponíveis'))
+      } finally {
+        setLoadingClients(false)
+      }
+    }
+
+    loadClients()
+  }, [authenticatedUserId, canChooseClient, isOpen, isRescheduleMode])
 
   useEffect(() => {
     if (!isOpen || isRescheduleMode || !preselectedEstateReference) {
@@ -95,6 +144,7 @@ export function useAppointmentFormViewModel(
 
       return new AppointmentFormModel({
         selectedEstate: matchedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName: prev.visitorName,
@@ -109,13 +159,13 @@ export function useAppointmentFormViewModel(
 
   // Preenche automaticamente os dados do visitante para usuários não-admin.
   useEffect(() => {
-    if (!isOpen || isRescheduleMode || isAdminUser) {
+    if (!isOpen || isRescheduleMode || !isClientUser) {
       return
     }
 
     const prefillVisitorData = async () => {
-      const userId = sessionStorage.getItem('userId')
-      const userEmailFromSession = sessionStorage.getItem('userEmail') || ''
+      const userId = authenticatedUserId
+      const userEmailFromSession = authenticatedUserEmail || ''
 
       let visitorName = ''
       let visitorEmail = userEmailFromSession
@@ -134,6 +184,7 @@ export function useAppointmentFormViewModel(
 
       setModel(prev => new AppointmentFormModel({
         selectedEstate: prev.selectedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName,
@@ -146,7 +197,7 @@ export function useAppointmentFormViewModel(
     }
 
     prefillVisitorData()
-  }, [isOpen, isRescheduleMode, isAdminUser])
+  }, [authenticatedUserEmail, authenticatedUserId, isClientUser, isOpen, isRescheduleMode])
 
   // Carrega imóveis ativos e event types ao montar
   useEffect(() => {
@@ -155,17 +206,22 @@ export function useAppointmentFormViewModel(
       setEstatesError(null)
 
       try {
-        const [estatesData, eventTypesData] = await Promise.all([
+        const [estatesData, eventTypesData, schedulesData] = await Promise.all([
           getAllAdvertisements({ active: true }),
           getAllEventTypes({ size: 200 }),
+          getAllSchedules(),
         ])
 
         const estatesArray = Array.isArray(estatesData)
           ? estatesData
           : (estatesData.content || estatesData.data || estatesData.advertisements || [])
         const visibleEventTypes = eventTypesData.filter(eventType => !eventType.hidden)
+        const scheduleList = Array.isArray(schedulesData) ? schedulesData : []
+        const defaultSchedule = scheduleList.find(schedule => schedule.isDefault) || scheduleList[0] || null
+
         setEstates(estatesArray)
         setEventTypes(visibleEventTypes)
+        setWorkSchedule(defaultSchedule)
       } catch (error) {
         setEstatesError(getApiErrorMessage(error, 'Erro ao carregar imóveis disponíveis'))
       } finally {
@@ -176,10 +232,58 @@ export function useAppointmentFormViewModel(
     loadData()
   }, [])
 
+  useEffect(() => {
+    const loadAvailableSlots = async () => {
+      if (!isOpen) {
+        setAvailableSlots([])
+        setSlotsError(null)
+        return
+      }
+
+      const selectedEstateId = model.selectedEstate?.estate?.id || model.selectedEstate?.id
+      if (!selectedEstateId || !model.startDateTime || eventTypes.length === 0) {
+        setAvailableSlots([])
+        setSlotsError(null)
+        return
+      }
+
+      const eventType = eventTypes.find(item => item.estateId === selectedEstateId)
+      if (!eventType || !eventType.id) {
+        setAvailableSlots([])
+        setSlotsError(null)
+        return
+      }
+
+      const selectedDate = new Date(model.startDateTime)
+      const start = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+      const end = start
+
+      setSlotsLoading(true)
+      setSlotsError(null)
+
+      try {
+        const response = await getAvailableSlots(eventType.id, start, end)
+        const slotData = response?.slots ?? response
+        const daySlots = Array.isArray(slotData)
+          ? slotData
+          : (Array.isArray(slotData?.[start]) ? slotData[start] : [])
+        setAvailableSlots(daySlots)
+      } catch (error) {
+        setAvailableSlots([])
+        setSlotsError(getApiErrorMessage(error, 'Erro ao carregar horários disponíveis'))
+      } finally {
+        setSlotsLoading(false)
+      }
+    }
+
+    loadAvailableSlots()
+  }, [eventTypes, isOpen, model.selectedEstate, model.startDateTime])
+
   const updateField = useCallback((fieldName, value) => {
     setModel(prev => {
       const updated = new AppointmentFormModel({
         selectedEstate: prev.selectedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName: prev.visitorName,
@@ -192,6 +296,11 @@ export function useAppointmentFormViewModel(
 
       if (fieldName === 'estate') {
         updated.selectedEstate = value
+      } else if (fieldName === 'client') {
+        updated.selectedClient = value
+        updated.visitorName = value?.name || ''
+        updated.visitorEmail = value?.email || ''
+        updated.visitorPhone = value?.phone || ''
       } else if (fieldName === 'startDateTime') {
         updated.startDateTime = value
       } else if (fieldName === 'durationMinutes') {
@@ -214,6 +323,16 @@ export function useAppointmentFormViewModel(
     })
     setValidationErrors([])
   }, [])
+
+  const handleClientChange = useCallback((clientId) => {
+    if (!clientId) {
+      updateField('client', null)
+      return
+    }
+
+    const selectedClient = clients.find(option => String(option.value) === String(clientId))?.user || null
+    updateField('client', selectedClient)
+  }, [clients, updateField])
 
   const validate = useCallback(() => {
     const errors = [...model.getValidationErrors({ isRescheduleMode })]
@@ -268,8 +387,73 @@ export function useAppointmentFormViewModel(
     return errors.length === 0
   }, [model, allAppointments, eventTypes, appointmentToEdit, isRescheduleMode])
 
+  const isSelectedSlotAvailable = useCallback(() => {
+    if (!model.startDateTime || !model.selectedEstate) {
+      return true
+    }
+
+    const selectedDate = new Date(model.startDateTime)
+    const selectedHour = selectedDate.getHours()
+
+    if (Array.isArray(availableSlots) && availableSlots.length > 0) {
+      return availableSlots.some(slot => {
+        const slotDate = new Date(slot)
+        return slotDate.getHours() === selectedHour &&
+          slotDate.getFullYear() === selectedDate.getFullYear() &&
+          slotDate.getMonth() === selectedDate.getMonth() &&
+          slotDate.getDate() === selectedDate.getDate()
+      })
+    }
+
+    if (!workSchedule || !Array.isArray(workSchedule.availability)) {
+      return true
+    }
+
+    const weekdayName = WEEKDAY_NAMES[selectedDate.getDay()]
+    const availability = workSchedule.availability.filter(item =>
+      Array.isArray(item.days) && item.days.includes(weekdayName)
+    )
+
+    if (availability.length === 0) {
+      return false
+    }
+
+    const hours = availability.flatMap(item => {
+      const parse = (timeString) => {
+        if (!timeString || typeof timeString !== 'string') return null
+        const [hour, minute] = timeString.split(':').map(value => Number(value.trim()))
+        if (Number.isNaN(hour) || Number.isNaN(minute)) return null
+        return { hour, minute }
+      }
+
+      const start = parse(item.startTime)
+      const end = parse(item.endTime)
+      if (!start || !end) return []
+
+      const startDate = new Date(2024, 0, 1, start.hour, start.minute)
+      const endDate = new Date(2024, 0, 1, end.hour, end.minute)
+      const durationMs = model.durationMinutes * 60 * 1000
+      const step = 60 * 60 * 1000
+
+      const allowed = []
+      let current = new Date(startDate)
+      while (current.getTime() + durationMs <= endDate.getTime()) {
+        allowed.push(current.getHours())
+        current = new Date(current.getTime() + step)
+      }
+      return allowed
+    })
+
+    return Array.from(new Set(hours)).includes(selectedHour)
+  }, [availableSlots, model.startDateTime, model.durationMinutes, model.selectedEstate, workSchedule])
+
   const handleSubmit = useCallback(async () => {
     if (!validate()) {
+      return false
+    }
+
+    if (!isSelectedSlotAvailable()) {
+      setSubmitError('O horário selecionado não está mais disponível. Escolha outro horário ou dia.')
       return false
     }
 
@@ -287,9 +471,11 @@ export function useAppointmentFormViewModel(
       }
 
       // O usuário autenticado é utilizado para rastreabilidade de cliente/corretor.
-      const userId = sessionStorage.getItem('userId')
+      const userId = canChooseClient
+        ? model.selectedClient?.id
+        : authenticatedUserId
       if (!userId) {
-        throw new Error('Usuário não autenticado. Faça login para agendar.')
+        throw new Error(canChooseClient ? 'Selecione um cliente para agendar.' : 'Usuário não autenticado. Faça login para agendar.')
       }
 
       const selectedEstateId = model.selectedEstate?.estate?.id
@@ -317,7 +503,7 @@ export function useAppointmentFormViewModel(
     } finally {
       setIsSubmitting(false)
     }
-  }, [appointmentToEdit, eventTypes, isRescheduleMode, model, validate])
+  }, [appointmentToEdit, authenticatedUserId, canChooseClient, eventTypes, isRescheduleMode, model, validate])
 
   const getEstateImageUrl = useCallback((estate) => {
     if (!estate) return null
@@ -390,14 +576,24 @@ export function useAppointmentFormViewModel(
   return {
     model,
     estates,
+    clients,
+    selectedClientId: model.selectedClient?.id ? String(model.selectedClient.id) : '',
+    loadingClients,
+    clientsError,
     loadingEstates,
     estatesError,
     isSubmitting,
     submitError,
     validationErrors,
     isRescheduleMode,
+    canChooseClient,
     appointmentToEdit,
+    workSchedule,
+    availableSlots,
+    slotsLoading,
+    slotsError,
     updateField,
+    handleClientChange,
     validate,
     handleSubmit,
     getEstateImageUrl,

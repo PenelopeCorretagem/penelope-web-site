@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
 const axiosInstance = axios.create({
   headers: {
@@ -10,7 +11,7 @@ const axiosInstance = axios.create({
 // Interceptor para adicionar token nas requisições
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('token')
+    const { token } = authSessionUtil.get()
     const method = config.method?.toLowerCase()
     const url = config.url || ''
 

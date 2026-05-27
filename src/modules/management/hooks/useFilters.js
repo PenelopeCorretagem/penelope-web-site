@@ -1,19 +1,19 @@
 import { useState, useCallback, useMemo } from 'react'
-import { DEFAULT_FILTERS, STATUS_LABELS, ScheduleModel } from '../ScheduleModel'
+import { CalendarModel, DEFAULT_FILTERS, STATUS_LABELS } from '@management/models/CalendarModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
 /**
- * useScheduleFilters.js
- * Hook para gerenciar lógica de filtros
+ * useFilters.js
+ * Hook para gerenciar lógica de filtros de agendamento.
  */
 
-export function useScheduleFilters(appointments = []) {
+export function useFilters(appointments = []) {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState(DEFAULT_FILTERS.statusFilter)
   const [selectedEstateFilter, setSelectedEstateFilter] = useState(DEFAULT_FILTERS.estateFilter)
   const [selectedEstateTypeFilter, setSelectedEstateTypeFilter] = useState(DEFAULT_FILTERS.estateTypeFilter)
 
   const filteredAppointments = useMemo(() => {
-    return ScheduleModel.getFilteredAppointments(appointments, {
+    return CalendarModel.getFilteredAppointments(appointments, {
       statusFilter: selectedStatusFilter,
       estateFilter: selectedEstateFilter,
       estateTypeFilter: selectedEstateTypeFilter,
@@ -21,15 +21,15 @@ export function useScheduleFilters(appointments = []) {
   }, [appointments, selectedStatusFilter, selectedEstateFilter, selectedEstateTypeFilter])
 
   const statusOptions = useMemo(() => {
-    return ScheduleModel.getStatusOptions()
+    return CalendarModel.getStatusOptions()
   }, [])
 
   const estateOptions = useMemo(() => {
-    return ScheduleModel.getEstateOptions(appointments, [])
+    return CalendarModel.getEstateOptions(appointments, [])
   }, [appointments])
 
   const estateTypeOptions = useMemo(() => {
-    return ScheduleModel.getEstateTypeOptions(ESTATE_TYPES)
+    return CalendarModel.getEstateTypeOptions(ESTATE_TYPES)
   }, [])
 
   const filterConfigs = useMemo(() => {
@@ -42,7 +42,7 @@ export function useScheduleFilters(appointments = []) {
         shape: 'square',
         options: statusOptions.map(status => ({
           value: status,
-          label: status === 'TODOS' ? 'Todos os status' : (STATUS_LABELS[status] || status),
+          label: status === 'TODOS' ? 'Todos os status' : STATUS_LABELS[status] || status,
         })),
       },
       {
@@ -53,7 +53,7 @@ export function useScheduleFilters(appointments = []) {
         shape: 'square',
         options: estateOptions.map(estate => ({
           value: estate,
-          label: estate === 'TODOS' ? 'Todos os imoveis' : estate,
+          label: estate === 'TODOS' ? 'Todos os imóveis' : estate,
         })),
       },
       {

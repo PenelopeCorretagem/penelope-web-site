@@ -1,17 +1,10 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { TextView } from '@shared/components/ui/Text/TextView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 
-const getStatusLabel = (status) => {
-  switch (status) {
-    case 'PENDING': return 'Agendado'
-    case 'CONFIRMED': return 'Confirmado'
-    case 'CONCLUDED': return 'Concluído'
-    case 'CANCELLED': return 'Cancelado'
-    default: return status || '-'
-  }
-}
+import { APPOINTMENT_STATUS_LABELS } from '@constant/appointmentStatuses'
+
+const getStatusLabel = (status) => APPOINTMENT_STATUS_LABELS[status] || status || '-'
 
 const formatDateTime = (value) => {
   if (!value) return '-'
@@ -25,15 +18,10 @@ const formatDateTime = (value) => {
   })
 }
 
-const formatDate = (value) => {
-  if (!value) return '-'
-  const date = value instanceof Date ? value : new Date(value)
-  return date.toLocaleDateString('pt-BR')
-}
-
-export function RecordsView({
+function RecordsViewComponent({
   appointments = [],
   reportData,
+  isLoading = false,
 }) {
   const filteredAppointments = useMemo(() => {
     if (!reportData?.startDate && !reportData?.endDate) {
@@ -50,23 +38,19 @@ export function RecordsView({
     })
   }, [appointments, reportData?.startDate, reportData?.endDate])
 
-  return (
-    <SectionView className="bg-default-light rounded-lg border border-default-light-muted p-4 shadow-sm">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between mb-4">
-        <div>
-          <HeadingView level={4} className="text-default-dark">Registros de Agendamentos</HeadingView>
-          <TextView className="text-sm text-default-dark-light">
-            {filteredAppointments.length} agendamento(s) encontrados.
-          </TextView>
+  if (isLoading) {
+    return (
+      <SectionView className="bg-default-light rounded-lg border border-default-light-muted shadow-sm h-full !p-10">
+        <div className="overflow-x-auto w-full">
+          <SkeletonView variant="table" rows={6} columns={10} />
         </div>
-        {reportData?.startDate || reportData?.endDate ? (
-          <TextView className="text-sm text-default-dark-light">
-            Período: {reportData.startDate ? formatDate(reportData.startDate) : 'Início não definido'} até {reportData.endDate ? formatDate(reportData.endDate) : 'Fim não definido'}
-          </TextView>
-        ) : null}
-      </div>
+      </SectionView>
+    )
+  }
 
-      <div className="overflow-x-auto">
+  return (
+    <SectionView className="bg-default-light rounded-lg border border-default-light-muted shadow-sm h-full !p-10">
+      <div className="overflow-x-auto w-full">
         <table className="min-w-full text-left border-separate border-spacing-y-3">
           <thead>
             <tr className="text-[11px] uppercase text-default-dark-light tracking-wide">
@@ -111,3 +95,5 @@ export function RecordsView({
     </SectionView>
   )
 }
+
+export const RecordsView = memo(RecordsViewComponent)

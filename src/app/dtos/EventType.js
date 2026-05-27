@@ -7,6 +7,7 @@ export class EventType {
   #minimumBookingNotice
   #hidden
   #estateId
+  #createdAt
 
   constructor({
     id = null,
@@ -17,6 +18,7 @@ export class EventType {
     minimumBookingNotice = 120,
     hidden = false,
     estateId = null,
+    createdAt = null,
   }) {
     this.#id = id
     this.#title = title
@@ -26,6 +28,7 @@ export class EventType {
     this.#minimumBookingNotice = minimumBookingNotice
     this.#hidden = hidden
     this.#estateId = estateId
+    this.#createdAt = createdAt
   }
 
   get id() { return this.#id }
@@ -36,6 +39,7 @@ export class EventType {
   get minimumBookingNotice() { return this.#minimumBookingNotice }
   get hidden() { return this.#hidden }
   get estateId() { return this.#estateId }
+  get createdAt() { return this.#createdAt }
 
   set title(v) { this.#title = v }
   set description(v) { this.#description = v }

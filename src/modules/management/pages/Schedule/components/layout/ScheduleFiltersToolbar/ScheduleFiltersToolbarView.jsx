@@ -1,6 +1,6 @@
 import { FilterView } from '@shared/components/layout/Filter/FilterView'
 import { CalendarDays, Download, BarChart2 } from 'lucide-react'
-import { InputView } from '@shared/components/ui/Input/InputView'
+import { DatePickerView } from '@shared/components/ui/DatePicker/DatePickerView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 
 const DISPLAY_MODE_OPTIONS = [
@@ -21,8 +21,6 @@ export function ScheduleFiltersToolbarView({
   onExport,
   mobileExpandedContent,
   reportData,
-  estateAgentName,
-  appointmentsLength = 0,
 }) {
   const customizedFilterConfigs = filterConfigs.map(config => {
     if (displayMode === 'calendar') {
@@ -69,15 +67,7 @@ export function ScheduleFiltersToolbarView({
   const handleExportReport = () => {
     if (typeof onExport === 'function') {
       onExport()
-      return
     }
-
-    if (!reportData) return
-    console.log('Exportar relatório:', {
-      period: reportData.periodType,
-      agent: estateAgentName,
-      appointments: appointmentsLength,
-    })
   }
 
   const title = displayMode === 'calendar' ? 'Agenda' : 'Relatório de Agendamentos'
@@ -99,28 +89,34 @@ export function ScheduleFiltersToolbarView({
           {displayMode === 'report' && reportData && (
             <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
               <div className="w-fit flex items-center gap-2">
-                <InputView
-                  type="date"
+                <DatePickerView
                   value={reportData.startDate ? reportData.startDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => {
-                    const start = e.target.value ? new Date(e.target.value) : null
+                  onChange={(value) => {
+                    const start = value ? new Date(value) : null
                     reportData.handleDateChange(start, reportData.endDate)
                   }}
+                  minDate={null}
+                  maxDate={reportData.endDate}
                   hasLabel={false}
-                  isActive={true}
-                  className="!h-9 !py-0 !text-sm w-36"
+                  placeholder="Início"
+                  className="!w-fit"
+                  calendarClassName="w-[min(100vw,16rem)]"
+                  inputClassName=""
                 />
                 <span className="text-default-dark-light text-sm">até</span>
-                <InputView
-                  type="date"
+                <DatePickerView
                   value={reportData.endDate ? reportData.endDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => {
-                    const end = e.target.value ? new Date(e.target.value) : null
+                  onChange={(value) => {
+                    const end = value ? new Date(value) : null
                     reportData.handleDateChange(reportData.startDate, end)
                   }}
+                  minDate={reportData.startDate}
+                  maxDate={null}
                   hasLabel={false}
-                  isActive={true}
-                  className="!h-9 !py-0 !text-sm w-36"
+                  placeholder="Fim"
+                  className="!w-fit"
+                  calendarClassName="w-[min(100vw,16rem)]"
+                  inputClassName=""
                 />
               </div>
 
@@ -129,9 +125,9 @@ export function ScheduleFiltersToolbarView({
                   type="button"
                   onClick={reportData.handleResetDates}
                   color="soft-gray"
-                  shape="square"
+                  shape="rectangle"
                   width="fit"
-                  className="!h-9 !px-3"
+                  className=""
                   title="Limpar Datas"
                 >
                   Limpar
@@ -142,9 +138,9 @@ export function ScheduleFiltersToolbarView({
                 type="button"
                 onClick={handleExportReport}
                 color="pink"
-                shape="square"
+                shape="rectangle"
                 width="fit"
-                className="!h-9 !px-3 flex items-center gap-2 whitespace-nowrap"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
                 <Download size={16} />
                 <span>Exportar</span>
@@ -156,6 +152,7 @@ export function ScheduleFiltersToolbarView({
             <FilterView
               key={filtersVersion || 'schedule-filter-view'}
               hideSearch={true}
+              hideToggleLabel={true}
               filterConfigs={mergedFilterConfigs}
               defaultFilters={defaultFilters}
               onFiltersChange={(key, value) => {
@@ -168,6 +165,7 @@ export function ScheduleFiltersToolbarView({
               showSortButton={false}
               showResetButton={displayMode === 'calendar'}
               mobileExpandedContent={mobileExpandedContent}
+              popupStyle={{ minWidth: '22rem', width: 'min(100vw-1rem, 22rem)' }}
             />
           </div>
         </div>

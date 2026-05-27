@@ -1,3 +1,4 @@
+import { normalizeAccessLevel } from '@constant/accessLevels'
 import { validateName } from '@shared/utils/name/validateNameUtil'
 import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
@@ -21,7 +22,7 @@ export class ProfileModel {
     this.cpf = userData.cpf || ''
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
-    this.accessLevel = userData.accessLevel || 'CLIENTE'
+    this.accessLevel = normalizeAccessLevel(userData.accessLevel || 'CLIENTE')
   }
 
   /**
@@ -149,6 +150,7 @@ export class ProfileModel {
         gridColumn: 'col-span-3', // 3/6 = 1/2
         options: [
           { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'CORRETOR', label: 'Corretor' },
           { value: 'ADMINISTRADOR', label: 'Administrador' }
         ],
         required: true,
@@ -158,7 +160,7 @@ export class ProfileModel {
           if (!value) {
             return 'Nível de acesso é obrigatório'
           }
-          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+          if (!['CLIENTE', 'CORRETOR', 'ADMINISTRADOR'].includes(value)) {
             return 'Nível de acesso inválido'
           }
           return true
@@ -281,6 +283,7 @@ export class ProfileModel {
         gridColumn: 'col-span-3', // 3/6 = 1/2
         options: [
           { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'CORRETOR', label: 'Corretor' },
           { value: 'ADMINISTRADOR', label: 'Administrador' }
         ],
         required: true,
@@ -290,7 +293,7 @@ export class ProfileModel {
           if (!value) {
             return 'Nível de acesso é obrigatório'
           }
-          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+          if (!['CLIENTE', 'CORRETOR', 'ADMINISTRADOR'].includes(value)) {
             return 'Nível de acesso inválido'
           }
           return true

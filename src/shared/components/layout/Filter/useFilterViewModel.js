@@ -8,10 +8,23 @@ import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 export const useFilterViewModel = ({
   defaultFilters = {},
   defaultSortOrder = 'none',
-  onFiltersChange
+  onFiltersChange,
+  onReset
 }) => {
+  const initialFilters = { ...defaultFilters }
+  const initialSearchTerm = initialFilters.searchTerm ?? ''
+  const initialSortOrder = initialFilters.sortOrder ?? defaultSortOrder
+
+  if ('searchTerm' in initialFilters) {
+    delete initialFilters.searchTerm
+  }
+
+  if ('sortOrder' in initialFilters) {
+    delete initialFilters.sortOrder
+  }
+
   const [filterModel, setFilterModel] = useState(
-    new FilterModel({ filters: defaultFilters, sortOrder: defaultSortOrder })
+    new FilterModel({ searchTerm: initialSearchTerm, filters: initialFilters, sortOrder: initialSortOrder })
   )
 
   // Search handler
@@ -58,7 +71,8 @@ export const useFilterViewModel = ({
     })
     onFiltersChange?.('searchTerm', '')
     onFiltersChange?.('sortOrder', 'none')
-  }, [filterModel, defaultFilters, onFiltersChange])
+    onReset?.()
+  }, [filterModel, defaultFilters, onFiltersChange, onReset])
 
   // Get sort icon based on current state
   const getSortIcon = () => {

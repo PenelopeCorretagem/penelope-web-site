@@ -13,7 +13,7 @@
       "description": "Cobertura de luxo com 3 quartos, 2 banheiros, varanda gourmet e vista para a cidade. Condomínio de alto padrão com segurança 24h.",
       "area": 250.5,
       "numberOfRooms": 3,
-      "type": "LANCAMENTO",
+      "type": "lancamento",
       "address": {
         "id": 1,
         "street": "Avenida Paulista",
@@ -47,7 +47,7 @@
       "description": "Casa térrea com 4 quartos, piscina, churrasqueira. Localizada em condomínio fechado com área verde.",
       "area": 180.0,
       "numberOfRooms": 4,
-      "type": "DISPONIVEL",
+      "type": "disponivel",
       "address": {
         "id": 2,
         "street": "Rua das Flores",
@@ -80,7 +80,7 @@
       "description": "Apartamento 2 quartos com varanda vista para o mar, ar condicionado, garagem dupla. Prédio com piscina e academia.",
       "area": 120.0,
       "numberOfRooms": 2,
-      "type": "LANCAMENTO",
+      "type": "lancamento",
       "address": {
         "id": 3,
         "street": "Avenida Atlântica",
@@ -111,7 +111,7 @@
       "description": "Loft com pé direito alto, cozinha integrada, 1 quarto, banheiro e área de trabalho. Ideal para profissionais liberais.",
       "area": 95.0,
       "numberOfRooms": 1,
-      "type": "DISPONIVEL",
+      "type": "disponivel",
       "address": {
         "id": 4,
         "street": "Rua Augusta",
@@ -142,7 +142,7 @@
       "description": "Chácara 5000 m², com casa de 250 m², piscina, pomar, poço. Ideal para quem busca tranquilidade no interior.",
       "area": 5000.0,
       "numberOfRooms": 3,
-      "type": "LANCAMENTO",
+      "type": "lancamento",
       "address": {
         "id": 5,
         "street": "Estrada da Pedra Grande",
@@ -173,7 +173,7 @@
       "description": "Studio mobiliado, climatizado, com cozinha integrada. Próximo a estação de metrô e universidade.",
       "area": 45.0,
       "numberOfRooms": 0,
-      "type": "DISPONIVEL",
+      "type": "disponivel",
       "address": {
         "id": 6,
         "street": "Rua Cristovao Colombo",
@@ -204,7 +204,7 @@
       "description": "Sala 300 m² em prédio de alto padrão, ar condicionado, 2 banheiros, recepção. Ideal para consultoria, advocacia ou agência.",
       "area": 300.0,
       "numberOfRooms": 0,
-      "type": "DISPONIVEL",
+      "type": "disponivel",
       "address": {
         "id": 7,
         "street": "Avenida Paulista",
@@ -235,7 +235,7 @@
       "description": "Duplex 3 quartos, 3 banheiros, varanda gourmet, mój, 2 vagas. Prédio com lazer completo.",
       "area": 200.0,
       "numberOfRooms": 3,
-      "type": "LANCAMENTO",
+      "type": "lancamento",
       "address": {
         "id": 8,
         "street": "Rua Oscar Freire",
@@ -266,7 +266,7 @@
       "description": "Terreno 500 m² plano, em condomínio fechado, infraestrutura de água e luz. Pronto para construção.",
       "area": 500.0,
       "numberOfRooms": 0,
-      "type": "DISPONIVEL",
+      "type": "disponivel",
       "address": {
         "id": 9,
         "street": "Avenida Bom Retiro",
@@ -297,7 +297,7 @@
       "description": "Casa térrea 3 quartos pensada para acessibilidade. Rampa de acesso, banheiro adaptado, corredores amplos.",
       "area": 160.0,
       "numberOfRooms": 3,
-      "type": "EM_OBRAS",
+      "type": "emObras",
       "address": {
         "id": 10,
         "street": "Rua Treze de Maio",

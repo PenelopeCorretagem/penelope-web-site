@@ -1,3 +1,5 @@
+import { APPOINTMENT_STATUS_LABELS } from '@constant/appointmentStatuses'
+
 export const STATUS_COLORS = {
   PENDING: 'bg-distac-primary text-default-light',
   CONFIRMED: 'bg-distac-secondary text-default-light',
@@ -5,12 +7,7 @@ export const STATUS_COLORS = {
   CANCELLED: 'bg-default-dark-light text-default-light',
 }
 
-export const STATUS_LABELS = {
-  PENDING: 'Agendado',
-  CONFIRMED: 'Confirmado',
-  CONCLUDED: 'Concluido',
-  CANCELLED: 'Cancelado',
-}
+export const STATUS_LABELS = APPOINTMENT_STATUS_LABELS
 
 export const WEEKDAY_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom']
 
@@ -18,6 +15,7 @@ export const DEFAULT_FILTERS = {
   statusFilter: 'TODOS',
   estateFilter: 'TODOS',
   estateTypeFilter: 'TODOS',
+  estateAgentScopeFilter: 'TODOS',
 }
 
 export class ScheduleModel {
@@ -27,7 +25,10 @@ export class ScheduleModel {
   }
 
   getAll() {
-    return [...this.appointments]
+    // Retorna a lista interna de agendamentos sem criar uma cópia
+    // para evitar rerenders desnecessários em consumidores que dependem
+    // da referência do array.
+    return this.appointments
   }
 
   getTotal() {

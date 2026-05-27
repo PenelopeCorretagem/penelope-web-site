@@ -245,7 +245,7 @@ export const handlers = [
       return res(ctx.status(200), ctx.json({
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtb2NrLXRva2VuIn0.mock-signature',
         id: user.id,
-        accessLevel: user.accessLevel === 'ADMINISTRADOR' ? 'ADMINISTRADOR' : 'CLIENTE'
+        accessLevel: user.accessLevel || 'CLIENTE'
       }))
     }
     return res(ctx.status(401), ctx.json({ error: 'Email ou senha inválidos' }))

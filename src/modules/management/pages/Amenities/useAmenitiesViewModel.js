@@ -43,9 +43,7 @@ export const useAmenitiesViewModel = () => {
 
   // Estado de filtros via FilterModel
   const [filterModel, setFilterModel] = useState(() => new FilterModel({
-    filters: {
-      initialFilter: 'TODOS'
-    },
+    filters: {},
     sortOrder: 'none'
   }))
 
@@ -76,8 +74,6 @@ export const useAmenitiesViewModel = () => {
         setLoading(true)
         model.searchTerm = filterModel.searchTerm
         model.sortOrder = filterModel.sortOrder === 'none' ? '' : filterModel.sortOrder
-        const initial = filterModel.getFilter('initialFilter')
-        model.initialFilter = initial === 'TODOS' ? '' : initial
         await model.loadAmenities(currentPage, pageSize)
         setAmenities(model.amenities)
         setTotalPages(model.totalPages)
@@ -336,4 +332,3 @@ export const useAmenitiesViewModel = () => {
     handleFiltersChange,
   }
 }
-
