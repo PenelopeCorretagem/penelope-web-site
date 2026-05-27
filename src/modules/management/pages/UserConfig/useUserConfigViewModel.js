@@ -29,7 +29,7 @@ export function useUserConfigViewModel() {
             cpf: userData.cpf || '',
             dateBirth: userData.dateBirth || '',
             monthlyIncome: userData.monthlyIncome || '',
-            accessLevel: normalizeAccessLevel(userData.accessLevel || ACCESS_LEVEL.CLIENTE),
+            accessLevel: normalizeAccessLevel(userData.accessLevel || userData.nivelAcesso || ACCESS_LEVEL.CLIENTE),
             senha: ''
           }
 

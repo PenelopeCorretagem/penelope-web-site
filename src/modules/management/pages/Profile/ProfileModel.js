@@ -22,7 +22,7 @@ export class ProfileModel {
     this.cpf = userData.cpf || ''
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
-    this.accessLevel = normalizeAccessLevel(userData.accessLevel || 'CLIENTE')
+    this.accessLevel = normalizeAccessLevel(userData.accessLevel || userData.nivelAcesso || 'CLIENTE')
   }
 
   /**
@@ -385,7 +385,7 @@ export class ProfileModel {
       cpf: apiData.cpf || '',
       dateBirth: apiData.dateBirth || apiData.dtNascimento || '', // Suporte para ambos os formatos
       monthlyIncome: apiData.monthlyIncome?.toString() || apiData.rendaMensal?.toString() || '', // Suporte para ambos os formatos
-      accessLevel: apiData.accessLevel || 'CLIENTE'
+      accessLevel: normalizeAccessLevel(apiData.accessLevel || apiData.nivelAcesso || 'CLIENTE')
     })
   }
 

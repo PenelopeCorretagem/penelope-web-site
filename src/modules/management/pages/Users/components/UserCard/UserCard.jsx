@@ -1,5 +1,5 @@
-import { normalizeAccessLevel } from '@constant/accessLevels'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { getAccessLevelLabel, normalizeAccessLevel } from '@constant/accessLevels'
 
 export function UserCard({ user, onEdit, onDelete, loading = false }) {
   return (
@@ -10,11 +10,7 @@ export function UserCard({ user, onEdit, onDelete, loading = false }) {
         </span>
         <p className="text-sm text-default-dark-muted">{user.email}</p>
         <p className="text-xs text-default-dark-muted">
-          {normalizeAccessLevel(user.accessLevel) === 'ADMINISTRADOR'
-            ? 'Administrador'
-            : normalizeAccessLevel(user.accessLevel) === 'CORRETOR'
-              ? 'Corretor'
-              : 'Cliente'}
+          {getAccessLevelLabel(normalizeAccessLevel(user.accessLevel))}
           {user.creci && ` • CRECI: ${user.creci}`}
         </p>
       </div>

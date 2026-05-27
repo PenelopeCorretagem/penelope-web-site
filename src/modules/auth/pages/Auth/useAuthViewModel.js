@@ -50,6 +50,22 @@ export function useAuthViewModel() {
     setAlertConfig(null)
   }, [])
 
+  const getPostLoginDestination = useCallback(() => {
+    const stateRedirect = location.state?.from
+
+    if (stateRedirect?.pathname) {
+      return `${stateRedirect.pathname}${stateRedirect.search || ''}${stateRedirect.hash || ''}`
+    }
+
+    const storedRedirect = authSessionUtil.getPostLoginRedirect()
+
+    if (storedRedirect?.pathname) {
+      return `${storedRedirect.pathname}${storedRedirect.search || ''}${storedRedirect.hash || ''}`
+    }
+
+    return model.getHomeRoute()
+  }, [location.state, model])
+
   const handleRegisterClick = useCallback(() => {
     handleCloseAlert()
     setIsActive(true)
@@ -106,7 +122,10 @@ export function useAuthViewModel() {
       }))
       window.dispatchEvent(new CustomEvent('authChanged'))
 
-      setTimeout(() => navigate(model.getHomeRoute()), 600)
+      const destination = getPostLoginDestination()
+      authSessionUtil.clearPostLoginRedirect()
+
+      setTimeout(() => navigate(destination, { replace: true }), 600)
       return { success: true }
 
     } catch (error) {
@@ -131,7 +150,7 @@ export function useAuthViewModel() {
       })
       return { success: false, error: errorMessage }
     }
-  }, [navigate, model])
+  }, [getPostLoginDestination, navigate, model])
   const handleRegisterSubmit = useCallback(async (formData) => {
     setIsLoading(true)
     try {
