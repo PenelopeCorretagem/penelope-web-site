@@ -53,6 +53,10 @@ export class SelectViewModel {
     return this.model.updateOptions(newOptions)
   }
 
+  updateDisabled(disabled) {
+    return this.model.updateDisabled(disabled)
+  }
+
   clear() {
     return this.model.clear()
   }

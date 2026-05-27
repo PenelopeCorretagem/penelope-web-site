@@ -40,7 +40,7 @@ export function useScheduleViewModel(options = {}) {
   const [selectedEstateAgentName, setSelectedEstateAgentName] = useState('')
   const [workSchedule, setWorkSchedule] = useState(null)
   const selectedDateRef = useRef(selectedDate)
-  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading && selectedEstateAgentFilter === 'TODOS'
+  const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading && !selectedEstateAgentFilter
   const canCreateAppointments = isAdminUser || isBrokerUser || isClientUser
   const canManageAppointments = canCreateAppointments && !isReadOnlyAdminView
   const canDeleteAppointments = (isAdminUser || isBrokerUser) && !isReadOnlyAdminView
@@ -120,8 +120,8 @@ export function useScheduleViewModel(options = {}) {
     }
 
     if (canSelectEstateAgent) {
-      if (!selectedEstateAgentFilter) {
-        return null
+      if (!selectedEstateAgentFilter || selectedEstateAgentFilter === 'TODOS') {
+        return {}
       }
 
       return {

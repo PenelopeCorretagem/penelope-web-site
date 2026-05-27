@@ -26,7 +26,7 @@ export const createUser = async (userData) => {
 export const getAllUsers = async (page = 1, pageSize = 10) => {
   try {
     const response = await userApi.getAllUsers(page, pageSize)
-    const rawList = response?.content || response || []
+    const rawList = response?.content || response?.data || response || []
     return userMapper.toEntityList(rawList)
   } catch (error) {
     throw handleUserError(error, 'Listagem')

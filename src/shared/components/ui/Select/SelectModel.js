@@ -105,6 +105,15 @@ export class SelectModel {
     return false
   }
 
+  updateDisabled(disabled) {
+    const normalized = Boolean(disabled)
+    if (normalized !== this.disabled) {
+      this.disabled = normalized
+      return true
+    }
+    return false
+  }
+
   clear() {
     if (this.value !== '') {
       this.value = ''

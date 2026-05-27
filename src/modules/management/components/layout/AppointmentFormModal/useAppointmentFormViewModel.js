@@ -90,7 +90,7 @@ export function useAppointmentFormViewModel(
       setClientsError(null)
 
       try {
-        const users = await getAllUsers()
+        const users = await getAllUsers(1, 200)
         const clientOptions = users
           .filter(user => isClientAccessLevel(user.accessLevel) && user.isActive())
           .map(user => ({
@@ -503,26 +503,54 @@ export function useAppointmentFormViewModel(
     } finally {
       setIsSubmitting(false)
     }
-  }, [appointmentToEdit, authenticatedUserId, canChooseClient, eventTypes, isRescheduleMode, model, validate])
+  }, [appointmentToEdit, authenticatedUserId, canChooseClient, eventTypes, isRescheduleMode, model, validate, isSelectedSlotAvailable])
 
   const getEstateImageUrl = useCallback((estate) => {
     if (!estate) return null
 
-    // Procura pela imagem com type 'Capa' (cover)
+    const resolveImageType = (image) => {
+      if (!image || image.type == null) return ''
+      const typeValue = image.type
+      if (typeof typeValue === 'string') {
+        return typeValue.trim().toLowerCase()
+      }
+      if (typeof typeValue === 'object') {
+        if (typeof typeValue.isCoverType === 'function' && typeValue.isCoverType()) {
+          return 'capa'
+        }
+        if (typeof typeValue.isGalleryType === 'function' && typeValue.isGalleryType()) {
+          return 'galeria'
+        }
+        if (typeof typeValue.isFloorPlanType === 'function' && typeValue.isFloorPlanType()) {
+          return 'planta'
+        }
+        if (typeof typeValue.description === 'string') {
+          return typeValue.description.trim().toLowerCase()
+        }
+        if (typeof typeValue.type === 'string') {
+          return typeValue.type.trim().toLowerCase()
+        }
+      }
+      return ''
+    }
+
     if (estate.images && Array.isArray(estate.images)) {
-      // Primeira prioridade: Capa
-      const capaImage = estate.images.find(img => img.type === 'Capa')
+      const capaImage = estate.images.find(img => {
+        const imageType = resolveImageType(img)
+        return imageType === 'capa' || imageType === 'cover'
+      })
       if (capaImage?.url) {
         return capaImage.url
       }
 
-      // Segunda prioridade: primeira imagem da galeria
-      const galeriaImage = estate.images.find(img => img.type === 'Galeria')
+      const galeriaImage = estate.images.find(img => {
+        const imageType = resolveImageType(img)
+        return imageType === 'galeria' || imageType === 'gallery'
+      })
       if (galeriaImage?.url) {
         return galeriaImage.url
       }
 
-      // Terceira prioridade: qualquer imagem
       if (estate.images[0]?.url) {
         return estate.images[0].url
       }
