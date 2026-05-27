@@ -1,3 +1,4 @@
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { EditFormView } from '@shared/components/ui/EditForm/EditFormView'
 import { useProfileViewModel } from './useProfileViewModel'
@@ -21,17 +22,17 @@ export function ProfileView({ targetUserId = null }) {
     )
   }
 
-  const title = vm.isEditingOwnProfile ? 'MEU PERFIL' : 'EDITAR USUÁRIO'
-
   return (
-      <SectionView className='flex flex-col min-h-screen gap-subsection subsection md:gap-subsection-md'>
+    <PageManagementView
+      iconName="User"
+      title={vm.isEditingOwnProfile ? 'MEU PERFIL' : 'EDITAR USUÁRIO'}
+    >
       <EditFormView
-        title={title}
         fields={vm.profileFields}
         initialData={vm.formData}
         onSubmit={vm.handleSubmit}
         showDeleteButton={false}
       />
-    </SectionView>
+    </PageManagementView>
   )
 }

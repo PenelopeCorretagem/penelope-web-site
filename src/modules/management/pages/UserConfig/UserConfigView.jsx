@@ -1,15 +1,14 @@
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { EditFormView } from '@shared/components/ui/EditForm/EditFormView'
 import { BackButtonView } from '@shared/components/ui/BackButton/BackButtonView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useUserConfigViewModel } from './useUserConfigViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
-import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { useNavigate } from 'react-router-dom'
 
 export function UserConfigView() {
   const {
-    model,
     formData,
     userConfigFields,
     alertConfig,
@@ -41,16 +40,12 @@ export function UserConfigView() {
   }
 
   return (
-    <SectionView
+    <PageManagementView
+      iconName="Users"
+      title="Usuários"
       className="flex flex-col subsection h-full overflow-hidden !gap-subsection md:!gap-subsection-md"
+      actions={<BackButtonView mode="text" text="Voltar" />}
     >
-      <div className="flex items-center w-full justify-between flex-shrink-0">
-        <HeadingView level={2} className="text-distac-primary">
-          {isEditMode ? 'Editar Usuário' : 'Adicionar Usuário'}
-        </HeadingView>
-        <BackButtonView mode="text" text="Voltar" />
-      </div>
-
       <div className="flex-1 overflow-hidden">
         <EditFormView
           fields={userConfigFields}
@@ -69,6 +64,6 @@ export function UserConfigView() {
         message={alertConfig?.message}
         onClose={handleCloseAlert}
       />
-    </SectionView>
+    </PageManagementView>
   )
 }

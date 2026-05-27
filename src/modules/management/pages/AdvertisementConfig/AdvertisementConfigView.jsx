@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useAdvertisementConfigViewModel } from './useAdvertisementConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
@@ -8,6 +9,7 @@ import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { useLocation } from 'react-router-dom'
 import { useMemo } from 'react'
+import { ESTATE_TYPES } from '@constant/estateTypes'
 
 export function AdvertisementConfigView() {
   const { id } = useRouteParams()
@@ -16,6 +18,7 @@ export function AdvertisementConfigView() {
   const [showDisableConfirmation, setShowDisableConfirmation] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const presetAdvertisementType = location.state?.advertisementType || ''
+  const [storedPresetAdvertisementType, setStoredPresetAdvertisementType] = useState(presetAdvertisementType)
 
   const wizardMaxHeight = headerHeight > 0
     ? `calc(100dvh - ${headerHeight}px)`
@@ -39,20 +42,32 @@ export function AdvertisementConfigView() {
     handleCancel
   } = useAdvertisementConfigViewModel(id)
 
+  const [wizardResetKey, setWizardResetKey] = useState(0)
+  const wizardInitialDataInitializedRef = useRef(false)
+
   const wizardInitialData = useMemo(() => {
     if (!initialData) return initialData
 
-    if (!presetAdvertisementType || !isNew) {
+    if (!storedPresetAdvertisementType || !isNew) {
       return initialData
     }
 
     return {
       ...initialData,
-      advertisementType: presetAdvertisementType,
+      advertisementType: storedPresetAdvertisementType,
     }
-  }, [initialData, isNew, presetAdvertisementType])
+  }, [initialData, isNew, storedPresetAdvertisementType])
 
-  const wizardInstanceKey = `${id || 'new'}-${isNew ? (presetAdvertisementType || 'default') : 'edit'}`
+  useEffect(() => {
+    if (!wizardInitialDataInitializedRef.current) {
+      wizardInitialDataInitializedRef.current = true
+      return
+    }
+
+    setWizardResetKey(prev => prev + 1)
+  }, [wizardInitialData])
+
+  const wizardInstanceKey = `${id || 'new'}-${isNew ? (storedPresetAdvertisementType || 'default') : 'edit'}-${wizardResetKey}`
 
   // Só monta o formulário quando os usuários e amenities estiverem carregados
   if (loading || loadingUsers || loadingAmenities) {
@@ -68,7 +83,7 @@ export function AdvertisementConfigView() {
     { value: '', label: 'Selecione um responsável' },
     ...usersWithCreci.map(user => ({
       value: user.id?.toString() || user.email,
-      label: user.getDisplayName()
+      label: user.name || user.email || 'Usuário sem nome'
     }))
   ]
 
@@ -131,9 +146,9 @@ export function AdvertisementConfigView() {
               type: 'select',
               options: [
                 { value: '', label: 'Selecione o tipo' },
-                { value: 'LANCAMENTO', label: 'Lançamento' },
-                { value: 'DISPONIVEL', label: 'Disponível' },
-                { value: 'EM_OBRAS', label: 'Em Obras' }
+                { value: ESTATE_TYPES.LANCAMENTO.apiValue, label: 'Lançamento' },
+                { value: ESTATE_TYPES.DISPONIVEL.apiValue, label: 'Disponível' },
+                { value: ESTATE_TYPES.EM_OBRAS.apiValue, label: 'Em Obras' }
               ],
               required: true,
               containerClassName: 'w-full md:col-span-2',
@@ -163,8 +178,21 @@ export function AdvertisementConfigView() {
               type: 'textarea',
               className: 'w-full h-full flex-1',
               containerClassName: 'w-full h-full flex-1',
-              rows: 5,
+              rows: 2,
               required: true,
+            },
+          ],
+        },
+        {
+          className: 'w-full',
+          fields: [
+            {
+              name: 'video',
+              label: 'LINK DO VÍDEO DO YOUTUBE',
+              type: 'text',
+              placeholder: '',
+              containerClassName: 'w-full',
+              className: 'w-full',
             },
           ],
         },
@@ -179,7 +207,6 @@ export function AdvertisementConfigView() {
           fields: [
             {
               name: 'differentials',
-              label: 'DIFERENCIAIS',
               type: 'differentials-grid',
               options: featureOptions,
               containerClassName: 'w-full h-full overflow-hidden',
@@ -192,16 +219,6 @@ export function AdvertisementConfigView() {
       title: 'LOCALIZAÇÃO DO IMÓVEL',
       className: 'w-full flex flex-col gap-card md:gap-card-md',
       groups: [
-        {
-          className: 'w-full',
-          fields: [
-            {
-              name: 'addressTitle',
-              label: 'LOCALIZAÇÃO DO IMÓVEL',
-              type: 'heading',
-            },
-          ],
-        },
         {
           className: 'w-full flex flex-row gap-card md:gap-card-md',
           fields: [
@@ -307,38 +324,27 @@ export function AdvertisementConfigView() {
       ],
     },
     {
-      title: 'CAPA',
-      className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
-      groups: [
-        {
-          className: 'w-full h-full flex-1 flex flex-col gap-card md:gap-card-md',
-          fields: [
-            {
-              name: 'cover',
-              label: 'CAPA',
-              type: 'custom-cover-preview',
-              accept: 'image/*',
-              containerClassName: 'w-full h-full flex-1',
-              className: 'w-full h-full flex-1',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'GALERIA E PLANTAS',
+      title: 'CAPA, GALERIA E PLANTAS',
       className: 'w-full h-full overflow-hidden flex flex-col gap-card md:gap-card-md',
       groups: [
         {
           className: 'w-full h-full flex-1 flex flex-col md:flex-row gap-card md:gap-card-md',
           fields: [
             {
+              name: 'cover',
+              label: 'CAPA',
+              type: 'custom-cover-preview',
+              accept: 'image/*',
+              containerClassName: 'w-full h-full flex-1 md:w-1/3 ',
+              className: 'w-full h-full flex-1 p-1',
+            },
+            {
               name: 'gallery',
               label: 'GALERIA',
               type: 'file',
               accept: 'image/*',
               multiple: true,
-              containerClassName: 'w-full h-full flex-1 md:w-1/2 ',
+              containerClassName: 'w-full h-full flex-1 md:w-1/3 ',
               className: 'w-full h-full flex-1 p-1',
             },
             {
@@ -347,27 +353,8 @@ export function AdvertisementConfigView() {
               type: 'file',
               accept: 'image/*',
               multiple: true,
-              containerClassName: 'w-full h-full flex-1 md:w-1/2',
+              containerClassName: 'w-full h-full flex-1 md:w-1/3',
               className: 'w-full h-full flex-1 p-1',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'VÍDEO',
-      className: 'w-full flex flex-col gap-card md:gap-card-md',
-      groups: [
-        {
-          className: 'w-full',
-          fields: [
-            {
-              name: 'video',
-              label: 'LINK DO VÍDEO (YOUTUBE)',
-              type: 'text',
-              placeholder: '',
-              containerClassName: 'w-full',
-              className: 'w-full',
             },
           ],
         },
@@ -375,14 +362,56 @@ export function AdvertisementConfigView() {
     },
   ]
 
+  const headerChildren = (
+    <div className="flex flex-wrap gap-3 items-center justify-end w-full">
+      <ButtonView
+        type="button"
+        width="fit"
+        color="soft-gray"
+        onClick={() => {
+          setStoredPresetAdvertisementType('')
+          handleClear()
+        }}
+      >
+        LIMPAR
+      </ButtonView>
+
+      {!isNew && (
+        <>
+          <ButtonView
+            type="button"
+            width="fit"
+            color="gray"
+            onClick={() => setShowDisableConfirmation(true)}
+          >
+            Desabilitar
+          </ButtonView>
+
+          <ButtonView
+            type="button"
+            width="fit"
+            color="gray"
+            onClick={() => setShowDeleteConfirmation(true)}
+          >
+            EXCLUIR
+          </ButtonView>
+        </>
+      )}
+    </div>
+  )
+
   return (
     <>
-      <SectionView className="h-full">
+      <PageManagementView
+        iconName="Building2"
+        title={`Gerenciar Imóveis - ${isNew ? 'Nova Propriedade' : 'Editar Propriedade'}`}
+        className="h-full"
+        headerChildren={headerChildren}
+      >
         <WizardFormView
           className="w-full h-full"
           style={{ maxHeight: wizardMaxHeight }}
           cepFieldsToClear={['street', 'neighborhood', 'city', 'state', 'number', 'region']}
-          title={isNew ? 'Nova Propriedade' : 'Editar Propriedade'}
           steps={steps}
           initialData={wizardInitialData}
           onSubmit={(formData) => {
@@ -390,12 +419,16 @@ export function AdvertisementConfigView() {
           }}
           onDisable={!isNew ? () => setShowDisableConfirmation(true) : undefined}
           onDelete={!isNew ? () => setShowDeleteConfirmation(true) : undefined}
-          onClear={handleClear}
+          onClear={() => {
+            setStoredPresetAdvertisementType('')
+            handleClear()
+          }}
           onCancel={handleCancel}
           disabled={submitting}
           key={wizardInstanceKey}
+          showTopActions={false}
         />
-      </SectionView>
+      </PageManagementView>
 
       {/* Alerta de erro flutuante */}
       <AlertView

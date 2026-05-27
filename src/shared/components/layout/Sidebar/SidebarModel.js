@@ -9,8 +9,9 @@ import { RouterModel } from '@routes/RouterModel'
  * - Fornecer rotas corretas do RouterModel
  */
 export class SidebarModel {
-  constructor(isAdmin = false) {
-    this.isAdmin = isAdmin
+  constructor(isManagementUser = false, userRole = 'CLIENTE') {
+    this.isManagementUser = isManagementUser
+    this.userRole = userRole
     this.routerModel = RouterModel.getInstance()
   }
 
@@ -27,7 +28,7 @@ export class SidebarModel {
         text: 'Agenda',
         icon: 'Calendar',
         path: routes.SCHEDULE,
-        roles: ['CLIENTE', 'ADMINISTRADOR']
+        roles: ['CLIENTE', 'CORRETOR', 'ADMINISTRADOR']
       },
       {
         id: 'appointmentsReport',
@@ -57,35 +58,35 @@ export class SidebarModel {
         text: 'Gerenciar Imóveis',
         icon: 'Building2',
         path: routes.ADMIN_PROPERTIES,
-        roles: ['ADMINISTRADOR']
+        roles: ['CORRETOR', 'ADMINISTRADOR']
       },
       {
         id: 'amenities',
         text: 'Diferenciais',
         icon: 'Star',
         path: routes.ADMIN_AMENITIES,
-        roles: ['ADMINISTRADOR']
+        roles: ['CORRETOR', 'ADMINISTRADOR']
       },
       {
         id: 'users',
         text: 'Usuários',
         icon: 'Users',
         path: routes.ADMIN_USERS,
-        roles: ['ADMINISTRADOR']
+        roles: ['CORRETOR', 'ADMINISTRADOR']
       },
       {
         id: 'profile',
         text: 'Meu Perfil',
         icon: 'User',
-        path: this.isAdmin ? routes.ADMIN_PROFILE : routes.PROFILE,
-        roles: ['CLIENTE', 'ADMINISTRADOR']
+        path: this.isManagementUser ? routes.ADMIN_PROFILE : routes.PROFILE,
+        roles: ['CLIENTE', 'CORRETOR', 'ADMINISTRADOR']
       },
       {
         id: 'account',
         text: 'Minha Conta',
         icon: 'Lock',
-        path: this.isAdmin ? routes.ADMIN_ACCOUNT : routes.ACCOUNT,
-        roles: ['CLIENTE', 'ADMINISTRADOR']
+        path: this.isManagementUser ? routes.ADMIN_ACCOUNT : routes.ACCOUNT,
+        roles: ['CLIENTE', 'CORRETOR', 'ADMINISTRADOR']
       }
     ]
   }
@@ -96,9 +97,8 @@ export class SidebarModel {
    */
   getMenuItems() {
     const allItems = this.#getAllMenuItems()
-    const userRole = this.isAdmin ? 'ADMINISTRADOR' : 'CLIENTE'
 
-    return allItems.filter(item => item.roles.includes(userRole))
+    return allItems.filter(item => item.roles.includes(this.userRole))
   }
 
   /**
@@ -113,7 +113,11 @@ export class SidebarModel {
    * Atualiza status de admin
    * @param {boolean} isAdmin
    */
-  setAdminStatus(isAdmin) {
-    this.isAdmin = isAdmin
+  setAdminStatus(isManagementUser) {
+    this.isManagementUser = isManagementUser
+  }
+
+  setUserRole(userRole) {
+    this.userRole = userRole
   }
 }

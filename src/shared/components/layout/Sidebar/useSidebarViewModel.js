@@ -30,7 +30,9 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
 
   // Sincroniza status de admin com o modelo e força re-render
   useEffect(() => {
+    const { role } = authSessionUtil.get()
     model.setAdminStatus(isAdmin)
+    model.setUserRole(role ?? 'CLIENTE')
     setForceUpdate(prev => prev + 1)
   }, [isAdmin, model])
 
@@ -39,6 +41,7 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
     const { email, role } = authSessionUtil.get()
     setUserEmail(email ?? '')
     setUserRole(role ?? 'CLIENTE')
+    model.setUserRole(role ?? 'CLIENTE')
   }, [])
 
   // Auto-expandir o submenu se a rota atual for de um filho
@@ -62,6 +65,7 @@ export function useSidebarViewModel(isAdmin = false, initialOpen = false) {
       const { email, role } = authSessionUtil.get()
       setUserEmail(email ?? '')
       setUserRole(role ?? 'CLIENTE')
+      model.setUserRole(role ?? 'CLIENTE')
       setForceUpdate(prev => prev + 1)
     }
 

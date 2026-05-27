@@ -15,6 +15,7 @@ export function PageView() {
   const {
     isAuthenticated,
     isAdmin,
+    isBroker,
     authReady,
     isAuthPage,
     shouldShowFooter,
@@ -31,18 +32,19 @@ export function PageView() {
           <SidebarView
             open={sidebarOpen}
             onToggle={() => setSidebarOpen(p => !p)}
-            isAdmin={isAdmin}
+            isAdmin={isAdmin || isBroker}
           />
         </div>
       )}
       <div className='flex flex-col w-full h-full overflow-hidden'>
         {!isAuthPage && (
-          <HeaderView isAuthenticated={isAuthenticated} isAdmin={isAdmin} sidebarVisible={shouldShowSidebar} />
+          <HeaderView isAuthenticated={isAuthenticated} isAdmin={isAdmin || isBroker} sidebarVisible={shouldShowSidebar} />
         )}
         <div className='flex-1 overflow-x-hidden overflow-y-hidden'>
           <RouterView
             isAuthenticated={isAuthenticated}
             isAdmin={isAdmin}
+            isBroker={isBroker}
             authReady={authReady}
             shouldShowFooter={shouldShowFooter}
           />

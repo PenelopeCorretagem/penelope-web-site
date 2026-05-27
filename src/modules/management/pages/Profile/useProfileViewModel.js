@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { getUserById, updateUser } from '@api-penelopec/userApi'
 import { ProfileModel } from './ProfileModel'
 import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel } from '@constant/accessLevels'
 
 export function useProfileViewModel(targetUserId = null) {
   const [model, setModel] = useState(new ProfileModel())
@@ -19,10 +21,10 @@ export function useProfileViewModel(targetUserId = null) {
   const [currentUser, setCurrentUser] = useState(null)
 
   // Determinar se está editando próprio perfil e se o usuário atual é admin
-  const currentUserId = sessionStorage.getItem('userId')
+  const { userId: currentUserId } = authSessionUtil.get()
   const userIdToEdit = targetUserId || currentUserId
   const isEditingOwnProfile = !targetUserId || targetUserId === currentUserId
-  const currentUserIsAdmin = currentUser?.accessLevel === 'ADMINISTRADOR'
+  const currentUserIsAdmin = isAdminAccessLevel(currentUser?.accessLevel)
 
   // Usar os campos do model com configuração baseada no contexto
   const profileFields = ProfileModel.getFormFields(isEditingOwnProfile, currentUserIsAdmin)

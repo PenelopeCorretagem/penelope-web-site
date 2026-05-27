@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -18,25 +18,27 @@ import {
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { Download, ChevronDown, X } from 'lucide-react'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
+import { X } from 'lucide-react'
 import { PERIOD_LABELS } from '../../ReportModel'
-import { useReportViewModel } from '../../useReportViewModel'
 import clsx from 'clsx'
-
+import { APPOINTMENT_STATUS_LABELS } from '@constant/appointmentStatuses'
 /**
  * DashboardView.jsx
- * Componente que exibe relatório com gráficos e KPIs
- * Layout: KPIs esquerda, Gráficos direita, sem scroll na tela principal
+ *
+ * Exibe relatório com gráficos e KPIs.
+ *
+ * Correções aplicadas:
+ * 1. Empty state: verifica `appointments.length === 0` ANTES de renderizar o grid,
+ *    evitando que o Recharts tente medir containers com dimensão zero.
+ * 2. getAppointmentsByWeekDay: agora retorna [] quando não há dados (corrigido no Model).
+ * 3. minHeight no container do grid para garantir que o Recharts sempre receba > 0.
  */
 
-const RADIAN = Math.PI / 180
-
 export function DashboardView({
-  appointments = [],
-  estateAgentName = '',
+  reportData,
+  isLoading = false,
 }) {
-  const reportData = useReportViewModel(appointments)
   const [expandedItem, setExpandedItem] = useState(null)
 
   const COLORS_BY_STATUS = {
@@ -46,32 +48,50 @@ export function DashboardView({
     CANCELLED: '#3d3c3c',
   }
 
-  const STATUS_LABELS_MAP = {
-    PENDING: 'Agendado',
-    CONFIRMED: 'Confirmado',
-    CONCLUDED: 'Concluído',
-    CANCELLED: 'Cancelado',
+  const STATUS_LABELS_MAP = APPOINTMENT_STATUS_LABELS
+
+  const pieChartData = Object.entries({
+    PENDING: 0,
+    CONFIRMED: 0,
+    CONCLUDED: 0,
+    CANCELLED: 0,
+    ...reportData.statusDistribution,
+  }).map(([status, count]) => ({
+    name: STATUS_LABELS_MAP[status] || status,
+    value: count,
+    fill: COLORS_BY_STATUS[status],
+  }))
+
+  // ─── Loading ─────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <SectionView className="bg-default-light rounded-lg border border-default-light-muted shadow-sm h-full !p-10">
+        <SkeletonView variant="dashboard" />
+      </SectionView>
+    )
   }
 
-  const pieChartData = useMemo(() => {
-    const { statusDistribution } = reportData
-    return Object.entries(statusDistribution)
-      .filter(([, count]) => count > 0)
-      .map(([status, count]) => ({
-        name: STATUS_LABELS_MAP[status] || status,
-        value: count,
-        fill: COLORS_BY_STATUS[status],
-      }))
-  }, [reportData])
-
-  const handleExportReport = () => {
-    console.log('Exportar relatório:', {
-      period: reportData.periodType,
-      agent: estateAgentName,
-      appointments: appointments.length,
-    })
+  // ─── Empty state ─────────────────────────────────────────────────────────
+  // Renderizado ANTES do grid para que o Recharts jamais tente
+  // medir containers inexistentes com width/height -1.
+  if (reportData.totalAppointments === 0) {
+    return (
+      <SectionView className="flex-col !gap-0 !p-0 bg-default-light-alt xl:h-full overflow-hidden">
+        <div className="flex items-center justify-center h-full min-h-[300px]">
+          <div className="bg-default-light rounded-lg p-6 text-center border border-default-light-muted flex flex-col items-center justify-center max-w-sm">
+            <HeadingView level={5} className="text-default-dark-light mb-1 text-xs">
+              Sem dados para exibir
+            </HeadingView>
+            <TextView className="text-default-dark-light text-[11px]">
+              Nenhum agendamento encontrado para o período selecionado.
+            </TextView>
+          </div>
+        </div>
+      </SectionView>
+    )
   }
 
+  // ─── KPI Card ─────────────────────────────────────────────────────────────
   const renderKPICard = (label, value, unit = '%', color = 'text-distac-primary', id) => (
     <button
       key={id}
@@ -93,7 +113,7 @@ export function DashboardView({
     </button>
   )
 
-  // Modal ampliado (KPIs e Gráficos)
+  // ─── Modal expandido ──────────────────────────────────────────────────────
   const renderExpandedModal = () => {
     if (!expandedItem) return null
 
@@ -136,7 +156,7 @@ export function DashboardView({
       if (expandedItem.id === 'estate-type') {
         chartContent = (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={reportData.appointmentsByEstateType} margin={{ top: 5, right: 15, left: 0, bottom: 35 }} animationDuration={400} isAnimationActive={true}>
+            <BarChart data={reportData.appointmentsByEstateType} margin={{ top: 5, right: 15, left: 0, bottom: 35 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="type" angle={-45} textAnchor="end" height={60} tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} />
@@ -148,7 +168,7 @@ export function DashboardView({
       } else if (expandedItem.id === 'estates') {
         chartContent = (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={reportData.appointmentsByEstate} layout="vertical" margin={{ top: 5, right: 20, left: 120, bottom: 5 }} animationDuration={400} isAnimationActive={true}>
+            <BarChart data={reportData.appointmentsByEstate} layout="vertical" margin={{ top: 5, right: 20, left: 120, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" tick={{ fontSize: 10 }} />
               <YAxis type="category" dataKey="estate" width={110} tick={{ fontSize: 9 }} />
@@ -160,27 +180,20 @@ export function DashboardView({
       } else if (expandedItem.id === 'distribution') {
         chartContent = (
           <ResponsiveContainer width="100%" height={400}>
-            <PieChart isAnimationActive={true}>
+            <PieChart>
               <Pie
                 data={pieChartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
                 outerRadius={120}
-                fill="#8884d8"
                 dataKey="value"
-                animationDuration={400}
                 isAnimationActive={false}
               >
                 {pieChartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
-                <LabelList
-                  dataKey="name"
-                  position="outside"
-                  fill="#333"
-                  fontSize={12}
-                />
+                <LabelList dataKey="name" position="outside" fill="#333" fontSize={12} />
               </Pie>
               <Tooltip formatter={(value) => [value, 'Agendamentos']} />
             </PieChart>
@@ -189,7 +202,7 @@ export function DashboardView({
       } else if (expandedItem.id === 'weekday') {
         chartContent = (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 5, right: 15, left: 0, bottom: 35 }} animationDuration={400} isAnimationActive={true}>
+            <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 5, right: 15, left: 0, bottom: 35 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 10 }} />
@@ -201,7 +214,7 @@ export function DashboardView({
       } else if (expandedItem.id === 'trend') {
         chartContent = (
           <ResponsiveContainer width="100%" height={400}>
-            <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 5, right: 15, left: 0, bottom: 35 }} animationDuration={400} isAnimationActive={true}>
+            <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 5, right: 15, left: 0, bottom: 35 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="period" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
               <YAxis tick={{ fontSize: 10 }} />
@@ -243,14 +256,28 @@ export function DashboardView({
     return null
   }
 
+  // ─── Dashboard com dados ──────────────────────────────────────────────────
+  // O `min-h-0` + `minHeight` no estilo garante que o Recharts sempre
+  // receba dimensões positivas ao medir os containers via ResizeObserver.
+  const hasEstateTypeData = reportData.appointmentsByEstateType.length > 0
+  const hasEstateData = reportData.appointmentsByEstate.length > 0
+  const hasPieData = pieChartData.some((d) => d.value > 0)
+  const hasWeekDayData = reportData.appointmentsByWeekDay.length > 0
+  const hasTrendData = reportData.timeSeriesDataByStatus.length > 0
+
   return (
     <>
       <SectionView className="flex-col !gap-0 !p-0 bg-default-light-alt xl:h-full overflow-hidden">
-        {/* Grid 5 colunas x 7 linhas com posicionamento fixo */}
-        <div className="flex-1 min-h-0 overflow-hidden p-2 md:p-3">
-          <div className="grid gap-2 h-full" style={{ gridTemplateColumns: 'repeat(5, 1fr)', gridTemplateRows: 'repeat(7, 1fr)' }}>
+        <div className="flex-1 min-h-0 overflow-hidden" style={{ minHeight: '400px' }}>
+          <div
+            className="grid gap-2 h-full"
+            style={{
+              gridTemplateColumns: 'repeat(5, 1fr)',
+              gridTemplateRows: 'repeat(7, 1fr)',
+            }}
+          >
             {/* Coluna 1: Tipo de Imóvel (ocupa 7 linhas) */}
-            {reportData.appointmentsByEstateType.length > 0 && (
+            {hasEstateTypeData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'estate-type', title: 'Total de Agendamentos por Tipo de Imóvel' })}
@@ -264,17 +291,9 @@ export function DashboardView({
                   <BarChart
                     data={reportData.appointmentsByEstateType}
                     margin={{ top: 2, right: 10, left: 0, bottom: 20 }}
-                    animationDuration={400}
-                    isAnimationActive={true}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                    <XAxis
-                      dataKey="type"
-                      angle={-45}
-                      textAnchor="end"
-                      height={40}
-                      tick={{ fontSize: 7 }}
-                    />
+                    <XAxis dataKey="type" angle={-45} textAnchor="end" height={40} tick={{ fontSize: 7 }} />
                     <YAxis tick={{ fontSize: 8 }} />
                     <Tooltip />
                     <Bar dataKey="count" fill="#b33c8e" radius={[4, 4, 0, 0]} />
@@ -283,7 +302,7 @@ export function DashboardView({
               </button>
             )}
 
-            {/* Linha 1: KPIs (4 colunas) */}
+            {/* Linha 1: KPIs (cols 2-5) */}
             <div style={{ gridColumn: '2', gridRow: '1' }}>
               {renderKPICard('Total de Agendamentos', reportData.totalAppointments, '', 'text-distac-primary', 'kpi-total')}
             </div>
@@ -297,8 +316,8 @@ export function DashboardView({
               {renderKPICard('Taxa de Cancelamento', reportData.cancellationRate, '%', 'text-red-600', 'kpi-cancel')}
             </div>
 
-            {/* Linhas 2-4: Top 10 Imóveis (3 cols) + Distribuição (1 col) */}
-            {reportData.appointmentsByEstate.length > 0 && (
+            {/* Linhas 2-4: Top 10 Imóveis (cols 2-4) */}
+            {hasEstateData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'estates', title: 'Top 10 Imóveis Mais Agendados' })}
@@ -313,8 +332,6 @@ export function DashboardView({
                     data={reportData.appointmentsByEstate}
                     layout="vertical"
                     margin={{ top: 2, right: 10, left: 70, bottom: 2 }}
-                    animationDuration={400}
-                    isAnimationActive={true}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                     <XAxis type="number" tick={{ fontSize: 8 }} />
@@ -326,7 +343,8 @@ export function DashboardView({
               </button>
             )}
 
-            {pieChartData.length > 0 && (
+            {/* Linhas 2-4: Distribuição por Status (col 5) */}
+            {hasPieData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'distribution', title: 'Distribuição de Agendamentos por Status' })}
@@ -337,34 +355,28 @@ export function DashboardView({
                   Distribuição de Agendamentos por Status
                 </HeadingView>
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart isAnimationActive={true}>
+                  <PieChart>
                     <Pie
                       data={pieChartData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       outerRadius={35}
-                      fill="#8884d8"
                       dataKey="value"
                       isAnimationActive={false}
                     >
                       {pieChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
-                      <LabelList
-                        dataKey="name"
-                        position="outside"
-                        fill="#666"
-                        fontSize={7}
-                      />
+                      <LabelList dataKey="name" position="outside" fill="#666" fontSize={7} />
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
               </button>
             )}
 
-            {/* Linhas 5-7: Agendamentos por Dia (2 cols) + Tendência (2 cols) */}
-            {reportData.appointmentsByWeekDay.length > 0 && (
+            {/* Linhas 5-7: Agendamentos por Dia da Semana (cols 2-3) */}
+            {hasWeekDayData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'weekday', title: 'Total de Agendamentos por Dia da Semana' })}
@@ -375,7 +387,7 @@ export function DashboardView({
                   Total de Agendamentos Por Dia da Semana
                 </HeadingView>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 2, right: 10, left: 0, bottom: 20 }} animationDuration={400} isAnimationActive={true}>
+                  <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 2, right: 10, left: 0, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                     <XAxis dataKey="day" tick={{ fontSize: 7 }} angle={-45} textAnchor="end" height={40} />
                     <YAxis tick={{ fontSize: 8 }} />
@@ -386,7 +398,8 @@ export function DashboardView({
               </button>
             )}
 
-            {reportData.timeSeriesDataByStatus.length > 0 && (
+            {/* Linhas 5-7: Tendência (cols 4-5) */}
+            {hasTrendData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'trend', title: `Tendência (${PERIOD_LABELS[reportData.periodType]})` })}
@@ -400,40 +413,19 @@ export function DashboardView({
                   <ComposedChart
                     data={reportData.timeSeriesDataByStatus}
                     margin={{ top: 2, right: 10, left: 0, bottom: 20 }}
-                    animationDuration={400}
-                    isAnimationActive={true}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                     <XAxis dataKey="period" tick={{ fontSize: 7 }} angle={-45} textAnchor="end" height={40} />
                     <YAxis tick={{ fontSize: 8 }} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: '7px' }} />
-                    <Line
-                      type="monotone"
-                      dataKey="PENDING"
-                      stroke="#b33c8e"
-                      name="Agendado"
-                      strokeWidth={1.5}
-                      dot={false}
-                    />
+                    <Line type="monotone" dataKey="PENDING" stroke="#b33c8e" name="Agendado" strokeWidth={1.5} dot={false} />
                     <Bar dataKey="CONFIRMED" fill="#36221d" name="Confirmado" />
                     <Bar dataKey="CONCLUDED" fill="#9b7a7a" name="Concluído" />
                     <Bar dataKey="CANCELLED" fill="#3d3c3c" name="Cancelado" />
                   </ComposedChart>
                 </ResponsiveContainer>
               </button>
-            )}
-
-            {/* Empty state */}
-            {appointments.length === 0 && (
-              <div className="bg-default-light rounded-lg p-4 text-center border border-default-light-muted flex flex-col items-center justify-center" style={{ gridColumn: '1 / 6', gridRow: '1 / 8' }}>
-                <HeadingView level={5} className="text-default-dark-light mb-1 text-xs">
-                  Sem dados para exibir
-                </HeadingView>
-                <TextView className="text-default-dark-light text-[11px]">
-                  Nenhum agendamento encontrado para o período selecionado.
-                </TextView>
-              </div>
             )}
           </div>
         </div>

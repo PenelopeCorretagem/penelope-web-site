@@ -5,6 +5,7 @@ import { validateCPF } from '@shared/utils/CPF/validateCPFUtil'
 import { formatPhoneNumber, cleanPhoneNumber } from '@shared/utils/phone/formatPhoneNumberUtil'
 import { formatCPF, cleanCPF } from '@shared/utils/CPF/formatCPFUtil'
 import { formatCurrencyInput, formatCurrencyForDatabase, formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
+import { isAdminAccessLevel, normalizeAccessLevel } from '@constant/accessLevels'
 
 /**
  * UserConfigModel - Modelo de dados para configuração de usuários
@@ -24,7 +25,7 @@ export class UserConfigModel {
     this.cpf = userData.cpf || ''
     this.dateBirth = userData.dateBirth || userData.dtNascimento || ''
     this.monthlyIncome = userData.monthlyIncome || userData.rendaMensal || ''
-    this.accessLevel = userData.accessLevel || 'CLIENTE'
+    this.accessLevel = normalizeAccessLevel(userData.accessLevel || 'CLIENTE')
     this.senha = userData.senha || userData.password || ''
   }
 
@@ -32,7 +33,7 @@ export class UserConfigModel {
    * Define os campos do formulário baseado no modo e tipo de usuário
    */
   static getFormFields(isEditMode = false, userAccessLevel = 'CLIENTE') {
-    const isAdmin = userAccessLevel === 'ADMINISTRADOR'
+    const isAdmin = isAdminAccessLevel(userAccessLevel)
 
     const fields = [
       // LINHA 1: Nome (1/2 = 3 cols), Data (1/3 = 2 cols), CPF (1/6 = 1 col) = 6 cols total
@@ -143,6 +144,7 @@ export class UserConfigModel {
         gridColumn: 'col-span-3', // 1/2 de 6 colunas
         options: [
           { value: 'CLIENTE', label: 'Cliente' },
+          { value: 'CORRETOR', label: 'Corretor' },
           { value: 'ADMINISTRADOR', label: 'Administrador' }
         ],
         required: true,
@@ -150,7 +152,7 @@ export class UserConfigModel {
           if (!value) {
             return 'Nível de acesso é obrigatório'
           }
-          if (!['CLIENTE', 'ADMINISTRADOR'].includes(value)) {
+          if (!['CLIENTE', 'CORRETOR', 'ADMINISTRADOR'].includes(value)) {
             return 'Nível de acesso inválido'
           }
           return true
@@ -363,7 +365,7 @@ export class UserConfigModel {
    * Verifica se é administrador
    */
   get isAdmin() {
-    return this.accessLevel === 'ADMINISTRADOR'
+    return isAdminAccessLevel(this.accessLevel)
   }
 
   /**

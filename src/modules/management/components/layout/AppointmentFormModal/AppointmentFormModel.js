@@ -5,6 +5,7 @@
 
 export class AppointmentFormModel {
   #selectedEstate
+  #selectedClient
   #startDateTime
   #durationMinutes
   #visitorName
@@ -16,6 +17,7 @@ export class AppointmentFormModel {
 
   constructor({
     selectedEstate = null,
+    selectedClient = null,
     startDateTime = new Date(),
     durationMinutes = 60,
     visitorName = '',
@@ -26,6 +28,7 @@ export class AppointmentFormModel {
     reason = '',
   } = {}) {
     this.#selectedEstate = selectedEstate
+    this.#selectedClient = selectedClient
     this.#startDateTime = startDateTime
     this.#durationMinutes = durationMinutes
     this.#visitorName = visitorName
@@ -39,6 +42,7 @@ export class AppointmentFormModel {
   static fromAppointment(appointment = {}) {
     return new AppointmentFormModel({
       selectedEstate: appointment.estate || null,
+      selectedClient: null,
       startDateTime: appointment.startDateTime ? new Date(appointment.startDateTime) : new Date(),
       durationMinutes: appointment.durationMinutes || 60,
       visitorName: appointment.attendeeName || '',
@@ -56,6 +60,14 @@ export class AppointmentFormModel {
 
   set selectedEstate(value) {
     this.#selectedEstate = value
+  }
+
+  get selectedClient() {
+    return this.#selectedClient
+  }
+
+  set selectedClient(value) {
+    this.#selectedClient = value
   }
 
   get startDateTime() {
@@ -182,10 +194,10 @@ export class AppointmentFormModel {
     if (this.#startDateTime) {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
       const startDate = new Date(this.#startDateTime)
       startDate.setHours(0, 0, 0, 0)
-      
+
       if (startDate < today) {
         errors.push('Não é possível agendar em datas passadas')
       }

@@ -55,14 +55,16 @@ const ProtectedRoute = ({ protection, children }) => {
 export function RouterView({
   isAuthenticated = false,
   isAdmin = false,
+  isBroker = false,
   authReady = false,
   shouldShowFooter = false,
 }) {
-  const { calculateProtectedRouteAccess, calculateAdminRouteAccess, getAllRoutes } = useRouter()
+  const { calculateProtectedRouteAccess, calculateAdminRouteAccess, calculateManagementRouteAccess, getAllRoutes } = useRouter()
   const routes = getAllRoutes()
 
   const protectedAccess = calculateProtectedRouteAccess(isAuthenticated, authReady)
   const adminAccess = calculateAdminRouteAccess(isAuthenticated, isAdmin, authReady)
+  const managementAccess = calculateManagementRouteAccess(isAuthenticated, isAdmin, isBroker, authReady)
 
   return (
     <main className="router-view bg-default-light w-full h-full flex-1 overflow-x-hidden overflow-y-auto">
@@ -127,7 +129,7 @@ export function RouterView({
         <Route
           path={routes.ADMIN}
           element={(
-            <ProtectedRoute protection={adminAccess}>
+            <ProtectedRoute protection={managementAccess}>
               <Navigate to={routes.ADMIN_PROPERTIES} replace />
             </ProtectedRoute>
           )}
@@ -135,49 +137,49 @@ export function RouterView({
         <Route
           path={routes.ADMIN_PROFILE}
           element={
-            <ProtectedRoute protection={adminAccess}><ProfileView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><ProfileView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_ACCOUNT}
           element={
-            <ProtectedRoute protection={adminAccess}><AccountView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><AccountView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_USERS}
           element={
-            <ProtectedRoute protection={adminAccess}><UsersView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><UsersView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_USER_ADD}
           element={
-            <ProtectedRoute protection={adminAccess}><UserConfigView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><UserConfigView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_USER_EDIT}
           element={
-            <ProtectedRoute protection={adminAccess}><UserConfigView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><UserConfigView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_PROPERTIES}
           element={
-            <ProtectedRoute protection={adminAccess}><AdvertisementsConfigView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><AdvertisementsConfigView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_PROPERTIES_CONFIG}
           element={
-            <ProtectedRoute protection={adminAccess}><AdvertisementConfigView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><AdvertisementConfigView /></ProtectedRoute>
           }
         />
         <Route
           path={routes.ADMIN_AMENITIES}
           element={
-            <ProtectedRoute protection={adminAccess}><AmenitiesView /></ProtectedRoute>
+            <ProtectedRoute protection={managementAccess}><AmenitiesView /></ProtectedRoute>
           }
         />
 

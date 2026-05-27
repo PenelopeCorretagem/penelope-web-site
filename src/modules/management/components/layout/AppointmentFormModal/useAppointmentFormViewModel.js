@@ -6,10 +6,12 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AppointmentFormModel } from './AppointmentFormModel'
 import { getAllAdvertisements } from '@api-penelopec/advertisementApi'
-import { getUserById } from '@api-penelopec/userApi'
+import { getAllUsers, getUserById } from '@service-penelopec/userService'
 import { createAppointment, rescheduleAppointment } from '@service-calservice/appointmentService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
 import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@constant/accessLevels'
 
 const getApiErrorMessage = (error, fallbackMessage) => {
   const violations = error?.response?.data?.violations
@@ -30,7 +32,11 @@ export function useAppointmentFormViewModel(
   preselectedEstateReference = null
 ) {
   const isRescheduleMode = mode === 'reschedule'
-  const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
+  const { role: userRole, userId: authenticatedUserId, email: authenticatedUserEmail } = authSessionUtil.get()
+  const isAdminUser = isAdminAccessLevel(userRole)
+  const isBrokerUser = isBrokerAccessLevel(userRole)
+  const isClientUser = isClientAccessLevel(userRole)
+  const canChooseClient = isAdminUser || isBrokerUser
 
   const buildInitialModel = useCallback(() => {
     if (isRescheduleMode && appointmentToEdit) {
@@ -43,9 +49,12 @@ export function useAppointmentFormViewModel(
   }, [appointmentToEdit, initialDate, initialHour, isRescheduleMode])
 
   const [model, setModel] = useState(() => buildInitialModel())
+  const [clients, setClients] = useState([])
   const [estates, setEstates] = useState([])
   const [loadingEstates, setLoadingEstates] = useState(false)
+  const [loadingClients, setLoadingClients] = useState(false)
   const [estatesError, setEstatesError] = useState(null)
+  const [clientsError, setClientsError] = useState(null)
   const [eventTypes, setEventTypes] = useState([])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,6 +69,38 @@ export function useAppointmentFormViewModel(
     setValidationErrors([])
     setSubmitError(null)
   }, [buildInitialModel, isOpen])
+
+  useEffect(() => {
+    if (!isOpen || !canChooseClient || isRescheduleMode) {
+      setClients([])
+      setClientsError(null)
+      return
+    }
+
+    const loadClients = async () => {
+      setLoadingClients(true)
+      setClientsError(null)
+
+      try {
+        const users = await getAllUsers()
+        const clientOptions = users
+          .filter(user => isClientAccessLevel(user.accessLevel) && user.isActive())
+          .map(user => ({
+            value: String(user.id),
+            label: `${user.name} - ${user.email}`,
+            user,
+          }))
+
+        setClients(clientOptions)
+      } catch (error) {
+        setClientsError(getApiErrorMessage(error, 'Erro ao carregar clientes disponíveis'))
+      } finally {
+        setLoadingClients(false)
+      }
+    }
+
+    loadClients()
+  }, [authenticatedUserId, canChooseClient, isOpen, isRescheduleMode])
 
   useEffect(() => {
     if (!isOpen || isRescheduleMode || !preselectedEstateReference) {
@@ -95,6 +136,7 @@ export function useAppointmentFormViewModel(
 
       return new AppointmentFormModel({
         selectedEstate: matchedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName: prev.visitorName,
@@ -109,13 +151,13 @@ export function useAppointmentFormViewModel(
 
   // Preenche automaticamente os dados do visitante para usuários não-admin.
   useEffect(() => {
-    if (!isOpen || isRescheduleMode || isAdminUser) {
+    if (!isOpen || isRescheduleMode || !isClientUser) {
       return
     }
 
     const prefillVisitorData = async () => {
-      const userId = sessionStorage.getItem('userId')
-      const userEmailFromSession = sessionStorage.getItem('userEmail') || ''
+      const userId = authenticatedUserId
+      const userEmailFromSession = authenticatedUserEmail || ''
 
       let visitorName = ''
       let visitorEmail = userEmailFromSession
@@ -134,6 +176,7 @@ export function useAppointmentFormViewModel(
 
       setModel(prev => new AppointmentFormModel({
         selectedEstate: prev.selectedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName,
@@ -146,7 +189,7 @@ export function useAppointmentFormViewModel(
     }
 
     prefillVisitorData()
-  }, [isOpen, isRescheduleMode, isAdminUser])
+  }, [authenticatedUserEmail, authenticatedUserId, isClientUser, isOpen, isRescheduleMode])
 
   // Carrega imóveis ativos e event types ao montar
   useEffect(() => {
@@ -180,6 +223,7 @@ export function useAppointmentFormViewModel(
     setModel(prev => {
       const updated = new AppointmentFormModel({
         selectedEstate: prev.selectedEstate,
+        selectedClient: prev.selectedClient,
         startDateTime: prev.startDateTime,
         durationMinutes: prev.durationMinutes,
         visitorName: prev.visitorName,
@@ -192,6 +236,11 @@ export function useAppointmentFormViewModel(
 
       if (fieldName === 'estate') {
         updated.selectedEstate = value
+      } else if (fieldName === 'client') {
+        updated.selectedClient = value
+        updated.visitorName = value?.name || ''
+        updated.visitorEmail = value?.email || ''
+        updated.visitorPhone = value?.phone || ''
       } else if (fieldName === 'startDateTime') {
         updated.startDateTime = value
       } else if (fieldName === 'durationMinutes') {
@@ -214,6 +263,16 @@ export function useAppointmentFormViewModel(
     })
     setValidationErrors([])
   }, [])
+
+  const handleClientChange = useCallback((clientId) => {
+    if (!clientId) {
+      updateField('client', null)
+      return
+    }
+
+    const selectedClient = clients.find(option => String(option.value) === String(clientId))?.user || null
+    updateField('client', selectedClient)
+  }, [clients, updateField])
 
   const validate = useCallback(() => {
     const errors = [...model.getValidationErrors({ isRescheduleMode })]
@@ -287,9 +346,11 @@ export function useAppointmentFormViewModel(
       }
 
       // O usuário autenticado é utilizado para rastreabilidade de cliente/corretor.
-      const userId = sessionStorage.getItem('userId')
+      const userId = canChooseClient
+        ? model.selectedClient?.id
+        : authenticatedUserId
       if (!userId) {
-        throw new Error('Usuário não autenticado. Faça login para agendar.')
+        throw new Error(canChooseClient ? 'Selecione um cliente para agendar.' : 'Usuário não autenticado. Faça login para agendar.')
       }
 
       const selectedEstateId = model.selectedEstate?.estate?.id
@@ -317,7 +378,7 @@ export function useAppointmentFormViewModel(
     } finally {
       setIsSubmitting(false)
     }
-  }, [appointmentToEdit, eventTypes, isRescheduleMode, model, validate])
+  }, [appointmentToEdit, authenticatedUserId, canChooseClient, eventTypes, isRescheduleMode, model, validate])
 
   const getEstateImageUrl = useCallback((estate) => {
     if (!estate) return null
@@ -390,14 +451,20 @@ export function useAppointmentFormViewModel(
   return {
     model,
     estates,
+    clients,
+    selectedClientId: model.selectedClient?.id ? String(model.selectedClient.id) : '',
+    loadingClients,
+    clientsError,
     loadingEstates,
     estatesError,
     isSubmitting,
     submitError,
     validationErrors,
     isRescheduleMode,
+    canChooseClient,
     appointmentToEdit,
     updateField,
+    handleClientChange,
     validate,
     handleSubmit,
     getEstateImageUrl,

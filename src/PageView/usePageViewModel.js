@@ -3,7 +3,7 @@ import { useAuthSession } from '@shared/hooks/useAuthSession'
 
 export function usePageViewModel() {
   const { currentRoute } = useRouter()
-  const { isAuthenticated, isAdmin, authReady } = useAuthSession()
+  const { isAuthenticated, isAdmin, isBroker, authReady } = useAuthSession()
 
   const AUTH_ROUTES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/verificacao']
   const ADMIN_ROUTES = ['/admin', '/agenda']
@@ -13,7 +13,8 @@ export function usePageViewModel() {
 
   return {
     isAuthenticated,
-    isAdmin,
+    isAdmin: isAdmin || isBroker,
+    isBroker,
     authReady,
     isAuthPage,
     shouldShowFooter: !isAuthPage && !isAdminPage,

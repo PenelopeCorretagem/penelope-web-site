@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AdvertisementConfigModel } from './AdvertisementConfigModel'
 import { getAdvertisementById, createAdvertisement, updateAdvertisement, deleteAdvertisement } from '@service-penelopec/advertisementService'
@@ -266,23 +266,12 @@ export function useAdvertisementConfigViewModel(id) {
   }
 
   const handleClear = () => {
-
-    if (isNew) {
-      setInitialData(new AdvertisementConfigModel())
-    } else {
-      // For editing, reload original data
-      const loadOriginalData = async () => {
-        try {
-          const advertisement = await getAdvertisementById(id)
-          const advertisementModel = AdvertisementConfigModel.fromAdvertisementEntity(advertisement)
-          setInitialData(advertisementModel)
-        } catch (err) {
-          console.error('❌ [PROPERTY CONFIG VM] Failed to reload original data:', err)
-        }
-      }
-      loadOriginalData()
-    }
+    setInitialData(new AdvertisementConfigModel())
   }
+
+  const initialFormData = useMemo(() => {
+    return initialData?.toFormData()
+  }, [initialData])
 
   const handleCancel = () => {
 
@@ -294,7 +283,7 @@ export function useAdvertisementConfigViewModel(id) {
     loadingUsers,
     loadingAmenities,
     error,
-    initialData: initialData?.toFormData(),
+    initialData: initialFormData,
     submitting,
     isNew,
     usersWithCreci,

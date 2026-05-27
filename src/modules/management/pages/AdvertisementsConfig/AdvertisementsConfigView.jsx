@@ -1,9 +1,8 @@
+import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView'
 import { useAdvertisementsConfigViewModel } from './useAdvertisementsConfigViewModel'
-import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { InputView } from '@shared/components/ui/Input/InputView'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -12,7 +11,7 @@ import { useCallback, useMemo } from 'react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { FilterView } from '@shared/components/layout/Filter/FilterView'
-import { ESTATE_TYPE_KEYS } from '@constant/estateTypes'
+import { ESTATE_TYPES } from '@constant/estateTypes'
 
 export function AdvertisementsConfigView() {
   const navigate = useNavigate()
@@ -24,10 +23,6 @@ export function AdvertisementsConfigView() {
     emObras,
     loading,
     error,
-    searchTerm,
-    regionFilter,
-    cityFilter,
-    typeFilter,
     sortOrder,
     availableCities,
     isDeleting,
@@ -35,7 +30,6 @@ export function AdvertisementsConfigView() {
     handleCloseAlert,
     handleConfirmDelete,
     handleFiltersChange,
-    filterModel
   } = useAdvertisementsConfigViewModel()
 
   const headerHeight = useHeaderHeight()
@@ -81,20 +75,6 @@ export function AdvertisementsConfigView() {
     { value: 'DESABILITADOS', label: 'Desabilitados' }
   ], [])
 
-  const handleClearAllFilters = useCallback(() => {
-    handleFiltersChange('searchTerm', '')
-    handleFiltersChange('regionFilter', 'TODAS')
-    handleFiltersChange('cityFilter', 'TODAS')
-    handleFiltersChange('typeFilter', 'TODOS')
-    handleFiltersChange('statusFilter', 'TODOS')
-    handleFiltersChange('sortOrder', 'none')
-  }, [handleFiltersChange])
-
-  const handleSearchInputChange = useCallback((value) => {
-    // InputView passes the string value as the first argument
-    handleFiltersChange('searchTerm', value ?? '')
-  }, [handleFiltersChange])
-
   const getAddAdvertisementHandler = useCallback((advertisementType) => {
     return () => handleAddAdvertisement(advertisementType)
   }, [handleAddAdvertisement])
@@ -120,104 +100,75 @@ export function AdvertisementsConfigView() {
 
   return (
     <div style={{ '--header-height': `${headerHeight}px` }}>
-      <SectionView className="flex flex-col !gap-section-col md:!gap-section-col-md">
-        {/* Title and Search Bar - Same Row */}
-        <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end flex-shrink-0">
-          <HeadingView level={2} className="text-distac-primary">
-            Gerenciar Imóveis
-          </HeadingView>
-          <div className="flex-1">
-            <InputView
-              type="text"
-              placeholder="Buscar por título, cidade ou descrição..."
-              value={searchTerm}
-              onChange={handleSearchInputChange}
-              hasLabel={false}
-              isActive={true}
-            />
-          </div>
-        </div>
-
-        {/* Filters and Buttons - Full Width Row with Justify Between */}
-        <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end flex-shrink-0 md:justify-between">
-          {/* Left side: Filters and Sort Button */}
-          <div className="flex flex-col md:flex-row gap-card md:gap-card-md items-end">
-            <FilterView
-              key={`filter-${filterModel.getFilter('regionFilter')}-${filterModel.getFilter('cityFilter')}-${filterModel.getFilter('typeFilter')}-${filterModel.getFilter('statusFilter')}-${sortOrder}`}
-              filterConfigs={[
-                {
-                  key: 'regionFilter',
-                  options: regionOptions,
-                  width: 'fit',
-                  variant: 'brown',
-                  shape: 'square',
-                },
-                {
-                  key: 'cityFilter',
-                  options: cityOptions,
-                  width: 'fit',
-                  variant: 'brown',
-                  shape: 'square',
-                },
-                {
-                  key: 'typeFilter',
-                  options: typeOptions,
-                  width: 'fit',
-                  variant: 'brown',
-                  shape: 'square',
-                },
-                {
-                  key: 'statusFilter',
-                  options: statusOptions,
-                  width: 'fit',
-                  variant: 'brown',
-                  shape: 'square',
-                },
-              ]}
-              defaultFilters={{
-                regionFilter,
-                cityFilter,
-                typeFilter,
-                statusFilter: filterModel.getFilter('statusFilter') || 'TODOS'
-              }}
-              defaultSortOrder={sortOrder}
-              onFiltersChange={handleFiltersChange}
-              showResetButton={false}
-              showSortButton={true}
-              hideSearch={true}
-            />
-          </div>
-
-          {/* Right side: Clear Button */}
-          <div className="w-full md:w-fit">
-            <ButtonView
-              type="button"
-              width="fit"
-              color="soft-gray"
-              onClick={handleClearAllFilters}
-              shape="square"
-              title="Limpar todos os filtros"
-              disabled={!filterModel.hasActiveFilters({
-                regionFilter: 'TODAS',
-                cityFilter: 'TODAS',
-                typeFilter: 'TODOS',
-                statusFilter: 'TODOS'
-              })}
-            >
-              Limpar
-            </ButtonView>
-          </div>
-        </div>
+      <PageManagementView
+        iconName="Building2"
+        title="Gerenciar Imóveis"
+        className="!gap-80"
+        headerChildren={(
+          <FilterView
+            searchPlaceholder="Buscar por título, cidade ou descrição..."
+            showSortButtonInPrimaryRow={true}
+            filterConfigs={[
+              {
+                key: 'regionFilter',
+                options: regionOptions,
+                defaultValue: 'TODAS',
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+                isSecondary: true,
+              },
+              {
+                key: 'cityFilter',
+                options: cityOptions,
+                defaultValue: 'TODAS',
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+                isSecondary: true,
+              },
+              {
+                key: 'typeFilter',
+                options: typeOptions,
+                defaultValue: 'TODOS',
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+                isSecondary: true,
+              },
+              {
+                key: 'statusFilter',
+                options: statusOptions,
+                defaultValue: 'TODOS',
+                width: 'fit',
+                variant: 'brown',
+                shape: 'square',
+              },
+            ]}
+            defaultFilters={{
+              regionFilter: 'TODAS',
+              cityFilter: 'TODAS',
+              typeFilter: 'TODOS',
+              statusFilter: 'TODOS'
+            }}
+            defaultSortOrder={sortOrder}
+            onFiltersChange={handleFiltersChange}
+            showResetButton={true}
+            showSortButton={true}
+            hideSearch={false}
+          />
+        )}
+      >
 
         {/* Advertisements Content */}
-        <div className="flex flex-col gap-subsection md:gap-subsection-md h-fit flex-1">
+        <div className="flex flex-col gap-subsection md:gap-subsection-md h-fit flex-1 overflow-auto -mx-9 md:-mx-11 pr-7 md:pr-9  pl-9 md:pl-11">
           {lancamentos.length > 0 && (
             <AdvertisementsCarouselView
               advertisements={lancamentos}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Lançamentos"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.LANCAMENTO)}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.LANCAMENTO.apiValue)}
             />
           )}
 
@@ -227,7 +178,7 @@ export function AdvertisementsConfigView() {
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Disponíveis"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.DISPONIVEL)}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.DISPONIVEL.apiValue)}
             />
           )}
 
@@ -237,7 +188,7 @@ export function AdvertisementsConfigView() {
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
               titleCarousel="Em Obras"
               actionButtonText="Adicionar Imóvel"
-              onActionClick={getAddAdvertisementHandler(ESTATE_TYPE_KEYS.EM_OBRAS)}
+              onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.EM_OBRAS.apiValue)}
             />
           )}
 
@@ -289,7 +240,7 @@ export function AdvertisementsConfigView() {
             </div>
           )}
         </AlertView>
-      </SectionView>
+      </PageManagementView>
     </div>
   )
 }

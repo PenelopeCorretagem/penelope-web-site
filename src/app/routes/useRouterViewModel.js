@@ -73,10 +73,17 @@ export function useRouter() {
   }, [])
 
   const requiresAdmin = useCallback((route) => {
-    const adminRoutes = routerModel.getAdminRequiredRoutes()
+    const adminRoutes = routerModel.getAdminOnlyRoutes()
     if (adminRoutes.includes(route)) return true
     if (route.startsWith('/admin/')) return true
     return false
+  }, [])
+
+  const calculateManagementRouteAccess = useCallback((isAuthenticated, isAdmin, isBroker, authReady) => {
+    if (!authReady) return { shouldRender: false, redirectTo: null }
+    if (!isAuthenticated) return { shouldRender: false, redirectTo: ROUTES.LOGIN.path }
+    if (!isAdmin && !isBroker) return { shouldRender: false, redirectTo: ROUTES.UNAUTHORIZED.path }
+    return { shouldRender: true, redirectTo: null }
   }, [])
 
   // ===== Proteções de rota =====
@@ -120,6 +127,7 @@ export function useRouter() {
     requiresAdmin,
     calculateProtectedRouteAccess,
     calculateAdminRouteAccess,
+    calculateManagementRouteAccess,
     generateRoute,
     extractParams,
     getAllRoutes: () => routerModel.getAllRoutes(),

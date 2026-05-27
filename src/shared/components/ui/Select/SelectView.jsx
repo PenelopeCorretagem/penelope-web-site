@@ -1,11 +1,11 @@
 import { ChevronDown } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, forwardRef } from 'react'
 import { useSelectViewModel } from './useSelectViewModel'
 
 function getSelectClasses({ variant, shape, width, disabled, className }) {
   const baseClasses = [
     'font-semibold uppercase',
-    'text-form-control md:text-form-control-md',
+    'text-select-control md:text-select-control-md',
     'text-center md:text-left',
     'p-select md:p-select-md',
     'transition-colors duration-200',
@@ -91,11 +91,13 @@ function getLabelClasses({ hasErrors, required }) {
     'uppercase',
     'font-semibold',
     'font-default',
-    'text-form-control',
+    'text-select-control',
     'leading-none',
-    'md:text-form-control-md',
+    'md:text-select-control-md',
     'text-center',
     'md:text-left',
+    'padding-select',
+    'md:padding-select-md',
   )
 
   if (hasErrors) classes.push('text-distac-primary')
@@ -113,7 +115,7 @@ function hasSelectionChangedFromDefault(value, defaultValue) {
   return value !== defaultValue
 }
 
-export function SelectView({
+export const SelectView = forwardRef(({
   value,
   name,
   id,
@@ -133,7 +135,8 @@ export function SelectView({
   size,
   dropdownClassName = '',
   optionClassName = '',
-}) {
+  style = {},
+}, ref) => {
   const selectProps = useSelectViewModel({
     value,
     name,
@@ -211,8 +214,12 @@ export function SelectView({
   }, [selectProps.isOpen])
 
 
+  const effectiveDefaultValue = defaultValue !== undefined
+    ? defaultValue
+    : selectProps.options[0]?.value ?? ''
+
   const selectClasses = getSelectClasses({
-    variant: hasSelectionChangedFromDefault(value, defaultValue) ? 'pink' : variant,
+    variant: hasSelectionChangedFromDefault(value, effectiveDefaultValue) ? 'pink' : variant,
     shape,
     width,
     disabled,
@@ -238,9 +245,13 @@ export function SelectView({
       )}
 
       <div
-        ref={containerRef}
+        ref={(element) => {
+          containerRef.current = element
+          if (typeof ref === 'function') ref(element)
+          else if (ref) ref.current = element
+        }}
         className={`relative ${selectProps.width === 'full' ? 'w-full' : 'w-fit'}`}
-        style={{ minWidth: 'var(--select-min-width)' }}
+        style={{ minWidth: 'var(--select-min-width)', ...style }}
       >
         <div
           ref={selectElementRef}
@@ -255,7 +266,7 @@ export function SelectView({
         >
           <span>{selectProps.displayValue}</span>
           <ChevronDown
-            size={isMobile ? 12 : 16}
+            size={isMobile ? 12 : 14}
             className={`transition-transform duration-200 ${isMobile ? 'stroke-3' : 'stroke-4'} p-0 ${selectProps.isOpen ? 'rotate-180' : ''}`}
           />
         </div>
@@ -294,4 +305,6 @@ export function SelectView({
       </div>
     </div>
   )
-}
+})
+
+SelectView.displayName = 'SelectView'

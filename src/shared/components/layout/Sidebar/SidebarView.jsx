@@ -28,8 +28,8 @@ export function SidebarView({ isAdmin = false, initialOpen = false }) {
           onClick={() => viewModel.handleItemClick(item)}
           className={`flex w-full items-center justify-between px-6 py-3 transition-all duration-500 ease-in-out overflow-hidden cursor-pointer ${
             isActive
-              ? 'bg-default-light text-distac-secondary border-l-4 border-distac-primary'
-              : 'hover:bg-default-light-muted hover:text-distac-secondary text-default-light border-l-4 border-transparent'
+              ? 'bg-default-light text-distac-secondary border-l-5 border-distac-primary'
+              : 'hover:bg-default-light-muted hover:text-distac-secondary text-default-light border-l-5 border-transparent'
           } ${!viewModel.isOpen ? 'justify-center' : ''}`}
           title={!viewModel.isOpen ? item.text : ''}
         >
@@ -75,8 +75,8 @@ export function SidebarView({ isAdmin = false, initialOpen = false }) {
                     onClick={() => viewModel.navigateTo(child.path)}
                     className={`flex w-full items-center px-10 py-2 transition-all duration-500 ease-in-out overflow-hidden cursor-pointer rounded-r-lg ${
                       isChildActive
-                        ? 'bg-default-light text-distac-secondary border-l-4 border-distac-primary'
-                        : 'text-default-light hover:bg-default-light-muted hover:text-distac-secondary border-l-4 border-transparent'
+                        ? 'bg-default-light text-distac-secondary border-l-10 border-distac-primary'
+                        : 'text-default-light hover:bg-default-light-muted hover:text-distac-secondary border-l-10 border-transparent'
                     }`}
                     title={child.text}
                   >

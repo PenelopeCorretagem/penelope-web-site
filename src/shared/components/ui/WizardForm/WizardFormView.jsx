@@ -17,7 +17,7 @@ import { useCEPAutoFill } from '@shared/hooks/useCEPAutoFill'
 const DIFFERENTIALS_PAGE_SIZE = 12
 
 export function WizardFormView(props) {
-  const { className = '', style, cepFieldsToClear = [] } = props
+  const { className = '', style, cepFieldsToClear = [], showTopActions = true } = props
   const vm = useWizardFormViewModel(props)
   const alert = useAlert(false)
   const [alertMessage, setAlertMessage] = useState('')
@@ -367,7 +367,6 @@ export function WizardFormView(props) {
       // Obter filtros do estado compartilhado
       const filters = differentialsFilters[field.name] || {
         searchTerm: '',
-        initialLetter: '',
         sortOrder: 'none'
       }
 
@@ -394,7 +393,6 @@ export function WizardFormView(props) {
           ...prev,
           [field.name]: {
             searchTerm: '',
-            initialLetter: '',
             sortOrder: 'none',
           },
         }))
@@ -422,16 +420,6 @@ export function WizardFormView(props) {
         }
       }
 
-      // Obter letras iniciais disponíveis
-      const availableInitials = (() => {
-        const letters = new Set()
-        ;(field.options || []).forEach(option => {
-          const first = option.label.charAt(0).toUpperCase()
-          if (first) letters.add(first)
-        })
-        return Array.from(letters).sort()
-      })()
-
       // Filtrar e ordenar as opções
       const filteredOptions = (() => {
         let filtered = [...(field.options || [])]
@@ -440,13 +428,6 @@ export function WizardFormView(props) {
         if (filters.searchTerm) {
           filtered = filtered.filter(option =>
             option.label.toLowerCase().includes(filters.searchTerm.toLowerCase())
-          )
-        }
-
-        // Filtro por letra inicial
-        if (filters.initialLetter) {
-          filtered = filtered.filter(option =>
-            option.label.charAt(0).toUpperCase() === filters.initialLetter
           )
         }
 
@@ -465,7 +446,7 @@ export function WizardFormView(props) {
       const startIndex = (safeCurrentPage - 1) * DIFFERENTIALS_PAGE_SIZE
       const paginatedOptions = filteredOptions.slice(startIndex, startIndex + DIFFERENTIALS_PAGE_SIZE)
 
-      const hasActiveFilters = Boolean(filters.searchTerm || filters.initialLetter || filters.sortOrder !== 'none')
+      const hasActiveFilters = Boolean(filters.searchTerm || filters.sortOrder !== 'none')
 
       return (
         <div className={`w-full h-full flex flex-col gap-4 ${field.className || ''}`}>
@@ -486,27 +467,6 @@ export function WizardFormView(props) {
                 onChange={(value) => handleFilterChange('searchTerm', value)}
                 hasLabel={false}
                 isActive={true}
-              />
-            </div>
-
-            {/* Inicial Letter Filter */}
-            <div className="w-full md:w-fit">
-              <SelectView
-                value={filters.initialLetter}
-                name="initialLetter"
-                id="initialLetter"
-                options={[
-                  { value: '', label: 'Todas as letras' },
-                  ...availableInitials.map(letter => ({
-                    value: letter,
-                    label: letter,
-                  })),
-                ]}
-                width="fit"
-                variant="brown"
-                shape="square"
-                hasLabel={false}
-                onChange={(e) => handleFilterChange('initialLetter', e.target.value)}
               />
             </div>
 
@@ -625,9 +585,9 @@ export function WizardFormView(props) {
       const coverPreview = hasCover ? getImagePreview(coverFile) : null
 
       return (
-        <div className={`w-full h-full flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>
+        <div className={`w-full h-full min-h-0 flex flex-col gap-card md:gap-card-md ${field.className || ''}`}>
           {/* Upload de Capa */}
-          <div className="w-full flex flex-col gap-3">
+          <div className="w-full flex flex-col flex-1 gap-3 min-h-0">
             <div className="flex items-center justify-between">
               <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
                 CAPA:
@@ -647,12 +607,12 @@ export function WizardFormView(props) {
               type="file"
               accept="image/*"
               onChange={handleFileChange('cover', false)}
-              className="hidden"
+              className="hidden h-full"
               id="cover-file-input"
             />
 
             {hasCover && coverPreview ? (
-              <div className="relative w-full h-72 bg-distac-primary-light rounded-sm overflow-hidden group">
+              <div className="relative w-full h-full bg-distac-primary-light rounded-sm overflow-hidden group flex-1 min-h-0">
                 <img
                   src={coverPreview}
                   alt="Capa"
@@ -668,7 +628,7 @@ export function WizardFormView(props) {
               </div>
             ) : (
               <div
-                className="w-full h-72 bg-distac-primary-light rounded-sm px-4 py-8 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors"
+                className="w-full flex-1 min-h-0 bg-distac-primary-light rounded-sm px-4 py-8 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors"
                 onClick={() => handleFileButtonClick('cover')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -726,7 +686,7 @@ export function WizardFormView(props) {
             <div className="flex min-h-0 flex-col gap-card md:gap-card-md flex-1 h-full max-h-[400px] overflow-hidden">
               {field.multiple ? (
                 <div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden content-start auto-rows-[minmax(8rem,auto)]"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden content-start auto-rows-min"
                   onClick={() => handleFileButtonClick(field.name)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -884,38 +844,41 @@ export function WizardFormView(props) {
         <HeadingView level={2} className="text-distac-primary">
           {vm.title}
         </HeadingView>
-        <div className="flex gap-4">
-          <ButtonView
-            type="button"
-            width="fit"
-            color="soft-gray"
-            onClick={vm.handleClear}
-          >
-            LIMPAR
-          </ButtonView>
 
-          {vm.onDisable && (
+        {showTopActions && (
+          <div className="flex gap-4">
             <ButtonView
               type="button"
               width="fit"
-              color="gray"
-              onClick={vm.handleDisable}
+              color="soft-gray"
+              onClick={vm.handleClear}
             >
-              Desabilitar
+              LIMPAR
             </ButtonView>
-          )}
 
-          {vm.onDelete && (
-            <ButtonView
-              type="button"
-              width="fit"
-              color="gray"
-              onClick={vm.handleDelete}
-            >
-              EXCLUIR
-            </ButtonView>
-          )}
-        </div>
+            {vm.onDisable && (
+              <ButtonView
+                type="button"
+                width="fit"
+                color="gray"
+                onClick={vm.handleDisable}
+              >
+                Desabilitar
+              </ButtonView>
+            )}
+
+            {vm.onDelete && (
+              <ButtonView
+                type="button"
+                width="fit"
+                color="gray"
+                onClick={vm.handleDelete}
+              >
+                EXCLUIR
+              </ButtonView>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Steps Navigation */}

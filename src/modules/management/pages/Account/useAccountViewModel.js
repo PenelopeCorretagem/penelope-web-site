@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { getUserById, updateUser, deleteUser } from '@api-penelopec/userApi'
 import { AccountModel } from './AccountModel'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
 
 export function useAccountViewModel() {
   const [model, setModel] = useState(new AccountModel())
@@ -22,7 +23,7 @@ export function useAccountViewModel() {
       setIsLoading(true)
       setError(null)
 
-      const userId = sessionStorage.getItem('userId')
+      const { userId } = authSessionUtil.get()
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
@@ -50,7 +51,7 @@ export function useAccountViewModel() {
 
   const handleSubmit = async (data) => {
     try {
-      const userId = sessionStorage.getItem('userId')
+      const { userId } = authSessionUtil.get()
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }
@@ -95,7 +96,7 @@ export function useAccountViewModel() {
   const executeDelete = async () => {
     try {
       setIsDeleting(true)
-      const userId = sessionStorage.getItem('userId')
+      const { userId } = authSessionUtil.get()
       if (!userId) {
         throw new Error('Usuário não encontrado')
       }

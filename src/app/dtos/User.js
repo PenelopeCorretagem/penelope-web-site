@@ -1,3 +1,5 @@
+import { isAdminAccessLevel } from '@constant/accessLevels'
+
 export class User {
   #id
   #name
@@ -72,7 +74,7 @@ export class User {
   }
 
   isAdmin() {
-    return this.#accessLevel === 'ADMINISTRADOR'
+    return isAdminAccessLevel(this.#accessLevel)
   }
 
   toRequestPayload() {

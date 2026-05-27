@@ -96,6 +96,7 @@ export function useAuthViewModel() {
         userId,
         email: formData.email,
         isAdmin,
+        accessLevel: response.accessLevel,
         name: formData.email,
       })
 

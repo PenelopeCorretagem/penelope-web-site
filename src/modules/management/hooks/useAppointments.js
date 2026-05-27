@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import * as appointmentService from '@service-calservice/appointmentService'
 import { getAllEventTypes } from '@service-calservice/eventTypeService'
 import { getAllAdvertisements } from '@service-penelopec/advertisementService'
-import { ScheduleModel } from '../ScheduleModel'
+import { AppointmentCollectionModel } from '@management/models/AppointmentCollectionModel'
 
 /**
- * useScheduleAppointments.js
- * Hook para gerenciar carregamento, CRUD e mapeamento de agendamentos
+ * useAppointments.js
+ * Hook para gerenciar carregamento, CRUD e mapeamento de agendamentos.
  */
 
 const getApiErrorMessage = (error, fallbackMessage) => {
@@ -18,15 +18,19 @@ const getApiErrorMessage = (error, fallbackMessage) => {
   return error?.response?.data?.message || error?.message || fallbackMessage
 }
 
-const mapAppointmentToScheduleItem = (appointment, eventTypesById, estateDataById) => {
+const mapAppointmentToScheduleItem = (appointment, eventTypesById, advertisementMapByTitle) => {
   const eventType = eventTypesById.get(appointment.eventTypeId) || null
-  const estateData = eventType?.estateId ? (estateDataById.get(eventType.estateId) || null) : null
+  const estateTitle = String(eventType?.title || appointment.estate?.title || 'Imóvel não informado').trim()
+  const matchedAdvertisement = advertisementMapByTitle.get(estateTitle.toLowerCase()) || null
+  const estateTypeKey = matchedAdvertisement?.estate?.type?.key || appointment.estateTypeKey || null
+  const estateTypeFriendlyName = matchedAdvertisement?.estate?.type?.friendlyName || appointment.estateTypeFriendlyName || 'Não informado'
+  const estateId = eventType?.estateId || appointment.estate?.id || null
 
   return {
     id: appointment.id,
     bookingUid: appointment.bookingUid,
     eventTypeId: appointment.eventTypeId,
-    estateId: eventType?.estateId || null,
+    estateId,
     clientId: appointment.clientId,
     estateAgentId: appointment.estateAgentId,
     durationMinutes: appointment.durationMinutes || 60,
@@ -37,25 +41,24 @@ const mapAppointmentToScheduleItem = (appointment, eventTypesById, estateDataByI
     attendeeEmail: appointment.attendeeEmail || '',
     notes: appointment.notes || '',
     reason: appointment.reason || '',
+    createdAt: appointment.createdAt || null,
+    updatedAt: appointment.updatedAt || null,
     title: eventType?.title || 'Agendamento',
-    estateTitle: estateData?.title || 'Imóvel não informado',
-    estateTypeKey: estateData?.typeKey || null,
-    estateTypeFriendlyName: estateData?.typeFriendlyName || 'Não informado',
+    estateTitle,
+    estateTypeKey,
+    estateTypeFriendlyName,
     date: appointment.startDateTime ? new Date(appointment.startDateTime) : null,
   }
 }
 
-export function useScheduleAppointments() {
-  const [model] = useState(() => new ScheduleModel([]))
+export function useAppointments() {
+  const [model] = useState(() => new AppointmentCollectionModel([]))
   const [eventTypesById, setEventTypesById] = useState(() => new Map())
-  const [estateDataById, setEstateDataById] = useState(() => new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [totalAppointments, setTotalAppointments] = useState(model.getTotal())
 
-  const selectedDateRef = useRef(null)
-
-  const refreshDerivedData = useCallback((dateToUse) => {
+  const refreshDerivedData = useCallback(() => {
     setTotalAppointments(model.getTotal())
   }, [model])
 
@@ -64,38 +67,44 @@ export function useScheduleAppointments() {
       setLoading(true)
       setError(null)
 
-      const [appointments, eventTypes, advertisements] = await Promise.all([
+      const [appointments, eventTypes] = await Promise.all([
         appointmentService.getAllAppointments({ size: 100, ...filters }),
         getAllEventTypes({ size: 100 }),
-        getAllAdvertisements({ active: true, size: 100 }),
       ])
 
       const eventTypeMap = new Map(eventTypes.map(eventType => [eventType.id, eventType]))
-      const nextEstateDataById = new Map(
-        advertisements
-          .map(advertisement => {
-            const estateId = advertisement?.estate?.id
-            const estateTitle = advertisement?.estate?.title
-            const estateType = advertisement?.estate?.type
+      const eventTypeCreatedAtValues = eventTypes
+        .map(type => type.createdAt)
+        .filter(Boolean)
+        .map(date => new Date(date))
+        .filter(date => !Number.isNaN(date.getTime()))
 
-            return [
-              estateId,
-              {
-                title: estateTitle || 'Imóvel não informado',
-                typeKey: estateType?.key || null,
-                typeFriendlyName: estateType?.friendlyName || 'Não informado',
-              },
-            ]
-          })
-          .filter(([estateId]) => estateId)
+      let dateFilters = { active: true }
+      if (eventTypeCreatedAtValues.length > 0) {
+        const sortedDates = eventTypeCreatedAtValues.sort((a, b) => a.getTime() - b.getTime())
+        dateFilters = {
+          createdAtMin: sortedDates[0].toISOString().split('T')[0],
+          createdAtMax: sortedDates[sortedDates.length - 1].toISOString().split('T')[0],
+          active: true,
+        }
+      }
+
+      const advertisements = await getAllAdvertisements(dateFilters)
+
+      const advertisementMapByTitle = new Map(
+        advertisements
+          .filter(ad => ad?.estate?.title)
+          .map(ad => [String(ad.estate.title).trim().toLowerCase(), ad])
       )
 
       const mappedAppointments = appointments.map(appointment =>
-        mapAppointmentToScheduleItem(appointment, eventTypeMap, nextEstateDataById)
+        mapAppointmentToScheduleItem(appointment, eventTypeMap, advertisementMapByTitle)
       )
 
+      // eslint-disable-next-line no-console
+      console.log('[AppointmentReport] mappedAppointments:', mappedAppointments)
+
       setEventTypesById(eventTypeMap)
-      setEstateDataById(nextEstateDataById)
       model.setAppointments(mappedAppointments)
       refreshDerivedData(selectedDate)
     } catch (err) {
@@ -105,7 +114,6 @@ export function useScheduleAppointments() {
     }
   }, [model, refreshDerivedData])
 
-  // Operações CRUD
   const setAppointments = useCallback((appointments = [], selectedDate) => {
     model.setAppointments(appointments)
     refreshDerivedData(selectedDate)
@@ -117,11 +125,11 @@ export function useScheduleAppointments() {
   }, [model, refreshDerivedData])
 
   const applyUpdatedAppointment = useCallback((updatedAppointment, selectedDate) => {
-    const mapped = mapAppointmentToScheduleItem(updatedAppointment, eventTypesById, estateDataById)
+    const mapped = mapAppointmentToScheduleItem(updatedAppointment, eventTypesById)
     model.replaceById(updatedAppointment.id, mapped)
     refreshDerivedData(selectedDate)
     return mapped
-  }, [model, eventTypesById, estateDataById, refreshDerivedData])
+  }, [model, eventTypesById, refreshDerivedData])
 
   const confirmAppointment = useCallback(async (appointmentId) => {
     try {
@@ -171,7 +179,6 @@ export function useScheduleAppointments() {
   return {
     model,
     eventTypesById,
-    estateDataById,
     loading,
     error,
     setError,

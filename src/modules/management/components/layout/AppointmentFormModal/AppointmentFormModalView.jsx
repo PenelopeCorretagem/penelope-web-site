@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { SelectView } from '@shared/components/ui/Select/SelectView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useAppointmentFormViewModel } from './useAppointmentFormViewModel'
 import { EstateSelectionView } from './components/layout/EstateSelection/EstateSelectionView'
@@ -171,6 +172,30 @@ export function AppointmentFormModalView({
             onDateTimeChange={handleDateTimeChange}
             leftFooter={(
               <div className="space-y-4">
+                {vm.canChooseClient && !isRescheduleMode && (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-default-dark uppercase">
+                      Cliente
+                    </label>
+
+                    <SelectView
+                      value={vm.selectedClientId}
+                      options={vm.clients}
+                      placeholder={vm.loadingClients ? 'Carregando clientes...' : 'Selecione um cliente'}
+                      disabled={vm.loadingClients || vm.clients.length === 0}
+                      width="full"
+                      variant="default"
+                      onChange={(e) => vm.handleClientChange(e.target.value)}
+                    />
+
+                    {vm.clientsError && (
+                      <p className="text-sm text-distac-primary">
+                        {vm.clientsError}
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {!isRescheduleMode && (
                   <VisitorInfoView
                     visitorName={vm.model.visitorName}

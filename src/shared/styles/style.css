@@ -15,10 +15,16 @@
   --color-default-dark-light: #777676;      /* Cinza claro */
 
   --text-form-control: 12px;
-  --text-form-control-md: 16px;
+  --text-form-control-md: 14px;
+
+  --text-input-control: 12px;
+  --text-input-control-md: 14px;
+
+  --text-select-control: 12px;
+  --text-select-control-md: 14px;
 
   --text-button: 12px;
-  --text-button-md: 16px;
+  --text-button-md: 14px;
 
   --padding-section-y: 32px;
   --padding-section-x: 24px;
@@ -44,30 +50,29 @@
   --padding-button-rectangle: 8px 12px;
   --padding-button-rectangle-x: 12px;
   --padding-button-rectangle-y: 8px;
-  --padding-button-rectangle-md: 12px 20px;
-  --padding-button-rectangle-x-md: 20px;
-  --padding-button-rectangle-y-md: 12px;
+  --padding-button-rectangle-md: 10px 14px;
+  --padding-button-rectangle-x-md: 14px;
+  --padding-button-rectangle-y-md: 10px;
 
   --padding-button-square: 8px;
-  --padding-button-square-md: 12px;
+  --padding-button-square-md: 10px;
 
   --padding-button-circle: 8px;
-  --padding-button-circle-md: 12px;
+  --padding-button-circle-md: 10px;
 
   --padding-input: 6px 12px;
   --padding-input-x: 12px;
   --padding-input-y: 6px;
-  --padding-input-md: 10px 20px;
-  --padding-input-x-md: 20px;
-  --padding-input-y-md: 10px;
+  --padding-input-md: 8px 14px;
+  --padding-input-x-md: 14px;
+  --padding-input-y-md: 8px;
 
   --padding-select: 8px 12px;
   --padding-select-x: 12px;
   --padding-select-y: 8px;
-  --padding-select-md: 12px 20px;
-  --padding-select-x-md: 20px;
-  --padding-select-y-md: 12px;
-
+  --padding-select-md: 10px 14px;
+  --padding-select-x-md: 14px;
+  --padding-select-y-md: 10px;
 
   --gap-button: 8px;
   --gap-button-md: 12px;

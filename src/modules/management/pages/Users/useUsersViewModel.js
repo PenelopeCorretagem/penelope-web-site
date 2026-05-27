@@ -145,6 +145,23 @@ export function useUsersViewModel() {
     })
   }, [])
 
+  const handleFiltersChange = useCallback((filterKey, value) => {
+    if (filterKey === 'searchTerm') {
+      setSearchTerm(value)
+      return
+    }
+
+    if (filterKey === 'userTypeFilter') {
+      setUserTypeFilter(value)
+      return
+    }
+
+    if (filterKey === 'sortOrder') {
+      setSortOrder(value)
+      return
+    }
+  }, [])
+
   const selectedUser = selectedUserId ? model.getUserById(selectedUserId) : null
   const userFormFields = model.getUserFormFields(selectedUser)
 
@@ -173,6 +190,7 @@ export function useUsersViewModel() {
     handleCloseAlert,
     handleSearchChange,
     handleUserTypeFilterChange,
-    handleSortOrderChange
+    handleSortOrderChange,
+    handleFiltersChange
   }
 }

@@ -2,9 +2,9 @@
  * Tipos de estate disponíveis no sistema (sem IDs)
  */
 export const ESTATE_TYPES = {
-  LANCAMENTO: { key: 'LANCAMENTO', friendlyName: 'Lançamento' },
-  DISPONIVEL: { key: 'DISPONIVEL', friendlyName: 'Disponível' },
-  EM_OBRAS: { key: 'EM_OBRAS', friendlyName: 'Em obras' }
+  LANCAMENTO: { key: 'LANCAMENTO', apiValue: 'lancamento', friendlyName: 'Lançamento' },
+  DISPONIVEL: { key: 'DISPONIVEL', apiValue: 'disponivel', friendlyName: 'Disponível' },
+  EM_OBRAS: { key: 'EM_OBRAS', apiValue: 'emObras', friendlyName: 'Em obras' }
 }
 
 /**
@@ -14,6 +14,12 @@ export const ESTATE_TYPE_BY_KEY = {
   LANCAMENTO: ESTATE_TYPES.LANCAMENTO,
   DISPONIVEL: ESTATE_TYPES.DISPONIVEL,
   EM_OBRAS: ESTATE_TYPES.EM_OBRAS
+}
+
+export const ESTATE_TYPE_BY_API_VALUE = {
+  lancamento: ESTATE_TYPES.LANCAMENTO,
+  disponivel: ESTATE_TYPES.DISPONIVEL,
+  emObras: ESTATE_TYPES.EM_OBRAS
 }
 
 export const ESTATE_TYPE_BY_FRIENDLY_NAME = {
@@ -31,14 +37,21 @@ export const ESTATE_TYPE_LIST = Object.values(ESTATE_TYPES)
  * Verifica se um tipo é válido pela key
  */
 export const isValidEstateType = (key) => {
-  return Object.prototype.hasOwnAdvertisement.call(ESTATE_TYPE_BY_KEY, key)
+  return Object.prototype.hasOwnProperty.call(ESTATE_TYPE_BY_KEY, key)
+}
+
+/**
+ * Verifica se um valor externo do tipo é válido.
+ */
+export const isValidEstateApiValue = (apiValue) => {
+  return Object.prototype.hasOwnProperty.call(ESTATE_TYPE_BY_API_VALUE, apiValue)
 }
 
 /**
  * Verifica se um friendlyName é válido
  */
 export const isValidEstateFriendlyName = (friendlyName) => {
-  return Object.prototype.hasOwnAdvertisement.call(ESTATE_TYPE_BY_FRIENDLY_NAME, friendlyName)
+  return Object.prototype.hasOwnProperty.call(ESTATE_TYPE_BY_FRIENDLY_NAME, friendlyName)
 }
 
 /**
@@ -46,6 +59,13 @@ export const isValidEstateFriendlyName = (friendlyName) => {
  */
 export const getEstateTypeByKey = (key) => {
   return ESTATE_TYPE_BY_KEY[key] || null
+}
+
+/**
+ * Busca tipo pelo valor externo enviado/recebido da API.
+ */
+export const getEstateTypeByApiValue = (apiValue) => {
+  return ESTATE_TYPE_BY_API_VALUE[apiValue] || null
 }
 
 /**

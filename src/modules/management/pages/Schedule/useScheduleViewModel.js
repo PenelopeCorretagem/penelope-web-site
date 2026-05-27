@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useScheduleAppointments } from './hooks/useScheduleAppointments'
-import { useScheduleFilters } from './hooks/useScheduleFilters'
-import { useScheduleCalendarData } from './hooks/useScheduleCalendarData'
-import { useScheduleUIState } from './hooks/useScheduleUIState'
-import { useScheduleAppointmentActions } from './hooks/useScheduleAppointmentActions'
-import { useScheduleReportData } from './hooks/useScheduleReportData'
+import { useAppointments } from '../../hooks/useAppointments'
+import { useFilters } from '../../hooks/useFilters'
+import { useCalendarData } from '../../hooks/useCalendarData'
+import { useUIState } from '../../hooks/useUIState'
+import { useAppointmentActions } from '../../hooks/useAppointmentActions'
+import { useReportData } from '../../hooks/useReportData'
 import { ScheduleModel } from './ScheduleModel'
 import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
+import { authSessionUtil } from '@shared/utils/authSession/authSessionUtil'
+import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@constant/accessLevels'
 
 /**
  * useScheduleViewModel.js
@@ -21,9 +23,10 @@ export function useScheduleViewModel(options = {}) {
   } = options
 
   const location = useLocation()
-  const isAdminUser = sessionStorage.getItem('userRole') === 'ADMINISTRADOR'
-  const isClientUser = sessionStorage.getItem('userRole') === 'CLIENTE'
-  const authenticatedUserId = sessionStorage.getItem('userId')
+  const { role: authenticatedUserRole, userId: authenticatedUserId } = authSessionUtil.get()
+  const isAdminUser = isAdminAccessLevel(authenticatedUserRole)
+  const isBrokerUser = isBrokerAccessLevel(authenticatedUserRole)
+  const isClientUser = isClientAccessLevel(authenticatedUserRole)
 
   const [isScopeLoading, setIsScopeLoading] = useState(isAdminUser)
   const [canSelectEstateAgent, setCanSelectEstateAgent] = useState(false)
@@ -38,14 +41,14 @@ export function useScheduleViewModel(options = {}) {
   const isReadOnlyAdminView = isAdminUser && canSelectEstateAgent && !isScopeLoading
 
   // Hooks especializados
-  const appointmentService = useScheduleAppointments()
+  const appointmentService = useAppointments()
   const loadAppointmentsService = appointmentService.loadAppointments
   const setAppointmentsService = appointmentService.setAppointments
-  const filterService = useScheduleFilters(appointmentService.model.getAll())
-  const calendarData = useScheduleCalendarData(selectedDate, filterService.filteredAppointments)
-  const uiState = useScheduleUIState()
-  const actions = useScheduleAppointmentActions(appointmentService)
-  const reportData = useScheduleReportData(filterService.filteredAppointments)
+  const filterService = useFilters(appointmentService.model.getAll())
+  const calendarData = useCalendarData(selectedDate, filterService.filteredAppointments)
+  const uiState = useUIState()
+  const actions = useAppointmentActions(appointmentService)
+  const reportData = useReportData(filterService.filteredAppointments)
   const navigateLabels = useMemo(() => ScheduleModel.getPeriodNavigationLabels(uiState.viewMode), [uiState.viewMode])
 
   // Determina quais modos de visualização estão disponíveis
@@ -59,6 +62,10 @@ export function useScheduleViewModel(options = {}) {
       return ['calendar'] // Cliente só vê calendário
     }
 
+    if (isBrokerUser) {
+      return ['calendar', 'daily']
+    }
+
     if (!isAdminUser) {
       return ['calendar'] // Não admin só vê calendário
     }
@@ -70,7 +77,7 @@ export function useScheduleViewModel(options = {}) {
 
     // Admin sem CRECI - sempre pode ver calendar e report
     return ['calendar', 'report']
-  }, [isClientUser, isAdminUser, canSelectEstateAgent, availableDisplayModesOverride])
+  }, [isClientUser, isBrokerUser, isAdminUser, canSelectEstateAgent, availableDisplayModesOverride])
 
   // Força viewMode="day" quando "TODOS" está selecionado
   const forcedViewMode = isAllAgentsSelected ? 'day' : uiState.viewMode
@@ -92,7 +99,15 @@ export function useScheduleViewModel(options = {}) {
 
   const appointmentScopeFilters = useMemo(() => {
     if (isClientUser) {
-      return {}
+      return {
+        clientId: Number(authenticatedUserId),
+      }
+    }
+
+    if (isBrokerUser) {
+      return {
+        estateAgentId: Number(authenticatedUserId),
+      }
     }
 
     if (!isAdminUser) {
@@ -116,7 +131,7 @@ export function useScheduleViewModel(options = {}) {
     return {
       estateAgentId: Number(authenticatedUserId),
     }
-  }, [isClientUser, isAdminUser, canSelectEstateAgent, selectedEstateAgentFilter, authenticatedUserId])
+  }, [isClientUser, isBrokerUser, isAdminUser, canSelectEstateAgent, selectedEstateAgentFilter, authenticatedUserId])
 
   const estateAgentScopeFilterOptions = useMemo(() => {
     if (estateAgentFilterOptions.length > 0) {
@@ -151,6 +166,14 @@ export function useScheduleViewModel(options = {}) {
 
     handleFiltersChange(filterKey, filterValue)
   }, [handleFiltersChange])
+
+  const handleResetFilters = useCallback(() => {
+    filterService.resetFilters()
+
+    if (canSelectEstateAgent) {
+      setSelectedEstateAgentFilter(defaultEstateAgentFilter)
+    }
+  }, [filterService, canSelectEstateAgent, defaultEstateAgentFilter])
 
   // Extrai o nome do corretor selecionado para exibição no relatório
   useEffect(() => {
@@ -428,7 +451,7 @@ export function useScheduleViewModel(options = {}) {
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService])
+  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage])
 
   // Dados derivados
   const totalAppointmentsCount = appointmentService.model.getTotal()
@@ -440,7 +463,7 @@ export function useScheduleViewModel(options = {}) {
       .filter(a => a.date >= now)
       .sort((a, b) => a.date - b.date)
       .slice(0, 5)
-  }, [appointmentService, selectedDate])
+  }, [appointmentService])
 
   const monthCount = useMemo(() => {
     const all = appointmentService.model.getAll()
@@ -487,7 +510,6 @@ export function useScheduleViewModel(options = {}) {
     // UI State
     viewMode: forcedViewMode,
     setViewMode: canChangeViewMode ? uiState.setViewMode : () => {},
-    canChangeViewMode,
     isModalOpen: uiState.isModalOpen,
     selectedModalDate: uiState.selectedModalDate,
     selectedModalHour: uiState.selectedModalHour,
@@ -528,6 +550,7 @@ export function useScheduleViewModel(options = {}) {
     handleModalClose: uiState.handleModalClose,
     handleOpenAppointmentTools: uiState.handleOpenAppointmentTools,
     handleCloseAppointmentTools: uiState.handleCloseAppointmentTools,
+    handleResetFilters,
     closeConfirmationAlert: uiState.closeConfirmationAlert,
     closeSuccessAlert: uiState.closeSuccessAlert,
     closeErrorAlert: uiState.closeErrorAlert,

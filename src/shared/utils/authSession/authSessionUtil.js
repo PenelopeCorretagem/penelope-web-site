@@ -1,10 +1,10 @@
-import { ACCESS_LEVEL, isAdminAccessLevel } from '@constant/accessLevels'
+import { ACCESS_LEVEL, normalizeAccessLevel } from '@constant/accessLevels'
 
 export const authSessionUtil = {
   save({ token, userId, email, isAdmin, accessLevel }) {
     const role = isAdmin !== undefined
-      ? (isAdmin ? ACCESS_LEVEL.ADMINISTRADOR : ACCESS_LEVEL.CLIENTE)
-      : (isAdminAccessLevel(accessLevel) ? ACCESS_LEVEL.ADMINISTRADOR : ACCESS_LEVEL.CLIENTE)
+      ? (isAdmin ? ACCESS_LEVEL.ADMINISTRADOR : normalizeAccessLevel(accessLevel))
+      : normalizeAccessLevel(accessLevel)
 
     sessionStorage.setItem('token', token)
     sessionStorage.setItem('userId', String(userId))

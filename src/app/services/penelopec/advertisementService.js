@@ -29,6 +29,19 @@ export const getAdvertisementById = async (id) => {
   }
 }
 
+export const getAdvertisementsByEstate = async (estateId) => {
+  if (!estateId)
+    throw new Error('O ID do empreendimento é obrigatório para buscar anúncios')
+
+  try {
+    const response = await advertisementApi.getAdvertisementsByEstate(estateId)
+    const rawList = response?.content || response || []
+    return AdvertisementMapper.toEntityList(rawList)
+  } catch (error) {
+    throw handleAdvertisementError(error, 'Listagem por Empreendimento')
+  }
+}
+
 export const createAdvertisement = async (advertisementData) => {
   if (!advertisementData)
     throw new Error('Os dados do anúncio são obrigatórios')

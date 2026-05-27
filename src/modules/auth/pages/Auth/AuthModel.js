@@ -43,8 +43,6 @@ export class AuthModel {
         required: true,
         showPasswordToggle: true,
         debounceValidation: true,
-        debounceDelay: 1000,
-        validate: validatePassword
       }
     ]
   }
@@ -217,6 +215,6 @@ export class AuthModel {
   }
 
   isAdminRequiredRoute(route) {
-    return this.routerModel.getAdminRequiredRoutes().includes(route)
+    return this.routerModel.getAdminOnlyRoutes().includes(route)
   }
 }

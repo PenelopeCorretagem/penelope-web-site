@@ -1,42 +1,42 @@
-import { useMemo, useCallback, useState } from 'react'
-import { WEEKDAY_LABELS, ScheduleModel } from '../ScheduleModel'
+import { useMemo } from 'react'
+import { CalendarModel, WEEKDAY_LABELS } from '@management/models/CalendarModel'
 
 /**
- * useScheduleCalendarData.js
- * Hook para cálculos de datas e dados de calendário
+ * useCalendarData.js
+ * Hook para cálculos de datas e dados de calendário.
  */
 
-export function useScheduleCalendarData(selectedDate, filteredAppointments = []) {
+export function useCalendarData(selectedDate, filteredAppointments = []) {
   const weekdayLabels = useMemo(() => WEEKDAY_LABELS, [])
 
   const weekDates = useMemo(() => {
-    return ScheduleModel.getWeekDates(selectedDate)
+    return CalendarModel.getWeekDates(selectedDate)
   }, [selectedDate])
 
   const calendarDays = useMemo(() => {
-    return ScheduleModel.buildCalendarDays(selectedDate)
+    return CalendarModel.buildCalendarDays(selectedDate)
   }, [selectedDate])
 
   const hours = useMemo(() => Array.from({ length: 11 }, (_, index) => index + 9), [])
 
   const appointmentsByDay = useMemo(() => {
-    return ScheduleModel.getAppointmentsByDay(weekDates, filteredAppointments)
+    return CalendarModel.getAppointmentsByDay(weekDates, filteredAppointments)
   }, [weekDates, filteredAppointments])
 
   const appointmentsCountByDate = useMemo(() => {
-    return ScheduleModel.getAppointmentsCountByDate(filteredAppointments)
+    return CalendarModel.getAppointmentsCountByDate(filteredAppointments)
   }, [filteredAppointments])
 
   const selectedDateAppointments = useMemo(() => {
-    return ScheduleModel.getSelectedDateAppointments(filteredAppointments, selectedDate)
+    return CalendarModel.getSelectedDateAppointments(filteredAppointments, selectedDate)
   }, [filteredAppointments, selectedDate])
 
   const selectedDateAppointmentsByStatus = useMemo(() => {
-    return ScheduleModel.getAppointmentsByStatus(selectedDateAppointments)
+    return CalendarModel.getAppointmentsByStatus(selectedDateAppointments)
   }, [selectedDateAppointments])
 
   const monthlyAppointmentsByStatus = useMemo(() => {
-    return ScheduleModel.getMonthlyAppointmentsByStatus(filteredAppointments, selectedDate)
+    return CalendarModel.getMonthlyAppointmentsByStatus(filteredAppointments, selectedDate)
   }, [filteredAppointments, selectedDate])
 
   const currentMonthName = useMemo(() => {
@@ -44,7 +44,7 @@ export function useScheduleCalendarData(selectedDate, filteredAppointments = [])
   }, [selectedDate])
 
   const navigateLabels = useMemo(() => {
-    return ScheduleModel.getPeriodNavigationLabels('week')
+    return CalendarModel.getPeriodNavigationLabels('week')
   }, [])
 
   return {
