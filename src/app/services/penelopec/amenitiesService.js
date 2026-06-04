@@ -1,5 +1,5 @@
 import * as amenitiesApi from '@api-penelopec/amenitiesApi'
-import { AmenityMapper } from '@mappers/AmenityMapper'
+import { AmenityMapper } from '@mappers/amenityMapper'
 import { Amenity } from '@dtos/Amenity'
 import { handleAmenitiesError } from '@responses/penelopec/AmenitiesResponse'
 
