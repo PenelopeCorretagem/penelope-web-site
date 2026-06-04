@@ -1,7 +1,9 @@
 import * as LucideIcons from 'lucide-react'
 import { Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { isValidIcon } from '@shared/utils/lucideIcons/lucideIconsUtil'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 /**
  * AmenitiesTableView.jsx
@@ -32,11 +34,19 @@ export function AmenitiesTableView({
   onPreviousPage,
   onNextPage,
 }) {
+  const showSkeleton = useMinLoadingTime(loading && amenities.length === 0);
   return (
     <div className="flex-1 overflow-hidden flex flex-col bg-default-light rounded-lg shadow min-h-0">
-      {loading && amenities.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted">Carregando diferenciais...</p>
+      {showSkeleton ? (
+        <div className="flex-1 flex flex-col p-4 space-y-4">
+           {/* Header Skeleton */}
+           <SkeletonView className="h-10 w-full" />
+           {/* Rows Skeleton */}
+           <SkeletonView className="h-12 w-full" />
+           <SkeletonView className="h-12 w-full" />
+           <SkeletonView className="h-12 w-full" />
+           <SkeletonView className="h-12 w-full" />
+           <SkeletonView className="h-12 w-full" />
         </div>
       ) : (
         <>

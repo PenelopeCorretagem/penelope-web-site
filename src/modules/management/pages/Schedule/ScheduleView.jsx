@@ -1,11 +1,11 @@
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { AppointmentFormModalView } from '@management/components/layout/AppointmentFormModal/AppointmentFormModalView'
+import { AppointmentFormModalView } from '@management/components/AppointmentFormModal/AppointmentFormModalView'
 import { ScheduleModel } from './ScheduleModel'
 import { useScheduleViewModel } from './useScheduleViewModel'
-import { CalendarView } from './components/layout/Calendar/CalendarView'
+import { CalendarView } from './components/Calendar/CalendarView'
 import { CalendarView as SharedCalendarView } from '@shared/components/ui/Calendar/CalendarView'
-import { AppointmentToolsModalView } from '@management/components/layout/AppointmentToolsModal/AppointmentToolsModalView'
-import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
+import { AppointmentToolsModalView } from '@management/components/AppointmentToolsModal/AppointmentToolsModalView'
+import { PageManagementView } from '@management/components/PageManegement/PageManegementView'
 
 export function ScheduleView() {
   const vm = useScheduleViewModel({ defaultDisplayMode: 'calendar', availableDisplayModesOverride: ['calendar'] })

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { AdvertisementsModel } from './AdvertisementsModel'
 import { ESTATE_TYPES } from '@constant/estateTypes'
-import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
+import { FilterModel } from '@shared/components/ui/Filter/FilterModel'
 
 /**
  * Hook para gerenciar a lógica da página Advertisements
@@ -41,9 +41,6 @@ export const useAdvertisementsViewModel = ({ onError }) => {
         })
       ])
 
-      console.log('Fetched Advertisements:', { lancamentosData, disponiveisData, emObrasData }) // Log para depuração
-
-
       model.setLancamentos(lancamentosData)
       model.setDisponiveis(disponiveisData)
       model.setEmObras(emObrasData)
@@ -51,7 +48,6 @@ export const useAdvertisementsViewModel = ({ onError }) => {
       setDataVersion(prev => prev + 1)
 
     } catch (error) {
-      console.error('❌ Failed to load advertisements:', error)
       model.setError(error.message || 'Erro ao carregar propriedades')
       onError?.(error)
     } finally {

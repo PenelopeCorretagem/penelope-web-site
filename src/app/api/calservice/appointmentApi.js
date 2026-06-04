@@ -15,6 +15,14 @@ export const getAllAppointments = async (params = new URLSearchParams()) => {
   return response.data
 }
 
+export const getAppointmentsReport = async (params = new URLSearchParams()) => {
+  const response = await axiosInstance.get('/appointments/report', {
+    baseURL: CAL_SERVICE_BASE_URL,
+    params,
+  })
+  return response.data
+}
+
 export const getAppointmentById = async (id) => {
   const response = await axiosInstance.get(`/appointments/${id}`, {
     baseURL: CAL_SERVICE_BASE_URL,

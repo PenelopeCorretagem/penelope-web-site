@@ -4,7 +4,7 @@ import { VerificationPanel } from '../../components/layout/VerificationPanel/Ver
 import { NewPasswordPanel } from '../../components/layout/NewPasswordPanel/NewPasswordPanel'
 import { TogglePanelLeft } from '../../components/layout/TogglePanelLeft/TogglePanelLeft'
 import { TogglePanelRight } from '../../components/layout/TogglePanelRight/TogglePanelRight'
-import { ResetAlert } from '../../components/layout/ResetAlert/ResetAlert'
+import { ResetAlert } from '../../components/feedback/ResetAlert/ResetAlert'
 
 // Classes Tailwind diretas
 const AUTH_CONTAINER_BASE = 'relative w-full h-full bg-default-light overflow-hidden transition-all duration-700 ease-in-out'

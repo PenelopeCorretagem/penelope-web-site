@@ -5,6 +5,10 @@ import { authSessionUtil } from '@utils/authSession/authSessionUtil'
 import { ACCESS_LEVEL } from '@constant/accessLevels'
 import { handleAppointmentError } from '@responses/calservice/AppointmentResponse'
 
+/**
+ * getAllAppointments — endpoint genérico de listagem
+ * @deprecated Use getAppointmentsReport() para relatório com dados enriquecidos
+ */
 export const getAllAppointments = async (filters = {}) => {
   // Leitura dentro da função — sempre reflete a sessão atual
   const { role, userId } = authSessionUtil.get()
@@ -145,5 +149,48 @@ export const exportAppointments = async (filters = {}, format = 'xlsx') => {
     return await appointmentApi.exportAppointments(params)
   } catch (error) {
     throw handleAppointmentError(error, 'Exportação')
+  }
+}
+
+/**
+ * getAppointmentsReport — endpoint específico para relatórios com dados enriquecidos
+ * Retorna agendamentos completos com informações de cliente, corretor, imóvel e tipo de imóvel
+ * O backend controla o escopo de acesso por perfil do usuário
+ */
+export const getAppointmentsReport = async (filters = {}) => {
+  const { role, userId } = authSessionUtil.get()
+
+  const normalizedFilters = { ...filters }
+
+  if (role === ACCESS_LEVEL.CLIENTE) {
+    if (!userId)
+      throw new Error('Não foi possível identificar o cliente autenticado para gerar o relatório')
+    normalizedFilters.clientId = userId
+  }
+
+  const params = new URLSearchParams()
+  if (normalizedFilters.clientId)      params.append('clientId', normalizedFilters.clientId)
+  if (normalizedFilters.estateAgentId) params.append('estateAgentId', normalizedFilters.estateAgentId)
+  if (normalizedFilters.estateId)      params.append('estateId', normalizedFilters.estateId)
+  if (normalizedFilters.status)        params.append('status', normalizedFilters.status)
+  if (normalizedFilters.estateTypeKey) params.append('estateTypeKey', normalizedFilters.estateTypeKey)
+  if (normalizedFilters.startDateTime) params.append('startDateTime', normalizedFilters.startDateTime)
+  if (normalizedFilters.endDateTime)   params.append('endDateTime', normalizedFilters.endDateTime)
+  if (normalizedFilters.page !== undefined) params.append('page', normalizedFilters.page)
+  if (normalizedFilters.size !== undefined) params.append('size', normalizedFilters.size)
+
+  try {
+    const response = await appointmentApi.getAppointmentsReport(params)
+    const rawList = response?.content || []
+
+    return {
+      content: AppointmentMapper.toEntityList(rawList),
+      page: response?.page ?? 0,
+      size: response?.size ?? 20,
+      totalElements: response?.totalElements ?? 0,
+      totalPages: response?.totalPages ?? 0,
+    }
+  } catch (error) {
+    throw handleAppointmentError(error, 'Relatório')
   }
 }

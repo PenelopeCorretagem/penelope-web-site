@@ -5,17 +5,19 @@ import { AdvertisementLocation } from './components/AdvertisementLocation/Advert
 import * as LucideIcons from 'lucide-react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { ImageView } from '@shared/components/ui/Image/ImageView.jsx'
-import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView.jsx'
-import { AdvertisementCardView } from '@shared/components/ui/AdvertisementCard/AdvertisementCardView.jsx'
+import { AdvertisementsCarouselView } from '@shared/components/features/AdvertisementsCarousel/AdvertisementsCarouselView.jsx'
+import { AdvertisementCardView } from '@shared/components/features/AdvertisementCard/AdvertisementCardView.jsx'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView.jsx'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView.jsx'
 import { useRouter } from '@app/routes/useRouterViewModel'
 import { ScreeningFormView } from '@shared/components/ui/ScreeningForm/ScreeningFormView.jsx'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView.jsx'
 import { generateSlug } from '@shared/utils/sluggy/generateSlugUtil'
 
 import { useAdvertisementDetailsViewModel } from './useAdvertisementDetailsViewModel'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export function AdvertisementDetailsView() {
   const {
@@ -26,6 +28,7 @@ export function AdvertisementDetailsView() {
     error,
     refresh
   } = useAdvertisementDetailsViewModel()
+  const isMinLoading = useMinLoadingTime(isLoading);
 
   const { navigateTo, getAllRoutes } = useRouter()
   const routes = getAllRoutes()
@@ -115,11 +118,19 @@ export function AdvertisementDetailsView() {
   }, [])
 
   // Loading state
-  if (isLoading) {
+  if (isMinLoading) {
     return (
-      <SectionView className="flex items-center justify-center min-h-[50vh]">
-        <TextView className="text-center">Carregando detalhes da propriedade...</TextView>
-      </SectionView>
+      <div className="relative h-fit pb-24 lg:pb-0">
+        <SectionView className="!p-0 h-[400px]">
+          <SkeletonView className="w-full h-full rounded-none" />
+        </SectionView>
+        <SectionView className="bg-default-light flex-col !gap-subsection">
+          <SkeletonView className="h-10 w-1/3 mb-8" />
+          <SkeletonView className="h-4 w-full mb-2" />
+          <SkeletonView className="h-4 w-full mb-2" />
+          <SkeletonView className="h-4 w-4/5" />
+        </SectionView>
+      </div>
     )
   }
 

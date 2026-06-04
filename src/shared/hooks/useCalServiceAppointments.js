@@ -1,7 +1,7 @@
 /**
  * useCalServiceAppointments.js
  * Hook customizado para gerenciar appointments do cal-service
- * 
+ *
  * Exemplo de implementação para referência
  * Use como base para integrar com ScheduleView
  */
@@ -29,7 +29,6 @@ export function useCalServiceAppointments(initialFilters = {}) {
       setAppointments(data)
     } catch (err) {
       setError(err.message || 'Erro ao carregar agendamentos')
-      console.error('❌ Erro ao carregar appointments:', err)
     } finally {
       setLoading(false)
     }

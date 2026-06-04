@@ -73,7 +73,6 @@ export class AdvertisementConfigModel {
 
 
     if (!advertisementEntity) {
-      console.warn('⚠️ [PROPERTY MODEL] No advertisement entity provided, creating empty model')
       return new AdvertisementConfigModel()
     }
 
@@ -327,7 +326,7 @@ export class AdvertisementConfigModel {
             return date.toISOString().split('T')[0]
           }
         } catch {
-          console.warn('Data inválida fornecida, usando data padrão')
+          // Fallback para data inválida
         }
       }
       // Se não há data ou é inválida, usar 30 dias a partir de hoje

@@ -1,6 +1,6 @@
 import { FormView } from '@shared/components/ui/Form/FormView'
 import { TextView } from '@shared/components/ui/Text/TextView'
-import { PanelHeader } from '../PanelHeader/PanelHeader'
+import { PanelHeader } from '../../ui/PanelHeader/PanelHeader'
 
 // Classes Tailwind diretas
 const AUTH_SIGN_IN_PANEL_BASE = 'absolute top-0 left-0 w-full md:w-3/5 h-full bg-default-light z-20 p-section md:p-section-md flex flex-col items-center justify-center transition-all duration-700 ease-in-out'

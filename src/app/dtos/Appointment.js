@@ -8,6 +8,7 @@ export class Appointment {
   #client
   #estateAgent
   #estate
+  #eventType
   #durationMinutes
   #startDateTime
   #endDateTime
@@ -27,6 +28,7 @@ export class Appointment {
     client,
     estateAgent,
     estate,
+    eventType,
     eventTypeId,
     durationMinutes,
     startDateTime,
@@ -45,6 +47,7 @@ export class Appointment {
     this.#client = client ?? null
     this.#estateAgent = estateAgent ?? null
     this.#estate = estate ?? null
+    this.#eventType = eventType ?? null
     this.#eventTypeId = eventTypeId ?? null
     this.#durationMinutes = durationMinutes ?? 60
     this.#startDateTime = startDateTime ?? null
@@ -65,6 +68,7 @@ export class Appointment {
   get client() { return this.#client }
   get estateAgent() { return this.#estateAgent }
   get estate() { return this.#estate }
+  get eventType() { return this.#eventType }
   get durationMinutes() { return this.#durationMinutes }
   get startDateTime() { return this.#startDateTime }
   get endDateTime() { return this.#endDateTime }
@@ -80,6 +84,12 @@ export class Appointment {
   get createdAt() { return this.#createdAt }
   get updatedAt() { return this.#updatedAt }
   get eventTypeId() { return this.#eventTypeId }
+
+  // ===== GETTERS DERIVADOS DO BACKEND ENRIQUECIDO =====
+  get estateTitle() { return this.#estate?.title ?? 'Não informado' }
+  get estateTypeKey() { return this.#estate?.type?.key ?? null }
+  get estateTypeFriendlyName() { return this.#estate?.type?.friendlyName ?? 'Não informado' }
+  get eventTypeTitle() { return this.#eventType?.title ?? 'Agendamento' }
 
   // ===== SETTERS =====
   set durationMinutes(v) { this.#durationMinutes = v }

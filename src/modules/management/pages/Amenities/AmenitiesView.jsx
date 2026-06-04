@@ -1,12 +1,12 @@
 import { Plus } from 'lucide-react'
-import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
+import { PageManagementView } from '@management/components/PageManegement/PageManegementView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
 import { useAmenitiesViewModel } from './useAmenitiesViewModel'
 import { AmenitiesFormView } from './components/AmenitiesForm/AmenitiesFormView'
-import { IconPickerView } from './components/IconPicker/IconPickerView'
+import { AmenitiesIconPicker } from './components/AmenitiesIconPicker/AmenitiesIconPickerView'
 import { AmenitiesTableView } from './components/AmenitiesTable/AmenitiesTableView'
-import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { FilterView } from '@shared/components/ui/Filter/FilterView'
 
 /**
  * AmenitiesView - Tela de gerenciamento de amenities/comodidades
@@ -119,7 +119,7 @@ export function AmenitiesView() {
       />
 
       {/* Icon Picker Modal */}
-      <IconPickerView
+      <AmenitiesIconPicker
         isOpen={isIconPickerOpen}
         onClose={() => setIsIconPickerOpen(false)}
         onSelectIcon={handleSelectIcon}
