@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { HeaderView } from '@shared/components/layout/Header/HeaderView'
 import { RouterView } from '@routes/RouterView'
-import { ChatbotView } from '@shared/components/ui/Chatbot/ChatbotView'
+import { ChatbotView } from '@shared/components/features/Chatbot/ChatbotView'
 import { SidebarView } from '@shared/components/layout/Sidebar/SidebarView'
 import { AuthTransitionView } from '@shared/pages/AuthTransition/AuthTransitionView'
 import { useAuthTransitionViewModel } from '@shared/pages/AuthTransition/useAuthTransitionViewModel'

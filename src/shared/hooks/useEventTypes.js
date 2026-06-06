@@ -1,7 +1,7 @@
 /**
  * useEventTypes.js
  * Hook customizado para gerenciar event types do cal-service
- * 
+ *
  * Exemplo de implementação para referência
  * Use como base para integrar gerenciamento de tipos de agendamento
  */
@@ -27,7 +27,6 @@ export function useEventTypes() {
       setEventTypes(data)
     } catch (err) {
       setError(err.message || 'Erro ao carregar tipos de eventos')
-      console.error('❌ Erro ao carregar event types:', err)
     } finally {
       setLoading(false)
     }

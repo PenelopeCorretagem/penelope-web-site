@@ -262,7 +262,6 @@ export const handlers = [
 
   // ==================== FALLBACK ====================
   rest.all('*', (req, res, ctx) => {
-    console.warn(`[MSW] Requisição não mapeada: ${req.method} ${req.url.href}`)
     return res(ctx.status(404), ctx.json({ error: 'Endpoint não encontrado no mock' }))
   })
 ]

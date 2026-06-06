@@ -2,13 +2,16 @@ import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { AdvertisementCardView } from '@shared/components/ui/AdvertisementCard/AdvertisementCardView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
+import { AdvertisementCardView } from '@shared/components/features/AdvertisementCard/AdvertisementCardView'
 import { ImageView } from '@shared/components/ui/Image/ImageView'
 import LogoCury from '@institutional/assets/logo-cury.jpg'
-import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView'
+import { AdvertisementsCarouselView } from '@shared/components/features/AdvertisementsCarousel/AdvertisementsCarouselView'
 import { SearchFilterView } from '@shared/components/ui/SearchFilter/SearchFilterView'
 
 import { useHomeViewModel } from './useHomeViewModel'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export function HomeView() {
   const {
@@ -20,13 +23,26 @@ export function HomeView() {
     hasLaunchAdvertisements,
     refresh
   } = useHomeViewModel()
+  const isMinLoading = useMinLoadingTime(isLoading);
 
   // Loading state
-  if (isLoading) {
+  if (isMinLoading) {
     return (
-      <SectionView className="flex items-center justify-center min-h-[50vh]">
-        <TextView>Carregando...</TextView>
-      </SectionView>
+      <>
+        <div className='flex flex-col items-center bg-default-light-alt'>
+          <SectionView className='!p-0 w-full'>
+            <SkeletonView className="w-full h-[600px] rounded-none" />
+          </SectionView>
+        </div>
+        <SectionView className="bg-default-light w-full">
+          <SkeletonView className="h-8 w-64 mb-6" />
+          <div className="flex gap-4 overflow-hidden w-full">
+            <SkeletonView className="h-[400px] min-w-[300px] flex-1" />
+            <SkeletonView className="h-[400px] min-w-[300px] flex-1 hidden md:block" />
+            <SkeletonView className="h-[400px] min-w-[300px] flex-1 hidden lg:block" />
+          </div>
+        </SectionView>
+      </>
     )
   }
 
@@ -34,10 +50,20 @@ export function HomeView() {
   if (error) {
     return (
       <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <TextView className="text-red-500">Erro ao carregar dados: {error}</TextView>
-        <ButtonView color="brown" onClick={refresh}>
-          Tentar Novamente
-        </ButtonView>
+        <AlertView
+          isVisible={true}
+          type="error"
+          message={error}
+          hasCloseButton={false}
+          buttonsLayout="col"
+          actions={[
+            {
+              label: 'Tentar novamente',
+              onClick: refresh,
+              color: 'distac-primary',
+            },
+          ]}
+        />
       </SectionView>
     )
   }

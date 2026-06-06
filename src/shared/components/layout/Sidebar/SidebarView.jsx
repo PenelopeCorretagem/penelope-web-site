@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, LogOut } from 'lucid
 import * as LucideIcons from 'lucide-react'
 import { LogoView } from '@shared/components/ui/Logo/LogoView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
-import { UserInfoView } from '../../ui/UserInfo/UserInfoView'
+import { UserInfoView } from '@shared/components/features/UserInfo/UserInfoView'
 import { useSidebarViewModel } from './useSidebarViewModel'
 
 /**

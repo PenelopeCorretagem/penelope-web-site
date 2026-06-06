@@ -23,8 +23,6 @@ export function useAdvertisementDetailsViewModel() {
         getAllAdvertisements()
       ])
 
-      console.log('Advertisement Data:', advertisementData) // Log para depuração
-
       if (!advertisementData || !advertisementData.active) {
         throw new Error('Este anúncio não está disponível ou foi encerrado.')
       }

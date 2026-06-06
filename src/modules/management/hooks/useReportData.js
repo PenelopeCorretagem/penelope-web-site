@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import ReportModel, { PERIOD_TYPES } from '../pages/AppointmentReport/components/layout/Report/ReportModel'
+import ReportModel, { PERIOD_TYPES } from '../pages/AppointmentReport/components/Report/ReportModel'
 
 /**
  * useReportData.js

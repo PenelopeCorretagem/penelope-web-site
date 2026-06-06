@@ -88,20 +88,6 @@ export function useScheduleViewModel(options = {}) {
   const forcedViewMode = isAllAgentsSelected ? 'day' : uiState.viewMode
   const canChangeViewMode = !isAllAgentsSelected
 
-  const getApiErrorMessage = useCallback((error, fallbackMessage) => {
-    const apiMessage = error?.response?.data?.message
-
-    if (typeof apiMessage === 'string' && apiMessage.trim()) {
-      return apiMessage.trim()
-    }
-
-    if (typeof error?.message === 'string' && error.message.trim()) {
-      return error.message.trim()
-    }
-
-    return fallbackMessage
-  }, [])
-
   const appointmentScopeFilters = useMemo(() => {
     if (isClientUser) {
       return {
@@ -382,14 +368,14 @@ export function useScheduleViewModel(options = {}) {
           uiState.openSuccessAlert('Agendamento confirmado com sucesso.')
         } catch (error) {
           uiState.closeConfirmationAlert()
-          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao confirmar agendamento'))
+          uiState.openErrorAlert(error.message || 'Erro ao confirmar agendamento')
         } finally {
           uiState.setBusyAppointmentId(null)
         }
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleConcludeFromTools = useCallback(() => {
     if (isReadOnlyAdminView) return
@@ -410,14 +396,14 @@ export function useScheduleViewModel(options = {}) {
           uiState.openSuccessAlert('Agendamento concluído com sucesso.')
         } catch (error) {
           uiState.closeConfirmationAlert()
-          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao concluir agendamento'))
+          uiState.openErrorAlert(error.message || 'Erro ao concluir agendamento')
         } finally {
           uiState.setBusyAppointmentId(null)
         }
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleCancelFromTools = useCallback(() => {
     if (isReadOnlyAdminView) return
@@ -438,14 +424,14 @@ export function useScheduleViewModel(options = {}) {
           uiState.openSuccessAlert('Agendamento cancelado com sucesso.')
         } catch (error) {
           uiState.closeConfirmationAlert()
-          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao cancelar agendamento'))
+          uiState.openErrorAlert(error.message || 'Erro ao cancelar agendamento')
         } finally {
           uiState.setBusyAppointmentId(null)
         }
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [isReadOnlyAdminView, uiState, actions, getApiErrorMessage, appointmentService, selectedDate])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
 
   const handleDeleteFromTools = useCallback(() => {
     if (!canDeleteAppointments) return
@@ -464,14 +450,15 @@ export function useScheduleViewModel(options = {}) {
           uiState.openSuccessAlert('Agendamento excluído com sucesso.', 2000)
         } catch (error) {
           uiState.closeConfirmationAlert()
-          uiState.openErrorAlert(getApiErrorMessage(error, 'Erro ao excluir agendamento'))
+          uiState.openErrorAlert(error.message || 'Erro ao excluir agendamento')
         } finally {
           uiState.setBusyAppointmentId(null)
         }
       },
     })
     uiState.handleCloseAppointmentTools()
-  }, [canDeleteAppointments, uiState, actions, getApiErrorMessage])
+  }, [isReadOnlyAdminView, uiState, actions, appointmentService, selectedDate])
+
 
   // Dados derivados
   const totalAppointmentsCount = appointmentService.model.getTotal()
@@ -480,15 +467,16 @@ export function useScheduleViewModel(options = {}) {
     const all = appointmentService.model.getAll()
     const now = new Date()
     return all
-      .filter(a => a.date >= now)
-      .sort((a, b) => a.date - b.date)
+      .filter(a => a.startDateTime && a.startDateTime >= now)
+      .sort((a, b) => a.startDateTime - b.startDateTime)
       .slice(0, 5)
   }, [appointmentService])
 
   const monthCount = useMemo(() => {
     const all = appointmentService.model.getAll()
     return all.filter(a => {
-      const d = a.date
+      const d = a.startDateTime
+      if (!d) return false
       return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
     }).length
   }, [appointmentService, selectedDate])

@@ -31,7 +31,6 @@ export function useSelectViewModel(initialProps = {}) {
   // Sincronizar estado disabled externo com o modelo interno
   useEffect(() => {
     if (initialProps.disabled !== undefined && viewModel.updateDisabled(initialProps.disabled)) {
-      console.log('[SelectView] disabled changed:', initialProps.disabled)
       refresh()
     }
   }, [initialProps.disabled, viewModel, refresh])

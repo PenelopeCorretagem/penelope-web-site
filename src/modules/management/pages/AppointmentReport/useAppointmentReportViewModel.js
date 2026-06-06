@@ -7,8 +7,6 @@ import { useUIState } from '../../hooks/useUIState'
 import { useAppointmentActions } from '../../hooks/useAppointmentActions'
 import { useReportData } from '../../hooks/useReportData'
 import { CalendarModel } from '@management/models/CalendarModel'
-import { getAllEventTypes } from '@service-calservice/eventTypeService'
-import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { AppointmentReportModel } from './AppointmentReportModel'
 import { RouterModel } from '@routes/RouterModel'
 import { getUserById, getUsersWithCreci } from '@service-penelopec/userService'
@@ -20,11 +18,12 @@ import { isAdminAccessLevel, isBrokerAccessLevel, isClientAccessLevel } from '@c
  *
  * Responsabilidades:
  * - Gerenciar a seção ativa (dashboard / records)
- * - Anotar os appointments com estateTypeKey via APIs externas
- * - Expor loading composto (fetch base + anotação) para a View
+ * - Expor loading e dados de agendamentos já enriquecidos do backend
  *
- * NÃO conhece: lógica de calendário, filtros de schedule, ações de appointment.
- * Essas responsabilidades estão agora implementadas localmente, sem depender do useScheduleViewModel.
+ * Com o novo endpoint /appointments/report do backend:
+ * - Os agendamentos já vêm com estateTitle, estateTypeKey e estateTypeFriendlyName
+ * - Nenhuma anotação local ou cruzamento de dados é necessário
+ * - Todo enriquecimento vem do servidor
  */
 export function useAppointmentReportViewModel() {
   const [model] = useState(() => new AppointmentReportModel())
@@ -201,8 +200,30 @@ export function useAppointmentReportViewModel() {
       return
     }
 
-    await loadAppointmentsService(selectedDateRef.current, appointmentScopeFilters)
-  }, [isScopeLoading, appointmentScopeFilters, loadAppointmentsService, setAppointmentsService])
+    // Prepara filtros completos incluindo intervalo de datas
+    const filtersWithDateRange = {
+      ...appointmentScopeFilters,
+    }
+
+    // Passa startDateTime e endDateTime formatados em local time (ISO-8601 sem timezone)
+    const toLocalISOString = (date) => {
+      const pad = (n) => String(n).padStart(2, '0')
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    }
+
+    if (reportData.startDate) {
+      const start = new Date(reportData.startDate)
+      start.setHours(0, 0, 0, 0)
+      filtersWithDateRange.startDateTime = toLocalISOString(start)
+    }
+    if (reportData.endDate) {
+      const end = new Date(reportData.endDate)
+      end.setHours(23, 59, 59, 999)
+      filtersWithDateRange.endDateTime = toLocalISOString(end)
+    }
+
+    await loadAppointmentsService(selectedDateRef.current, filtersWithDateRange)
+  }, [isScopeLoading, appointmentScopeFilters, loadAppointmentsService, setAppointmentsService, reportData.startDate, reportData.endDate])
 
   useEffect(() => {
     selectedDateRef.current = selectedDate
@@ -269,6 +290,11 @@ export function useAppointmentReportViewModel() {
   useEffect(() => {
     loadAppointmentsWithScope()
   }, [loadAppointmentsWithScope])
+
+  // Recarrega agendamentos quando datas de filtro mudam
+  useEffect(() => {
+    loadAppointmentsWithScope()
+  }, [reportData.startDate, reportData.endDate, loadAppointmentsWithScope])
 
   const handleNavigatePeriod = useCallback((direction) => {
     const nextDate = new Date(selectedDate)
@@ -430,16 +456,16 @@ export function useAppointmentReportViewModel() {
     const all = appointmentService.model.getAll()
     const now = new Date()
     return all
-      .filter(a => a.date >= now)
-      .sort((a, b) => a.date - b.date)
+      .filter(a => a.startDateTime && a.startDateTime >= now)
+      .sort((a, b) => a.startDateTime - b.startDateTime)
       .slice(0, 5)
   }, [appointmentService])
 
   const monthCount = useMemo(() => {
     const all = appointmentService.model.getAll()
     return all.filter(a => {
-      const d = a.date
-      return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
+      const d = a.startDateTime
+      return d && d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear()
     }).length
   }, [appointmentService, selectedDate])
 
@@ -523,13 +549,6 @@ export function useAppointmentReportViewModel() {
     preselectedEstateReference,
   }
 
-  // Estado local: appointments anotados com estateTypeKey
-  const [annotatedAppointments, setAnnotatedAppointments] = useState([])
-
-  const [isAnnotating, setIsAnnotating] = useState(true)
-
-  const lastAnnotatedKey = useRef('')
-
   // ─── Seção ativa via rota ────────────────────────────────────────────────
   useEffect(() => {
     const nextSection = location.pathname === recordsRoute ? 'records' : 'dashboard'
@@ -538,115 +557,14 @@ export function useAppointmentReportViewModel() {
     }
   }, [location.pathname, model, recordsRoute, refreshUI])
 
-  // ─── Anotação de estateTypeKey ───────────────────────────────────────────
-  // Não roda enquanto o fetch base ainda está em andamento.
-  // Quando o fetch completa, anota os appointments (ou limpa se vazio).
-  useEffect(() => {
-    // Fetch base ainda em andamento → aguarda; isAnnotating já é true
-    if (vm.loading) return
-
-    const rawAppointments = vm.filteredAppointments ?? []
-
-    // Chave de identidade do array atual (id + tipo já anotado)
-    const currentKey = rawAppointments
-      .map((app) => `${app.id}:${app.estateTypeKey ?? ''}`)
-      .join('|')
-
-    // Sem mudança real → não refaz a anotação
-    if (currentKey === lastAnnotatedKey.current) return
-
-    // Array vazio após fetch completar → sem dados reais
-    if (!rawAppointments.length) {
-      setAnnotatedAppointments([])
-      lastAnnotatedKey.current = currentKey
-      setIsAnnotating(false)
-      return
-    }
-
-    // Todos já têm estateTypeKey → usa direto, sem fetch extra
-    const needsAnnotation = rawAppointments.some((app) => !app.estateTypeKey)
-    if (!needsAnnotation) {
-      setAnnotatedAppointments(rawAppointments)
-      lastAnnotatedKey.current = currentKey
-      setIsAnnotating(false)
-      return
-    }
-
-    // Precisa anotar via APIs externas
-    let cancelled = false
-    setIsAnnotating(true)
-
-    const annotate = async () => {
-      try {
-        const eventTypes = await getAllEventTypes({ size: 100 })
-
-        const advertisements = await getAllAdvertisements({ active: true })
-
-        const adByTitle = new Map(
-          advertisements
-            .filter((ad) => ad?.estate?.title)
-            .map((ad) => [String(ad.estate.title).trim().toLowerCase(), ad])
-        )
-
-        const eventTypeById = new Map(eventTypes.map((t) => [t.id, t]))
-
-        const annotated = rawAppointments.map((appointment) => {
-          const eventType = eventTypeById.get(appointment.eventTypeId) ?? null
-          const estateTitle = String(
-            eventType?.title ?? appointment.estate?.title ?? ''
-          ).trim()
-          const matchedAd = adByTitle.get(estateTitle.toLowerCase()) ?? null
-
-          return {
-            ...appointment,
-            estateTypeKey:
-              matchedAd?.estate?.type?.key ?? appointment.estateTypeKey ?? null,
-            estateTypeFriendlyName:
-              matchedAd?.estate?.type?.friendlyName ??
-              appointment.estateTypeFriendlyName ??
-              'Não informado',
-          }
-        })
-
-        if (!cancelled) {
-          setAnnotatedAppointments(annotated)
-          lastAnnotatedKey.current = currentKey
-        }
-      } catch {
-        // Em caso de erro mantém os originais sem anotação
-        if (!cancelled) {
-          setAnnotatedAppointments(rawAppointments)
-          lastAnnotatedKey.current = currentKey
-        }
-      } finally {
-        if (!cancelled) {
-          setIsAnnotating(false)
-        }
-      }
-    }
-
-    annotate()
-
-    return () => {
-      cancelled = true
-    }
-  }, [vm.filteredAppointments, vm.loading])
-
-  // Loading composto: fetch base OU anotação em andamento.
-  // isAnnotating começa true, então desde a montagem até os dados prontos = skeleton.
-  const isLoading = vm.loading || isAnnotating
-
   return {
     // Tudo do base ViewModel (filtros, ações, calendário, permissões...)
     ...vm,
 
-    // Appointments anotados substituem os filteredAppointments do base
-    filteredAppointments: annotatedAppointments,
-
     // Estado da seção ativa
     activeSection: model.activeSection,
 
-    // Loading composto (base fetch + anotação)
-    loading: isLoading,
+    // Loading direto — não há anotação adicional
+    loading: vm.loading,
   }
 }

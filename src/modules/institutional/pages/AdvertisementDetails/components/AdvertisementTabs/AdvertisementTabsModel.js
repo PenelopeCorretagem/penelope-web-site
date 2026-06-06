@@ -18,7 +18,6 @@ export class AdvertisementTabsModel {
 
   validateTabs(tabs) {
     if (!Array.isArray(tabs)) {
-      console.warn('AdvertisementTabsModel: tabs should be an array')
       return []
     }
     return tabs.filter(tab => typeof tab === 'string' && tab.trim() !== '')
@@ -26,7 +25,6 @@ export class AdvertisementTabsModel {
 
   validateAnchors(anchors) {
     if (!Array.isArray(anchors)) {
-      console.warn('AdvertisementTabsModel: anchors should be an array')
       return []
     }
     return anchors.filter(anchor => typeof anchor === 'string' && anchor.trim() !== '')

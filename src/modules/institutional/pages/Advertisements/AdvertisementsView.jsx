@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView'
+import { AdvertisementsCarouselView } from '@shared/components/features/AdvertisementsCarousel/AdvertisementsCarouselView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { TextView } from '@shared/components/ui/Text/TextView'
+import { AlertView } from '@shared/components/feedback/Alert/AlertView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { useAdvertisementsViewModel } from './useAdvertisementsViewModel'
-import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { FilterView } from '@shared/components/ui/Filter/FilterView'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export const AdvertisementsView = () => {
   const [headerHeight, setHeaderHeight] = useState(0)
@@ -28,6 +31,8 @@ export const AdvertisementsView = () => {
     }
   })
 
+  const isMinLoading = useMinLoadingTime(isLoading);
+
   useEffect(() => {
     const updateHeaderHeight = () => {
       const header = document.querySelector('header')
@@ -42,11 +47,26 @@ export const AdvertisementsView = () => {
   }, [])
 
   // Loading state
-  if (isLoading) {
+  if (isMinLoading) {
     return (
-      <SectionView className="flex items-center justify-center min-h-[50vh]">
-        <TextView>Carregando propriedades...</TextView>
-      </SectionView>
+      <div className="min-h-screen">
+        <div className="sticky top-[0px] z-10 bg-default-light-alt p-filter md:p-filter-md">
+          <SkeletonView className="h-16 w-full max-w-4xl mx-auto" />
+        </div>
+        <SectionView className="!pb-0">
+          <SkeletonView className="h-8 w-48" />
+        </SectionView>
+        <SectionView>
+          <div className="container mx-auto space-y-6">
+            <SkeletonView className="h-8 w-64" />
+            <div className="flex gap-4 overflow-hidden">
+              <SkeletonView className="h-[400px] min-w-[300px] flex-1" />
+              <SkeletonView className="h-[400px] min-w-[300px] flex-1" />
+              <SkeletonView className="h-[400px] min-w-[300px] flex-1 hidden md:block" />
+            </div>
+          </div>
+        </SectionView>
+      </div>
     )
   }
 
@@ -54,10 +74,20 @@ export const AdvertisementsView = () => {
   if (error) {
     return (
       <SectionView className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-        <TextView className="text-red-500">Erro: {error}</TextView>
-        <ButtonView color="brown" onClick={refresh}>
-          Tentar Novamente
-        </ButtonView>
+        <AlertView
+          isVisible={true}
+          type="error"
+          message={error}
+          hasCloseButton={false}
+          buttonsLayout="col"
+          actions={[
+            {
+              label: 'Tentar novamente',
+              onClick: refresh,
+              color: 'distac-primary',
+            },
+          ]}
+        />
       </SectionView>
     )
   }
@@ -88,7 +118,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={lancamentos}
-              titleCarousel="Lançamentos"
+              titleCarousel="LANÇAMENTO"
               showActionButton={false}
             />
           </div>
@@ -100,7 +130,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={disponiveis}
-              titleCarousel="Disponíveis"
+              titleCarousel="DISPONÍVEL"
               showActionButton={false}
             />
           </div>
@@ -112,7 +142,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={emObras}
-              titleCarousel="Em Obras"
+              titleCarousel="EM OBRAS"
               showActionButton={false}
             />
           </div>

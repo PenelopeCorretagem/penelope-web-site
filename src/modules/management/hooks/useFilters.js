@@ -29,8 +29,8 @@ export function useFilters(appointments = []) {
   }, [appointments])
 
   const estateTypeOptions = useMemo(() => {
-    return CalendarModel.getEstateTypeOptions(ESTATE_TYPES)
-  }, [])
+    return CalendarModel.getEstateTypeOptions(appointments, ESTATE_TYPES)
+  }, [appointments])
 
   const filterConfigs = useMemo(() => {
     return [

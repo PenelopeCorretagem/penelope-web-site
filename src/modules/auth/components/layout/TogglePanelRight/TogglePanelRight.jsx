@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { HeadingView } from '@shared/components/ui/Heading/HeadingView'
 import { TextView } from '@shared/components/ui/Text/TextView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
-import { PanelHeader } from '../PanelHeader/PanelHeader'
+import { PanelHeader } from '../../ui/PanelHeader/PanelHeader'
 
 // Classes Tailwind diretas
 const AUTH_RIGHT_PANEL_BASE = 'absolute right-0 w-1/2 h-full p-section md:p-section-md flex flex-col top-0 transition-all duration-700 ease-in-out'

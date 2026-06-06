@@ -38,7 +38,6 @@ export function useAccountViewModel() {
         newPassword: '' // Sempre vazio por segurança
       })
     } catch (err) {
-      console.error('Erro ao carregar dados do usuário:', err)
       setError(err.message || 'Erro ao carregar dados do usuário')
     } finally {
       setIsLoading(false)
@@ -85,7 +84,6 @@ export function useAccountViewModel() {
         message: 'Dados de acesso atualizados com sucesso!'
       }
     } catch (err) {
-      console.error('Erro ao atualizar dados de acesso:', err)
       return {
         success: false,
         error: err.message || 'Erro ao atualizar dados de acesso'
@@ -114,7 +112,6 @@ export function useAccountViewModel() {
         }
       })
     } catch (err) {
-      console.error('Erro ao excluir conta:', err)
       setAlertConfig({
         type: 'error',
         message: err.message || 'Erro ao excluir conta'

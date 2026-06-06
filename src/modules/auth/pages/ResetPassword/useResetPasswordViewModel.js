@@ -50,7 +50,6 @@ export function useResetPasswordViewModel() {
             navigate(location.pathname + location.search, { replace: true, state: { token: trimmed } })
           }
         } catch (err) {
-          console.error('validateResetToken error (url):', err.response ?? err)
           setError(err.response?.data?.message || 'Link de redefinição inválido ou expirado.')
         } finally {
           setIsLoading(false)
@@ -76,7 +75,6 @@ export function useResetPasswordViewModel() {
 
       navigate(`${resetRoute}?token=${trimmed}`, { replace: true, state: { token: trimmed } })
     } catch (err) {
-      console.error('❌ [ResetPassword] validateResetToken error (form):', err.response ?? err)
       setError(err.response?.data?.message || 'Código inválido ou expirado.')
     } finally {
       setIsLoading(false)

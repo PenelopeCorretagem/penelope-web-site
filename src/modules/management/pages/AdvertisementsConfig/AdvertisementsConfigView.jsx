@@ -1,6 +1,7 @@
-import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
+import { PageManagementView } from '@management/components/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { AdvertisementsCarouselView } from '@shared/components/ui/AdvertisementsCarousel/AdvertisementsCarouselView'
+import { AdvertisementsCarouselView } from '@shared/components/features/AdvertisementsCarousel/AdvertisementsCarouselView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { useAdvertisementsConfigViewModel } from './useAdvertisementsConfigViewModel'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
@@ -10,8 +11,9 @@ import { useRouter } from '@app/routes/useRouterViewModel'
 import { useCallback, useMemo } from 'react'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { FilterView } from '@shared/components/ui/Filter/FilterView'
 import { ESTATE_TYPES } from '@constant/estateTypes'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export function AdvertisementsConfigView() {
   const navigate = useNavigate()
@@ -33,6 +35,7 @@ export function AdvertisementsConfigView() {
   } = useAdvertisementsConfigViewModel()
 
   const headerHeight = useHeaderHeight()
+  const isMinLoading = useMinLoadingTime(loading);
 
   const handleAddAdvertisement = useCallback((advertisementType = '') => {
     try {
@@ -63,11 +66,10 @@ export function AdvertisementsConfigView() {
   ], [availableCities])
 
   const typeOptions = useMemo(() => [
-    { value: 'TODOS', label: 'Todos os Tipos' },
-    { value: 'LANCAMENTOS', label: 'Lançamentos' },
-    { value: 'DISPONIVEIS', label: 'Disponíveis' },
-    { value: 'EM_OBRAS', label: 'Em Obras' }
-  ], [])
+    { value: 'TODOS', label: 'TODOS OS TIPOS' },
+    { value: 'LANCAMENTOS', label: 'LANÇAMENTO' },
+    { value: 'DISPONIVEIS', label: 'DISPONÍVEL' },
+    { value: 'EM_OBRAS', label: 'EM OBRAS' }  ], [])
 
   const statusOptions = useMemo(() => [
     { value: 'TODOS', label: 'Todos os Status' },
@@ -78,11 +80,24 @@ export function AdvertisementsConfigView() {
   const getAddAdvertisementHandler = useCallback((advertisementType) => {
     return () => handleAddAdvertisement(advertisementType)
   }, [handleAddAdvertisement])
-  if (loading) {
+
+  if (isMinLoading) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
-        <SectionView className="flex items-center justify-center min-h-[calc(100vh-var(--header-height))]">
-          Carregando imóveis...
+        <SectionView className="flex flex-col min-h-[calc(100vh-var(--header-height))] gap-6">
+          <SkeletonView className="h-10 w-64" />
+          <div className="flex gap-4 mt-4">
+            <SkeletonView className="h-12 w-48" />
+            <SkeletonView className="h-12 w-48" />
+            <SkeletonView className="h-12 w-48" />
+          </div>
+          <SkeletonView className="h-8 w-40 mt-8 mb-4" />
+          <div className="flex gap-4 overflow-hidden">
+             <SkeletonView className="h-[300px] min-w-[280px]" />
+             <SkeletonView className="h-[300px] min-w-[280px]" />
+             <SkeletonView className="h-[300px] min-w-[280px]" />
+             <SkeletonView className="h-[300px] min-w-[280px]" />
+          </div>
         </SectionView>
       </div>
     )
@@ -91,8 +106,21 @@ export function AdvertisementsConfigView() {
   if (error) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
-        <SectionView className="flex items-center justify-center text-red-500 min-h-[calc(100vh-var(--header-height))]">
-          {error}
+        <SectionView className="flex items-center justify-center min-h-[calc(100vh-var(--header-height))]">
+          <AlertView
+            isVisible={true}
+            type="error"
+            message={error}
+            hasCloseButton={false}
+            buttonsLayout="col"
+            actions={[
+              {
+                label: 'Tentar novamente',
+                onClick: () => window.location.reload(),
+                color: 'distac-primary',
+              },
+            ]}
+          />
         </SectionView>
       </div>
     )
@@ -166,7 +194,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={lancamentos}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Lançamentos"
+              titleCarousel="LANÇAMENTO"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.LANCAMENTO.apiValue)}
             />
@@ -176,7 +204,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={disponiveis}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Disponíveis"
+              titleCarousel="DISPONÍVEL"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.DISPONIVEL.apiValue)}
             />
@@ -186,7 +214,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={emObras}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Em Obras"
+              titleCarousel="EM OBRAS"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.EM_OBRAS.apiValue)}
             />

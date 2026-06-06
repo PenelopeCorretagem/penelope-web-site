@@ -5,17 +5,17 @@ import { ESTATE_TYPES } from '@constant/estateTypes'
  */
 export const ADVERTISEMENT_CARD_CATEGORIES = {
   [ESTATE_TYPES.LANCAMENTO.key]: {
-    label: 'Lançamento',
+    label: 'LANÇAMENTO',
     variant: 'pink',
     priority: 1
   },
   [ESTATE_TYPES.DISPONIVEL.key]: {
-    label: 'Disponível',
+    label: 'DISPONÍVEL',
     variant: 'brown',
     priority: 2
   },
   [ESTATE_TYPES.EM_OBRAS.key]: {
-    label: 'Em Obras',
+    label: 'EM OBRAS',
     variant: 'softBrown',
     priority: 3
   }

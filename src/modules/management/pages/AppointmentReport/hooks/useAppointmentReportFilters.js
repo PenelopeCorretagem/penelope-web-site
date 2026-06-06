@@ -22,7 +22,7 @@ export function useAppointmentReportFilters(appointments = []) {
 
   const statusOptions = useMemo(() => CalendarModel.getStatusOptions(), [])
   const estateOptions = useMemo(() => CalendarModel.getEstateOptions(appointments, []), [appointments])
-  const estateTypeOptions = useMemo(() => CalendarModel.getEstateTypeOptions(ESTATE_TYPES), [])
+  const estateTypeOptions = useMemo(() => CalendarModel.getEstateTypeOptions(appointments, ESTATE_TYPES), [appointments])
 
   const filterConfigs = useMemo(() => [
     {

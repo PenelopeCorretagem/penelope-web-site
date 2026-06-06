@@ -1,13 +1,15 @@
-import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
+import { PageManagementView } from '@management/components/PageManegement/PageManegementView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
-import { FilterView } from '@shared/components/layout/Filter/FilterView'
+import { FilterView } from '@shared/components/ui/Filter/FilterView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { useUsersViewModel } from './useUsersViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { UsersList } from './components/UsersList/UsersList'
 import { ACCESS_LEVEL } from '@constant/accessLevels'
 import { Plus } from 'lucide-react'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export function UsersView() {
   const {
@@ -24,14 +26,19 @@ export function UsersView() {
   } = useUsersViewModel()
 
   const headerHeight = useHeaderHeight()
+  const isMinLoading = useMinLoadingTime(loading);
 
-  if (loading) {
+  if (isMinLoading) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
         <SectionView
-          className="flex items-center justify-center min-h-[calc(100vh-var(--header-height))]"
+          className="flex flex-col min-h-[calc(100vh-var(--header-height))] gap-4"
         >
-          Carregando usuários...
+          <SkeletonView className="h-10 w-full mb-8" />
+          <SkeletonView className="h-12 w-full" />
+          <SkeletonView className="h-12 w-full" />
+          <SkeletonView className="h-12 w-full" />
+          <SkeletonView className="h-12 w-full" />
         </SectionView>
       </div>
     )
@@ -40,10 +47,21 @@ export function UsersView() {
   if (error) {
     return (
       <div style={{ '--header-height': `${headerHeight}px` }}>
-        <SectionView
-          className="flex items-center justify-center text-red-500 min-h-[calc(100vh-var(--header-height))]"
-        >
-          {error}
+        <SectionView className="flex items-center justify-center min-h-[calc(100vh-var(--header-height))]">
+          <AlertView
+            isVisible={true}
+            type="error"
+            message={error}
+            hasCloseButton={false}
+            buttonsLayout="col"
+            actions={[
+              {
+                label: 'Tentar novamente',
+                onClick: refresh,
+                color: 'distac-primary',
+              },
+            ]}
+          />
         </SectionView>
       </div>
     )

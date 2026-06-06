@@ -6,7 +6,7 @@ import { SignInPanel } from '../../components/layout/SingInPanel/SignInPanel'
 import { SignUpPanel } from '../../components/layout/SingUpPanel/SignUpPanel'
 import { TogglePanelLeft } from '../../components/layout/TogglePanelLeft/TogglePanelLeft'
 import { TogglePanelRight } from '../../components/layout/TogglePanelRight/TogglePanelRight'
-import { AlertContent } from '../../components/layout/AlertContent/AlertContent'
+import { AlertContent } from '../../components/feedback/AlertContent/AlertContent'
 
 // Classes Tailwind diretas
 const AUTH_CONTAINER_BASE = 'relative w-full h-full bg-default-light overflow-hidden transition-all duration-700 ease-in-out'

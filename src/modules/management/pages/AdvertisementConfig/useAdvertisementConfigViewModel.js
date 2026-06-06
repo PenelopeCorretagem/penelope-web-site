@@ -68,7 +68,6 @@ export function useAdvertisementConfigViewModel(id) {
 
         setUsersWithCreci(users)
       } catch (err) {
-        console.error('❌ [PROPERTY CONFIG VM] Failed to load users:', err)
         showAlert('error', 'Erro ao carregar usuários')
         // Set empty array on error to avoid breaking the form
         setUsersWithCreci([])
@@ -92,7 +91,6 @@ export function useAdvertisementConfigViewModel(id) {
 
         setAmenities(amenitiesList)
       } catch (err) {
-        console.error('❌ [PROPERTY CONFIG VM] Failed to load amenities:', err)
         showAlert('error', 'Erro ao carregar diferenciais')
         setAmenities([])
       } finally {
@@ -123,7 +121,6 @@ export function useAdvertisementConfigViewModel(id) {
 
         setInitialData(advertisementModel)
       } catch (err) {
-        console.error('❌ [PROPERTY CONFIG VM] Failed to load advertisement:', err)
         setError(err.message || 'Erro ao carregar propriedade')
       } finally {
         setLoading(false)
@@ -186,7 +183,6 @@ export function useAdvertisementConfigViewModel(id) {
       return result
     } catch (err) {
       const errorMessage = err.message || (isNew ? 'Erro ao criar propriedade' : 'Erro ao atualizar propriedade')
-      console.error(`❌ [PROPERTY CONFIG VM] ${isNew ? 'Create' : 'Update'} failed:`, err)
       setError(errorMessage)
       showAlert('error', errorMessage)
       throw err
@@ -223,7 +219,6 @@ export function useAdvertisementConfigViewModel(id) {
       })
     } catch (err) {
       const errorMessage = err.message || 'Erro ao desabilitar propriedade'
-      console.error('❌ [PROPERTY CONFIG VM] Deactivate failed:', err)
       setError(errorMessage)
       showAlert('error', errorMessage)
     } finally {
@@ -248,7 +243,6 @@ export function useAdvertisementConfigViewModel(id) {
         ? DELETE_BLOCKED_BY_APPOINTMENTS_MESSAGE
         : resolveApiErrorMessage(err, 'Erro ao excluir propriedade definitivamente')
 
-      console.error('❌ [PROPERTY CONFIG VM] Hard delete failed:', err)
       setError(errorMessage)
       showAlert('error', errorMessage)
     } finally {

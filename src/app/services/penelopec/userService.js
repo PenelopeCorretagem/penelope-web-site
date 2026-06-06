@@ -96,10 +96,11 @@ export const getUserProfile = async () => {
 }
 
 /**
- * Lista corretores ativos — usuários com CRECI e status ativo.
+ * Lista corretores ativos — usuários com CRECI e status ativo, 
+ * filtrando apenas os do tipo CORRETOR ou ADMIN.
  * Usado para popular selects de responsável em anúncios e agendamentos.
  */
 export const getUsersWithCreci = async () => {
   const users = await getAllUsers()
-  return users.filter(user => user.hasCreci() && user.isActive())
+  return users.filter(user => user.hasCreci() && user.isActive() && (user.isBroker() || user.isAdmin()))
 }

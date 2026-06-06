@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { WizardFormView } from '@shared/components/ui/WizardForm/WizardFormView'
+import { WizardFormView } from '@shared/components/features/WizardForm/WizardFormView'
 import { SectionView } from '@shared/components/layout/Section/SectionView'
-import { PageManagementView } from '@management/components/layout/PageManegement/PageManegementView'
+import { PageManagementView } from '@management/components/PageManegement/PageManegementView'
 import { ButtonView } from '@shared/components/ui/Button/ButtonView'
+import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { useAdvertisementConfigViewModel } from './useAdvertisementConfigViewModel'
 import { useRouteParams } from '@app/routes/useRouterViewModel'
 import { AlertView } from '@shared/components/feedback/Alert/AlertView'
@@ -10,6 +11,7 @@ import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { useLocation } from 'react-router-dom'
 import { useMemo } from 'react'
 import { ESTATE_TYPES } from '@constant/estateTypes'
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
 
 export function AdvertisementConfigView() {
   const { id } = useRouteParams()
@@ -68,12 +70,23 @@ export function AdvertisementConfigView() {
   }, [wizardInitialData])
 
   const wizardInstanceKey = `${id || 'new'}-${isNew ? (storedPresetAdvertisementType || 'default') : 'edit'}-${wizardResetKey}`
+  const isMinLoading = useMinLoadingTime(loading || loadingUsers || loadingAmenities);
 
   // Só monta o formulário quando os usuários e amenities estiverem carregados
-  if (loading || loadingUsers || loadingAmenities) {
+  if (isMinLoading) {
     return (
-      <SectionView className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        {loading ? 'Carregando dados da propriedade...' : loadingUsers ? 'Carregando usuários...' : 'Carregando diferenciais...'}
+      <SectionView className="flex flex-col min-h-[calc(100vh-80px)] gap-subsection md:gap-subsection-md">
+        <SkeletonView className="h-10 w-48 mb-8" />
+        <div className="flex gap-4 mb-4">
+           <SkeletonView className="h-12 w-32" />
+           <SkeletonView className="h-12 w-32" />
+           <SkeletonView className="h-12 w-32" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SkeletonView className="h-14 w-full" />
+          <SkeletonView className="h-14 w-full" />
+          <SkeletonView className="h-32 w-full md:col-span-2" />
+        </div>
       </SectionView>
     )
   }
@@ -81,10 +94,10 @@ export function AdvertisementConfigView() {
   // Agora monta as opções com segurança, pois os usuários já foram carregados
   const responsibleOptions = [
     { value: '', label: 'Selecione um responsável' },
-        ...usersWithCreci.map(user => ({
+    ...usersWithCreci.map(user => ({
       value: user.id?.toString() || user.email,
       label: user.nomeCompleto || user.name || user.email || 'Responsável'
-        }))
+    }))
   ]
 
 
@@ -139,9 +152,9 @@ export function AdvertisementConfigView() {
               type: 'select',
               options: [
                 { value: '', label: 'Selecione o tipo' },
-                { value: ESTATE_TYPES.LANCAMENTO.apiValue, label: 'Lançamento' },
-                { value: ESTATE_TYPES.DISPONIVEL.apiValue, label: 'Disponível' },
-                { value: ESTATE_TYPES.EM_OBRAS.apiValue, label: 'Em Obras' }
+                { value: ESTATE_TYPES.LANCAMENTO.apiValue, label: 'LANÇAMENTO' },
+                { value: ESTATE_TYPES.DISPONIVEL.apiValue, label: 'DISPONÍVEL' },
+                { value: ESTATE_TYPES.EM_OBRAS.apiValue, label: 'EM OBRAS' }
               ],
               required: true,
               containerClassName: 'w-full md:col-span-2',

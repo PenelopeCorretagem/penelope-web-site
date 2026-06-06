@@ -110,7 +110,6 @@ export function useAdvertisementTabsViewModel(anchors, tabs) {
 
   useEffect(() => {
     if (!model.hasValidData()) {
-      console.warn('AdvertisementTabsViewModel: Invalid data provided')
       return
     }
 
@@ -133,7 +132,7 @@ export function useAdvertisementTabsViewModel(anchors, tabs) {
 
     // Try to find the scrollable element (.router-view), fallback to window
     const scrollableElement = document.querySelector('.router-view') || window
-    
+
     scrollableElement.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
@@ -156,7 +155,6 @@ export function useAdvertisementTabsViewModel(anchors, tabs) {
   const handleTabClick = useCallback(
     (anchor) => {
       if (!model.anchors.includes(anchor)) {
-        console.warn(`AdvertisementTabsViewModel: Invalid anchor "${anchor}"`)
         return
       }
 

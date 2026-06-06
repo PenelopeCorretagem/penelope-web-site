@@ -8,7 +8,6 @@ async function startApp() {
   if (import.meta.env.VITE_API_MODE === 'mock') {
     const { worker } = await import('@mocks/browser')
     await worker.start({ onUnhandledRequest: 'warn' })
-    console.log('[MSW] Modo mock ativado: requisições HTTP serão interceptadas')
   }
 
   createRoot(document.getElementById('root')).render(

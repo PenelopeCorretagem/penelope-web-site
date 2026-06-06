@@ -9,7 +9,6 @@ export function AdvertisementTabsView({ tabs, anchors }) {
   } = useAdvertisementTabsViewModel(anchors, tabs)
 
   if (!hasValidData) {
-    console.warn('AdvertisementTabsView: Invalid props provided')
     return null
   }
 

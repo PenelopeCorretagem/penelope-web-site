@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { getAllUsers, updateUser, deleteUser } from '@api-penelopec/userApi'
+import { getAllUsers, updateUser, deleteUser } from '@service-penelopec/userService'
 import { UsersModel } from './UsersModel'
 import { useRouter } from '@app/routes/useRouterViewModel'
 
@@ -30,8 +30,7 @@ export function useUsersViewModel() {
       model.setUsers(usersData)
       setUsers(usersData)
     } catch (err) {
-      console.error('Erro ao buscar usuários:', err)
-      setError('Não foi possível carregar os usuários. Tente novamente.')
+      setError(err.message || 'Não foi possível carregar os usuários. Tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -82,7 +81,6 @@ export function useUsersViewModel() {
 
       return { success: true }
     } catch (err) {
-      console.error('Erro ao salvar usuário:', err)
       const errorMessage = err.response?.data?.message || 'Erro ao salvar usuário'
 
       setAlertConfig({
@@ -111,7 +109,6 @@ export function useUsersViewModel() {
         message: 'Usuário excluído com sucesso!'
       })
     } catch (err) {
-      console.error('Erro ao excluir usuário:', err)
       const errorMessage = err.response?.data?.message || 'Erro ao excluir usuário'
 
       setAlertConfig({

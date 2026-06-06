@@ -179,8 +179,6 @@ export function useAuthViewModel() {
 
       return { success: true }
     } catch (error) {
-      console.error('Erro no registro:', error)
-
       let errorMessage = 'Erro ao criar conta. Tente novamente.'
 
       if (error.response?.status === 409) {
@@ -221,7 +219,6 @@ export function useAuthViewModel() {
 
       return { success: true }
     } catch (error) {
-      console.error('Erro ao recuperar senha:', error)
       const errorMessage = error.response?.data?.message ||
                           error.response?.data ||
                           'Erro ao enviar email de recuperação. Tente novamente.'

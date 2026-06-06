@@ -5,7 +5,7 @@ import { getAllAdvertisements, getAdvertisementById, updateAdvertisement } from 
 import { getAllAmenities } from '@service-penelopec/amenitiesService'
 import { AdvertisementsConfigModel } from './AdvertisementsConfigModel'
 import { AdvertisementConfigModel } from '../AdvertisementConfig/AdvertisementConfigModel'
-import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
+import { FilterModel } from '@shared/components/ui/Filter/FilterModel'
 
 export const useAdvertisementsConfigViewModel = () => {
   const navigate = useNavigate()
@@ -66,7 +66,6 @@ export const useAdvertisementsConfigViewModel = () => {
       }
 
     } catch (err) {
-      console.error('Erro ao buscar anúncios:', err)
       setError('Não foi possível carregar os anúncios. Tente novamente.')
     } finally {
       setLoading(false)
@@ -95,7 +94,6 @@ export const useAdvertisementsConfigViewModel = () => {
       const route = generateRoute('ADMIN_PROPERTIES_CONFIG', { id })
       navigate(route)
     } catch (error) {
-      console.error('Erro ao gerar rota:', error)
       // Fallback direto
       navigate(`/admin/gerenciar-imoveis/${id}`)
     }
@@ -126,7 +124,6 @@ export const useAdvertisementsConfigViewModel = () => {
         message: 'Propriedade desabilitada com sucesso!'
       })
     } catch (err) {
-      console.error('❌ [PROPERTIES CONFIG VM] Delete failed:', err)
       setAlertConfig({
         type: 'error',
         message: `Erro ao desabilitar propriedade: ${err.message}`

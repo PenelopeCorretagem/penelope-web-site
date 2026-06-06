@@ -1,4 +1,4 @@
-import { isAdminAccessLevel } from '@constant/accessLevels'
+import { isAdminAccessLevel, isBrokerAccessLevel } from '@constant/accessLevels'
 
 export class User {
   #id
@@ -75,6 +75,10 @@ export class User {
 
   isAdmin() {
     return isAdminAccessLevel(this.#accessLevel)
+  }
+
+  isBroker() {
+    return isBrokerAccessLevel(this.#accessLevel)
   }
 
   toRequestPayload() {

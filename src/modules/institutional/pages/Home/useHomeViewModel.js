@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getAllAdvertisements } from '@service-penelopec/advertisementService'
 import { HomeModel } from './HomeModel'
-import { AdvertisementCardModel } from '@shared/components/ui/AdvertisementCard/AdvertisementCardModel'
+import { AdvertisementCardModel } from '@shared/components/features/AdvertisementCard/AdvertisementCardModel'
 import { ADVERTISEMENT_CARD_MODES } from '@constant/advertisementCardModes'
 import { ESTATE_TYPES } from '@constant/estateTypes'
 
@@ -29,7 +29,6 @@ export function useHomeViewModel() {
         homeModel.setPreLaunchAdvertisements(launchAds)
       }
     } catch (error) {
-      console.error('❌ Erro ao carregar lançamentos:', error)
       homeModel.setError(error.message)
     }
   }, [homeModel])

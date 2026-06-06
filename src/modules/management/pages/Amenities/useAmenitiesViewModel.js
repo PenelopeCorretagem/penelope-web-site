@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { AmenitiesModel } from './AmenitiesModel'
 import { getAllLucideIcons } from '@shared/utils/lucideIcons/lucideIconsUtil'
-import { FilterModel } from '@shared/components/layout/Filter/FilterModel'
+import { FilterModel } from '@shared/components/ui/Filter/FilterModel'
 
 const DUPLICATE_AMENITY_MESSAGE = 'Não é possível criar este diferencial pois já existe um diferencial com essa descrição.'
 
@@ -173,8 +173,8 @@ export const useAmenitiesViewModel = () => {
       setTotalElements(model.totalElements)
       handleCloseModal()
     } catch (err) {
-      // Tenta extrair mensagem da resposta da API
-      const errorMessage = err.response?.data?.message || err.message || 'Erro ao salvar diferencial'
+      // Services já formatam mensagens via handleAmenitiesError
+      const errorMessage = err.message || 'Erro ao salvar diferencial'
       if (!isEditMode && isDuplicateAmenityError(err)) {
         setFormAlertConfig({
           type: 'warning',
@@ -215,7 +215,7 @@ export const useAmenitiesViewModel = () => {
       setIsConfirmDeleteOpen(false)
       setPendingDeleteId(null)
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Erro ao deletar diferencial'
+      const errorMessage = err.message || 'Erro ao deletar diferencial'
       setError(errorMessage)
       setIsConfirmDeleteOpen(false)
       setPendingDeleteId(null)
