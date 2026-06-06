@@ -119,7 +119,10 @@ export class ScheduleModel {
   }
 
   static getEstateTypeOptions(estateTypes) {
-    return [{ key: 'TODOS', friendlyName: 'Todos os tipos' }, ...Object.values(estateTypes)]
+    return [{ value: 'TODOS', label: 'Todos os tipos' }, ...Object.values(estateTypes).map(type => ({
+      value: type.key,
+      label: type.friendlyName
+    }))]
   }
 
   static getEstateOptions(appointments = [], availableEstateOptions = []) {

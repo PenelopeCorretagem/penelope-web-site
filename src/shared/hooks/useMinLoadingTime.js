@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react'
  * @param {number} minTimeMs - O tempo mínimo em milissegundos (padrão 2000)
  * @returns {boolean} O estado de loading ajustado
  */
-export function useMinLoadingTime(isLoading, minTimeMs = 1000) {
+export function useMinLoadingTime(isLoading, minTimeMs = 500) {
   const [delayedLoading, setDelayedLoading] = useState(isLoading)
   const startTime = useRef(0)
   const timerId = useRef(null)

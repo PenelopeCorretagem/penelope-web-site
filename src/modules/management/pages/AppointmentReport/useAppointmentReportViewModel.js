@@ -205,12 +205,21 @@ export function useAppointmentReportViewModel() {
       ...appointmentScopeFilters,
     }
 
-    // Passa startDateTime e endDateTime se estiverem definidos
+    // Passa startDateTime e endDateTime formatados em local time (ISO-8601 sem timezone)
+    const toLocalISOString = (date) => {
+      const pad = (n) => String(n).padStart(2, '0')
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    }
+
     if (reportData.startDate) {
-      filtersWithDateRange.startDateTime = reportData.startDate.toISOString()
+      const start = new Date(reportData.startDate)
+      start.setHours(0, 0, 0, 0)
+      filtersWithDateRange.startDateTime = toLocalISOString(start)
     }
     if (reportData.endDate) {
-      filtersWithDateRange.endDateTime = reportData.endDate.toISOString()
+      const end = new Date(reportData.endDate)
+      end.setHours(23, 59, 59, 999)
+      filtersWithDateRange.endDateTime = toLocalISOString(end)
     }
 
     await loadAppointmentsService(selectedDateRef.current, filtersWithDateRange)

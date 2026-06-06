@@ -2,9 +2,9 @@
  * Tipos de estate disponíveis no sistema (sem IDs)
  */
 export const ESTATE_TYPES = {
-  LANCAMENTO: { key: 'LANCAMENTO', apiValue: 'lancamento', friendlyName: 'Lançamento' },
-  DISPONIVEL: { key: 'DISPONIVEL', apiValue: 'disponivel', friendlyName: 'Disponível' },
-  EM_OBRAS: { key: 'EM_OBRAS', apiValue: 'emObras', friendlyName: 'Em obras' }
+  LANCAMENTO: { key: 'LANCAMENTO', apiValue: 'LANCAMENTO', friendlyName: 'LANÇAMENTO' },
+  DISPONIVEL: { key: 'DISPONIVEL', apiValue: 'DISPONIVEL', friendlyName: 'DISPONÍVEL' },
+  EM_OBRAS: { key: 'EM_OBRAS', apiValue: 'EMOBRAS', friendlyName: 'EM OBRAS' }
 }
 
 /**
@@ -17,15 +17,15 @@ export const ESTATE_TYPE_BY_KEY = {
 }
 
 export const ESTATE_TYPE_BY_API_VALUE = {
-  lancamento: ESTATE_TYPES.LANCAMENTO,
-  disponivel: ESTATE_TYPES.DISPONIVEL,
-  emObras: ESTATE_TYPES.EM_OBRAS
+  LANCAMENTO: ESTATE_TYPES.LANCAMENTO,
+  DISPONIVEL: ESTATE_TYPES.DISPONIVEL,
+  EMOBRAS: ESTATE_TYPES.EM_OBRAS
 }
 
 export const ESTATE_TYPE_BY_FRIENDLY_NAME = {
-  'Lançamento': ESTATE_TYPES.LANCAMENTO,
-  'Disponível': ESTATE_TYPES.DISPONIVEL,
-  'Em obras': ESTATE_TYPES.EM_OBRAS
+  'LANÇAMENTO': ESTATE_TYPES.LANCAMENTO,
+  'DISPONÍVEL': ESTATE_TYPES.DISPONIVEL,
+  'EM OBRAS': ESTATE_TYPES.EM_OBRAS
 }
 
 /**
@@ -58,21 +58,27 @@ export const isValidEstateFriendlyName = (friendlyName) => {
  * Busca tipo pelo key
  */
 export const getEstateTypeByKey = (key) => {
-  return ESTATE_TYPE_BY_KEY[key] || null
+  if (!key) return null
+  const normalized = String(key).toUpperCase()
+  return ESTATE_TYPE_BY_KEY[normalized] || null
 }
 
 /**
  * Busca tipo pelo valor externo enviado/recebido da API.
  */
 export const getEstateTypeByApiValue = (apiValue) => {
-  return ESTATE_TYPE_BY_API_VALUE[apiValue] || null
+  if (!apiValue) return null
+  const normalized = String(apiValue).toUpperCase()
+  return ESTATE_TYPE_BY_API_VALUE[normalized] || null
 }
 
 /**
  * Busca tipo pelo nome amigável
  */
 export const getEstateTypeByFriendlyName = (friendlyName) => {
-  return ESTATE_TYPE_BY_FRIENDLY_NAME[friendlyName] || null
+  if (!friendlyName) return null
+  const normalized = String(friendlyName).toUpperCase()
+  return ESTATE_TYPE_BY_FRIENDLY_NAME[normalized] || null
 }
 
 /**
@@ -88,7 +94,7 @@ export const ESTATE_TYPE_KEYS = {
  * Constantes para fácil acesso aos friendly names
  */
 export const ESTATE_TYPE_FRIENDLY_NAMES = {
-  LANCAMENTO: 'Lançamento',
-  DISPONIVEL: 'Disponível',
-  EM_OBRAS: 'Em obras'
+  LANCAMENTO: 'LANÇAMENTO',
+  DISPONIVEL: 'DISPONÍVEL',
+  EM_OBRAS: 'EM OBRAS'
 }

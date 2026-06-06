@@ -1,3 +1,5 @@
+import { getEstateTypeByApiValue, getEstateTypeByKey } from '@constant/estateTypes'
+
 /**
  * Appointment.js
  * DTO + Model de domínio para agendamentos.
@@ -87,8 +89,24 @@ export class Appointment {
 
   // ===== GETTERS DERIVADOS DO BACKEND ENRIQUECIDO =====
   get estateTitle() { return this.#estate?.title ?? 'Não informado' }
-  get estateTypeKey() { return this.#estate?.type?.key ?? null }
-  get estateTypeFriendlyName() { return this.#estate?.type?.friendlyName ?? 'Não informado' }
+  get estateTypeKey() {
+    const type = this.#estate?.type
+    if (typeof type === 'string') {
+      const normalized = type.toUpperCase()
+      return getEstateTypeByApiValue(normalized)?.key || getEstateTypeByKey(normalized)?.key || type
+    }
+    return type?.key ?? null
+  }
+  get estateTypeFriendlyName() {
+    const type = this.#estate?.type
+    if (typeof type === 'string') {
+      const normalized = type.toUpperCase()
+      return getEstateTypeByApiValue(normalized)?.friendlyName
+        || getEstateTypeByKey(normalized)?.friendlyName
+        || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
+    }
+    return type?.friendlyName ?? 'Não informado'
+  }
   get eventTypeTitle() { return this.#eventType?.title ?? 'Agendamento' }
 
   // ===== SETTERS =====

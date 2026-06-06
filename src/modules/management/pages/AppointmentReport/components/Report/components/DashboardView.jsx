@@ -22,7 +22,7 @@ import { X, Minus } from 'lucide-react'
 import { PERIOD_LABELS } from '../ReportModel'
 import clsx from 'clsx'
 import { APPOINTMENT_STATUS_LABELS } from '@constant/appointmentStatuses'
-import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime'
 
 const COLORS_BY_STATUS = {
   PENDING: '#b33c8e',
@@ -31,9 +31,86 @@ const COLORS_BY_STATUS = {
   CANCELLED: '#3d3c3c',
 }
 
+const COLORS_BY_ESTATE_TYPE = {
+  LANCAMENTO: '#b33c8e',
+  DISPONIVEL: '#36221d',
+  EM_OBRAS: '#816862',
+  EMOBRAS: '#816862',
+  'LANÇAMENTO': '#b33c8e',
+  'DISPONÍVEL': '#36221d',
+  'EM OBRAS': '#816862',
+}
+
+const getEstateTypeColor = (typeKey) => {
+  return COLORS_BY_ESTATE_TYPE[typeKey] || '#ccc'
+}
+
 const toSafeNumber = (value) => {
   const numeric = Number(value)
   return Number.isFinite(numeric) ? numeric : 0
+}
+
+const getShortWeekDayLabel = (day) => {
+  if (!day) return day
+  const normalized = String(day).trim().toLowerCase()
+  const map = {
+    domingo: 'Dom',
+    segunda: 'Seg',
+    terça: 'Ter',
+    quarta: 'Qua',
+    quinta: 'Qui',
+    sexta: 'Sex',
+    sábado: 'Sáb',
+    sabado: 'Sáb',
+  }
+  return map[normalized] || day.slice(0, 3)
+}
+
+const getShortMonthLabel = (period) => {
+  if (!period) return period
+  const value = String(period).trim()
+  const normalized = value.toLowerCase()
+  const map = {
+    janeiro: 'Jan',
+    fevereiro: 'Fev',
+    março: 'Mar',
+    marco: 'Mar',
+    abril: 'Abr',
+    maio: 'Mai',
+    junho: 'Jun',
+    julho: 'Jul',
+    agosto: 'Ago',
+    setembro: 'Set',
+    outubro: 'Out',
+    novembro: 'Nov',
+    dezembro: 'Dez',
+  }
+
+  const yearMatch = normalized.match(/\b(\d{4}|\d{2})\b/)
+  const yearSuffix = yearMatch ? yearMatch[1].slice(-2) : null
+
+  for (const [full, abbr] of Object.entries(map)) {
+    const regex = new RegExp(`\b${full}\b`, 'i')
+    if (regex.test(normalized)) {
+      return yearSuffix ? `${abbr}/${yearSuffix}` : abbr
+    }
+  }
+
+  const yearMonthMatch = normalized.match(/^(\d{4})-(\d{2})$/)
+  if (yearMonthMatch) {
+    const [, year, month] = yearMonthMatch
+    const monthNumber = Number(month)
+    const monthKeys = Object.keys(map)
+    const abbr = monthKeys[monthNumber - 1]?.slice(0, 3)?.replace('mar', 'Mar')
+    return abbr ? `${abbr}/${year.slice(-2)}` : value
+  }
+
+  const shortYearMatch = normalized.match(/^(\d{2})\/?$/)
+  if (shortYearMatch && value.length === 2) {
+    return `/${shortYearMatch[1]}`
+  }
+
+  return value
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -50,12 +127,45 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
+const CustomXAxisTick = ({ x, y, payload }) => {
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      fill="#555"
+      fontSize={11}
+      dy={12}
+    >
+      {getShortMonthLabel(payload.value)}
+    </text>
+  )
+}
+
+const CustomXAxisTickRotated = ({ x, y, payload }) => {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        textAnchor="end"
+        fill="#444"
+        fontSize={11}
+        transform="rotate(-35)"
+        dy={8}
+      >
+        {getShortMonthLabel(payload.value)}
+      </text>
+    </g>
+  )
+}
+
 export function DashboardView({
   reportData,
   isLoading = false,
 }) {
   const [expandedItem, setExpandedItem] = useState(null)
-  const isMinLoading = useMinLoadingTime(isLoading);
+  const isMinLoading = useMinLoadingTime(isLoading)
 
   const STATUS_LABELS_MAP = APPOINTMENT_STATUS_LABELS
 
@@ -120,26 +230,40 @@ export function DashboardView({
   }
 
   // ─── KPI Card ─────────────────────────────────────────────────────────────
-  const renderKPICard = (label, value, unit = '%', color = 'text-distac-primary', id) => (
-    <button
-      key={id}
-      type="button"
-      onClick={() => setExpandedItem({ type: 'kpi', id, label, value, unit, color })}
-      className="group w-full h-full bg-default-light rounded-xl border border-default-light-muted px-2 py-2 flex flex-col gap-1 hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer items-center justify-center"
-    >
-      <span className="text-[10px] uppercase text-default-dark-light font-semibold tracking-widest line-clamp-2 text-center leading-tight">
-        {label}
-      </span>
-      <div className="flex items-baseline gap-1">
-        <span className={clsx('font-bold tabular-nums leading-none', color, 'text-2xl')}>
-          {value}
+  const formatKpiValue = (value, unit = '%') => {
+    if (unit === '%' && Number.isFinite(Number(value))) {
+      return Number(value).toLocaleString('pt-BR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      })
+    }
+    return value
+  }
+
+  const renderKPICard = (label, value, unit = '%', color = 'text-distac-primary', id) => {
+    const displayValue = formatKpiValue(value, unit)
+
+    return (
+      <button
+        key={id}
+        type="button"
+        onClick={() => setExpandedItem({ type: 'kpi', id, label, value: displayValue, unit, color })}
+        className="group w-full h-full bg-default-light rounded-xl border border-default-light-muted px-2 py-2 flex flex-col gap-1 hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer items-center justify-center"
+      >
+        <span className="text-[10px] uppercase text-default-dark-light font-semibold tracking-widest line-clamp-2 text-center leading-tight">
+          {label}
         </span>
-        {unit && (
-          <span className="text-[12px] text-default-dark-light font-semibold">{unit}</span>
-        )}
-      </div>
-    </button>
-  )
+        <div className="flex items-baseline gap-1">
+          <span className={clsx('font-bold tabular-nums leading-none', color, 'text-2xl')}>
+            {displayValue}
+          </span>
+          {unit && (
+            <span className="text-[12px] text-default-dark-light font-semibold">{unit}</span>
+          )}
+        </div>
+      </button>
+    )
+  }
 
   // ─── Modal expandido ──────────────────────────────────────────────────────
   const renderExpandedModal = () => {
@@ -166,7 +290,7 @@ export function DashboardView({
               </button>
             </div>
             <div className="px-6 py-6 flex flex-col items-center text-center gap-4">
-              <p className="text-default-dark font-semibold text-sm leading-snug max-w-[220px]">
+              <p className="text-default-dark font-semibold text-sm uppercase leading-snug max-w-[220px]">
                 {expandedItem.label}
               </p>
               <div className="flex items-end gap-1.5">
@@ -178,11 +302,6 @@ export function DashboardView({
                     {expandedItem.unit}
                   </span>
                 )}
-              </div>
-              <div className="bg-default-light-alt rounded-lg px-4 py-2 w-full">
-                <span className="text-default-dark-light text-xs">
-                  Período: <span className="font-semibold text-default-dark">{PERIOD_LABELS[reportData.periodType]}</span>
-                </span>
               </div>
             </div>
           </div>
@@ -201,19 +320,27 @@ export function DashboardView({
               <XAxis dataKey="type" angle={-35} textAnchor="end" height={70} tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#b33c8e" radius={[6, 6, 0, 0]} maxBarSize={48} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                {reportData.appointmentsByEstateType.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getEstateTypeColor(entry.typeKey)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         )
       } else if (expandedItem.id === 'estates') {
         chartContent = (
           <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={reportData.appointmentsByEstate} layout="vertical" margin={{ top: 10, right: 20, left: 140, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="estate" width={130} tick={{ fontSize: 11, fill: '#444' }} axisLine={false} tickLine={false} />
+            <BarChart data={reportData.appointmentsByEstate} margin={{ top: 10, right: 20, left: 10, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
+              <XAxis dataKey="estate" tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} angle={-35} textAnchor="end" height={70} />
+              <YAxis tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#b33c8e" radius={[0, 6, 6, 0]} maxBarSize={20} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                {reportData.appointmentsByEstate.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getEstateTypeColor(entry.typeKey)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         )
@@ -246,7 +373,7 @@ export function DashboardView({
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#444' }} tickFormatter={getShortWeekDayLabel} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="count" fill="#36221d" radius={[6, 6, 0, 0]} maxBarSize={48} />
@@ -256,11 +383,11 @@ export function DashboardView({
       } else if (expandedItem.id === 'trend') {
         chartContent = (
           <ResponsiveContainer width="100%" height={320}>
-            <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 10, right: 20, left: 0, bottom: 60 }}>
+            <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 10, right: 20, left: 24, bottom: 60 }} barCategoryGap="4%">
               <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
-              <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#444' }} angle={-35} textAnchor="end" height={70} axisLine={false} tickLine={false} />
+              <XAxis dataKey="period" height={70} interval={0} tick={<CustomXAxisTickRotated />} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#444' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip />} labelFormatter={getShortMonthLabel} />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} formatter={(value) => <span style={{ color: '#555', fontWeight: 500 }}>{value}</span>} />
               <Line type="monotone" dataKey="PENDING" stroke="#b33c8e" name="Agendado" strokeWidth={2.5} dot={false} />
               <Bar dataKey="CONFIRMED" fill="#36221d" name="Confirmado" radius={[4, 4, 0, 0]} maxBarSize={24} />
@@ -278,7 +405,7 @@ export function DashboardView({
         >
           <div className="bg-default-light rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-default-light-muted sticky top-0 bg-default-light rounded-t-2xl z-10">
-              <p className="text-default-dark font-semibold text-sm">{expandedItem.title}</p>
+              <p className="uppercase text-default-dark font-semibold text-sm">{expandedItem.title}</p>
               <button
                 type="button"
                 onClick={() => setExpandedItem(null)}
@@ -314,7 +441,7 @@ export function DashboardView({
   return (
     <>
       <SectionView className="flex-col !gap-0 !p-0 bg-default-light-alt xl:h-full overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-hidden" style={{ minHeight: '350px' }}>
+        <div className="flex-1 h-full overflow-hidden" style={{ minHeight: '350px' }}>
           <div
             className="grid gap-2 h-full"
             style={{
@@ -322,25 +449,29 @@ export function DashboardView({
               gridTemplateRows: '1fr 3fr 3fr 3fr 3fr 3fr 3fr',
             }}
           >
-            {/* Col 1, linhas 1–7: tipo de imóvel */}
+            {/* Col 4, linhas 2–8: tipo de imóvel */}
             {hasEstateTypeData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'estate-type', title: 'Agendamentos por Tipo de Imóvel' })}
-                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col"
-                style={{ gridColumn: '1', gridRow: '1 / 8' }}
+                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col gap-2"
+                style={{ gridColumn: '4 / 5', gridRow: '2 / 8' }}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-default-dark-light mb-1 line-clamp-1 flex-shrink-0">
+                <p className="text-[10px] font-semibold uppercase text-center tracking-widest text-default-dark-light mb-1 line-clamp-1 flex-shrink-0">
                   Por Tipo de Imóvel
                 </p>
-                <div className="flex-1 min-h-0">
+                <div className="flex-1 h-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={reportData.appointmentsByEstateType} margin={{ top: 4, right: 4, left: -22, bottom: 28 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#efefef" vertical={false} />
                       <XAxis dataKey="type" angle={-35} textAnchor="end" height={48} tick={{ fontSize: 13, fill: '#666' }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 13, fill: '#666' }} axisLine={false} tickLine={false} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="count" fill="#b33c8e" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                        {reportData.appointmentsByEstateType.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={getEstateTypeColor(entry.typeKey)} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -361,25 +492,29 @@ export function DashboardView({
               {renderKPICard('Taxa de Cancelamento', toSafeNumber(reportData.cancellationRate), '%', 'text-red-500', 'kpi-cancel')}
             </div>
 
-            {/* Linhas 2–4, cols 2–4: top 10 imóveis */}
+            {/* Linhas 2–7, cols 2–3: top 10 imóveis */}
             {hasEstateData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'estates', title: 'Top 10 Imóveis Mais Agendados' })}
-                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col"
-                style={{ gridColumn: '2 / 5', gridRow: '2 / 5' }}
+                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col gap-2"
+                style={{ gridColumn: '2 / 4', gridRow: '2 / 8' }}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-default-dark-light mb-1 flex-shrink-0">
+                <p className="text-[10px] font-semibold uppercase text-center tracking-widest text-default-dark-light mb-1 flex-shrink-0">
                   Top 10 Imóveis Mais Agendados
                 </p>
-                <div className="flex-1 min-h-0">
+                <div className="flex-1 h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={reportData.appointmentsByEstate} layout="vertical" margin={{ top: 2, right: 12, left: 70, bottom: 2 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#efefef" horizontal={false} />
-                      <XAxis type="number" tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="estate" width={100} tick={{ fontSize: 13, fill: '#555' }} axisLine={false} tickLine={false} />
+                    <BarChart data={reportData.appointmentsByEstate} margin={{ top: 2, right: 12, left: 10, bottom: 60 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#efefef" vertical={false} />
+                      <XAxis dataKey="estate" tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} angle={-35} textAnchor="end" height={70} />
+                      <YAxis tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
                       <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(179,60,142,0.06)' }} />
-                      <Bar dataKey="count" fill="#b33c8e" radius={[0, 4, 4, 0]} maxBarSize={14} />
+                      <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={48}>
+                        {reportData.appointmentsByEstate.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={getEstateTypeColor(entry.typeKey)} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -391,85 +526,87 @@ export function DashboardView({
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'distribution', title: 'Distribuição por Status' })}
-                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col"
+                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col gap-2"
                 style={{ gridColumn: '5 / 6', gridRow: '2 / 5' }}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-default-dark-light mb-1 flex-shrink-0 line-clamp-1">
+                <p className="text-[10px] font-semibold uppercase text-center tracking-widest text-default-dark-light mb-1 flex-shrink-0 line-clamp-1">
                   Por Status
                 </p>
-                <div className="flex-1 min-h-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={pieChartData} cx="50%" cy="50%" innerRadius="24%" outerRadius="60%" paddingAngle={2} dataKey="value" isAnimationActive={false}>
-                        {pieChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<CustomTooltip />} formatter={(value) => [value, 'Agendamentos']} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex flex-col gap-1 mt-1 flex-shrink-0">
-                  {pieChartData.map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.fill }} />
-                      <span className="text-[11px] text-default-dark-light truncate">{entry.name}</span>
-                      <span className="text-[11px] font-bold text-default-dark ml-auto">{entry.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </button>
-            )}
-
-            {/* Linhas 5–7, cols 2–3: por dia da semana */}
-            {hasWeekDayData && (
-              <button
-                type="button"
-                onClick={() => setExpandedItem({ type: 'chart', id: 'weekday', title: 'Agendamentos por Dia da Semana' })}
-                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col"
-                style={{ gridColumn: '2 / 4', gridRow: '5 / 8' }}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-default-dark-light mb-1 flex-shrink-0">
-                  Por Dia da Semana
-                </p>
-                <div className="flex-1 min-h-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 4, right: 4, left: -22, bottom: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#efefef" vertical={false} />
-                      <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="count" fill="#36221d" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className='flex h-full items-center'>
+                  <div className="w-[50%] h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={pieChartData} cx="50%" cy="50%" innerRadius="24%" outerRadius="60%" paddingAngle={2} dataKey="value" isAnimationActive={false}>
+                          {pieChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} formatter={(value) => [value, 'Agendamentos']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex flex-col gap-2 mt-1">
+                    {pieChartData.map((entry) => (
+                      <div key={entry.name} className="flex items-center gap-2 w-fit">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.fill }} />
+                        <span className="text-[11px] text-default-dark-light truncate">{entry.name}</span>
+                        <span className="text-[11px] font-bold text-default-dark ml-auto">{entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </button>
             )}
 
-            {/* Linhas 5–7, cols 4–5: tendência */}
+            {/* Col 1, linhas 1–8: tendência */}
             {hasTrendData && (
               <button
                 type="button"
                 onClick={() => setExpandedItem({ type: 'chart', id: 'trend', title: `Tendência — ${PERIOD_LABELS[reportData.periodType]}` })}
-                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col"
-                style={{ gridColumn: '4 / 6', gridRow: '5 / 8' }}
+                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col gap-2"
+                style={{ gridColumn: '1', gridRow: '1 / 8' }}
               >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-default-dark-light mb-1 flex-shrink-0">
+                <p className="text-[10px] font-semibold uppercase text-center tracking-widest text-default-dark-light mb-1 flex-shrink-0">
                   Tendência — {PERIOD_LABELS[reportData.periodType]}
                 </p>
-                <div className="flex-1 min-h-0">
+                <div className="flex-1 h-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 4, right: 4, left: -22, bottom: 28 }}>
+                    <ComposedChart data={reportData.timeSeriesDataByStatus} margin={{ top: 4, right: 0, left: 20, bottom: 24 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#efefef" vertical={false} />
-                      <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#555' }} angle={-35} textAnchor="end" height={46} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="period" height={46} interval={0} tick={<CustomXAxisTick />} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '4px' }} formatter={(value) => <span style={{ color: '#888' }}>{value}</span>} />
+                      <Tooltip content={<CustomTooltip />} labelFormatter={getShortMonthLabel} />
+                      <Legend wrapperStyle={{ fontSize: '10px' }} formatter={(value) => <span style={{ color: '#888' }}>{value}</span>} />
                       <Line type="monotone" dataKey="PENDING" stroke="#b33c8e" name="Agendado" strokeWidth={1.5} dot={false} />
                       <Bar dataKey="CONFIRMED" fill="#36221d" name="Confirmado" radius={[3, 3, 0, 0]} />
                       <Bar dataKey="CONCLUDED" fill="#9b7a7a" name="Concluído" radius={[3, 3, 0, 0]} />
                       <Bar dataKey="CANCELLED" fill="#3d3c3c" name="Cancelado" radius={[3, 3, 0, 0]} />
                     </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              </button>
+            )}
+
+            {/* Linhas 5–7, col 5: por dia da semana abaixo do status */}
+            {hasWeekDayData && (
+              <button
+                type="button"
+                onClick={() => setExpandedItem({ type: 'chart', id: 'weekday', title: 'Agendamentos por Dia da Semana' })}
+                className="group bg-default-light rounded-xl border border-default-light-muted p-2 overflow-hidden hover:shadow-md hover:border-distac-primary/30 transition-all duration-200 cursor-pointer text-left flex flex-col gap-2"
+                style={{ gridColumn: '5 / 6', gridRow: '5 / 8' }}
+              >
+                <p className="text-[10px] font-semibold uppercase text-center tracking-widest text-default-dark-light mb-1 flex-shrink-0">
+                  Por Dia da Semana
+                </p>
+                <div className="flex-1 h-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={reportData.appointmentsByWeekDay} margin={{ top: 4, right: 4, left: -22, bottom: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#efefef" vertical={false} />
+                      <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#555' }} tickFormatter={getShortWeekDayLabel} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 12, fill: '#555' }} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="count" fill="#36221d" radius={[4, 4, 0, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </button>

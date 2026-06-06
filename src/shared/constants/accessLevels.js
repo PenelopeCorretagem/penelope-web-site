@@ -36,5 +36,9 @@ export const getAccessLevelLabel = (value) => {
     return 'Administrador'
   }
 
+  if (normalized === ACCESS_LEVEL.CORRETOR) {
+    return 'Corretor'
+  }
+
   return 'Cliente'
 }

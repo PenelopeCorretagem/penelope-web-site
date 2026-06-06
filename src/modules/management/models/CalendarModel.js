@@ -1,4 +1,5 @@
 import { APPOINTMENT_STATUS_LABELS } from '@constant/appointmentStatuses'
+import { getEstateTypeByApiValue, getEstateTypeByKey } from '@constant/estateTypes'
 
 export const STATUS_COLORS = {
   PENDING: 'bg-distac-primary text-default-light',
@@ -75,8 +76,32 @@ export class CalendarModel {
     return ['TODOS', ...Object.keys(STATUS_LABELS)]
   }
 
-  static getEstateTypeOptions(estateTypes) {
-    return [{ key: 'TODOS', friendlyName: 'Todos os tipos' }, ...Object.values(estateTypes)]
+  static getEstateTypeOptions(appointments = [], defaultTypes = {}) {
+    const optionsMap = new Map()
+
+    Object.values(defaultTypes).forEach(type => {
+      optionsMap.set(type.key, { value: type.key, label: type.friendlyName })
+    })
+
+    appointments.forEach(appointment => {
+      const rawKey = appointment.estateTypeKey
+      if (!rawKey || rawKey === 'Não informado') return
+
+      const normalizedKey = typeof rawKey === 'string'
+        ? (getEstateTypeByKey(rawKey)?.key || getEstateTypeByApiValue(rawKey)?.key || rawKey)
+        : rawKey
+
+      const name = appointment.estateTypeFriendlyName
+        || getEstateTypeByKey(normalizedKey)?.friendlyName
+        || getEstateTypeByApiValue(normalizedKey)?.friendlyName
+        || rawKey
+
+      if (!optionsMap.has(normalizedKey)) {
+        optionsMap.set(normalizedKey, { value: normalizedKey, label: name })
+      }
+    })
+
+    return [{ value: 'TODOS', label: 'Todos os tipos' }, ...Array.from(optionsMap.values())]
   }
 
   static getEstateOptions(appointments = [], availableEstateOptions = []) {

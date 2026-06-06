@@ -66,11 +66,10 @@ export function AdvertisementsConfigView() {
   ], [availableCities])
 
   const typeOptions = useMemo(() => [
-    { value: 'TODOS', label: 'Todos os Tipos' },
-    { value: 'LANCAMENTOS', label: 'Lançamentos' },
-    { value: 'DISPONIVEIS', label: 'Disponíveis' },
-    { value: 'EM_OBRAS', label: 'Em Obras' }
-  ], [])
+    { value: 'TODOS', label: 'TODOS OS TIPOS' },
+    { value: 'LANCAMENTOS', label: 'LANÇAMENTO' },
+    { value: 'DISPONIVEIS', label: 'DISPONÍVEL' },
+    { value: 'EM_OBRAS', label: 'EM OBRAS' }  ], [])
 
   const statusOptions = useMemo(() => [
     { value: 'TODOS', label: 'Todos os Status' },
@@ -195,7 +194,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={lancamentos}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Lançamentos"
+              titleCarousel="LANÇAMENTO"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.LANCAMENTO.apiValue)}
             />
@@ -205,7 +204,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={disponiveis}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Disponíveis"
+              titleCarousel="DISPONÍVEL"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.DISPONIVEL.apiValue)}
             />
@@ -215,7 +214,7 @@ export function AdvertisementsConfigView() {
             <AdvertisementsCarouselView
               advertisements={emObras}
               advertisementCardMode={ADVERTISEMENT_CARD_MODES.CONFIG}
-              titleCarousel="Em Obras"
+              titleCarousel="EM OBRAS"
               actionButtonText="Adicionar Imóvel"
               onActionClick={getAddAdvertisementHandler(ESTATE_TYPES.EM_OBRAS.apiValue)}
             />

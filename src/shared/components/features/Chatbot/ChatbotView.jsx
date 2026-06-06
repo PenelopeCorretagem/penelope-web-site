@@ -38,30 +38,7 @@ export function ChatbotView() {
 
   return (
     <>
-      {!isOpen && !isCollapsed && (
-        <div className="fixed bottom-7 right-11 z-[999999] flex items-center gap-2">
-          <ButtonView
-            onClick={handleOpen}
-            width="fit"
-            shape="circle"
-            variant="primary"
-            className="shadow-lg w-12 h-12 md:w-16 md:h-16 flex items-center justify-center hover:scale-105 transition cursor-pointer posis"
-            aria-label="Abrir chat bot"
-          >
-            <FaComments className="text-white text-xl md:text-3xl" />
-          </ButtonView>
-          <button
-            type="button"
-            onClick={handleCollapse}
-            className="w-4 md:w-6 h-4 md:h-6 rounded-full bg-default-dark text-white flex items-center justify-center shadow-lg hover:bg-default-dark/90 transition absolute -top-1 -right-1"
-            aria-label="Minimizar chat bot"
-          >
-            <FaTimes className="text-[9px] md:text-sm" />
-          </button>
-        </div>
-      )}
-
-      {!isOpen && isCollapsed && (
+      {!isOpen && (
         <button
           type="button"
           onClick={handleOpen}

@@ -152,9 +152,9 @@ export function AdvertisementConfigView() {
               type: 'select',
               options: [
                 { value: '', label: 'Selecione o tipo' },
-                { value: ESTATE_TYPES.LANCAMENTO.apiValue, label: 'Lançamento' },
-                { value: ESTATE_TYPES.DISPONIVEL.apiValue, label: 'Disponível' },
-                { value: ESTATE_TYPES.EM_OBRAS.apiValue, label: 'Em Obras' }
+                { value: ESTATE_TYPES.LANCAMENTO.apiValue, label: 'LANÇAMENTO' },
+                { value: ESTATE_TYPES.DISPONIVEL.apiValue, label: 'DISPONÍVEL' },
+                { value: ESTATE_TYPES.EM_OBRAS.apiValue, label: 'EM OBRAS' }
               ],
               required: true,
               containerClassName: 'w-full md:col-span-2',

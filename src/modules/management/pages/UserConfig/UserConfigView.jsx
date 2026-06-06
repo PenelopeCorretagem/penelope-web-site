@@ -7,7 +7,7 @@ import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { useUserConfigViewModel } from './useUserConfigViewModel'
 import { useHeaderHeight } from '@shared/hooks/useHeaderHeight'
 import { useNavigate } from 'react-router-dom'
-import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime'
 
 export function UserConfigView() {
   const {
@@ -23,10 +23,10 @@ export function UserConfigView() {
 
   const headerHeight = useHeaderHeight()
   const navigate = useNavigate()
+  const isMinLoading = useMinLoadingTime(loading)
 
   // Clean cancel function for UserConfig - always goes back
   const handleCancelUserConfig = () => {
-  const isMinLoading = useMinLoadingTime(loading);
     navigate(-1)
   }
 

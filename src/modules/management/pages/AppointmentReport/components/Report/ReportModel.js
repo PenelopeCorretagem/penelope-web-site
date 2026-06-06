@@ -61,25 +61,13 @@ export class ReportModel {
    * @private
    */
   #getFilteredAppointments() {
-    if (!this.#startDate && !this.#endDate) {
-      return [...this.#appointments]
-    }
-
     return this.#appointments.filter(appointment => {
-      const appointmentDate = new Date(appointment.startDateTime)
+      const appointmentDate = appointment.startDateTime instanceof Date
+        ? appointment.startDateTime
+        : new Date(appointment.startDateTime)
 
-      if (this.#startDate) {
-        const start = new Date(this.#startDate)
-        start.setHours(0, 0, 0, 0)
-        if (appointmentDate < start) return false
-      }
-
-      if (this.#endDate) {
-        const end = new Date(this.#endDate)
-        end.setHours(23, 59, 59, 999)
-        if (appointmentDate > end) return false
-      }
-
+      if (this.#startDate && appointmentDate < this.#startDate) return false
+      if (this.#endDate && appointmentDate > this.#endDate) return false
       return true
     })
   }
@@ -92,19 +80,18 @@ export class ReportModel {
     const appointments = this.appointments
     if (appointments.length === 0) return 0
     const confirmed = appointments.filter(a => a.status === 'CONFIRMED').length
-    return Math.round((confirmed / appointments.length) * 100)
+    return parseFloat(((confirmed / appointments.length) * 100).toFixed(2))
   }
 
   /**
    * Calcula taxa de conclusão
-   * (agendamentos concluídos / total de confirmados)
+   * (agendamentos concluídos / total de agendamentos)
    */
   getCompletionRate() {
     const appointments = this.appointments
-    const confirmed = appointments.filter(a => a.status === 'CONFIRMED').length
-    if (confirmed === 0) return 0
+    if (appointments.length === 0) return 0
     const concluded = appointments.filter(a => a.status === 'CONCLUDED').length
-    return Math.round((concluded / confirmed) * 100)
+    return parseFloat(((concluded / appointments.length) * 100).toFixed(2))
   }
 
   /**
@@ -115,7 +102,7 @@ export class ReportModel {
     const appointments = this.appointments
     if (appointments.length === 0) return 0
     const cancelled = appointments.filter(a => a.status === 'CANCELLED').length
-    return Math.round((cancelled / appointments.length) * 100)
+    return parseFloat(((cancelled / appointments.length) * 100).toFixed(2))
   }
 
   /**
@@ -150,11 +137,16 @@ export class ReportModel {
 
     appointments.forEach(appointment => {
       const estateTitle = appointment.estateTitle || appointment.title || 'Sem informação'
-      estateMap.set(estateTitle, (estateMap.get(estateTitle) || 0) + 1)
+      const key = appointment.estateTypeKey || 'Desconhecido'
+      const normalizedKey = typeof key === 'string' ? key.toUpperCase() : key
+
+      if (!estateMap.has(estateTitle)) {
+        estateMap.set(estateTitle, { estate: estateTitle, count: 0, typeKey: normalizedKey })
+      }
+      estateMap.get(estateTitle).count += 1
     })
 
-    return Array.from(estateMap.entries())
-      .map(([estate, count]) => ({ estate, count }))
+    return Array.from(estateMap.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
   }
@@ -169,17 +161,23 @@ export class ReportModel {
     const typeMap = new Map()
 
     appointments.forEach(appointment => {
-      const typeLabel = appointment.estateTypeFriendlyName
-        || getEstateTypeByKey(appointment.estateTypeKey)?.friendlyName
-        || getEstateTypeByApiValue(appointment.estateTypeKey)?.friendlyName
-        || appointment.estateTypeKey
+      const rawKey = appointment.estateTypeKey || 'Desconhecido'
+      const key = typeof rawKey === 'string' ? rawKey.toUpperCase() : rawKey
+      const normalizedType = getEstateTypeByKey(key) || getEstateTypeByApiValue(key)
+      const typeKey = normalizedType?.key || key
+
+      const typeLabel = normalizedType?.friendlyName
+        || appointment.estateTypeFriendlyName
+        || key
         || 'Desconhecido'
 
-      typeMap.set(typeLabel, (typeMap.get(typeLabel) || 0) + 1)
+      if (!typeMap.has(typeLabel)) {
+        typeMap.set(typeLabel, { type: typeLabel, count: 0, typeKey })
+      }
+      typeMap.get(typeLabel).count += 1
     })
 
-    return Array.from(typeMap.entries())
-      .map(([type, count]) => ({ type, count }))
+    return Array.from(typeMap.values())
       .sort((a, b) => b.count - a.count)
   }
 

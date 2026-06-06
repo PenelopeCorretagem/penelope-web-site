@@ -76,7 +76,9 @@ export function EstateSelectionView({
                   {getEstateTitle(estate.estate)}
                 </p>
                 <p className="text-xs text-muted mt-1">
-                  {estate.estate?.type || 'Imóvel'}
+                  {typeof estate.estate?.type === 'string'
+                    ? estate.estate.type
+                    : estate.estate?.type?.friendlyName || estate.estate?.type?.label || 'Imóvel'}
                 </p>
                 {estate.estate?.address && (
                   <p className="text-xs text-muted truncate mt-1">

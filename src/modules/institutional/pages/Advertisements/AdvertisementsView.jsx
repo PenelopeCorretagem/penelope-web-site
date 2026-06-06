@@ -118,7 +118,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={lancamentos}
-              titleCarousel="Lançamentos"
+              titleCarousel="LANÇAMENTO"
               showActionButton={false}
             />
           </div>
@@ -130,7 +130,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={disponiveis}
-              titleCarousel="Disponíveis"
+              titleCarousel="DISPONÍVEL"
               showActionButton={false}
             />
           </div>
@@ -142,7 +142,7 @@ export const AdvertisementsView = () => {
           <div className="container mx-auto">
             <AdvertisementsCarouselView
               advertisements={emObras}
-              titleCarousel="Em Obras"
+              titleCarousel="EM OBRAS"
               showActionButton={false}
             />
           </div>

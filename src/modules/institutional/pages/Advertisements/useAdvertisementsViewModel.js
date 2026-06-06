@@ -124,10 +124,10 @@ export const useAdvertisementsViewModel = ({ onError }) => {
       variant: 'brown',
       shape: 'square',
       options: [
-        { value: 'TODOS', label: 'Todos os Tipos' },
-        { value: 'LANCAMENTOS', label: 'Lançamentos' },
-        { value: 'DISPONIVEIS', label: 'Disponíveis' },
-        { value: 'EM_OBRAS', label: 'Em Obras' }
+        { value: 'TODOS', label: 'TODOS OS TIPOS' },
+        { value: 'LANCAMENTOS', label: 'LANÇAMENTO' },
+        { value: 'DISPONIVEIS', label: 'DISPONÍVEL' },
+        { value: 'EM_OBRAS', label: 'EM OBRAS' }
       ]
     }
   ], [availableCities])
