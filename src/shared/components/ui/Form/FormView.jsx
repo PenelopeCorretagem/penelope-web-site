@@ -46,6 +46,7 @@ export function FormView({
   submitText = 'Enviar',
   submitWidth = 'fit',
   isLoading: externalLoading,
+  errorMessage = '',
   onSubmit,
   onChange, // optional external change handler: (fieldName, value)
   footerContent,
@@ -64,6 +65,8 @@ export function FormView({
     isLoading: formIsLoading,
     canSubmit,
     setLoading,
+    setErrors,
+    clearErrors,
     formClasses,
     titleClasses,
     subtitleClasses,
@@ -90,6 +93,16 @@ export function FormView({
     isLoading: initialLoading,
     controlledLoading: typeof externalLoading === 'boolean',
   })
+
+  // Expõe erros externos (por exemplo: mensagens vindas do servidor)
+  // para o FormModel, garantindo que sejam exibidas no componente.
+  useEffect(() => {
+    if (errorMessage) {
+      setErrors(errorMessage)
+    } else {
+      clearErrors()
+    }
+  }, [errorMessage, setErrors, clearErrors])
 
   useEffect(() => {
     if (typeof externalLoading === 'boolean' && formIsLoading !== externalLoading) {

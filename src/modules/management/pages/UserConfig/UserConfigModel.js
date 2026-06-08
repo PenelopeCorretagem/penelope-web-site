@@ -127,10 +127,6 @@ export class UserConfigModel {
             return 'Renda deve ser um valor positivo'
           }
 
-          if (numericValue > 1000000) {
-            return 'Valor de renda muito alto'
-          }
-
           return true
         }
       },

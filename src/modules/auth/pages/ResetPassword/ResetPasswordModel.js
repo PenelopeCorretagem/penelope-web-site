@@ -138,7 +138,10 @@ export class ResetPasswordModel {
   }
 
   getResetPasswordRoute() {
-    return this.routerModel.getRoute('RESET_PASSWORD')
+    // Antes tentávamos usar `this.routerModel` que não é inicializado aqui.
+    // Retornar a rota definida localmente evita TypeError e garante
+    // que o fluxo de redefinição aponte para a rota correta.
+    return this.routes[this.resetTypes.NEW_PASSWORD] || '/redefinir-senha'
   }
 
   getLoginRoute() {

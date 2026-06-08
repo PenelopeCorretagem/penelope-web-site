@@ -4,6 +4,7 @@ import { useRouter } from '@app/routes/useRouterViewModel'
 import { UserConfigModel } from './UserConfigModel'
 import { createUser, updateUser, deleteUser, getUserById } from '@api-penelopec/userApi'
 import { ACCESS_LEVEL, normalizeAccessLevel } from '@constant/accessLevels'
+import { formatCurrencyForDisplay } from '@shared/utils/currency/formatCurrencyUtil'
 
 export function useUserConfigViewModel() {
   const { id } = useParams()
@@ -28,7 +29,7 @@ export function useUserConfigViewModel() {
             creci: userData.creci || '',
             cpf: userData.cpf || '',
             dateBirth: userData.dateBirth || '',
-            monthlyIncome: userData.monthlyIncome || '',
+            monthlyIncome: userData.monthlyIncome ? formatCurrencyForDisplay(userData.monthlyIncome) : '',
             accessLevel: normalizeAccessLevel(userData.accessLevel || userData.nivelAcesso || ACCESS_LEVEL.CLIENTE),
             senha: ''
           }
