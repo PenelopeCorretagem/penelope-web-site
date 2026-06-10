@@ -98,7 +98,7 @@ export function CalendarPanelView({
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
           <p className="text-sm uppercase tracking-widest text-muted mb-1">
-            {viewMode === 'week' ? 'Semana de' : viewMode === 'day' ? 'Dia selecionado' : 'Mes selecionado'}
+            {viewMode === 'week' ? 'Semana de' : viewMode === 'day' ? 'Dia selecionado' : 'Mês selecionado'}
           </p>
           <h2 className="text-xl font-semibold">
             {viewMode === 'week'

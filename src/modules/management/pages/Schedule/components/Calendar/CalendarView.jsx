@@ -5,7 +5,7 @@ import { CalendarPanelView } from './components/CalendarPanel/CalendarPanelView'
 import { CalendarRightSidebarView } from './components/CalendarRightSidebar/CalendarRightSidebarView'
 import { SkeletonView } from '@shared/components/ui/Skeleton/SkeletonView'
 import { ScheduleModel } from '../../ScheduleModel'
-import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime';
+import { useMinLoadingTime } from '@shared/hooks/useMinLoadingTime'
 
 /**
  * CalendarView.jsx
@@ -76,7 +76,7 @@ export function CalendarView({
   }
 
   const isLoading = vm.loading || vm.isScopeLoading
-  const isMinLoading = useMinLoadingTime(isLoading);
+  const isMinLoading = useMinLoadingTime(isLoading)
 
   return (
     <>

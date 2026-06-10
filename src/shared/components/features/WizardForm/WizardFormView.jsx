@@ -449,15 +449,15 @@ export function WizardFormView(props) {
       const hasActiveFilters = Boolean(filters.searchTerm || filters.sortOrder !== 'none')
 
       return (
-        <div className={`w-full h-full flex flex-col gap-4 ${field.className || ''}`}>
+        <div className={`w-full h-full flex flex-col flex-1 gap-4 min-h-0 ${field.className || ''}`}>
           {field.label && (
-            <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted">
+            <label className="uppercase font-semibold font-default text-[12px] leading-none md:text-[16px] text-default-dark-muted shrink-0">
               {field.label}:
             </label>
           )}
 
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-3 md:gap-3">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-3 shrink-0">
             {/* Search Input */}
             <div className="flex-1">
               <InputView
@@ -498,17 +498,17 @@ export function WizardFormView(props) {
           </div>
 
           {/* Grid de Diferenciais */}
-          <div className="w-full h-full overflow-hidden bg-distac-primary-light rounded-sm px-4 py-2 transition-colors duration-200 flex flex-col">
+          <div className="w-full bg-distac-primary-light rounded-sm px-4 py-4 flex flex-col flex-1 min-h-0 overflow-hidden">
             {filteredOptions.length === 0 ? (
-              <div className="w-full h-full overflow-y-auto flex items-center justify-center text-default-dark-muted text-sm py-8">
+              <div className="w-full h-full flex flex-1 items-center justify-center text-default-dark-muted text-sm py-8">
                 Nenhum diferencial encontrado com esses critérios
               </div>
             ) : (
               <>
-                <div className="w-full h-full flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-6 gap-3 md:gap-4">
-                  {paginatedOptions.map(option => {
+                <div className="w-full h-full flex-1 grid grid-rows-[1fr_1fr] grid-flow-col gap-3 md:gap-4 overflow-x-auto pb-2 custom-scrollbar auto-cols-[minmax(140px,min-content)] md:auto-cols-[minmax(160px,1fr)] items-stretch">
+                  {filteredOptions.map(option => {
                     const isSelected = currentValue.includes(option.value)
-                    const btnClass = `p-3 rounded-lg transition text-center h-fit font-medium text-sm flex flex-col items-center gap-2 ${
+                    const btnClass = `p-3 rounded-lg transition text-center h-full w-full font-medium text-sm flex flex-col items-center justify-center gap-2 ${
                       isSelected
                         ? 'bg-distac-primary text-white'
                         : 'bg-white text-distac-primary border-2 border-distac-primary hover:bg-slate-50'
@@ -538,40 +538,6 @@ export function WizardFormView(props) {
                   })}
                 </div>
 
-                {totalPages > 1 && (
-                  <div className="mt-3 pt-3 border-t border-default-light-muted flex items-center justify-between">
-                    <div className="text-sm text-default-dark-muted">
-                      Página <span className="font-semibold text-default-dark">{safeCurrentPage}</span> de{' '}
-                      <span className="font-semibold text-default-dark">{totalPages}</span>
-                      <span className="ml-2 text-xs">({filteredOptions.length} itens)</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <ButtonView
-                        type="button"
-                        onClick={() => handlePageChange(Math.max(1, safeCurrentPage - 1))}
-                        disabled={safeCurrentPage === 1 || field.disabled}
-                        shape="square"
-                        width="fit"
-                        color="gray"
-                        title="Página anterior"
-                      >
-                        <ChevronLeft size={18} />
-                      </ButtonView>
-                      <ButtonView
-                        type="button"
-                        onClick={() => handlePageChange(Math.min(totalPages, safeCurrentPage + 1))}
-                        disabled={safeCurrentPage === totalPages || field.disabled}
-                        shape="square"
-                        width="fit"
-                        color="gray"
-                        title="Próxima página"
-                      >
-                        <ChevronRight size={18} />
-                      </ButtonView>
-                    </div>
-                  </div>
-                )}
               </>
             )}
           </div>
@@ -683,10 +649,10 @@ export function WizardFormView(props) {
           />
 
           {hasFiles ? (
-            <div className="flex min-h-0 flex-col gap-card md:gap-card-md flex-1 h-full max-h-[400px] overflow-hidden">
+            <div className="flex min-h-0 flex-col gap-card md:gap-card-md flex-1 h-full overflow-hidden">
               {field.multiple ? (
                 <div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden content-start auto-rows-min"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 bg-distac-primary-light rounded-lg p-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden content-start auto-rows-min custom-scrollbar"
                   onClick={() => handleFileButtonClick(field.name)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -764,7 +730,7 @@ export function WizardFormView(props) {
                   })}
                 </div>
               ) : (
-                <div className="relative w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
+                <div className="relative w-full h-full flex-1 bg-distac-primary-light rounded-sm overflow-hidden group">
                   {isImageFile(currentFiles) && getImagePreview(currentFiles) ? (
                     <>
                       <img
@@ -793,7 +759,7 @@ export function WizardFormView(props) {
             </div>
           ) : (
             <div
-              className="w-full h-full max-h-72 flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-distac-primary"
+              className="w-full h-full flex-1 bg-distac-primary-light rounded-sm px-4 py-2 flex items-center justify-center text-[12px] md:text-[16px] text-default-dark-muted italic cursor-pointer hover:bg-opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-distac-primary"
               onClick={() => handleFileButtonClick(field.name)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -910,7 +876,7 @@ export function WizardFormView(props) {
         <div className="relative w-full h-full min-h-0 flex-1 overflow-hidden p-1">
           <div
             key={vm.currentStep}
-            className={`${animationClass} h-full ${vm.currentStepData.className || 'flex flex-col gap-card md:gap-card-md'}`}
+            className={`${animationClass} h-full min-h-0 ${vm.currentStepData.className || 'flex flex-col gap-card md:gap-card-md overflow-y-auto custom-scrollbar'}`}
           >
             {(vm.currentStepData.groups || []).map((group, groupIndex) => (
               <div key={groupIndex} className={group.className || 'w-full'}>
