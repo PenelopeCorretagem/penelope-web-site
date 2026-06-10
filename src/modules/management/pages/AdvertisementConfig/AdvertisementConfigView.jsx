@@ -114,7 +114,7 @@ export function AdvertisementConfigView() {
   const steps = [
     {
       title: 'INFORMAÇÕES GERAIS',
-      className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
+      className: 'w-full h-full flex flex-col gap-card md:gap-card-md overflow-y-auto custom-scrollbar',
       groups: [
         {
           className: 'w-full grid grid-cols-1 md:grid-cols-12 gap-card md:gap-card-md',
@@ -127,24 +127,27 @@ export function AdvertisementConfigView() {
               containerClassName: 'w-full md:col-span-6',
             },
             {
-              name: 'active',
-              label: 'ATIVO',
-              type: 'checkbox',
-              placeholder: 'Propriedade ativa',
-              containerClassName: 'w-full md:col-span-6',
-            },
-          ],
-        },
-        {
-          className: 'w-full grid grid-cols-1 md:grid-cols-8 gap-card md:gap-card-md',
-          fields: [
-            {
               name: 'responsible',
               label: 'RESPONSÁVEL',
               type: 'select',
               options: responsibleOptions,
               required: true,
               containerClassName: 'w-full md:col-span-4',
+            },
+            {
+              name: 'active',
+              label: 'ATIVO',
+              type: 'checkbox',
+              placeholder: 'Propriedade ativa',
+              containerClassName: 'w-full md:col-span-2',
+            },
+            {
+              name: 'video',
+              label: 'LINK DO VÍDEO DO YOUTUBE',
+              type: 'text',
+              placeholder: '',
+              containerClassName: 'w-full md:col-span-6',
+              className: 'w-full',
             },
             {
               name: 'advertisementType',
@@ -164,14 +167,14 @@ export function AdvertisementConfigView() {
               label: 'Nº QUARTOS',
               type: 'number',
               required: true,
-              containerClassName: 'w-full',
+              containerClassName: 'w-full md:col-span-2',
             },
             {
               name: 'area',
               label: 'ÁREA (M²)',
               type: 'text',
               required: true,
-              containerClassName: 'w-full',
+              containerClassName: 'w-full md:col-span-2',
             },
           ],
         },
@@ -189,33 +192,20 @@ export function AdvertisementConfigView() {
             },
           ],
         },
-        {
-          className: 'w-full',
-          fields: [
-            {
-              name: 'video',
-              label: 'LINK DO VÍDEO DO YOUTUBE',
-              type: 'text',
-              placeholder: '',
-              containerClassName: 'w-full',
-              className: 'w-full',
-            },
-          ],
-        },
       ],
     },
     {
       title: 'DIFERENCIAIS DO IMÓVEL',
-      className: 'w-full h-full flex flex-col gap-card md:gap-card-md',
+      className: 'w-full h-full min-h-0 flex flex-col gap-card md:gap-card-md flex-1',
       groups: [
         {
-          className: 'w-full h-full overflow-hidden',
+          className: 'w-full h-full min-h-0 flex flex-col flex-1',
           fields: [
             {
               name: 'differentials',
               type: 'differentials-grid',
               options: featureOptions,
-              containerClassName: 'w-full h-full overflow-hidden',
+              containerClassName: 'w-full h-full min-h-0 flex flex-col flex-1',
             },
           ],
         },
@@ -223,7 +213,7 @@ export function AdvertisementConfigView() {
     },
     {
       title: 'LOCALIZAÇÃO DO IMÓVEL',
-      className: 'w-full flex flex-col gap-card md:gap-card-md',
+      className: 'w-full flex flex-col gap-card md:gap-card-md overflow-y-auto custom-scrollbar h-full min-h-0',
       groups: [
         {
           className: 'w-full flex flex-row gap-card md:gap-card-md',
@@ -331,18 +321,18 @@ export function AdvertisementConfigView() {
     },
     {
       title: 'CAPA, GALERIA E PLANTAS',
-      className: 'w-full h-full overflow-hidden flex flex-col gap-card md:gap-card-md',
+      className: 'w-full h-full min-h-0 flex flex-col gap-card md:gap-card-md flex-1',
       groups: [
         {
-          className: 'w-full h-full flex-1 flex flex-col md:flex-row gap-card md:gap-card-md',
+          className: 'w-full h-full min-h-0 flex-1 flex flex-col md:flex-row gap-card md:gap-card-md items-stretch',
           fields: [
             {
               name: 'cover',
               label: 'CAPA',
               type: 'custom-cover-preview',
               accept: 'image/*',
-              containerClassName: 'w-full h-full flex-1 md:w-1/3 ',
-              className: 'w-full h-full flex-1 p-1',
+              containerClassName: 'w-full md:w-1/3',
+              className: 'w-full',
             },
             {
               name: 'gallery',
@@ -350,8 +340,8 @@ export function AdvertisementConfigView() {
               type: 'file',
               accept: 'image/*',
               multiple: true,
-              containerClassName: 'w-full h-full flex-1 md:w-1/3 ',
-              className: 'w-full h-full flex-1 p-1',
+              containerClassName: 'w-full md:w-1/3',
+              className: 'w-full',
             },
             {
               name: 'floorPlans',
@@ -359,8 +349,8 @@ export function AdvertisementConfigView() {
               type: 'file',
               accept: 'image/*',
               multiple: true,
-              containerClassName: 'w-full h-full flex-1 md:w-1/3',
-              className: 'w-full h-full flex-1 p-1',
+              containerClassName: 'w-full md:w-1/3',
+              className: 'w-full',
             },
           ],
         },

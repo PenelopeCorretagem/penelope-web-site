@@ -53,10 +53,7 @@ export function useAppointmentReportFilters(appointments = []) {
       width: 'fit',
       variant: 'brown',
       shape: 'square',
-      options: estateTypeOptions.map(typeOption => ({
-        value: typeOption.key,
-        label: typeOption.friendlyName,
-      })),
+      options: estateTypeOptions,
     },
   ], [estateOptions, estateTypeOptions, statusOptions])
 
